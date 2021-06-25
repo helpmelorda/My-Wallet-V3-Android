@@ -3,11 +3,13 @@ package piuk.blockchain.android.ui.transactionflow.fullscreen
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.NullCryptoAccount
@@ -25,6 +27,7 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.transactionInject
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.getTarget
+import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.putTarget
 import timber.log.Timber
@@ -52,9 +55,13 @@ class TransactionFlowActivity :
 
     private val compositeDisposable = CompositeDisposable()
     private var currentStep: TransactionStep = TransactionStep.ZERO
+    private lateinit var state: TransactionState
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbarGeneral.toolbarGeneral)
+
         val intentMapper = TransactionFlowIntentMapper(
             sourceAccount = sourceAccount,
             target = transactionTarget,
@@ -77,6 +84,8 @@ class TransactionFlowActivity :
     override fun initBinding(): ActivityTransactionFlowBinding = ActivityTransactionFlowBinding.inflate(layoutInflater)
 
     override fun render(newState: TransactionState) {
+        binding.txProgress.gone()
+        state = newState
         handleStateChange(newState)
     }
 
@@ -104,28 +113,51 @@ class TransactionFlowActivity :
         }
     }
 
-    private fun showFlowStep(step: TransactionStep) {
-        // TODO in next story
-        Timber.e("flow step change - $step")
-//        val stepSheet = when (step) {
-//            TransactionStep.ZERO,
-//            TransactionStep.CLOSED -> null
-//            TransactionStep.ENTER_PASSWORD -> EnterSecondPasswordSheet()
-//            TransactionStep.SELECT_SOURCE -> SelectSourceAccountSheet()
-//            TransactionStep.ENTER_ADDRESS -> EnterTargetAddressSheet()
-//            TransactionStep.ENTER_AMOUNT -> EnterAmountSheet()
-//            TransactionStep.SELECT_TARGET_ACCOUNT -> SelectTargetAccountSheet()
-//            TransactionStep.CONFIRM_DETAIL -> ConfirmTransactionSheet()
-//            TransactionStep.IN_PROGRESS -> TransactionProgressSheet()
-//        }
-//        replaceBottomSheet(stepSheet)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == android.R.id.home) {
+            Timber.e("home selected, nav back")
+            if (::state.isInitialized && state.canGoBack) {
+                model.process(TransactionIntent.ReturnToPreviousStep)
+            } else {
+                finish()
+            }
+            true
+        } else {
+            super.onOptionsItemSelected(item)
+        }
     }
+
+    private fun showFlowStep(step: TransactionStep) =
+        when (step) {
+            TransactionStep.ZERO,
+            TransactionStep.CLOSED -> null
+            TransactionStep.ENTER_PASSWORD -> EnterSecondPasswordFragment.newInstance()
+            TransactionStep.SELECT_SOURCE -> SelectSourceAccountFragment.newInstance()
+            TransactionStep.ENTER_ADDRESS -> EnterTargetAddressFragment.newInstance()
+            TransactionStep.ENTER_AMOUNT -> EnterAmountFragment.newInstance()
+            TransactionStep.SELECT_TARGET_ACCOUNT -> SelectTargetAccountFragment.newInstance()
+            TransactionStep.CONFIRM_DETAIL -> ConfirmTransactionFragment.newInstance()
+            TransactionStep.IN_PROGRESS -> TransactionProgressFragment.newInstance()
+        }?.let {
+            Timber.e("flow step ${it.tag}")
+            supportActionBar?.title = it.getActionName()
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(
+                    R.anim.fragment_slide_left_enter,
+                    R.anim.fragment_slide_left_exit,
+                    R.anim.fragment_slide_right_enter,
+                    R.anim.fragment_slide_right_exit
+                )
+                .replace(R.id.tx_flow_content, it)
+                .addToBackStack(it.tag)
+                .commitAllowingStateLoss()
+        }
 
     override fun onDestroy() {
         compositeDisposable.clear()
         model.destroy()
-        super.onDestroy()
         closeTransactionScope()
+        super.onDestroy()
     }
 
     companion object {

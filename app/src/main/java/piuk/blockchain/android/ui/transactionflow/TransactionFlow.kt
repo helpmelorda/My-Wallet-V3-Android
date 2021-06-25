@@ -85,6 +85,13 @@ class TransactionFlow(
     private val action: AssetAction,
     private val uiScheduler: Scheduler = AndroidSchedulers.mainThread()
 ) : DialogFlow(), KoinComponent {
+    // we need to temporarily persist these within the flow to access at launch
+    val txSource: BlockchainAccount
+        get() = sourceAccount
+    val txTarget: TransactionTarget
+        get() = target
+    val txAction: AssetAction
+        get() = action
 
     private val disposables: CompositeDisposable = CompositeDisposable()
     private var currentStep: TransactionStep = TransactionStep.ZERO

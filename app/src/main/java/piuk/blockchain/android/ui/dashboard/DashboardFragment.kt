@@ -63,6 +63,7 @@ import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.BankLinkingHost
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
+import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
@@ -162,7 +163,19 @@ class DashboardFragment :
                 clearBottomSheet()
             }
 
-            newState.activeFlow?.startFlow(childFragmentManager, this)
+            newState.activeFlow?.let {
+                if (it is TransactionFlow) {
+                    txLauncher.startFlow(
+                        sourceAccount = it.txSource,
+                        target = it.txTarget,
+                        action = it.txAction,
+                        fragmentManager = childFragmentManager,
+                        flowHost = this@DashboardFragment
+                    )
+                } else {
+                    it.startFlow(childFragmentManager, this)
+                }
+            }
         }
 
         // Update/show announcement
