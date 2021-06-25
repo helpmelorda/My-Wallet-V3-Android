@@ -5,7 +5,7 @@ import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.LimitsJson
 import com.blockchain.nabu.models.responses.nabu.TierResponse
 import com.blockchain.nabu.models.responses.nabu.KycTiers
-import junit.framework.Assert.assertTrue
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class KycStateCombinerTest {

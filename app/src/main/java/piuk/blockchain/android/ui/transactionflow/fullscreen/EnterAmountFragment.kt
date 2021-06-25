@@ -242,9 +242,9 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
     ): Money {
         val min = state.pendingTx?.minLimit ?: return rate.inverse().convert(amount)
         val max = state.maxSpendable
-        val roundedUpAmount = rate.inverse(RoundingMode.CEILING, state.sendingAsset.userDp)
+        val roundedUpAmount = rate.inverse(RoundingMode.CEILING, CryptoValue.DISPLAY_DP)
             .convert(amount)
-        val roundedDownAmount = rate.inverse(RoundingMode.FLOOR, state.sendingAsset.userDp)
+        val roundedDownAmount = rate.inverse(RoundingMode.FLOOR, CryptoValue.DISPLAY_DP)
             .convert(amount)
         return if (roundedUpAmount >= min && roundedUpAmount <= max)
             roundedUpAmount

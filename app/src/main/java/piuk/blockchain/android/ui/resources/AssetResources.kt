@@ -34,7 +34,7 @@ internal class AssetResourcesImpl(val resources: Resources) : AssetResources {
         asset.logo?.let {
             Glide.with(imageView.context)
                 .load(it)
-                // TODO: Load defauly placeholder/failover asset logo
+                .apply(RequestOptions().placeholder(R.drawable.ic_default_asset_logo))
                 .into(imageView)
         } ?: loadResourceAsset(imageView, asset)
     }
@@ -43,9 +43,8 @@ internal class AssetResourcesImpl(val resources: Resources) : AssetResources {
     private fun loadResourceAsset(imageView: ImageView, asset: AssetInfo) {
         Glide.with(imageView.context)
             .load("")
-            .apply(
-                RequestOptions().placeholder(assetIcon(asset))
-            ).into(imageView)
+            .apply(RequestOptions().placeholder(assetIcon(asset)))
+            .into(imageView)
     }
 
     private fun assetIcon(asset: AssetInfo): Int =

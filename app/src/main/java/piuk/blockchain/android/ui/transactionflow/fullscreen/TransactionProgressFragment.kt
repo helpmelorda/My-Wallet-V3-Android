@@ -41,7 +41,9 @@ class TransactionProgressFragment : TransactionFlowFragment<DialogTxFlowInProgre
         Timber.d("!TRANSACTION!> Rendering! TransactionProgressSheet")
         require(newState.currentStep == TransactionStep.IN_PROGRESS)
 
-        binding.txProgressView.setAssetIcon(customiser.transactionProgressIcon(newState))
+        customiser.transactionProgressStandardIcon(newState)?.let {
+            binding.txProgressView.setAssetIcon(it)
+        } ?: binding.txProgressView.setAssetIcon(newState.sendingAsset)
 
         handleStatusUpdates(newState)
         cacheState(newState)
