@@ -127,7 +127,7 @@ class XlmAccountActivityTest {
 
                 it.size == 1 &&
                     xlmItem is NonCustodialActivitySummaryItem &&
-                    CryptoCurrency.XLM == xlmItem.cryptoCurrency &&
+                    CryptoCurrency.XLM == xlmItem.asset &&
                     xlmTransaction.hash == xlmItem.txId &&
                     TransactionSummary.TransactionType.RECEIVED == xlmItem.transactionType &&
                     1 == xlmItem.confirmations &&
@@ -212,7 +212,7 @@ class XlmAccountActivityTest {
 
                 it.size == 1 &&
                     xlmItem is NonCustodialActivitySummaryItem &&
-                    CryptoCurrency.XLM == xlmItem.cryptoCurrency &&
+                    CryptoCurrency.XLM == xlmItem.asset &&
                     xlmTransaction.hash == xlmItem.txId &&
                     TransactionSummary.TransactionType.SENT == xlmItem.transactionType &&
                     1 == xlmItem.confirmations &&

@@ -121,14 +121,14 @@ internal class BchCryptoWalletAccount private constructor(
         if (!isArchived && !isDefault) {
             toggleArchived()
         } else {
-            Completable.error(IllegalStateException("${asset.networkTicker} Account $label cannot be archived"))
+            Completable.error(IllegalStateException("${asset.ticker} Account $label cannot be archived"))
         }
 
     override fun unarchive(): Completable =
         if (isArchived) {
             toggleArchived()
         } else {
-            Completable.error(IllegalStateException("${asset.networkTicker} Account $label cannot be unarchived"))
+            Completable.error(IllegalStateException("${asset.ticker} Account $label cannot be unarchived"))
         }
 
     private fun toggleArchived(): Completable {

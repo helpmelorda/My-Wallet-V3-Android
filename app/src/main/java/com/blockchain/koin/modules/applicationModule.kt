@@ -28,10 +28,6 @@ import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.cards.CardModel
 import piuk.blockchain.android.cards.partners.EverypayCardActivator
 import piuk.blockchain.android.coincore.AssetOrdering
-import piuk.blockchain.android.coincore.AssetResources
-import piuk.blockchain.android.coincore.OfflineAccountCache
-import piuk.blockchain.android.coincore.impl.AssetResourcesImpl
-import piuk.blockchain.android.coincore.impl.OfflineBalanceCall
 import piuk.blockchain.android.data.api.bitpay.BitPayDataManager
 import piuk.blockchain.android.data.api.bitpay.BitPayService
 import piuk.blockchain.android.data.biometrics.BiometricAuth
@@ -53,9 +49,10 @@ import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.EURPaymentAccountMapper
 import piuk.blockchain.android.simplebuy.GBPPaymentAccountMapper
 import piuk.blockchain.android.simplebuy.SimpleBuyFlowNavigator
-import piuk.blockchain.android.simplebuy.SimpleBuyInflateAdapter
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
 import piuk.blockchain.android.simplebuy.SimpleBuyModel
+import piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializer
+import piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializerImpl
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.simplebuy.USDPaymentAccountMapper
@@ -102,13 +99,13 @@ import piuk.blockchain.android.ui.pairingcode.PairingState
 import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
 import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
+import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
 import piuk.blockchain.android.ui.settings.SettingsPresenter
 import piuk.blockchain.android.ui.transfer.receive.ReceiveIntentHelper
 import piuk.blockchain.android.ui.shortcuts.receive.ReceiveQrPresenter
 import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
-import piuk.blockchain.android.ui.swipetoreceive.LocalOfflineAccountCache
-import piuk.blockchain.android.ui.swipetoreceive.SwipeToReceivePresenter
 import piuk.blockchain.android.ui.thepit.PitPermissionsPresenter
 import piuk.blockchain.android.ui.thepit.PitVerifyEmailPresenter
 import piuk.blockchain.android.ui.transfer.AccountsSorting
@@ -173,6 +170,7 @@ val applicationModule = module {
         factory {
             EthDataManager(
                 payloadDataManager = get(),
+                assetCatalogue = get(),
                 ethAccountApi = get(),
                 ethDataStore = get(),
                 erc20DataStore = get(),
@@ -271,7 +269,7 @@ val applicationModule = module {
                 prefs = get(),
                 appUtil = get(),
                 accessState = get(),
-                assetResources = get()
+                assetCatalogue = get()
             )
         }
 
@@ -498,7 +496,7 @@ val applicationModule = module {
                 initialState = SimpleBuyState(),
                 ratingPrefs = get(),
                 prefs = get(),
-                gson = get(),
+                serializer = get(),
                 cardActivators = listOf(
                     EverypayCardActivator(get(), get())
                 ),
@@ -506,6 +504,13 @@ val applicationModule = module {
                 crashLogger = get()
             )
         }
+
+        factory {
+            SimpleBuyPrefsSerializerImpl(
+                prefs = get(),
+                assetCatalogue = get()
+            )
+        }.bind(SimpleBuyPrefsSerializer::class)
 
         factory {
             BankAuthModel(
@@ -552,20 +557,16 @@ val applicationModule = module {
         }
 
         scoped {
-            val inflateAdapter = SimpleBuyInflateAdapter(
-                prefs = get(),
-                gson = get()
-            )
-
             SimpleBuySyncFactory(
                 custodialWallet = get(),
-                localStateAdapter = inflateAdapter
+                serializer = get()
             )
         }
 
         factory {
             BalanceAnalyticsReporter(
-                analytics = get()
+                analytics = get(),
+                coincore = get()
             )
         }
 
@@ -726,6 +727,7 @@ val applicationModule = module {
             AirdropCentrePresenter(
                 nabuToken = get(),
                 nabu = get(),
+                assetCatalogue = get(),
                 crashLogger = get()
             )
         }
@@ -770,27 +772,6 @@ val applicationModule = module {
     }.bind(TrendingPairsProvider::class)
 
     factory {
-        OfflineBalanceCall(
-            bitcoinApi = get()
-        )
-    }
-
-    factory {
-        SwipeToReceivePresenter(
-            qrGenerator = get(),
-            addressCache = get(),
-            offlineBalance = get()
-        )
-    }
-
-    single {
-        LocalOfflineAccountCache(
-            prefs = get(),
-            ordering = get()
-        )
-    }.bind(OfflineAccountCache::class)
-
-    factory {
         QrCodeDataManager()
     }
 
@@ -822,6 +803,7 @@ val applicationModule = module {
     factory {
         AssetOrderingRemoteConfig(
             config = get(),
+            assetCatalogue = get(),
             crashLogger = get()
         )
     }.bind(AssetOrdering::class)
@@ -838,8 +820,7 @@ val applicationModule = module {
 
     factory {
         ReceiveIntentHelper(
-            context = get(),
-            assetResources = get()
+            context = get()
         )
     }
 

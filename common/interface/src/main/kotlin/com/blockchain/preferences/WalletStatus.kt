@@ -1,6 +1,6 @@
 package com.blockchain.preferences
 
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 
 interface WalletStatus {
     var lastBackupTime: Long // Seconds since epoch
@@ -15,8 +15,8 @@ interface WalletStatus {
     val hasMadeBitPayTransaction: Boolean
     fun setBitPaySuccess()
 
-    fun setFeeTypeForAsset(cryptoCurrency: CryptoCurrency, type: Int)
-    fun getFeeTypeForAsset(cryptoCurrency: CryptoCurrency): Int?
+    fun setFeeTypeForAsset(asset: AssetInfo, type: Int)
+    fun getFeeTypeForAsset(asset: AssetInfo): Int?
 
     val hasSeenSwapPromo: Boolean
     fun setSeenSwapPromo()

@@ -28,6 +28,15 @@ import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
+@Suppress("ClassName")
+private object DUMMY_ERC20_TOKEN : CryptoCurrency(
+    ticker = "DUMMY",
+    name = "Dummies",
+    precisionDp = 8,
+    requiredConfirmations = 5,
+    colour = "#123456"
+)
+
 class Erc20AccountActivityTest {
 
     private val payloadManager: PayloadDataManager = mock()
@@ -38,7 +47,7 @@ class Erc20AccountActivityTest {
     private val custodialWalletManager: CustodialWalletManager = mock()
 
     private val subject = Erc20NonCustodialAccount(
-        asset = CryptoCurrency.DGLD,
+        asset = DUMMY_ERC20_TOKEN,
         payloadManager = payloadManager,
         label = "Text Dgld Account",
         address = "Test Dgld Address",
@@ -81,17 +90,17 @@ class Erc20AccountActivityTest {
             "sendingAddress",
             "receivingAddress",
             CustodialOrderState.FINISHED,
-            CryptoValue.zero(CryptoCurrency.DGLD),
+            CryptoValue.zero(DUMMY_ERC20_TOKEN),
             CryptoValue.zero(CryptoCurrency.BTC),
             CryptoValue.zero(CryptoCurrency.BTC),
-            CurrencyPair.CryptoCurrencyPair(CryptoCurrency.DGLD, CryptoCurrency.BTC),
+            CurrencyPair.CryptoCurrencyPair(DUMMY_ERC20_TOKEN, CryptoCurrency.BTC),
             FiatValue.zero("USD"),
             "USD"
         )
 
         val summaryList = listOf(swapSummary)
 
-        whenever(ethDataManager.getErc20Transactions(CryptoCurrency.DGLD))
+        whenever(ethDataManager.getErc20Transactions(DUMMY_ERC20_TOKEN))
             .thenReturn(Observable.just(listOf(erc20Transfer)))
 
         whenever(
@@ -107,10 +116,10 @@ class Erc20AccountActivityTest {
                 )
             )
 
-        whenever(ethDataManager.fetchErc20DataModel(CryptoCurrency.DGLD))
+        whenever(ethDataManager.fetchErc20DataModel(DUMMY_ERC20_TOKEN))
             .thenReturn(Observable.just(mock()))
 
-        whenever(ethDataManager.getErc20AccountHash(CryptoCurrency.DGLD))
+        whenever(ethDataManager.getErc20AccountHash(DUMMY_ERC20_TOKEN))
             .thenReturn(Single.just("0x4058a004dd718babab47e14dd0d744742e5b9903"))
 
         whenever(ethDataManager.getLatestBlockNumber())
@@ -132,7 +141,7 @@ class Erc20AccountActivityTest {
             .assertValue {
                 it.size == 1 && it[0].run {
                     this is Erc20ActivitySummaryItem &&
-                        cryptoCurrency == CryptoCurrency.DGLD &&
+                        asset == DUMMY_ERC20_TOKEN &&
                         !doubleSpend &&
                         !isFeeTransaction &&
                         confirmations == 3 &&
@@ -140,14 +149,14 @@ class Erc20AccountActivityTest {
                         transactionType == TransactionSummary.TransactionType.SENT &&
                         txId == "0xfd7d583fa54bf55f6cfbfec97c0c55cc6af8c121b71addb7d06a9e1e305ae8ff" &&
                         confirmations == 3 &&
-                        value == CryptoValue.fromMinor(CryptoCurrency.DGLD, 10000.toBigInteger()) &&
+                        value == CryptoValue.fromMinor(DUMMY_ERC20_TOKEN, 10000.toBigInteger()) &&
                         inputsMap["0x4058a004dd718babab47e14dd0d744742e5b9903"] ==
-                        CryptoValue.fromMinor(CryptoCurrency.DGLD, 10000.toBigInteger()) &&
+                        CryptoValue.fromMinor(DUMMY_ERC20_TOKEN, 10000.toBigInteger()) &&
                         outputsMap["0x2ca28ffadd20474ffe2705580279a1e67cd10a29"] ==
-                        CryptoValue.fromMinor(CryptoCurrency.DGLD, 10000.toBigInteger())
+                        CryptoValue.fromMinor(DUMMY_ERC20_TOKEN, 10000.toBigInteger())
                 }
             }
 
-        verify(ethDataManager).getErc20Transactions(CryptoCurrency.DGLD)
+        verify(ethDataManager).getErc20Transactions(DUMMY_ERC20_TOKEN)
     }
 }

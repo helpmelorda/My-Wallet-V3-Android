@@ -1,8 +1,10 @@
 package piuk.blockchain.android.ui.activity.detail
 
 import com.blockchain.sunriver.XlmDataManager
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
+import info.blockchain.balance.isErc20
 import info.blockchain.wallet.multiaddress.MultiAddressFactory
 import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.Single
@@ -28,12 +30,12 @@ class TransactionInOutMapper(
         item: NonCustodialActivitySummaryItem
     ): Single<TransactionInOutDetails> =
         when {
-            item.cryptoCurrency == CryptoCurrency.BTC -> handleBtcToAndFrom(item)
-            item.cryptoCurrency == CryptoCurrency.BCH -> handleBchToAndFrom(item)
-            item.cryptoCurrency == CryptoCurrency.XLM -> handleXlmToAndFrom(item)
-            item.cryptoCurrency == CryptoCurrency.ETHER ||
-            item.cryptoCurrency.hasFeature(CryptoCurrency.IS_ERC20) -> handleEthAndErc20ToAndFrom(item)
-            else -> throw IllegalArgumentException("${item.cryptoCurrency} is not currently supported")
+            item.asset == CryptoCurrency.BTC -> handleBtcToAndFrom(item)
+            item.asset == CryptoCurrency.BCH -> handleBchToAndFrom(item)
+            item.asset == CryptoCurrency.XLM -> handleXlmToAndFrom(item)
+            item.asset == CryptoCurrency.ETHER ||
+            item.asset.isErc20() -> handleEthAndErc20ToAndFrom(item)
+            else -> throw IllegalArgumentException("${item.asset} is not currently supported")
         }
 
     private fun handleXlmToAndFrom(activitySummaryItem: NonCustodialActivitySummaryItem) =
@@ -70,9 +72,9 @@ class TransactionInOutMapper(
         val toAddress = activitySummaryItem.outputsMap.keys.first()
 
         return Singles.zip(
-            coincore.findAccountByAddress(activitySummaryItem.cryptoCurrency, fromAddress)
+            coincore.findAccountByAddress(activitySummaryItem.asset, fromAddress)
                 .toSingle(NullCryptoAccount(fromAddress)),
-            coincore.findAccountByAddress(activitySummaryItem.cryptoCurrency, toAddress)
+            coincore.findAccountByAddress(activitySummaryItem.asset, toAddress)
                 .toSingle(NullCryptoAccount(toAddress))
         ) { fromAccount, toAccount ->
             TransactionInOutDetails(
@@ -104,16 +106,16 @@ class TransactionInOutMapper(
         }
 
     private fun setToAndFrom(
-        cryptoCurrency: CryptoCurrency,
+        asset: AssetInfo,
         inputs: Map<String, Money>,
         outputs: Map<String, Money>
     ) = TransactionInOutDetails(
-        inputs = getFromList(cryptoCurrency, inputs),
-        outputs = getToList(cryptoCurrency, outputs)
+        inputs = getFromList(asset, inputs),
+        outputs = getToList(asset, outputs)
     )
 
     private fun getFromList(
-        currency: CryptoCurrency,
+        currency: AssetInfo,
         inputMap: Map<String, Money>
     ): List<TransactionDetailModel> {
         val inputs = handleTransactionMap(inputMap, currency)
@@ -122,7 +124,7 @@ class TransactionInOutMapper(
             val coinbase =
                 TransactionDetailModel(
                     address = stringUtils.getString(R.string.transaction_detail_coinbase),
-                    displayUnits = currency.displayTicker
+                    displayUnits = currency.ticker
                 )
             inputs.add(coinbase)
         }
@@ -130,13 +132,13 @@ class TransactionInOutMapper(
     }
 
     private fun getToList(
-        currency: CryptoCurrency,
+        currency: AssetInfo,
         outputMap: Map<String, Money>
     ): List<TransactionDetailModel> = handleTransactionMap(outputMap, currency)
 
     private fun handleTransactionMap(
         inputMap: Map<String, Money>,
-        currency: CryptoCurrency
+        currency: AssetInfo
     ): MutableList<TransactionDetailModel> {
         val inputs = mutableListOf<TransactionDetailModel>()
         for ((address, value) in inputMap) {
@@ -156,12 +158,12 @@ class TransactionInOutMapper(
     private fun buildTransactionDetailModel(
         label: String,
         value: Money,
-        cryptoCurrency: CryptoCurrency
+        cryptoCurrency: AssetInfo
     ): TransactionDetailModel =
         TransactionDetailModel(
             label,
             value.toStringWithoutSymbol(),
-            cryptoCurrency.displayTicker
+            cryptoCurrency.ticker
         ).apply {
             if (address == MultiAddressFactory.ADDRESS_DECODE_ERROR) {
                 address = stringUtils.getString(R.string.tx_decode_error)

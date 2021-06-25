@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.interest
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.LaunchOrigin
-import info.blockchain.balance.CryptoCurrency
 import io.reactivex.Single
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -96,8 +96,8 @@ class InterestDashboardActivity : BlockchainActivity(),
         KycNavHostActivity.start(this, CampaignType.Interest)
     }
 
-    override fun showInterestSummarySheet(account: SingleAccount, cryptoCurrency: CryptoCurrency) {
-        showBottomSheet(InterestSummarySheet.newInstance(account, cryptoCurrency))
+    override fun showInterestSummarySheet(account: SingleAccount, asset: AssetInfo) {
+        showBottomSheet(InterestSummarySheet.newInstance(account, asset))
     }
 
     override fun startAccountSelection(
@@ -110,7 +110,7 @@ class InterestDashboardActivity : BlockchainActivity(),
                     startDeposit(account as SingleAccount, toAccount)
                     analytics.logEvent(
                         InterestAnalytics.InterestDepositClicked(
-                            currency = (toAccount as CryptoAccount).asset.networkTicker,
+                            currency = (toAccount as CryptoAccount).asset.ticker,
                             origin = LaunchOrigin.SAVINGS_PAGE
                         )
                     )

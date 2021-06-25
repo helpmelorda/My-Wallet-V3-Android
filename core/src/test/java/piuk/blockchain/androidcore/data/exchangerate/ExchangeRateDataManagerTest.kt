@@ -7,6 +7,7 @@ import com.blockchain.testutils.lumens
 import com.blockchain.testutils.rxInit
 import com.blockchain.testutils.usd
 import com.nhaarman.mockito_kotlin.whenever
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.Single
 import org.amshove.kluent.`should equal`
@@ -131,7 +132,7 @@ class ExchangeRateDataManagerTest {
     }
 
     private fun givenExchangeRate(
-        cryptoCurrency: CryptoCurrency,
+        cryptoCurrency: AssetInfo,
         currencyName: String,
         exchangeRate: Double
     ) {
@@ -139,7 +140,7 @@ class ExchangeRateDataManagerTest {
     }
 
     private fun givenHistoricExchangeRate(
-        cryptoCurrency: CryptoCurrency,
+        cryptoCurrency: AssetInfo,
         currencyName: String,
         time: Long,
         price: BigDecimal

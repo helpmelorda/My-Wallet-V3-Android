@@ -6,7 +6,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.models.data.CryptoWithdrawalFeeAndLimit
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.testutils.usdPax
+import com.blockchain.testutils.lumens
 import com.nhaarman.mockito_kotlin.atLeastOnce
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
@@ -197,8 +197,8 @@ class TradingToOnChainTxEngineTest {
     @Test
     fun `update amount modifies the pendingTx correctly`() {
         // Arrange
-        val totalBalance = 21.usdPax()
-        val actionableBalance = 20.usdPax()
+        val totalBalance = 21.lumens()
+        val actionableBalance = 20.lumens()
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
             on { asset } itReturns ASSET
@@ -220,8 +220,8 @@ class TradingToOnChainTxEngineTest {
             feeSelection = FeeSelection()
         )
 
-        val inputAmount = 2.usdPax()
-        val expectedFee = 0.usdPax()
+        val inputAmount = 2.lumens()
+        val expectedFee = 0.lumens()
 
         // Act
         subject.doUpdateAmount(
@@ -247,10 +247,10 @@ class TradingToOnChainTxEngineTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun `update fee level from NONE to PRIORITY is rejected`() {
-        val totalBalance = 21.usdPax()
-        val actionableBalance = 20.usdPax()
-        val inputAmount = 2.usdPax()
-        val zeroPax = 0.usdPax()
+        val totalBalance = 21.lumens()
+        val actionableBalance = 20.lumens()
+        val inputAmount = 2.lumens()
+        val zeroPax = 0.lumens()
 
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
@@ -283,10 +283,10 @@ class TradingToOnChainTxEngineTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun `update fee level from NONE to REGULAR is rejected`() {
-        val totalBalance = 21.usdPax()
-        val actionableBalance = 20.usdPax()
-        val inputAmount = 2.usdPax()
-        val zeroPax = 0.usdPax()
+        val totalBalance = 21.lumens()
+        val actionableBalance = 20.lumens()
+        val inputAmount = 2.lumens()
+        val zeroPax = 0.lumens()
 
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
@@ -319,10 +319,10 @@ class TradingToOnChainTxEngineTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun `update fee level from NONE to CUSTOM is rejected`() {
-        val totalBalance = 21.usdPax()
-        val actionableBalance = 20.usdPax()
-        val inputAmount = 2.usdPax()
-        val zeroPax = 0.usdPax()
+        val totalBalance = 21.lumens()
+        val actionableBalance = 20.lumens()
+        val inputAmount = 2.lumens()
+        val zeroPax = 0.lumens()
 
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
@@ -355,10 +355,10 @@ class TradingToOnChainTxEngineTest {
 
     @Test
     fun `update fee level from NONE to NONE has no effect`() {
-        val totalBalance = 21.usdPax()
-        val actionableBalance = 20.usdPax()
-        val inputAmount = 2.usdPax()
-        val zeroPax = 0.usdPax()
+        val totalBalance = 21.lumens()
+        val actionableBalance = 20.lumens()
+        val inputAmount = 2.lumens()
+        val zeroPax = 0.lumens()
 
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
@@ -425,7 +425,7 @@ class TradingToOnChainTxEngineTest {
     }
 
     companion object {
-        private val ASSET = CryptoCurrency.PAX
+        private val ASSET = CryptoCurrency.XLM
         private val WRONG_ASSET = CryptoCurrency.BTC
         private const val SELECTED_FIAT = "INR"
     }

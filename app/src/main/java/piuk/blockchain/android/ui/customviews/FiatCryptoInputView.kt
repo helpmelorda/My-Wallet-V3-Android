@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.ExchangeRates
@@ -300,7 +300,7 @@ class FiatCryptoInputView(context: Context, attrs: AttributeSet) : ConstraintLay
                         to = input.fiatCurrency,
                         from = output.cryptoCurrency,
                         _rate = defExchangeRates.getLastPrice(output.cryptoCurrency, input.fiatCurrency)
-                    ).inverse(RoundingMode.CEILING, output.cryptoCurrency.userDp)
+                    ).inverse(RoundingMode.CEILING, CryptoValue.DISPLAY_DP)
                 }
                 is CurrencyType.Fiat -> {
                     ExchangeRate.FiatToFiat(
@@ -395,18 +395,18 @@ private fun CurrencyType.zeroValue(): Money =
 private fun CurrencyType.symbol(): String =
     when (this) {
         is CurrencyType.Fiat -> Currency.getInstance(fiatCurrency).getSymbol(Locale.getDefault())
-        is CurrencyType.Crypto -> cryptoCurrency.displayTicker
+        is CurrencyType.Crypto -> cryptoCurrency.ticker
     }
 
 private fun CurrencyType.rawCurrency(): String =
     when (this) {
         is CurrencyType.Fiat -> fiatCurrency
-        is CurrencyType.Crypto -> cryptoCurrency.displayTicker
+        is CurrencyType.Crypto -> cryptoCurrency.ticker
     }
 
 sealed class CurrencyType {
     data class Fiat(val fiatCurrency: String) : CurrencyType()
-    data class Crypto(val cryptoCurrency: CryptoCurrency) : CurrencyType()
+    data class Crypto(val cryptoCurrency: AssetInfo) : CurrencyType()
 
     fun isCrypto() = this is Crypto
     fun isFiat() = this is Fiat

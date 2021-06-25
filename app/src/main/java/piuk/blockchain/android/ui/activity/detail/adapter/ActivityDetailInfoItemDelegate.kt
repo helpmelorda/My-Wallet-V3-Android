@@ -104,7 +104,7 @@ private class InfoItemViewHolder(private val binding: ItemListInfoRowBinding) : 
             is SwapReceiveAmount -> context.getString(R.string.activity_details_swap_for)
             is NetworkFee -> context.getString(
                 R.string.tx_confirmation_network_fee,
-                (infoType.feeValue as CryptoValue).currency.displayTicker
+                (infoType.feeValue as CryptoValue).currency.ticker
             )
             is XlmMemo -> context.getString(R.string.xlm_memo_text)
             is RecurringBuyFrequency -> context.getString(R.string.recurring_buy_details_recurring)
@@ -152,7 +152,7 @@ private class InfoItemViewHolder(private val binding: ItemListInfoRowBinding) : 
             is FeeAmount -> infoType.fundedFiat.toStringWithSymbol()
             is TransactionId -> infoType.txId
             is BuyCryptoWallet -> context.getString(
-                R.string.custodial_wallet_default_label_2, infoType.crypto.displayTicker
+                R.string.custodial_wallet_default_label_2, infoType.crypto.ticker
             )
             is SellCryptoWallet -> context.getString(
                 R.string.fiat_currency_funds_wallet_name_1, infoType.currency

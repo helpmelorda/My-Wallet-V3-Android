@@ -10,6 +10,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.toCustodialOrderStat
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import com.blockchain.nabu.service.NabuService
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.Single
@@ -20,6 +21,7 @@ interface SwapActivityProvider {
 }
 
 class SwapActivityProviderImpl(
+    private val assetCatalogue: AssetCatalogue,
     private val authenticator: Authenticator,
     private val nabuService: NabuService,
     private val currencyPrefs: CurrencyPrefs,
@@ -30,7 +32,9 @@ class SwapActivityProviderImpl(
             nabuService.fetchSwapActivity(sessionToken)
         }.map { response ->
             response.mapNotNull {
-                val pair = CurrencyPair.fromRawPair(it.pair, SUPPORTED_FUNDS_CURRENCIES) ?: return@mapNotNull null
+                val pair = CurrencyPair.fromRawPair(
+                    it.pair, assetCatalogue, SUPPORTED_FUNDS_CURRENCIES
+                ) ?: return@mapNotNull null
 
                 val apiFiat = FiatValue.fromMinor(it.fiatCurrency, it.fiatValue.toLong())
                 val localFiat = apiFiat.toFiat(exchangeRates, currencyPrefs.selectedFiatCurrency)

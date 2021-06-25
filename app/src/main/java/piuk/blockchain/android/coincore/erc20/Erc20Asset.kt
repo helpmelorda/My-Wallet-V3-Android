@@ -7,18 +7,15 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
 import piuk.blockchain.android.coincore.AddressParseError
-import piuk.blockchain.android.coincore.CachedAddress
 import piuk.blockchain.android.coincore.ReceiveAddress
-import piuk.blockchain.android.coincore.SimpleOfflineCacheItem
 import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.impl.CryptoAssetBase
-import piuk.blockchain.android.coincore.impl.OfflineAccountUpdater
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
@@ -28,7 +25,7 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class Erc20Asset(
-    override val asset: CryptoCurrency,
+    override val asset: AssetInfo,
     payloadManager: PayloadDataManager,
     private val ethDataManager: EthDataManager,
     private val feeDataManager: FeeDataManager,
@@ -40,7 +37,6 @@ internal class Erc20Asset(
     labels: DefaultLabels,
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
-    offlineAccounts: OfflineAccountUpdater,
     identity: UserIdentity,
     features: InternalFeatureFlagApi
 ) : CryptoAssetBase(
@@ -52,22 +48,23 @@ internal class Erc20Asset(
     custodialManager,
     pitLinking,
     crashLogger,
-    offlineAccounts,
     identity,
     features
 ) {
+    override val isCustodialOnly: Boolean = asset.isCustodialOnly
+    override val multiWallet: Boolean = false
+
     override fun initToken(): Completable =
         ethDataManager.fetchErc20DataModel(asset)
                 .ignoreElements()
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         Single.just(getNonCustodialAccount())
-            .doOnSuccess { updateOfflineCache(it) }
             .map { listOf(it) }
 
     private fun getNonCustodialAccount(): Erc20NonCustodialAccount {
         val erc20Address = ethDataManager.getEthWallet()?.account?.address
-            ?: throw Exception("No ${asset.networkTicker} wallet found")
+            ?: throw Exception("No ${asset.ticker} wallet found")
 
         return Erc20NonCustodialAccount(
             payloadManager,
@@ -75,26 +72,11 @@ internal class Erc20Asset(
             ethDataManager,
             erc20Address,
             feeDataManager,
-            labels.getDefaultNonCustodialWalletLabel(asset),
+            labels.getDefaultNonCustodialWalletLabel(),
             exchangeRates,
             walletPreferences,
             custodialManager,
             identity
-        )
-    }
-
-    private fun updateOfflineCache(account: Erc20NonCustodialAccount) {
-        offlineAccounts.updateOfflineAddresses(
-            Single.just(
-                SimpleOfflineCacheItem(
-                    networkTicker = asset.networkTicker,
-                    accountLabel = account.label,
-                    address = CachedAddress(
-                        account.address,
-                        account.address
-                    )
-                )
-            )
         )
     }
 

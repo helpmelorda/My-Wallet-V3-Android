@@ -40,7 +40,12 @@ class BuySellFlowNavigatorTest {
     @Test
     fun `when buy state is pending and currency is right, hasPendingBuy should be true`() {
         whenever(simpleBuyModel.state).thenReturn(
-            Observable.just(SimpleBuyState(orderState = OrderState.PENDING_EXECUTION, fiatCurrency = "GBP"))
+            Observable.just(
+                SimpleBuyState(
+                    orderState = OrderState.PENDING_EXECUTION,
+                    fiatCurrency = "GBP"
+                )
+            )
         )
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn("GBP")
         whenever(eligibilityProvider.defCurrency).thenReturn("GBP")
@@ -56,7 +61,9 @@ class BuySellFlowNavigatorTest {
 
     @Test
     fun `whenΒuyStateIsNotPendingAndCurrencyIsNotSupportedThenSelectCurrencyShouldBeLaunchedWithAllSupportedCrncies`() {
-        whenever(simpleBuyModel.state).thenReturn(Observable.just(SimpleBuyState()))
+        whenever(simpleBuyModel.state).thenReturn(
+            Observable.just(SimpleBuyState())
+        )
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn("USD")
         whenever(eligibilityProvider.defCurrency).thenReturn("USD")
         whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf("EUR", "GBP")))
@@ -84,7 +91,12 @@ class BuySellFlowNavigatorTest {
     @Test
     fun `whenBuyStateIsPendingConfirmationOrderIsCancelledAndBuySellUiIsDisplayed`() {
         whenever(simpleBuyModel.state).thenReturn(
-            Observable.just(SimpleBuyState(id = "ORDERID", orderState = OrderState.PENDING_CONFIRMATION))
+            Observable.just(
+                SimpleBuyState(
+                    id = "ORDERID",
+                    orderState = OrderState.PENDING_CONFIRMATION
+                )
+            )
         )
         whenever(eligibilityProvider.defCurrency).thenReturn("USD")
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn("USD")

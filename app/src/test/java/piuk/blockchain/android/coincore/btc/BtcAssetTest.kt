@@ -23,7 +23,7 @@ import org.amshove.kluent.itReturns
 import org.bitcoinj.crypto.BIP38PrivateKey.BadPassphraseException
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.coincore.impl.OfflineAccountUpdater
+import piuk.blockchain.android.coincore.impl.BackendNotificationUpdater
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
 import piuk.blockchain.android.identity.NabuUserIdentity
 import piuk.blockchain.android.thepit.PitLinking
@@ -55,7 +55,7 @@ class BtcAssetTest {
     private val crashLogger: CrashLogger = mock()
     private val walletPreferences: WalletStatus = mock()
     private val identity: NabuUserIdentity = mock()
-    private val offlineCache: OfflineAccountUpdater = mock()
+    private val notificationUpdater: BackendNotificationUpdater = mock()
     private val features: InternalFeatureFlagApi = mock()
 
     private val subject = BtcAsset(
@@ -70,7 +70,7 @@ class BtcAssetTest {
         labels = labels,
         pitLinking = pitLinking,
         crashLogger = crashLogger,
-        offlineAccounts = offlineCache,
+        notificationUpdater = notificationUpdater,
         walletPreferences = walletPreferences,
         identity = identity,
         features = features

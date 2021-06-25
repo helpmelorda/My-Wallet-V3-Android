@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -111,7 +111,7 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) : Constrain
                     )
                 }
                 is SingleInputViewConfiguration.Crypto -> {
-                    val cryptoSymbol = newValue.cryptoCurrency.displayTicker
+                    val cryptoSymbol = newValue.cryptoCurrency.ticker
                     updateFilters(cryptoSymbol)
                     configuration = Configuration(
                         prefixOrSuffix = cryptoSymbol,
@@ -123,8 +123,7 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) : Constrain
                         newValue.predefinedAmount
                     )
                 }
-                SingleInputViewConfiguration.Undefined -> {
-                }
+                SingleInputViewConfiguration.Undefined -> { }
             }
         }
     }
@@ -175,7 +174,7 @@ sealed class SingleInputViewConfiguration {
     ) : SingleInputViewConfiguration()
 
     data class Crypto(
-        val cryptoCurrency: CryptoCurrency,
+        val cryptoCurrency: AssetInfo,
         val predefinedAmount: CryptoValue = CryptoValue.zero(cryptoCurrency)
     ) : SingleInputViewConfiguration()
 }

@@ -209,7 +209,7 @@ class BitpayTxEngine(
         bitPayDataManager.paymentVerificationRequest(
             invoiceId,
             BitPaymentRequest(
-                sourceAsset.networkTicker,
+                sourceAsset.ticker,
                 listOf(
                     BitPayTransaction(
                         String(Hex.encode(tx.bitcoinSerialize())),
@@ -226,7 +226,7 @@ class BitpayTxEngine(
         bitPayDataManager.paymentSubmitRequest(
             invoiceId,
             BitPaymentRequest(
-                sourceAsset.networkTicker,
+                sourceAsset.ticker,
                 listOf(
                     BitPayTransaction(
                         tx.encodedMsg,

@@ -7,16 +7,15 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.koin.scopedInject
 import org.koin.core.KoinComponent
 import org.koin.core.inject
-import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AccountIcon
-import piuk.blockchain.android.coincore.AssetResources
+import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.databinding.ViewCheckoutSwapHeaderBinding
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionConfirmationCustomisations
-import piuk.blockchain.android.util.setAssetIconColours
+import piuk.blockchain.android.util.setAssetIconColoursNoTint
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
@@ -68,31 +67,24 @@ class SwapInfoHeaderView @JvmOverloads constructor(
             }
 
             sendingAccountLabel.text = state.sendingAccount.label
-            val sendingAccountIconRes = AccountIcon(state.sendingAccount, assetResources)
-
-            sendingIcon.setImageResource(assetResources.drawableResFilled(state.sendingAsset))
-            sendingAccountIconRes.indicator?.let {
+            val accountIcon = AccountIcon(state.sendingAccount, assetResources)
+            accountIcon.loadAssetIcon(sendingIcon)
+            accountIcon.indicator?.let {
                 sendingAccountIcon.apply {
                     visible()
-                    setAssetIconColours(
-                        tintColor = R.color.white,
-                        filterColor = assetResources.assetFilter(state.sendingAsset)
-                    )
+                    setAssetIconColoursNoTint(state.sendingAsset)
                     setImageResource(it)
                 }
             }
 
             (state.selectedTarget as? CryptoAccount)?.let { account ->
                 receivingAccountLabel.text = account.label
-                receivingIcon.setImageResource(assetResources.drawableResFilled(account.asset))
-                val receivingAccountIconRes = AccountIcon(account, assetResources)
-                receivingAccountIconRes.indicator?.let {
+                val targetIcon = AccountIcon(account, assetResources)
+                targetIcon.loadAssetIcon(receivingIcon)
+                targetIcon.indicator?.let {
                     receivingAccountIcon.apply {
                         visible()
-                        setAssetIconColours(
-                            tintColor = R.color.white,
-                            filterColor = assetResources.assetFilter(account.asset)
-                        )
+                        setAssetIconColoursNoTint(account.asset)
                         setImageResource(it)
                     }
                 }

@@ -21,7 +21,7 @@ class NabuUserIdentity(
                 it.isNotInitialisedFor(feature.tier.toKycTierLevel())
             }
             is Feature.SimpleBuy -> simpleBuyEligibilityProvider.isEligibleForSimpleBuy()
-            is Feature.Interest -> interestEligibilityProvider.getEligibilityForAllAssets()
+            is Feature.Interest -> interestEligibilityProvider.getEligibilityForCustodialAssets()
                 .map { assets -> assets.map { it.cryptoCurrency }.contains(feature.currency) }
             is Feature.SimplifiedDueDiligence -> custodialWalletManager.isSimplifiedDueDiligenceEligible()
         }.exhaustive

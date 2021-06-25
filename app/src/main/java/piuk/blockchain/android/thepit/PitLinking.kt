@@ -104,12 +104,11 @@ class PitLinkingImpl(
                 getBtcReceiveAddress(),
                 getBchReceiveAddress(),
                 getEthReceiveAddress(),
-                getXlmReceiveAddress(),
-                getPaxReceiveAddress()
+                getXlmReceiveAddress()
             )
         )
             .filter { it.isNotEmpty() }
-            .collect({ HashMap<String, String>() }, { m, i -> m[i.first] = i.second })
+            .collect({ HashMap() }, { m, i -> m[i.first] = i.second })
 
     private fun Pair<String, String>.isNotEmpty() = first.isNotEmpty() && second.isNotEmpty()
 
@@ -120,30 +119,25 @@ class PitLinkingImpl(
                 1
             )
         }
-            .map { Pair(CryptoCurrency.BTC.networkTicker, it) }
+            .map { Pair(CryptoCurrency.BTC.ticker, it) }
             .onErrorReturn { Pair("", "") }
     }
 
     private fun getBchReceiveAddress(): Single<Pair<String, String>> {
         val pos = bchDataManager.getDefaultAccountPosition()
         return bchDataManager.getNextCashReceiveAddress(pos)
-            .map { Pair(CryptoCurrency.BCH.networkTicker, it) }
+            .map { Pair(CryptoCurrency.BCH.ticker, it) }
             .singleOrError()
             .onErrorReturn { Pair("", "") }
     }
 
     private fun getEthReceiveAddress(): Single<Pair<String, String>> =
         ethDataManager.getDefaultEthAddress()
-            .map { Pair(CryptoCurrency.ETHER.networkTicker, it) }
+            .map { Pair(CryptoCurrency.ETHER.ticker, it) }
             .onErrorReturn { Pair("", "") }
 
     private fun getXlmReceiveAddress(): Single<Pair<String, String>> =
         xlmDataManager.defaultAccount()
-            .map { Pair(CryptoCurrency.XLM.networkTicker, it.accountId) }
-            .onErrorReturn { Pair("", "") }
-
-    private fun getPaxReceiveAddress(): Single<Pair<String, String>> =
-        ethDataManager.getDefaultEthAddress()
-            .map { Pair(CryptoCurrency.PAX.networkTicker, it) }
+            .map { Pair(CryptoCurrency.XLM.ticker, it.accountId) }
             .onErrorReturn { Pair("", "") }
 }

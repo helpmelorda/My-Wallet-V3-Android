@@ -10,7 +10,7 @@ import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import java.util.Date
@@ -44,9 +44,9 @@ data class RecurringBuyResponse(
     }
 }
 
-fun RecurringBuyResponse.toRecurringBuy(): RecurringBuy? {
-    val crypto = CryptoCurrency.fromNetworkTicker(destinationCurrency)
-    return crypto?.let {
+fun RecurringBuyResponse.toRecurringBuy(assetCatalogue: AssetCatalogue): RecurringBuy? {
+    val asset = assetCatalogue.fromNetworkTicker(destinationCurrency)
+    return asset?.let {
         RecurringBuy(
             id = id,
             state = recurringBuyState(),
@@ -108,21 +108,22 @@ data class RecurringBuyTransactionResponse(
     }
 }
 
-fun RecurringBuyTransactionResponse.toRecurringBuyTransaction(): RecurringBuyTransaction {
-    val cryptoCurrency =
-        CryptoCurrency.fromNetworkTicker(destinationCurrency)
-            ?: throw UnknownFormatConversionException("Unknown Crypto currency: $destinationCurrency")
+fun RecurringBuyTransactionResponse.toRecurringBuyTransaction(assetCatalogue: AssetCatalogue): RecurringBuyTransaction {
+    val asset = assetCatalogue.fromNetworkTicker(destinationCurrency)
+        ?: throw UnknownFormatConversionException("Unknown Crypto currency: $destinationCurrency")
 
     return RecurringBuyTransaction(
         id = id,
         recurringBuyId = recurringBuyId,
         state = state.toRecurringBuyActivityState(),
+
         failureReason = failureReason?.toRecurringBuyError(),
         destinationMoney = destinationValue?.let {
             CryptoValue.fromMinor(
-                cryptoCurrency, destinationValue.toBigInteger()
+                asset, destinationValue.toBigInteger()
             )
-        } ?: CryptoValue.zero(cryptoCurrency),
+        } ?: CryptoValue.zero(asset),
+
         originMoney = FiatValue.fromMinor(originCurrency, originValue.toLong()),
         paymentMethodId = paymentMethodId,
         paymentMethod = paymentMethod.toPaymentMethodType(),

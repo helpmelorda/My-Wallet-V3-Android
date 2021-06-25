@@ -591,7 +591,7 @@
     <string name="tx_title_swap">Swap %1$s → %2$s</string>
     <string name="tx_title_transfer">Transfer %1s</string>
     <string name="tx_title_fee">Fee %1s</string>
-    <string name="tx_title_interest">%1$s Interest Earned</string>
+    <string name="tx_title_interest">%1s Interest Earned</string>
     <string name="tx_title_fiat_deposit">Deposit %1$s</string>
 
     <!-- TRANSACTION DETAILS -->
@@ -670,24 +670,8 @@
     </string>
     <string name="shortcut_settings_enable">Launcher Shortcuts</string>
 
-    <string name="swipe_receive_hint">Swipe to receive</string>
-
-    <!-- SWIPE TO RECEIVE -->
-    <string name="swipe_receive_preference_summary">Reveal a receive address when you swipe left on
-        the PIN screen, making receiving funds even faster.
-    </string>
-    <string name="swipe_receive_address_info">Five addresses will be loaded consecutively, after
-        which logging in is required to show new addresses.
-    </string>
-    <string name="swipe_receive_no_addresses">No more addresses can be loaded right now. Log in to
-        the app to load more.
-    </string>
-    <string name="swipe_to_receive_request">Receive %1$s</string>
-    <string name="swipe_receive_left_arrow">Swipe to Receive Left Arrow</string>
-    <string name="swipe_receive_right_arrow">Swipe to Receive Right Arrow</string>
-    <string name="onboarding_fingerprint_title_1">Biometric Login</string>
-
     <!-- ONBOARDING -->
+    <string name="onboarding_fingerprint_title_1">Biometric Login</string>
     <string name="onboarding_fingerprint_summary_1">Use biometric login instead of your PIN to
         authenticate and access your wallet.
     </string>

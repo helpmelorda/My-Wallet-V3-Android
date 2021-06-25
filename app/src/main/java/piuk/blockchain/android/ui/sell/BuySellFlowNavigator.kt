@@ -6,7 +6,7 @@ import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.Singles
@@ -22,7 +22,7 @@ class BuySellFlowNavigator(
     private val eligibilityProvider: SimpleBuyEligibilityProvider,
     private val tierService: TierService
 ) {
-    fun navigateTo(selectedAsset: CryptoCurrency? = null): Single<BuySellIntroAction> =
+    fun navigateTo(selectedAsset: AssetInfo? = null): Single<BuySellIntroAction> =
         simpleBuyModel.state.firstOrError().flatMap { state ->
             val cancel = if (state.orderState == OrderState.PENDING_CONFIRMATION)
                 custodialWalletManager.deleteBuyOrder(
@@ -50,7 +50,7 @@ class BuySellFlowNavigator(
 
     private fun decideNavigationStep(
         currencySupported: Boolean,
-        selectedAsset: CryptoCurrency?,
+        selectedAsset: AssetInfo?,
         isGoldButNotEligible: Boolean,
         state: SimpleBuyState,
         supportedFiats: List<String>
@@ -74,6 +74,6 @@ private fun SimpleBuyState.hasPendingBuy(): Boolean =
 sealed class BuySellIntroAction {
     data class NavigateToCurrencySelection(val supportedCurrencies: List<String>) : BuySellIntroAction()
     data class DisplayBuySellIntro(val isGoldButNotEligible: Boolean, val hasPendingBuy: Boolean) : BuySellIntroAction()
-    data class StarBuyWithSelectedAsset(val selectedAsset: CryptoCurrency, val hasPendingBuy: Boolean) :
+    data class StarBuyWithSelectedAsset(val selectedAsset: AssetInfo, val hasPendingBuy: Boolean) :
         BuySellIntroAction()
 }

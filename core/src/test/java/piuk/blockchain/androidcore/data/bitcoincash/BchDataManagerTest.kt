@@ -13,7 +13,6 @@ import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
 import com.nhaarman.mockito_kotlin.whenever
 import com.blockchain.api.NonCustodialBitcoinService
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.coin.GenericMetadataAccount
 import info.blockchain.wallet.coin.GenericMetadataWallet
 import info.blockchain.wallet.payload.data.Account
@@ -141,7 +140,7 @@ class BchDataManagerTest {
         whenever(payloadDataManager.isDoubleEncrypted).thenReturn(false)
         mockSingleMetadata()
         mockRestoringSingleBchWallet("xpub")
-        whenever(defaultLabels.getDefaultNonCustodialWalletLabel(CryptoCurrency.BCH)).thenReturn("label")
+        whenever(defaultLabels.getDefaultNonCustodialWalletLabel()).thenReturn("label")
 
         // Act
         val testObserver = subject.initBchWallet("Bitcoin cash account").test()
@@ -175,7 +174,7 @@ class BchDataManagerTest {
         whenever(payloadDataManager.isDoubleEncrypted).thenReturn(true)
         mockSingleMetadata()
         mockRestoringSingleBchWallet("xpub")
-        whenever(defaultLabels.getDefaultNonCustodialWalletLabel(CryptoCurrency.BCH)).thenReturn("label")
+        whenever(defaultLabels.getDefaultNonCustodialWalletLabel()).thenReturn("label")
 
         // Act
         val testObserver = subject.initBchWallet("Bitcoin cash account").test()
@@ -396,7 +395,7 @@ class BchDataManagerTest {
         whenever(mockWallet.walletBody).thenReturn(mockWalletBody)
         whenever(payloadDataManager.wallet).thenReturn(mockWallet)
 
-        whenever(defaultLabels.getDefaultNonCustodialWalletLabel(CryptoCurrency.BTC)).thenReturn("BTC label")
+        whenever(defaultLabels.getDefaultNonCustodialWalletLabel()).thenReturn("BTC label")
 
         // Act
         val needsSync = subject.correctBtcOffsetIfNeed()

@@ -9,6 +9,7 @@ import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
 import com.nhaarman.mockito_kotlin.verifyZeroInteractions
 import com.nhaarman.mockito_kotlin.whenever
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.EthAccountApi
@@ -46,6 +47,17 @@ import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import java.math.BigInteger
 
+@Suppress("ClassName")
+private object DUMMY_ERC20 : CryptoCurrency(
+    ticker = "DUMMY",
+    name = "Dummies",
+    precisionDp = 8,
+    requiredConfirmations = 5,
+    l2chain = ETHER,
+    l2identifier = "0xF00F00F00F00F00F00FAB",
+    colour = "#123456"
+)
+
 class EthDataManagerTest {
 
     @get:Rule
@@ -55,6 +67,7 @@ class EthDataManagerTest {
     }
 
     private val payloadManager: PayloadDataManager = mock()
+    private val assetCatalogue: AssetCatalogue = mock()
     private val ethAccountApi: EthAccountApi = mock()
     private val ethDataStore: EthDataStore = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
     private val erc20DataStore: Erc20DataStore = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
@@ -64,14 +77,15 @@ class EthDataManagerTest {
     private val rxBus = RxBus()
 
     private val subject = EthDataManager(
-            payloadManager,
-            ethAccountApi,
-            ethDataStore,
-            erc20DataStore,
-            walletOptionsDataManager,
-            metadataManager,
-            lastTxUpdater,
-            rxBus
+        payloadDataManager = payloadManager,
+        assetCatalogue = assetCatalogue,
+        ethAccountApi = ethAccountApi,
+        ethDataStore = ethDataStore,
+        erc20DataStore = erc20DataStore,
+        walletOptionsDataManager = walletOptionsDataManager,
+        metadataManager = metadataManager,
+        lastTxUpdater = lastTxUpdater,
+        rxBus = rxBus
         )
 
     @Test
@@ -409,9 +423,9 @@ class EthDataManagerTest {
         testObserver.assertValue(hash)
         verify(ethDataStore, atLeastOnce()).ethWallet
         verifyNoMoreInteractions(ethDataStore)
-        verify(ethereumWallet).lastTransactionHash = hash
-        verify(ethereumWallet).lastTransactionTimestamp = timestamp
         verify(ethDataStore.ethWallet)!!.toJson()
+        verify(ethereumWallet).setLastTransactionHash(hash)
+        verify(ethereumWallet).setLastTransactionTimestamp(timestamp)
         verifyNoMoreInteractions(ethereumWallet)
         verify(metadataManager).saveToMetadata(any(), any())
         verifyNoMoreInteractions(metadataManager)
@@ -438,7 +452,7 @@ class EthDataManagerTest {
             .thenReturn(Observable.just(erc20AddressResponsePax))
         ethDataStore.ethWallet
         // Act
-        val testObserver = subject.fetchErc20DataModel(CryptoCurrency.PAX).test()
+        val testObserver = subject.fetchErc20DataModel(DUMMY_ERC20).test()
 
         // Assert
         testObserver.assertComplete()
@@ -446,17 +460,17 @@ class EthDataManagerTest {
         testObserver.assertValue {
             it.accountHash == erc20AddressResponsePax.accountHash &&
             it.totalBalance.toBigInteger() == erc20AddressResponsePax.balance &&
-            it.totalBalance.currency == CryptoCurrency.PAX
+            it.totalBalance.currency == DUMMY_ERC20
         }
     }
 
     @Test
     fun `no transactions should be returned from empty model PAX`() {
-        whenever(erc20DataStore.erc20DataModel[CryptoCurrency.PAX])
+        whenever(erc20DataStore.erc20DataModel[DUMMY_ERC20])
             .thenReturn(null)
 
         // Act
-        subject.getErc20Transactions(CryptoCurrency.PAX)
+        subject.getErc20Transactions(DUMMY_ERC20)
             .test()
             .assertValue { it.isEmpty() }
             .assertComplete()
@@ -466,11 +480,11 @@ class EthDataManagerTest {
     @Test
     fun `transactions from not null model should return the correct transactions PAX`() {
         // Arrange
-        whenever(erc20DataStore.erc20DataModel[CryptoCurrency.PAX])
-            .thenReturn(Erc20DataModel(erc20AddressResponsePax, CryptoCurrency.PAX))
+        whenever(erc20DataStore.erc20DataModel[DUMMY_ERC20])
+            .thenReturn(Erc20DataModel(erc20AddressResponsePax, DUMMY_ERC20))
 
         // Act
-        val testObserver = subject.getErc20Transactions(CryptoCurrency.PAX)
+        val testObserver = subject.getErc20Transactions(DUMMY_ERC20)
             .test()
 
         // Assert
@@ -486,11 +500,11 @@ class EthDataManagerTest {
     @Test
     fun `account has should be the correct one PAX`() {
         // Arrange
-        whenever(erc20DataStore.erc20DataModel[CryptoCurrency.PAX])
-            .thenReturn(Erc20DataModel(erc20AddressResponsePax, CryptoCurrency.PAX))
+        whenever(erc20DataStore.erc20DataModel[DUMMY_ERC20])
+            .thenReturn(Erc20DataModel(erc20AddressResponsePax, DUMMY_ERC20))
 
         // Act
-        val testObserver = subject.getErc20AccountHash(CryptoCurrency.PAX)
+        val testObserver = subject.getErc20AccountHash(DUMMY_ERC20)
             .test()
 
         // Assert

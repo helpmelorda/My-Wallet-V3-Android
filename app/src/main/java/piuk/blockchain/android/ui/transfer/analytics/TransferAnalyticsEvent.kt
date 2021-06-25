@@ -22,7 +22,7 @@ sealed class TransferAnalyticsEvent(
     ) : TransferAnalyticsEvent(
         "send_wallet_select",
         mapOf(
-            PARAM_ASSET to wallet.asset.networkTicker,
+            PARAM_ASSET to wallet.asset.ticker,
             PARAM_WALLET to (wallet as BlockchainAccount).toCategory()
         )
     )

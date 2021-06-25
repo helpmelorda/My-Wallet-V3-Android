@@ -3,10 +3,10 @@ package piuk.blockchain.android.ui.transactionflow.analytics
 import com.blockchain.extensions.withoutNullValues
 import com.blockchain.logging.CrashLogger
 import com.blockchain.notifications.analytics.Analytics
+import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import piuk.blockchain.android.coincore.AssetAction
@@ -100,7 +100,7 @@ class TxFlowAnalytics(
         when (state.action) {
             AssetAction.Swap -> analytics.logEvent(
                 SwapAnalyticsEvents.SwapTargetAccountSelected(
-                    (account as CryptoAccount).asset.networkTicker,
+                    (account as CryptoAccount).asset.ticker,
                     TxFlowAnalyticsAccountType.fromAccount(account)
                 )
             )
@@ -113,7 +113,7 @@ class TxFlowAnalytics(
             AssetAction.Send -> if (account is InterestAccount) {
                 analytics.logEvent(
                     InterestAnalytics.InterestDepositClicked(
-                        currency = state.sendingAsset.networkTicker,
+                        currency = state.sendingAsset.ticker,
                         origin = LaunchOrigin.SEND
                     )
                 )
@@ -225,7 +225,7 @@ class TxFlowAnalytics(
                 require(account is CryptoAccount)
                 analytics.logEvent(
                     SwapAnalyticsEvents.SwapFromSelected(
-                        currency = account.asset.networkTicker,
+                        currency = account.asset.ticker,
                         accountType = TxFlowAnalyticsAccountType.fromAccount(account)
                     )
                 )
@@ -234,7 +234,7 @@ class TxFlowAnalytics(
                 require(account is CryptoAccount)
                 analytics.logEvent(
                     SendAnalyticsEvent.SendSourceAccountSelected(
-                        currency = account.asset.networkTicker,
+                        currency = account.asset.ticker,
                         fromAccountType = TxFlowAnalyticsAccountType.fromAccount(account)
                     )
                 )
@@ -244,7 +244,7 @@ class TxFlowAnalytics(
                 analytics.logEvent(
                     SellSourceAccountSelected(
                         sourceAccountType = TxFlowAnalyticsAccountType.fromAccount(state.sendingAccount),
-                        inputCurrency = account.asset.networkTicker
+                        inputCurrency = account.asset.ticker
                     )
                 )
             }
@@ -272,8 +272,8 @@ class TxFlowAnalytics(
                 )
                 analytics.logEvent(
                     SwapAnalyticsEvents.SwapAccountsSelected(
-                        inputCurrency = state.sendingAsset.networkTicker,
-                        outputCurrency = (state.selectedTarget as CryptoAccount).asset.networkTicker,
+                        inputCurrency = state.sendingAsset.ticker,
+                        outputCurrency = (state.selectedTarget as CryptoAccount).asset.ticker,
                         sourceAccountType = TxFlowAnalyticsAccountType.fromAccount(state.sendingAccount),
                         targetAccountType = TxFlowAnalyticsAccountType.fromAccount(state.selectedTarget),
                         werePreselected = false
@@ -292,7 +292,7 @@ class TxFlowAnalytics(
                 analytics.logEvent(SendAnalyticsEvent.SendMaxClicked)
                 analytics.logEvent(
                     SendAnalyticsEvent.SendAmountMaxClicked(
-                        currency = state.sendingAsset.networkTicker,
+                        currency = state.sendingAsset.ticker,
                         toAccountType = TxFlowAnalyticsAccountType.fromAccount(state.sendingAccount),
                         fromAccountType = TxFlowAnalyticsAccountType.fromTransactionTarget(state.selectedTarget)
                     )
@@ -319,7 +319,7 @@ class TxFlowAnalytics(
                 analytics.logEvent(
                     MaxAmountClicked(
                         sourceAccountType = TxFlowAnalyticsAccountType.fromAccount(state.sendingAccount),
-                        inputCurrency = state.sendingAsset.networkTicker,
+                        inputCurrency = state.sendingAsset.ticker,
                         outputCurrency = (state.selectedTarget as? FiatAccount)?.fiatCurrency ?: run {
                             crashLogger.logEvent("Target account not set")
                             return
@@ -373,7 +373,7 @@ class TxFlowAnalytics(
                 analytics.logEvent(InterestDepositAnalyticsEvent.EnterAmountCtaClick(state.sendingAsset))
                 analytics.logEvent(
                     InterestAnalytics.InterestDepositAmountEntered(
-                        currency = state.sendingAsset.networkTicker,
+                        currency = state.sendingAsset.ticker,
                         sourceAccountType = TxFlowAnalyticsAccountType.fromAccount(state.sendingAccount),
                         inputAmount = state.amount
                     )
@@ -390,7 +390,7 @@ class TxFlowAnalytics(
                     SwapAnalyticsEvents.SwapAmountEntered(
                         amount = state.amount,
                         inputAccountType = TxFlowAnalyticsAccountType.fromAccount(state.sendingAccount),
-                        outputCurrency = (state.selectedTarget as CryptoAccount).asset.networkTicker,
+                        outputCurrency = (state.selectedTarget as CryptoAccount).asset.ticker,
                         outputAccountType = TxFlowAnalyticsAccountType.fromAccount(state.selectedTarget)
                     )
                 )
@@ -435,7 +435,7 @@ class TxFlowAnalytics(
                 )
                 analytics.logEvent(
                     SendAnalyticsEvent.SendSubmitted(
-                        currency = state.sendingAsset.networkTicker,
+                        currency = state.sendingAsset.ticker,
                         feeType = state.pendingTx?.feeSelection?.selectedLevel?.toAnalyticsFee()
                             ?: AnalyticsFeeType.NONE,
                         fromAccountType = TxFlowAnalyticsAccountType.fromAccount(state.sendingAccount),
@@ -460,7 +460,7 @@ class TxFlowAnalytics(
                 analytics.logEvent(
                     MaxAmountClicked(
                         sourceAccountType = TxFlowAnalyticsAccountType.fromAccount(state.sendingAccount),
-                        inputCurrency = state.sendingAsset.networkTicker,
+                        inputCurrency = state.sendingAsset.ticker,
                         outputCurrency = (state.selectedTarget as FiatAccount).fiatCurrency
                     )
                 )
@@ -600,13 +600,13 @@ class TxFlowAnalytics(
         internal const val FEE_SCHEDULE = "fee_level"
 
         internal fun constructMap(
-            asset: CryptoCurrency,
+            asset: AssetInfo,
             target: String?,
             error: String? = null,
             source: String? = null
         ): Map<String, String> =
             mapOf(
-                PARAM_ASSET to asset.networkTicker,
+                PARAM_ASSET to asset.ticker,
                 PARAM_TARGET to target,
                 PARAM_SOURCE to source,
                 PARAM_ERROR to error

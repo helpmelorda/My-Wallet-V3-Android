@@ -6,7 +6,6 @@ import com.blockchain.network.initRule
 import com.blockchain.network.modules.apiModule
 import com.blockchain.testutils.rxInit
 import com.blockchain.api.blockchainApiModule
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.ApiCode
 import io.fabric8.mockwebserver.DefaultMockServer
 import org.amshove.kluent.`should equal`
@@ -66,7 +65,7 @@ class BchDustServiceTest : AutoCloseKoinTest() {
             )
             .once()
 
-        subject.getDust(CryptoCurrency.BCH)
+        subject.getDust()
             .test()
             .assertNoErrors()
             .values()

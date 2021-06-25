@@ -20,7 +20,7 @@ class ReceiveInfoView @JvmOverloads constructor(
     fun update(account: CryptoAccount, onCloseClicked: () -> Unit) {
         with(binding) {
             infoDescription.text =
-                context.getString(R.string.receive_rotating_address_desc, account.asset.displayTicker, account.label)
+                context.getString(R.string.receive_rotating_address_desc, account.asset.ticker, account.label)
 
             infoClose.setOnClickListener {
                 onCloseClicked()

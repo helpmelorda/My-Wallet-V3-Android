@@ -106,13 +106,13 @@
             android:summary="@string/shortcut_settings_summary"
             android:title="@string/shortcut_settings_enable"
             app:iconSpaceReserved="false" />
-        <piuk.blockchain.android.ui.settings.preferences.CustomSwitchPreference
-            android:defaultValue="true"
-            android:key="swipe_to_receive_enabled"
-            android:persistent="true"
-            android:summary="@string/swipe_receive_preference_summary"
-            android:title="@string/swipe_receive_hint"
-            app:iconSpaceReserved="false" />
+<!--        <piuk.blockchain.android.ui.settings.preferences.CustomSwitchPreference-->
+<!--            android:defaultValue="true"-->
+<!--            android:key="swipe_to_receive_enabled"-->
+<!--            android:persistent="true"-->
+<!--            android:summary="@string/swipe_receive_preference_summary"-->
+<!--            android:title="@string/swipe_receive_hint"-->
+<!--            app:iconSpaceReserved="false" />-->
         <piuk.blockchain.android.ui.settings.preferences.CustomSwitchPreference
             android:defaultValue="true"
             android:key="cloud_backup"

@@ -3,8 +3,8 @@ package piuk.blockchain.android.coincore.fiat
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
-import com.blockchain.nabu.models.responses.interest.DisabledReason
 import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -71,8 +71,8 @@ class LinkedBankAccount(
     override val isEnabled: Single<Boolean>
         get() = Single.just(true)
 
-    override val disabledReason: Single<DisabledReason>
-        get() = Single.just(DisabledReason.NONE)
+    override val disabledReason: Single<IneligibilityReason>
+        get() = Single.just(IneligibilityReason.NONE)
 
     override fun canWithdrawFunds(): Single<Boolean> = Single.just(false)
 

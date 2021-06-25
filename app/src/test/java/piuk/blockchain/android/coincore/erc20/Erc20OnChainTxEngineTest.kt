@@ -5,7 +5,7 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.gwei
-import com.blockchain.testutils.usdPax
+import com.blockchain.testutils.numberToBigDecimal
 import com.nhaarman.mockito_kotlin.atLeastOnce
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
@@ -40,7 +40,19 @@ import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
-@Suppress("UnnecessaryVariable") class Erc20OnChainTxEngineTest {
+@Suppress("ClassName")
+private object DUMMY_ERC20 : CryptoCurrency(
+    ticker = "DUMMY",
+    name = "Dummies",
+    precisionDp = 8,
+    requiredConfirmations = 5,
+    colour = "#123456"
+)
+
+fun Number.dummies() = CryptoValue.fromMajor(DUMMY_ERC20, numberToBigDecimal())
+
+@Suppress("UnnecessaryVariable")
+class Erc20OnChainTxEngineTest {
 
     @get:Rule
     val initSchedulers = rxInit {
@@ -209,8 +221,8 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
     @Test
     fun `update amount modifies the pendingTx correctly for regular fees`() {
         // Arrange
-        val totalBalance = 21.usdPax()
-        val actionableBalance = 20.usdPax()
+        val totalBalance = 21.dummies()
+        val actionableBalance = 20.dummies()
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
 
         val txTarget: CryptoAddress = mock {
@@ -239,7 +251,7 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
             )
         )
 
-        val inputAmount = 2.usdPax()
+        val inputAmount = 2.dummies()
         val expectedFee = (GAS_LIMIT_CONTRACT * FEE_REGULAR).gwei()
         val expectedFullFee = expectedFee
 
@@ -273,8 +285,8 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
     @Test
     fun `update amount modifies the pendingTx correctly for priority fees`() {
         // Arrange
-        val totalBalance = 21.usdPax()
-        val actionableBalance = 20.usdPax()
+        val totalBalance = 21.dummies()
+        val actionableBalance = 20.dummies()
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
 
         val txTarget: CryptoAddress = mock {
@@ -303,7 +315,7 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
             )
         )
 
-        val inputAmount = 2.usdPax()
+        val inputAmount = 2.dummies()
         val expectedFee = (GAS_LIMIT_CONTRACT * FEE_PRIORITY).gwei()
         val expectedFullFee = expectedFee
 
@@ -336,10 +348,10 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
     @Test
     fun `update fee level from REGULAR to PRIORITY updates the pendingTx correctly`() {
         // Arrange
-        val totalBalance = 21.usdPax()
-        val availableBalance = 20.usdPax()
+        val totalBalance = 21.dummies()
+        val availableBalance = 20.dummies()
 
-        val inputAmount = 2.usdPax()
+        val inputAmount = 2.dummies()
         val regularFee = (GAS_LIMIT_CONTRACT * FEE_REGULAR).gwei()
 
         val sourceAccount = mockSourceAccount(totalBalance, availableBalance)
@@ -405,9 +417,9 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
     @Test(expected = IllegalArgumentException::class)
     fun `update fee level from REGULAR to NONE is rejected`() {
         // Arrange
-        val totalBalance = 21.usdPax()
-        val availableBalance = 20.usdPax()
-        val inputAmount = 2.usdPax()
+        val totalBalance = 21.dummies()
+        val availableBalance = 20.dummies()
+        val inputAmount = 2.dummies()
         val regularFee = (GAS_LIMIT_CONTRACT * FEE_REGULAR).gwei()
         val fullFee = regularFee
 
@@ -451,9 +463,9 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
     @Test(expected = IllegalArgumentException::class)
     fun `update fee level from REGULAR to CUSTOM is rejected`() {
         // Arrange
-        val totalBalance = 21.usdPax()
-        val availableBalance = 20.usdPax()
-        val inputAmount = 2.usdPax()
+        val totalBalance = 21.dummies()
+        val availableBalance = 20.dummies()
+        val inputAmount = 2.dummies()
         val regularFee = (GAS_LIMIT_CONTRACT * FEE_REGULAR).gwei()
         val fullFee = regularFee
 
@@ -497,9 +509,9 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
     @Test
     fun `update fee level from REGULAR to REGULAR has no effect`() {
         // Arrange
-        val totalBalance = 21.usdPax()
-        val availableBalance = 20.usdPax()
-        val inputAmount = 2.usdPax()
+        val totalBalance = 21.dummies()
+        val availableBalance = 20.dummies()
+        val inputAmount = 2.dummies()
         val regularFee = (GAS_LIMIT_CONTRACT * FEE_REGULAR).gwei()
         val fullFee = regularFee
 
@@ -586,7 +598,7 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
     }
 
     companion object {
-        private val ASSET = CryptoCurrency.PAX
+        private val ASSET = DUMMY_ERC20
         private val WRONG_ASSET = CryptoCurrency.BTC
         private val FEE_ASSET = CryptoCurrency.ETHER
         private const val TARGET_ADDRESS = "VALID_PAX_ADDRESS"

@@ -1,47 +1,69 @@
 package com.blockchain.nabu.datamanagers.repositories.interest
 
 import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.models.responses.interest.DisabledReason
-import com.blockchain.nabu.service.NabuService
-import info.blockchain.balance.CryptoCurrency
+import com.blockchain.api.NabuUserService
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import io.reactivex.Single
+import java.lang.IllegalArgumentException
+
+enum class IneligibilityReason {
+    INVALID_USER,
+    REGION,
+    KYC_TIER,
+    BLOCKED,
+    OTHER,
+    NONE
+}
 
 interface InterestEligibilityProvider {
-    fun getEligibilityForAllAssets(): Single<List<AssetInterestEligibility>>
+    fun getEligibilityForCustodialAssets(): Single<List<AssetInterestEligibility>>
 }
 
 class InterestEligibilityProviderImpl(
-    private val nabuService: NabuService,
+    private val assetCatalogue: AssetCatalogue,
+    private val nabuService: NabuUserService,
     private val authenticator: Authenticator
 ) : InterestEligibilityProvider {
-    override fun getEligibilityForAllAssets(): Single<List<AssetInterestEligibility>> =
+    override fun getEligibilityForCustodialAssets(): Single<List<AssetInterestEligibility>> =
         authenticator.authenticate { token ->
-            nabuService.getInterestEligibility(token).map { eligibilityResponse ->
-                eligibilityResponse.eligibleList.entries.map { entry ->
-                    CryptoCurrency.fromNetworkTicker(entry.key)?.let {
-                        AssetInterestEligibility(
-                            it,
-                            Eligibility(
-                                entry.value.eligible,
-                                entry.value.ineligibilityReason
+            nabuService.getInterestEligibility(token.authHeader)
+                .map { response ->
+                    assetCatalogue.supportedCustodialAssets()
+                        .map { asset ->
+                            val eligible = response.getEligibleFor(asset.ticker)
+                            AssetInterestEligibility(
+                                asset,
+                                Eligibility(
+                                    eligible = eligible.isEligible,
+                                    ineligibilityReason = eligible.reason.toReason()
+                                )
                             )
-                        )
-                    }
-                }.mapNotNull { it }
-            }
+                        }
+                }
         }
 }
 
 data class AssetInterestEligibility(
-    val cryptoCurrency: CryptoCurrency,
+    val cryptoCurrency: AssetInfo,
     val eligibility: Eligibility
 )
 
 data class Eligibility(
     val eligible: Boolean,
-    val ineligibilityReason: DisabledReason
+    val ineligibilityReason: IneligibilityReason
 ) {
     companion object {
-        fun notEligible() = Eligibility(false, DisabledReason.OTHER)
+        fun notEligible() = Eligibility(false, IneligibilityReason.OTHER)
     }
 }
+
+private fun String.toReason(): IneligibilityReason =
+    try {
+        when {
+            this.isEmpty() -> IneligibilityReason.NONE
+            else -> IneligibilityReason.valueOf(this)
+        }
+    } catch (t: IllegalArgumentException) {
+        IneligibilityReason.OTHER
+    }

@@ -6,6 +6,7 @@ import com.blockchain.notifications.analytics.AddressAnalytics
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.WalletAnalytics
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.util.PrivateKeyFactory
@@ -33,7 +34,7 @@ interface AccountView : MvpView {
     fun showSuccess(@StringRes message: Int)
     fun showRenameImportedAddressDialog(account: CryptoNonCustodialAccount)
     fun renderAccountList(
-        asset: CryptoCurrency,
+        asset: AssetInfo,
         internal: List<CryptoNonCustodialAccount>,
         imported: List<CryptoNonCustodialAccount>
     )
@@ -52,20 +53,20 @@ class AccountPresenter internal constructor(
 
     override fun onViewDetached() { }
 
-    fun refresh(asset: CryptoCurrency) {
+    fun refresh(asset: AssetInfo) {
         fetchAccountList(asset)
     }
 
     override val alwaysDisableScreenshots: Boolean = false
     override val enableLogoutTimer: Boolean = true
 
+    private class NameInUseException : Exception()
+
     /**
      * Derive new Account from seed
      *
      * @param accountLabel A label for the account to be created
      */
-    private class NameInUseException() : Exception()
-
     @SuppressLint("CheckResult")
     internal fun createNewAccount(accountLabel: String, secondPassword: String? = null) {
         val btcAsset = coincore[CryptoCurrency.BTC] as BtcAsset
@@ -188,8 +189,8 @@ class AccountPresenter internal constructor(
         )
     }
 
-    private fun fetchAccountList(asset: CryptoCurrency) {
-        require(asset.hasFeature(CryptoCurrency.MULTI_WALLET))
+    private fun fetchAccountList(asset: AssetInfo) {
+        require(coincore[asset].multiWallet)
 
         compositeDisposable += coincore[asset].accountGroup(AssetFilter.NonCustodial)
             .map {
@@ -202,7 +203,7 @@ class AccountPresenter internal constructor(
             )
         }
 
-    private fun processCoincoreList(asset: CryptoCurrency, list: SingleAccountList) {
+    private fun processCoincoreList(asset: AssetInfo, list: SingleAccountList) {
         val internal = mutableListOf<CryptoNonCustodialAccount>()
         val imported = mutableListOf<CryptoNonCustodialAccount>()
 

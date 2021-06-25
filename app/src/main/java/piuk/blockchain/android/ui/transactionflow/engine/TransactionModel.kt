@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.transactionflow.engine
 
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.data.LinkBankTransfer
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
@@ -108,7 +108,7 @@ data class TransactionState(
 ) : MviState {
 
     // workaround for using engine without cryptocurrency source
-    val sendingAsset: CryptoCurrency
+    val sendingAsset: AssetInfo
         get() = (sendingAccount as? CryptoAccount)?.asset ?: throw IllegalStateException(
             "Trying to use cryptocurrency with non-crypto source"
         )
@@ -357,7 +357,7 @@ class TransactionModel(
 
     private fun processValidateAddress(
         address: String,
-        expectedAsset: CryptoCurrency
+        expectedAsset: AssetInfo
     ): Disposable =
         interactor.validateTargetAddress(address, expectedAsset)
             .subscribeBy(

@@ -98,7 +98,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     }
 
     private fun clearSimpleBuyState() {
-        simpleBuyPrefs.clearState()
+        simpleBuyPrefs.clearBuyState()
         showToast("Local SB State cleared")
     }
 

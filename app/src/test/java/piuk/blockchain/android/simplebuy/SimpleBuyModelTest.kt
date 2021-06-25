@@ -27,7 +27,6 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import org.amshove.kluent.`it returns`
 import org.amshove.kluent.any
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.cards.EverypayAuthOptions
@@ -37,9 +36,14 @@ import java.util.Date
 
 class SimpleBuyModelTest {
 
-    private lateinit var model: SimpleBuyModel
+    @get:Rule
+    val rx = rxInit {
+        ioTrampoline()
+        computationTrampoline()
+    }
+
     private val defaultState = SimpleBuyState(
-        selectedCryptoCurrency = CryptoCurrency.BTC,
+        selectedCryptoAsset = CryptoCurrency.BTC,
         amount = FiatValue.fromMinor("USD", 1000),
         fiatCurrency = "USD",
         selectedPaymentMethod = SelectedPaymentMethod(
@@ -49,11 +53,12 @@ class SimpleBuyModelTest {
         ),
         id = "123"
     )
-    private val gson = Gson()
+
     private val interactor: SimpleBuyInteractor = mock()
     private val prefs: SimpleBuyPrefs = mock {
-        on { simpleBuyState() } `it returns` gson.toJson(defaultState)
+        on { simpleBuyState() } `it returns` Gson().toJson(defaultState)
     }
+
     private val environmentConfig: EnvironmentConfig = mock {
         on { isRunningInDebugMode() } `it returns` false
     }
@@ -63,29 +68,21 @@ class SimpleBuyModelTest {
         on { preRatingActionCompletedTimes } `it returns` 0
     }
 
-    @get:Rule
-    val rx = rxInit {
-        ioTrampoline()
-        computationTrampoline()
-    }
+    private val serializer: SimpleBuyPrefsSerializer = mock()
 
-    @Before
-    fun setUp() {
-        model =
-            SimpleBuyModel(
-                prefs = prefs,
-                initialState = defaultState,
-                gson = gson,
-                scheduler = Schedulers.io(),
-                interactor = interactor,
-                cardActivators = listOf(
-                    mock()
-                ),
-                ratingPrefs = ratingPrefs,
-                environmentConfig = environmentConfig,
-                crashLogger = mock()
-            )
-    }
+    private val model = SimpleBuyModel(
+        prefs = prefs,
+        initialState = defaultState,
+        scheduler = Schedulers.io(),
+        interactor = interactor,
+        cardActivators = listOf(
+            mock()
+        ),
+        ratingPrefs = ratingPrefs,
+        environmentConfig = environmentConfig,
+        crashLogger = mock(),
+        serializer = serializer
+    )
 
     @Test
     fun `interactor fetched limits and pairs should be applied to state`() {
@@ -95,54 +92,68 @@ class SimpleBuyModelTest {
                     BuySellPairs(
                         listOf(
                             BuySellPair(
-                                pair = "BTC-USD",
+                                cryptoCurrency = CryptoCurrency.BTC,
+                                fiatCurrency = "USD",
                                 buyLimits = BuySellLimits(100, 5024558),
                                 sellLimits = BuySellLimits(100, 5024558)
                             ),
                             BuySellPair(
-                                pair = "BTC-EUR", buyLimits = BuySellLimits(1006, 10000),
+                                cryptoCurrency = CryptoCurrency.BTC,
+                                fiatCurrency = "EUR",
+                                buyLimits = BuySellLimits(1006, 10000),
                                 sellLimits = BuySellLimits(100, 5024558)
                             ),
                             BuySellPair(
-                                pair = "ETH-EUR", buyLimits = BuySellLimits(1005, 10000),
+                                cryptoCurrency = CryptoCurrency.ETHER,
+                                fiatCurrency = "EUR",
+                                buyLimits = BuySellLimits(1005, 10000),
                                 sellLimits = BuySellLimits(100, 5024558)
                             ),
                             BuySellPair(
-                                pair = "BCH-EUR", buyLimits = BuySellLimits(1001, 10000),
+                                cryptoCurrency = CryptoCurrency.BCH,
+                                fiatCurrency = "EUR",
+                                buyLimits = BuySellLimits(1001, 10000),
                                 sellLimits = BuySellLimits(100, 5024558)
                             )
                         )
                     ) to TransferLimits("USD")
                 )
             )
-        val testObserver = model.state.test()
-        model.process(SimpleBuyIntent.FetchBuyLimits("USD", CryptoCurrency.BTC))
 
-        testObserver.assertValueAt(0, defaultState)
-        testObserver.assertValueAt(
-            1, defaultState.copy(
-                supportedPairsAndLimits = listOf(
-                    BuySellPair(
-                        "BTC-USD", BuySellLimits(min = 100, max = 5024558),
-                        sellLimits = BuySellLimits(100, 5024558)
-                    )
-                ),
-                fiatCurrency = "USD",
-                transferLimits = TransferLimits("USD"),
-                selectedCryptoCurrency = CryptoCurrency.BTC
-            )
+        val expectedState = defaultState.copy(
+            supportedPairsAndLimits = listOf(
+                BuySellPair(
+                    cryptoCurrency = CryptoCurrency.BTC,
+                    fiatCurrency = "USD",
+                    BuySellLimits(min = 100, max = 5024558),
+                    sellLimits = BuySellLimits(100, 5024558)
+                )
+            ),
+            fiatCurrency = "USD",
+            transferLimits = TransferLimits("USD")
         )
+
+        model.process(SimpleBuyIntent.FetchBuyLimits("USD", CryptoCurrency.BTC))
+        model.state
+            .test()
+            .awaitCount(2)
+            .assertValueAt(0) { it == defaultState }
+            .assertValueAt(1) { it == expectedState }
     }
 
     @Test
     fun `cancel order should make the order to cancel if interactor doesnt return an error`() {
         whenever(interactor.cancelOrder(any()))
             .thenReturn(Completable.complete())
-        val testObserver = model.state.test()
-        model.process(SimpleBuyIntent.CancelOrder)
 
-        testObserver.assertValueAt(0, defaultState)
-        testObserver.assertValueAt(1, SimpleBuyState(orderState = OrderState.CANCELED))
+        val expectedState = SimpleBuyState(orderState = OrderState.CANCELED)
+
+        model.process(SimpleBuyIntent.CancelOrder)
+        model.state
+            .test()
+            .awaitCount(2)
+            .assertValueAt(0) { it == defaultState }
+            .assertValueAt(1) { it == expectedState }
     }
 
     @Test
@@ -150,7 +161,7 @@ class SimpleBuyModelTest {
         val date = Date()
         whenever(
             interactor.createOrder(
-                cryptoCurrency = anyOrNull(),
+                cryptoAsset = anyOrNull(),
                 amount = anyOrNull(),
                 paymentMethodId = anyOrNull(),
                 paymentMethod = any(),
@@ -163,8 +174,8 @@ class SimpleBuyModelTest {
                         id = "testId",
                         expires = date,
                         state = OrderState.AWAITING_FUNDS,
-                        crypto = CryptoValue.ZeroBtc,
-                        orderValue = CryptoValue.ZeroBtc,
+                        crypto = CryptoValue.zero(CryptoCurrency.BTC),
+                        orderValue = CryptoValue.zero(CryptoCurrency.BTC),
                         paymentMethodId = "213",
                         updated = Date(),
                         paymentMethodType = PaymentMethodType.FUNDS,
@@ -177,32 +188,35 @@ class SimpleBuyModelTest {
             )
         )
 
-        val testObserver = model.state.test()
-        model.process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
-
-        testObserver.assertValueAt(0, defaultState)
-        testObserver.assertValueAt(1, defaultState.copy(isLoading = true))
-        testObserver.assertValueAt(
-            2,
-            defaultState.copy(
-                orderState = OrderState.AWAITING_FUNDS,
-                id = "testId",
-                orderValue = CryptoValue.ZeroBtc,
-                expirationDate = date
-            )
+        val expectedState = defaultState.copy(
+            orderState = OrderState.AWAITING_FUNDS,
+            id = "testId",
+            orderValue = CryptoValue.zero(CryptoCurrency.BTC),
+            expirationDate = date
         )
+
+        model.process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
+        model.state
+            .test()
+            .awaitCount(3)
+            .assertValueAt(0) { it == defaultState }
+            .assertValueAt(1) { it == defaultState.copy(isLoading = true) }
+            .assertValueAt(2) { it == expectedState }
     }
 
     @Test
     fun `update kyc state shall make interactor poll for kyc state and update the state accordingly`() {
         whenever(interactor.pollForKycState())
             .thenReturn(Single.just(SimpleBuyIntent.KycStateUpdated(KycState.VERIFIED_AND_ELIGIBLE)))
-        val testObserver = model.state.test()
+
         model.process(SimpleBuyIntent.FetchKycState)
 
-        testObserver.assertValueAt(0, defaultState)
-        testObserver.assertValueAt(1, defaultState.copy(kycVerificationState = KycState.PENDING))
-        testObserver.assertValueAt(2, defaultState.copy(kycVerificationState = KycState.VERIFIED_AND_ELIGIBLE))
+        model.state
+            .test()
+            .awaitCount(3)
+            .assertValueAt(0) { it == defaultState }
+            .assertValueAt(1) { it == defaultState.copy(kycVerificationState = KycState.PENDING) }
+            .assertValueAt(2) { it == defaultState.copy(kycVerificationState = KycState.VERIFIED_AND_ELIGIBLE) }
     }
 
     @Test
@@ -221,7 +235,7 @@ class SimpleBuyModelTest {
                         id = id,
                         pair = "EUR-BTC",
                         fiat = FiatValue.fromMinor("EUR", 10000),
-                        crypto = CryptoValue.ZeroBtc,
+                        crypto = CryptoValue.zero(CryptoCurrency.BTC),
                         state = OrderState.AWAITING_FUNDS,
                         paymentMethodId = "123-123",
                         expires = Date(),
@@ -241,21 +255,22 @@ class SimpleBuyModelTest {
                 )
             )
 
-        val testObserver = model.state.test()
         model.process(SimpleBuyIntent.MakePayment("testId"))
-
-        testObserver.assertValueAt(0, defaultState)
-        testObserver.assertValueAt(1, defaultState.copy(isLoading = true))
-        testObserver.assertValueAt(2, defaultState.copy(orderExchangePrice = price))
-        testObserver.assertValueAt(
-            3, defaultState.copy(
-                orderExchangePrice = price,
-                everypayAuthOptions = EverypayAuthOptions(
-                    paymentLink, EverypayCardActivator.redirectUrl
+        model.state
+            .test()
+            .awaitCount(5)
+            .assertValueAt(0) { it == defaultState }
+            .assertValueAt(1) { it == defaultState.copy(isLoading = true) }
+            .assertValueAt(2) { it == defaultState.copy(orderExchangePrice = price) }
+            .assertValueAt(3) {
+                it == defaultState.copy(
+                    orderExchangePrice = price,
+                    everypayAuthOptions = EverypayAuthOptions(
+                        paymentLink, EverypayCardActivator.redirectUrl
+                    )
                 )
-            )
-        )
-        testObserver.assertValueAt(4, defaultState.copy(orderExchangePrice = price))
+            }
+            .assertValueAt(4) { it == defaultState.copy(orderExchangePrice = price) }
     }
 
     @Test
@@ -266,8 +281,8 @@ class SimpleBuyModelTest {
                     id = "testId",
                     expires = Date(),
                     state = OrderState.CANCELED,
-                    crypto = CryptoValue.ZeroBtc,
-                    orderValue = CryptoValue.ZeroBtc,
+                    crypto = CryptoValue.zero(CryptoCurrency.BTC),
+                    orderValue = CryptoValue.zero(CryptoCurrency.BTC),
                     paymentMethodId = "213",
                     updated = Date(),
                     paymentMethodType = PaymentMethodType.BANK_TRANSFER,
@@ -280,20 +295,14 @@ class SimpleBuyModelTest {
             )
         )
 
-        val testObserver = model.state.test()
         model.process(SimpleBuyIntent.CheckOrderStatus)
 
-        testObserver.assertValueAt(0, defaultState)
-        testObserver.assertValueAt(
-            1, defaultState.copy(
-                isLoading = true
-            )
-        )
-        testObserver.assertValueAt(
-            2, defaultState.copy(
-                errorState = ErrorState.ApprovedBankRejected
-            )
-        )
+        model.state
+            .test()
+            .awaitCount(3)
+            .assertValueAt(0) { it == defaultState }
+            .assertValueAt(1) { it == defaultState.copy(isLoading = true) }
+            .assertValueAt(2) { it == defaultState.copy(errorState = ErrorState.ApprovedBankRejected) }
     }
 
     @Test
@@ -304,19 +313,27 @@ class SimpleBuyModelTest {
                     BuySellPairs(
                         listOf(
                             BuySellPair(
-                                pair = "BTC-USD", buyLimits = BuySellLimits(100, 3000),
+                                cryptoCurrency = CryptoCurrency.BTC,
+                                fiatCurrency = "USD",
+                                buyLimits = BuySellLimits(100, 3000),
                                 sellLimits = BuySellLimits(100, 5024558)
                             ),
                             BuySellPair(
-                                pair = "BTC-EUR", buyLimits = BuySellLimits(1006, 10000),
+                                cryptoCurrency = CryptoCurrency.BTC,
+                                fiatCurrency = "EUR",
+                                buyLimits = BuySellLimits(1006, 10000),
                                 sellLimits = BuySellLimits(100, 5024558)
                             ),
                             BuySellPair(
-                                pair = "ETH-EUR", buyLimits = BuySellLimits(1005, 10000),
+                                cryptoCurrency = CryptoCurrency.ETHER,
+                                fiatCurrency = "EUR",
+                                buyLimits = BuySellLimits(1005, 10000),
                                 sellLimits = BuySellLimits(100, 5024558)
                             ),
                             BuySellPair(
-                                pair = "BCH-EUR", buyLimits = BuySellLimits(1001, 10000),
+                                cryptoCurrency = CryptoCurrency.BCH,
+                                fiatCurrency = "EUR",
+                                buyLimits = BuySellLimits(1001, 10000),
                                 sellLimits = BuySellLimits(100, 5024558)
                             )
                         )
@@ -324,46 +341,43 @@ class SimpleBuyModelTest {
                 )
             )
 
-        val testObserver = model.state.test()
-        model.process(SimpleBuyIntent.FetchBuyLimits("USD", CryptoCurrency.BTC))
-
-        testObserver.assertValueAt(0, defaultState)
-        testObserver.assertValueAt(
-            1, defaultState.copy(
-                supportedPairsAndLimits = listOf(
-                    BuySellPair(
-                        pair = "BTC-USD", buyLimits = BuySellLimits(100, 3000),
-                        sellLimits = BuySellLimits(100, 5024558)
-                    )
-                ),
-                selectedCryptoCurrency = CryptoCurrency.BTC,
-                transferLimits = TransferLimits("USD")
-            )
+        val expectedState = defaultState.copy(
+            supportedPairsAndLimits = listOf(
+                BuySellPair(
+                    cryptoCurrency = CryptoCurrency.BTC,
+                    fiatCurrency = "USD",
+                    buyLimits = BuySellLimits(100, 3000),
+                    sellLimits = BuySellLimits(100, 5024558)
+                )
+            ),
+            selectedCryptoAsset = CryptoCurrency.BTC,
+            transferLimits = TransferLimits("USD")
         )
+
+        model.process(SimpleBuyIntent.FetchBuyLimits("USD", CryptoCurrency.BTC))
+        model.state
+            .test()
+            .awaitCount(2)
+            .assertValueAt(0) { it == defaultState }
+            .assertValueAt(1) { it == expectedState }
     }
 
     @Test
     fun `WHEN eligiblePaymentMethods and getRecurringBuyEligibility success THEN observe state`() {
-        val paymentMethodsUpdated = mock<SimpleBuyIntent.PaymentMethodsUpdated>()
+        val paymentMethodsUpdated: SimpleBuyIntent.PaymentMethodsUpdated = mock()
         whenever(interactor.eligiblePaymentMethods("USD", "123-321"))
             .thenReturn(Single.just(paymentMethodsUpdated))
 
-        val paymentMethodType = mock<PaymentMethodType>()
+        val paymentMethodType: PaymentMethodType = mock()
         whenever(interactor.getRecurringBuyEligibility())
             .thenReturn(Single.just(listOf(paymentMethodType)))
 
         verifyNoMoreInteractions(interactor)
 
-        val testObserver = model.state.test()
-        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod("USD", "123-321"))
-
-        testObserver.assertValueAt(0, defaultState)
-
         val state1 = defaultState.copy(
             paymentOptions = PaymentOptions(),
             selectedPaymentMethod = null
         )
-        testObserver.assertValueAt(1, state1)
 
         val state2 = state1.copy(
             recurringBuyEligiblePaymentMethods = listOf(paymentMethodType),
@@ -371,7 +385,14 @@ class SimpleBuyModelTest {
             selectedPaymentMethod = null,
             paymentOptions = PaymentOptions()
         )
-        testObserver.assertValueAt(2, state2)
+
+        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod("USD", "123-321"))
+        model.state
+            .test()
+            .awaitCount(3)
+            .assertValueAt(0, defaultState)
+            .assertValueAt(1, state1)
+            .assertValueAt(2, state2)
     }
 
     @Test
@@ -381,25 +402,25 @@ class SimpleBuyModelTest {
 
         verifyNoMoreInteractions(interactor)
 
-        val testObserver = model.state.test()
-        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod("USD", "123-321"))
-
-        testObserver.assertValueAt(0, defaultState)
-
         val state1 = defaultState.copy(
             paymentOptions = PaymentOptions(),
             selectedPaymentMethod = null
         )
-        testObserver.assertValueAt(1, state1)
 
-        testObserver.assertValueAt(
-            2,
-            state1.copy(
-                errorState = ErrorState.GenericError,
-                isLoading = false,
-                confirmationActionRequested = false
-            )
+        val state2 = state1.copy(
+            errorState = ErrorState.GenericError,
+            isLoading = false,
+            confirmationActionRequested = false
         )
+
+        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod("USD", "123-321"))
+
+        model.state
+            .test()
+            .awaitCount(3)
+            .assertValueAt(0, defaultState)
+            .assertValueAt(1, state1)
+            .assertValueAt(2, state2)
     }
 
     @Test
@@ -412,15 +433,17 @@ class SimpleBuyModelTest {
 
         verifyNoMoreInteractions(interactor)
 
-        val testObserver = model.state.test()
-        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod("USD", "123-321"))
-
-        testObserver.assertValueAt(0, defaultState)
-
         val state1 = defaultState.copy(
             paymentOptions = PaymentOptions(),
             selectedPaymentMethod = null
         )
-        testObserver.assertValueAt(1, state1)
+
+        model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod("USD", "123-321"))
+
+        model.state
+            .test()
+            .awaitCount(3)
+            .assertValueAt(0, defaultState)
+            .assertValueAt(1, state1)
     }
 }

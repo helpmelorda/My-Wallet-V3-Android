@@ -5,37 +5,40 @@ import com.blockchain.nabu.datamanagers.InterestAccountDetails
 import com.blockchain.nabu.models.responses.interest.InterestAccountDetailsResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.rx.ParameteredMappedSinglesTimedRequests
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import io.reactivex.Single
 
 interface InterestBalancesProvider {
-    fun getBalanceForAsset(asset: CryptoCurrency): Single<InterestAccountDetails>
-    fun clearBalanceForAsset(asset: CryptoCurrency)
+    fun getBalanceForAsset(asset: AssetInfo): Single<InterestAccountDetails>
+    fun clearBalanceForAsset(asset: AssetInfo)
     fun clearBalanceForAsset(ticker: String)
 }
 
 class InterestBalancesProviderImpl(
+    private val assetCatalogue: AssetCatalogue,
     private val authenticator: Authenticator,
     private val nabuService: NabuService
 ) : InterestBalancesProvider {
 
-    override fun getBalanceForAsset(asset: CryptoCurrency) = Single.just(cache.getCachedSingle(asset).blockingGet())
+    override fun getBalanceForAsset(asset: AssetInfo) =
+        Single.just(cache.getCachedSingle(asset).blockingGet())
 
-    override fun clearBalanceForAsset(asset: CryptoCurrency) {
+    override fun clearBalanceForAsset(asset: AssetInfo) {
         cache.invalidate(asset)
     }
 
     override fun clearBalanceForAsset(ticker: String) {
-        val crypto = CryptoCurrency.fromNetworkTicker(ticker)
+        val crypto = assetCatalogue.fromNetworkTicker(ticker)
         crypto?.let {
             cache.invalidate(it)
         }
     }
 
-    private val refresh: (CryptoCurrency) -> Single<InterestAccountDetails> = { currency ->
+    private val refresh: (AssetInfo) -> Single<InterestAccountDetails> = { currency ->
         authenticator.authenticate {
-            nabuService.getInterestAccountBalance(it, currency.networkTicker).map { details ->
+            nabuService.getInterestAccountBalance(it, currency.ticker).map { details ->
                 details.toInterestAccountDetails(currency)
             }.toSingle(
                 InterestAccountDetails(
@@ -54,12 +57,12 @@ class InterestBalancesProviderImpl(
         refreshFn = refresh
     )
 
-    private fun InterestAccountDetailsResponse.toInterestAccountDetails(cryptoCurrency: CryptoCurrency) =
+    private fun InterestAccountDetailsResponse.toInterestAccountDetails(asset: AssetInfo) =
         InterestAccountDetails(
-            balance = CryptoValue.fromMinor(cryptoCurrency, balance.toBigInteger()),
-            pendingInterest = CryptoValue.fromMinor(cryptoCurrency, pendingInterest.toBigInteger()),
-            pendingDeposit = CryptoValue.fromMinor(cryptoCurrency, pendingDeposit.toBigInteger()),
-            totalInterest = CryptoValue.fromMinor(cryptoCurrency, totalInterest.toBigInteger()),
-            lockedBalance = CryptoValue.fromMinor(cryptoCurrency, locked.toBigInteger())
+            balance = CryptoValue.fromMinor(asset, balance.toBigInteger()),
+            pendingInterest = CryptoValue.fromMinor(asset, pendingInterest.toBigInteger()),
+            pendingDeposit = CryptoValue.fromMinor(asset, pendingDeposit.toBigInteger()),
+            totalInterest = CryptoValue.fromMinor(asset, totalInterest.toBigInteger()),
+            lockedBalance = CryptoValue.fromMinor(asset, locked.toBigInteger())
         )
 }

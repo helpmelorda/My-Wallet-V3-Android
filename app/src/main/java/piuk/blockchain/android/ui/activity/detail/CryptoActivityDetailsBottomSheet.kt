@@ -17,15 +17,17 @@ import com.blockchain.nabu.datamanagers.RecurringBuyErrorState
 import com.blockchain.nabu.datamanagers.RecurringBuyTransactionState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.notifications.analytics.ActivityAnalytics
+import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.ui.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetResources
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.databinding.DialogSheetActivityDetailsBinding
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.BuySellType
@@ -60,6 +62,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         DialogSheetActivityDetailsBinding.inflate(inflater, container, false)
 
     override val model: ActivityDetailsModel by scopedInject()
+    private val assetCatalogue: AssetCatalogue by inject()
     private val compositeDisposable = CompositeDisposable()
 
     private val listAdapter: ActivityDetailsDelegateAdapter by lazy {
@@ -69,27 +72,30 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         )
     }
 
-    private val Bundle?.txId
-        get() = this?.getString(ARG_TRANSACTION_HASH) ?: throw IllegalArgumentException(
-            "Transaction id should not be null"
-        )
+    private val txId by lazy {
+        arguments?.getString(ARG_TRANSACTION_HASH)
+            ?: throw IllegalArgumentException("Transaction id should not be null")
+    }
 
-    private val Bundle?.cryptoCurrency
-        get() = this?.getSerializable(ARG_CRYPTO_CURRENCY) as? CryptoCurrency
-            ?: throw IllegalArgumentException("Cryptocurrency should not be null")
+    private val asset: AssetInfo by lazy {
+        arguments?.getString(ARG_CRYPTO_ASSET)?.let {
+            assetCatalogue.fromNetworkTicker(it)
+        } ?: throw IllegalArgumentException("Crypto asset should not be null")
+    }
 
-    private val Bundle?.activityType
-        get() = this?.getSerializable(ARG_ACTIVITY_TYPE) as? CryptoActivityType
+    private val activityType by lazy {
+        arguments?.getSerializable(ARG_ACTIVITY_TYPE) as? CryptoActivityType
             ?: throw IllegalArgumentException("ActivityDetailsType should not be null")
+    }
 
     private lateinit var currentState: ActivityDetailState
 
     private val simpleBuySync: SimpleBuySyncFactory by scopedInject()
 
-    private val assetResources: AssetResources by scopedInject()
+    private val assetResources: AssetResources by inject()
 
     override fun initControls(binding: DialogSheetActivityDetailsBinding) {
-        loadActivityDetails(arguments.cryptoCurrency, arguments.txId, arguments.activityType)
+        loadActivityDetails(asset, txId, activityType)
         binding.detailsList.apply {
             layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
@@ -262,7 +268,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                         BuySellClicked(origin = LaunchOrigin.TRANSACTION_DETAILS, type = BuySellType.BUY)
                     )
                     startActivity(
-                        SimpleBuyActivity.newInstance(requireContext(), arguments.cryptoCurrency, true)
+                        SimpleBuyActivity.newInstance(requireContext(), asset, true)
                     )
                     dismiss()
                 }
@@ -401,12 +407,12 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
 
     private fun onDescriptionItemClicked(description: String) {
         model.process(
-            UpdateDescriptionIntent(arguments.txId, arguments.cryptoCurrency, description)
+            UpdateDescriptionIntent(txId, asset, description)
         )
     }
 
     private fun onActionItemClicked() {
-        val explorerUri = assetResources.makeBlockExplorerUrl(arguments.cryptoCurrency, arguments.txId)
+        val explorerUri = assetResources.makeBlockExplorerUrl(asset, txId)
         logAnalyticsForExplorer()
         Intent(Intent.ACTION_VIEW).apply {
             data = Uri.parse(explorerUri)
@@ -426,7 +432,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
             TransactionSummary.TransactionType.BUY -> getString(R.string.activity_details_title_buy)
             TransactionSummary.TransactionType.SELL -> getString(
                 R.string.activity_details_title_sell_1,
-                arguments.cryptoCurrency.displayTicker
+                asset.ticker
             )
             TransactionSummary.TransactionType.SWAP -> getString(R.string.activity_details_title_swap)
             TransactionSummary.TransactionType.DEPOSIT -> getString(
@@ -476,11 +482,11 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
     }
 
     private fun loadActivityDetails(
-        cryptoCurrency: CryptoCurrency,
+        asset: AssetInfo,
         txHash: String,
         activityType: CryptoActivityType
     ) {
-        model.process(LoadActivityDetailsIntent(cryptoCurrency, txHash, activityType))
+        model.process(LoadActivityDetailsIntent(asset, txHash, activityType))
     }
 
     override fun onDestroy() {
@@ -489,18 +495,18 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
     }
 
     companion object {
-        private const val ARG_CRYPTO_CURRENCY = "crypto_currency"
+        private const val ARG_CRYPTO_ASSET = "crypto_currency"
         private const val ARG_ACTIVITY_TYPE = "activity_type"
         private const val ARG_TRANSACTION_HASH = "tx_hash"
 
         fun newInstance(
-            cryptoCurrency: CryptoCurrency,
+            asset: AssetInfo,
             txHash: String,
             activityType: CryptoActivityType
         ): CryptoActivityDetailsBottomSheet {
             return CryptoActivityDetailsBottomSheet().apply {
                 arguments = Bundle().apply {
-                    putSerializable(ARG_CRYPTO_CURRENCY, cryptoCurrency)
+                    putString(ARG_CRYPTO_ASSET, asset.ticker)
                     putString(ARG_TRANSACTION_HASH, txHash)
                     putSerializable(ARG_ACTIVITY_TYPE, activityType)
                 }

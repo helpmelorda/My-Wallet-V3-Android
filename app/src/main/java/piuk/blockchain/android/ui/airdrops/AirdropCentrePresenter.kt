@@ -8,6 +8,8 @@ import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.CampaignState
 import com.blockchain.nabu.models.responses.nabu.CampaignTransactionState
 import com.blockchain.nabu.models.responses.nabu.UserCampaignState
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -30,6 +32,7 @@ interface AirdropCentreView : MvpView {
 class AirdropCentrePresenter(
     private val nabuToken: NabuToken,
     private val nabu: NabuDataManager,
+    private val assetCatalogue: AssetCatalogue,
     private val crashLogger: CrashLogger
 ) : MvpPresenter<AirdropCentreView>() {
 
@@ -61,7 +64,7 @@ class AirdropCentrePresenter(
 
     private fun transformAirdropStatus(item: AirdropStatus): Airdrop? {
         val name = item.campaignName
-        val currency = when (name) {
+        val asset = when (name) {
             blockstackCampaignName -> CryptoCurrency.STX
             sunriverCampaignName -> CryptoCurrency.XLM
             else -> return null
@@ -73,7 +76,7 @@ class AirdropCentrePresenter(
 
         return Airdrop(
             name,
-            currency,
+            asset,
             status,
             amountFiat,
             amountCrypto,
@@ -91,7 +94,7 @@ class AirdropCentrePresenter(
         return tx?.let {
             val fiat = FiatValue.fromMinor(tx.fiatCurrency, tx.fiatValue)
 
-            val cryptoCurrency = CryptoCurrency.fromNetworkTicker(tx.withdrawalCurrency)
+            val cryptoCurrency = assetCatalogue.fromNetworkTicker(tx.withdrawalCurrency)
                 ?: throw IllegalStateException("Unknown crypto currency: ${tx.withdrawalCurrency}")
 
             val crypto = CryptoValue.fromMinor(cryptoCurrency, tx.withdrawalQuantity.toBigDecimal())
@@ -123,7 +126,9 @@ class AirdropCentrePresenter(
                     else -> null
                 }
             } else {
-                txResponseList.maxBy { it.withdrawalAt }!!.withdrawalAt
+                txResponseList.maxByOrNull {
+                    it.withdrawalAt
+                }?.withdrawalAt ?: throw IllegalStateException("Can't happen")
             }
         }
     }
@@ -144,7 +149,7 @@ enum class AirdropState {
 
 data class Airdrop(
     val name: String,
-    val currency: CryptoCurrency,
+    val asset: AssetInfo,
     val status: AirdropState,
     val amountFiat: FiatValue?,
     val amountCrypto: CryptoValue?,

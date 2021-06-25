@@ -8,6 +8,7 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.EthereumWallet
@@ -23,7 +24,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.data.coinswebsocket.service.MessagesSocketHandler
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
 import piuk.blockchain.android.util.StringUtils
@@ -33,6 +33,31 @@ import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PersistentPrefs
+
+private const val DUMMY_ERC20_1_TICKER = "DUMMY"
+private const val DUMMY_ERC20_1_CONTRACT_ADDRESS = "0xF00F00F00F00F00F00FAB"
+@Suppress("ClassName")
+private object DUMMY_ERC20_1 : CryptoCurrency(
+    ticker = DUMMY_ERC20_1_TICKER,
+    name = "Dummies",
+    precisionDp = 18,
+    requiredConfirmations = 5,
+    l2chain = ETHER,
+    l2identifier = DUMMY_ERC20_1_CONTRACT_ADDRESS,
+    colour = "#123456"
+)
+
+private const val DUMMY_ERC20_2_TICKER = "FAKE"
+@Suppress("ClassName")
+private object DUMMY_ERC20_2 : CryptoCurrency(
+    ticker = DUMMY_ERC20_2_TICKER,
+    name = "Fakes",
+    precisionDp = 18,
+    requiredConfirmations = 5,
+    l2chain = ETHER,
+    l2identifier = "0xF0DF0DF0DF0DF0DF0DFAD",
+    colour = "#123456"
+)
 
 class CoinsWebSocketStrategyTest {
 
@@ -45,20 +70,19 @@ class CoinsWebSocketStrategyTest {
     private val messagesSocketHandler: MessagesSocketHandler = mock()
 
     val wallet = mock<EthereumWallet> {
-        on { getErc20TokenData(Erc20TokenData.PAX_CONTRACT_NAME) } `it returns`
-            Erc20TokenData.createPaxTokenData("")
+        on { getErc20TokenData(DUMMY_ERC20_1_TICKER) } itReturns
+            Erc20TokenData.createTokenData(DUMMY_ERC20_1, "")
 
-        on { getErc20TokenData(Erc20TokenData.USDT_CONTRACT_NAME) } `it returns`
-            Erc20TokenData.createUsdtTokenData("")
+        on { getErc20TokenData(DUMMY_ERC20_2_TICKER) } itReturns
+            Erc20TokenData.createTokenData(DUMMY_ERC20_2, "")
     }
 
     private val ethDataManager: EthDataManager = mock {
         on { getEthWallet() } `it returns` wallet
-        on { getErc20TokenData(CryptoCurrency.PAX) } `it returns` Erc20TokenData.createPaxTokenData("")
-        on { getErc20TokenData(CryptoCurrency.USDT) } `it returns` Erc20TokenData.createUsdtTokenData("")
-        on { getErc20TokenData(CryptoCurrency.DGLD) } `it returns` Erc20TokenData.createDgldTokenData("")
-        on { getErc20TokenData(CryptoCurrency.AAVE) } `it returns` Erc20TokenData.createAaveTokenData("")
-        on { getErc20TokenData(CryptoCurrency.YFI) } `it returns` Erc20TokenData.createYfiTokenData("")
+        on { getErc20TokenData(DUMMY_ERC20_1) } itReturns
+            Erc20TokenData.createTokenData(DUMMY_ERC20_1, "")
+        on { getErc20TokenData(DUMMY_ERC20_2) } itReturns
+            Erc20TokenData.createTokenData(DUMMY_ERC20_2, "")
         on { fetchEthAddress() } `it returns` Observable.just(CombinedEthModel(EthAddressResponseMap()))
         on { getEthWalletAddress() } `it returns` "0x4058a004dd718babab47e14dd0d744742e5b9903"
         on { refreshErc20Model(any()) } `it returns` Completable.complete()
@@ -67,9 +91,6 @@ class CoinsWebSocketStrategyTest {
     private val stringUtils: StringUtils = mock {
         on { getString(R.string.app_name) } `it returns` "Blockchain"
         on { getString(R.string.received_ethereum) } `it returns` "Received Ether"
-        on { getString(R.string.received_usd_pax_1) } `it returns` "Received USD Digital"
-        on { getString(R.string.received_usdt) } `it returns` "Received Tether"
-        on { getString(R.string.received_dgld) } `it returns` "Received Wrapped-DGLD"
         on { getString(R.string.common_from) } `it returns` "From"
         on { getString(R.string.received_erc20_marquee) } itReturns "Received %1\$s %2\$s"
         on { getString(R.string.received_erc20_text) } itReturns "Received %1\$s %2\$s from %3\$s"
@@ -103,12 +124,8 @@ class CoinsWebSocketStrategyTest {
         on { walletGuid } `it returns` "1234"
     }
 
-    private val assetResources: AssetResources = mock {
-        on { assetName(CryptoCurrency.USDT) } itReturns "Tether"
-        on { assetName(CryptoCurrency.PAX) } itReturns "USD Digital"
-        on { assetName(CryptoCurrency.DGLD) } itReturns "Wrapped-DGLD"
-        on { assetName(CryptoCurrency.AAVE) } itReturns "Aave"
-        on { assetName(CryptoCurrency.YFI) } itReturns "YFI"
+    private val assetCatalogue: AssetCatalogue = mock {
+        on { supportedL2Assets(CryptoCurrency.ETHER) } itReturns listOf(DUMMY_ERC20_1, DUMMY_ERC20_2)
     }
 
     private val mockWebSocket: WebSocket<String, String> = mock()
@@ -125,7 +142,7 @@ class CoinsWebSocketStrategyTest {
         appUtil = mock(),
         prefs = prefs,
         rxBus = rxBus,
-        assetResources = assetResources
+        assetCatalogue = assetCatalogue
     )
 
     @Before
@@ -163,41 +180,17 @@ class CoinsWebSocketStrategyTest {
     }
 
     @Test
-    fun `pax transaction should be update pax transactions and broadcasted`() {
+    fun `erc20 transaction should update model and be broadcast`() {
         webSocket.send(paxTransaction)
 
         verify(mockWebSocket).open()
         verify(ethDataManager, never()).fetchEthAddress()
-        verify(ethDataManager).refreshErc20Model(CryptoCurrency.PAX)
-        verify(messagesSocketHandler).triggerNotification("Blockchain",
-            "Received USD Digital 1.21 USD-D",
-            "Received USD Digital 1.21 USD-D from 0x4058a004dd718babab47e14dd0d744742e5b9903")
-        verify(messagesSocketHandler).sendBroadcast(any())
-    }
-
-    @Test
-    fun `usdt transaction should be update usdt transactions and broadcasted`() {
-        webSocket.send(usdtTransaction)
-
-        verify(mockWebSocket).open()
-        verify(ethDataManager, never()).fetchEthAddress()
-        verify(ethDataManager).refreshErc20Model(CryptoCurrency.USDT)
-        verify(messagesSocketHandler).triggerNotification("Blockchain",
-            "Received Tether 1.21 USDT",
-            "Received Tether 1.21 USDT from 0x4058a004dd718babab47e14dd0d744742e5b9903")
-        verify(messagesSocketHandler).sendBroadcast(any())
-    }
-
-    @Test
-    fun `wdgld transaction should be update wdgld transactions and broadcasted`() {
-        webSocket.send(wdgldTransaction)
-
-        verify(mockWebSocket).open()
-        verify(ethDataManager, never()).fetchEthAddress()
-        verify(ethDataManager).refreshErc20Model(CryptoCurrency.DGLD)
-        verify(messagesSocketHandler).triggerNotification("Blockchain",
-            "Received Wrapped-DGLD 0.0121 wDGLD",
-            "Received Wrapped-DGLD 0.0121 wDGLD from 0x4058a004dd718babab47e14dd0d744742e5b9903")
+        verify(ethDataManager).refreshErc20Model(DUMMY_ERC20_1)
+        verify(messagesSocketHandler).triggerNotification(
+            "Blockchain",
+            "Received Dummies 1.21 DUMMY",
+            "Received Dummies 1.21 DUMMY from 0x4058a004dd718babab47e14dd0d744742e5b9903"
+        )
         verify(messagesSocketHandler).sendBroadcast(any())
     }
 
@@ -251,6 +244,7 @@ class CoinsWebSocketStrategyTest {
                 "ntractAddress\":\"0x\",\"value\":\"6047410000000000\",\"nonce\":171,\"gasPrice\":\"4000000000\",\"ga" +
                 "sLimit\":21000,\"gasUsed\":21000,\"data\":\"\",\"transactionIndex\":59,\"success\":true,\"err" +
                 "or\":\"\",\"firstSeen\":0,\"timestamp\":1566220763,\"state\":\"confirmed\"}}"
+
     private val pendingEthTransaction =
         "{\"coin\":\"eth\",\"entity\":\"account\",\"address\":\"0x4058a004dd718babab47e14dd0d744742e5b9903\",\"txHa" +
                 "sh\":\"0xe1ff1e0ea7023c80308302d809684f90d1c094f969a13343e6081197f3552c97\",\"transaction\"" +
@@ -268,30 +262,12 @@ class CoinsWebSocketStrategyTest {
 
     private val paxTransaction =
         "{\"coin\":\"eth\",\"entity\":\"token_account\",\"param\":{\"accountAddress\":\"0x4058a004dd718babab47e14dd0" +
-            "d744742e5b9903\",\"tokenAddress\":\"0x8e870d67f660d95d5be530380d0ec0bd388289e1\"},\"tokenTransf" +
+            "d744742e5b9903\",\"tokenAddress\":\"$DUMMY_ERC20_1_CONTRACT_ADDRESS\"},\"tokenTransf" +
             "er\":{\"blockHash\":\"0x1293676c93d91660ca4ec40df09b6ec4fa080138d975c19813b914befc1187c\",\"transact" +
             "ionHash\":\"0x3cd2e95358c58af6e9ecd2f0af6739c3db945e2259bf2a4bc91fb5e2f397ad89\",\"blockNumber\":83" +
             "62036,\"tokenHash\":\"0x8e870d67f660d95d5be530380d0ec0bd388289e1\",\"logIndex\":67,\"from\":\"0x4058" +
             "a004dd718babab47e14dd0d744742e5b9903\",\"to\":\"0x4058a004dd718babab47e14dd0d744742e5b9903\",\"val" +
             "ue\":1210000000000000000,\"decimals\":18,\"timestamp\":0}}"
-
-    private val usdtTransaction =
-        "{\"coin\":\"eth\",\"entity\":\"token_account\",\"param\":{\"accountAddress\":\"0x4058a004dd718babab47e14dd0" +
-            "d744742e5b9903\",\"tokenAddress\":\"0xdAC17F958D2ee523a2206206994597C13D831ec7\"},\"tokenTransf" +
-            "er\":{\"blockHash\":\"0x1293676c93d91660ca4ec40df09b6ec4fa080138d975c19813b914befc1187c\",\"transact" +
-            "ionHash\":\"0x3cd2e95358c58af6e9ecd2f0af6739c3db945e2259bf2a4bc91fb5e2f397ad89\",\"blockNumber\":83" +
-            "62036,\"tokenHash\":\"0x8e870d67f660d95d5be530380d0ec0bd388289e1\",\"logIndex\":67,\"from\":\"0x4058" +
-            "a004dd718babab47e14dd0d744742e5b9903\",\"to\":\"0x4058a004dd718babab47e14dd0d744742e5b9903\",\"val" +
-            "ue\":1210000,\"decimals\":6,\"timestamp\":0}}"
-
-    private val wdgldTransaction =
-        "{\"coin\":\"eth\",\"entity\":\"token_account\",\"param\":{\"accountAddress\":\"0x4058a004dd718babab47e14dd0" +
-            "d744742e5b9903\",\"tokenAddress\":\"0x123151402076fc819b7564510989e475c9cd93ca\"},\"tokenTransf" +
-            "er\":{\"blockHash\":\"0x1293676c93d91660ca4ec40df09b6ec4fa080138d975c19813b914befc1187c\",\"transact" +
-            "ionHash\":\"0x3cd2e95358c58af6e9ecd2f0af6739c3db945e2259bf2a4bc91fb5e2f397ad89\",\"blockNumber\":83" +
-            "62036,\"tokenHash\":\"0x8e870d67f660d95d5be530380d0ec0bd388289e1\",\"logIndex\":67,\"from\":\"0x4058" +
-            "a004dd718babab47e14dd0d744742e5b9903\",\"to\":\"0x4058a004dd718babab47e14dd0d744742e5b9903\",\"val" +
-            "ue\":1210000,\"decimals\":6,\"timestamp\":0}}"
 
     private val btcTransaction = "{\"coin\":\"btc\",\"entity\":\"xpub\",\"transaction\":" +
             "{\"lock_time\":0,\"ver\":1,\"size\":225,\"inputs\":[{\"address\":\"1Cox48WAm4NKTYbSjQ8DEswpaBNCfFwo9x" +

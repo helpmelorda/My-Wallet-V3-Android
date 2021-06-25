@@ -81,7 +81,7 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
                 }
                 else ->
                     with(binding) {
-                        rbSheetTitle.text = getString(R.string.recurring_buy_sheet_title, it.asset.displayTicker)
+                        rbSheetTitle.text = getString(R.string.recurring_buy_sheet_title, it.asset.ticker)
                         rbSheetHeader.setDetails(
                             it.amount.toStringWithSymbol(),
                             ""

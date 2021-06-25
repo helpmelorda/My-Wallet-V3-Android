@@ -4,9 +4,9 @@ import com.blockchain.extensions.withoutNullValues
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.notifications.analytics.AnalyticsEvent
+import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import java.io.Serializable
 
@@ -130,10 +130,10 @@ fun withdrawEventWithCurrency(analytics: SimpleBuyAnalytics, currency: String, a
         }.toMap()
     }
 
-class CustodialBalanceClicked(cryptoCurrency: CryptoCurrency) : AnalyticsEvent {
+class CustodialBalanceClicked(asset: AssetInfo) : AnalyticsEvent {
     override val event: String = "sb_trading_wallet_clicked"
     override val params: Map<String, String> = mapOf(
-        "asset" to cryptoCurrency.networkTicker
+        "asset" to asset.ticker
     )
 }
 

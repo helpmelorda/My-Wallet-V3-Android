@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.transactionflow.flow.customisations
 
 import android.content.Context
 import android.widget.FrameLayout
+import android.widget.ImageView
 import piuk.blockchain.android.ui.customviews.CurrencyType
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
@@ -14,7 +15,7 @@ interface EnterAmountCustomisations {
     fun enterAmountMaxButton(state: TransactionState): String
     fun enterAmountSourceLabel(state: TransactionState): String
     fun enterAmountTargetLabel(state: TransactionState): String
-    fun enterAmountSourceIcon(state: TransactionState): Int
+    fun enterAmountLoadSourceIcon(imageView: ImageView, state: TransactionState)
     fun defInputType(state: TransactionState, fiatCurrency: String): CurrencyType
     fun selectIssueType(state: TransactionState): IssueType
     fun showTargetIcon(state: TransactionState): Boolean

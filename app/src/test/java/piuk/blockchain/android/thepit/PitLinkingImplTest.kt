@@ -20,7 +20,7 @@ import info.blockchain.wallet.payload.data.Account
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -125,16 +125,6 @@ class PitLinkingImplTest {
         }
     }
 
-//    @Test
-//    fun `isPitLinked continues to work after a first call fails`() {
-//      TODO: Write me
-//    }
-
-//    @Test
-//    fun `isPitLinked() defaults to false when an error occurs`() {
-//      TODO: Write me
-//    }
-
     @Test
     fun `upload pit addresses correctly formats address map`() {
         // Arrange
@@ -158,12 +148,11 @@ class PitLinkingImplTest {
         assertEquals(tokenCapture.firstValue, validOfflineToken)
 
         val map = mapCapture.firstValue
-        assertEquals(map.size, 5)
+        assertEquals(map.size, 4)
         assertEquals(map["BTC"], BTC_ACCOUNT_ADDRESS)
         assertEquals(map["BCH"], BCH_ACCOUNT_ADDRESS)
         assertEquals(map["ETH"], ETH_ACCOUNT_ADDRESS)
         assertEquals(map["XLM"], XLM_ACCOUNT_ADDRESS)
-        assertEquals(map["PAX"], ETH_ACCOUNT_ADDRESS)
 
         verifyNoMoreInteractions(nabu)
     }
@@ -191,12 +180,11 @@ class PitLinkingImplTest {
         assertEquals(tokenCapture.firstValue, validOfflineToken)
 
         val map = mapCapture.firstValue
-        assertEquals(map.size, 4)
-        assertEquals(map["BTC"], BTC_ACCOUNT_ADDRESS)
-        assertEquals(map["BCH"], null)
-        assertEquals(map["ETH"], ETH_ACCOUNT_ADDRESS)
-        assertEquals(map["XLM"], XLM_ACCOUNT_ADDRESS)
-        assertEquals(map["PAX"], ETH_ACCOUNT_ADDRESS)
+        assertEquals(3, map.size)
+        assertEquals(BTC_ACCOUNT_ADDRESS, map["BTC"])
+        assertEquals(null, map["BCH"])
+        assertEquals(ETH_ACCOUNT_ADDRESS, map["ETH"])
+        assertEquals(XLM_ACCOUNT_ADDRESS, map["XLM"])
 
         verifyNoMoreInteractions(nabu)
     }
@@ -326,8 +314,6 @@ class PitLinkingImplTest {
     }
 
     companion object {
-        private const val USER_NAME = "Smaug"
-
         private const val BTC_ACCOUNT_ADDRESS = "btc_account_address"
         private const val BCH_ACCOUNT_ADDRESS = "bch_account_address"
         private const val ETH_ACCOUNT_ADDRESS = "eth_account_address"

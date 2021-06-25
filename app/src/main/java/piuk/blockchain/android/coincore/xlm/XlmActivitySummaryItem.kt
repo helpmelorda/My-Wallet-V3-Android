@@ -20,7 +20,7 @@ class XlmActivitySummaryItem(
     override val account: CryptoAccount,
     private val payloadDataManager: PayloadDataManager
 ) : NonCustodialActivitySummaryItem() {
-    override val cryptoCurrency = CryptoCurrency.XLM
+    override val asset = CryptoCurrency.XLM
 
     override val transactionType: TransactionSummary.TransactionType
         get() = if (xlmTransaction.value > CryptoValue.zero(CryptoCurrency.XLM)) {

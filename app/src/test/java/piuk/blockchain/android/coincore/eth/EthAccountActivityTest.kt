@@ -57,6 +57,7 @@ class EthAccountActivityTest {
                 exchangeRates = exchangeRates,
                 walletPreferences = walletPrefs,
                 custodialWalletManager = custodialWalletManager,
+                assetCatalogue = mock(),
                 identity = mock()
             )
         )

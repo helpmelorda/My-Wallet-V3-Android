@@ -6,6 +6,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.keys.SigningKey
@@ -16,14 +17,14 @@ import info.blockchain.wallet.util.PrivateKeyFactory
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
-import piuk.blockchain.android.coincore.CachedAddress
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.TxResult
+import piuk.blockchain.android.coincore.impl.BackendNotificationUpdater
 import piuk.blockchain.android.coincore.impl.CryptoAssetBase
-import piuk.blockchain.android.coincore.impl.OfflineAccountUpdater
+import piuk.blockchain.android.coincore.impl.NotificationAddresses
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
@@ -46,7 +47,7 @@ internal class BtcAsset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     private val walletPreferences: WalletStatus,
-    offlineAccounts: OfflineAccountUpdater,
+    private val notificationUpdater: BackendNotificationUpdater,
     identity: UserIdentity,
     features: InternalFeatureFlagApi
 ) : CryptoAssetBase(
@@ -58,13 +59,15 @@ internal class BtcAsset(
     custodialManager,
     pitLinking,
     crashLogger,
-    offlineAccounts,
     identity,
     features
 ) {
 
-    override val asset: CryptoCurrency
+    override val asset: AssetInfo
         get() = CryptoCurrency.BTC
+
+    override val isCustodialOnly: Boolean = asset.isCustodialOnly
+    override val multiWallet: Boolean = true
 
     override fun initToken(): Completable =
         Completable.complete()
@@ -76,7 +79,7 @@ internal class BtcAsset(
                 accounts.forEachIndexed { i, account ->
                     val btcAccount = btcAccountFromPayloadAccount(i, account)
                     if (btcAccount.isDefault) {
-                        updateOfflineCache(btcAccount)
+                        updateBackendNotificationAddresses(btcAccount)
                     }
                     result.add(btcAccount)
                 }
@@ -88,28 +91,23 @@ internal class BtcAsset(
             }
         }
 
-    private fun updateOfflineCache(account: BtcCryptoWalletAccount) {
+    private fun updateBackendNotificationAddresses(account: BtcCryptoWalletAccount) {
         require(account.isDefault)
         require(!account.isArchived)
 
-        return offlineAccounts.updateOfflineAddresses(
-            Single.fromCallable {
-                val result = mutableListOf<CachedAddress>()
+        val addressList = mutableListOf<String>()
 
-                for (i in 0 until OFFLINE_CACHE_ITEM_COUNT) {
-                    account.getReceiveAddressAtPosition(i)?.let {
-                        result += CachedAddress(
-                            address = it,
-                            addressUri = FormatsUtil.toDisambiguatedBtcAddress(it)
-                        )
-                    }
-                }
-                BtcOfflineAccountItem(
-                    accountLabel = account.label,
-                    addressList = result
-                )
+        for (i in 0 until OFFLINE_CACHE_ITEM_COUNT) {
+            account.getReceiveAddressAtPosition(i)?.let {
+                addressList += it
             }
+        }
+
+        val notify = NotificationAddresses(
+            assetTicker = asset.ticker,
+            addressList = addressList
         )
+        return notificationUpdater.updateNotificationBackend(notify)
     }
 
     override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> =
@@ -210,7 +208,7 @@ internal class BtcAddress(
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() },
     private val amount: CryptoValue? = null
 ) : CryptoAddress {
-    override val asset: CryptoCurrency = CryptoCurrency.BTC
+    override val asset: AssetInfo = CryptoCurrency.BTC
 
     override fun toUrl(amount: CryptoValue): String {
         return FormatsUtil.toBtcUri(address, amount.toBigInteger())

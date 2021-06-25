@@ -8,20 +8,29 @@ import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
+import info.blockchain.balance.AssetInfo
 import org.koin.core.KoinComponent
+import org.koin.core.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewTransactionProgressBinding
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 
 class TransactionProgressView(context: Context, attrs: AttributeSet) :
     ConstraintLayout(context, attrs), KoinComponent {
 
+    private val assetResources: AssetResources by inject()
+
     private val binding: ViewTransactionProgressBinding =
         ViewTransactionProgressBinding.inflate(LayoutInflater.from(context), this, true)
 
     fun setAssetIcon(@DrawableRes assetIcon: Int) {
         binding.txIcon.setImageResource(assetIcon)
+    }
+
+    fun setAssetIcon(asset: AssetInfo) {
+        assetResources.loadAssetIcon(binding.txIcon, asset)
     }
 
     fun onCtaClick(fn: () -> Unit) {

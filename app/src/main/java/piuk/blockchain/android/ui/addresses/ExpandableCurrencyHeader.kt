@@ -16,34 +16,34 @@ import android.view.animation.Animation
 import android.view.animation.Transformation
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.databinding.ViewExpandingCurrencyHeaderBinding
 import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.setAnimationListener
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import piuk.blockchain.androidcoreui.utils.extensions.getResolvedDrawable
+import java.util.Locale
 
 class ExpandableCurrencyHeader @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : RelativeLayout(context, attrs), KoinComponent {
 
-    private lateinit var selectionListener: (CryptoCurrency) -> Unit
+    private lateinit var selectionListener: (AssetInfo) -> Unit
 
     private val analytics: Analytics by inject()
-    private val assetResources: AssetResources by scopedInject()
     private val coincore: Coincore by scopedInject()
 
     private var expanded = false
@@ -51,7 +51,7 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
     private var collapsedHeight: Int = 0
     private var contentHeight: Int = 0
     private var contentWidth: Int = 0
-    private var selectedCurrency = CryptoCurrency.BTC
+    private var selectedCurrency: AssetInfo = CryptoCurrency.BTC
     private val arrowDrawable: Drawable? by unsafeLazy {
         VectorDrawableCompat.create(
             resources,
@@ -69,11 +69,11 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
     init {
         // Inflate layout
         coincore.cryptoAssets
+            .filter { it.multiWallet }
             .map { it.asset }
-            .filter { it.hasFeature(CryptoCurrency.MULTI_WALLET) }
-            .forEach { currency ->
-                textView(currency)?.apply {
-                    setOnClickListener { closeLayout(currency) }
+            .forEach { asset ->
+                textView(asset)?.apply {
+                    setOnClickListener { closeLayout(asset) }
                 }
             }
         binding.textviewSelectedCurrency.apply {
@@ -120,17 +120,17 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
         outlineProvider = CustomOutline(w, h)
     }
 
-    fun setSelectionListener(selectionListener: (CryptoCurrency) -> Unit) {
+    fun setSelectionListener(selectionListener: (AssetInfo) -> Unit) {
         this.selectionListener = selectionListener
     }
 
-    fun setCurrentlySelectedCurrency(cryptoCurrency: CryptoCurrency) {
-        selectedCurrency = cryptoCurrency
+    fun setCurrentlySelectedCurrency(asset: AssetInfo) {
+        selectedCurrency = asset
         updateCurrencyUi(selectedCurrency)
     }
 
-    private fun textView(cryptoCurrency: CryptoCurrency): TextView? =
-        when (cryptoCurrency) {
+    private fun textView(asset: AssetInfo): TextView? =
+        when (asset) {
             CryptoCurrency.BTC -> binding.textviewBitcoin
             CryptoCurrency.BCH -> binding.textviewBitcoinCash
             else -> null
@@ -184,17 +184,15 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
                 }
             }
         }
-
         binding.contentFrame.startAnimation(animation)
     }
 
-    private fun updateCurrencyUi(asset: CryptoCurrency) {
+    private fun updateCurrencyUi(asset: AssetInfo) {
         binding.textviewSelectedCurrency.run {
-            val title = resources.getString(assetResources.assetNameRes(asset))
-            text = title.toUpperCase()
+            text = asset.name.toUpperCase(Locale.ROOT)
 
             setCompoundDrawablesWithIntrinsicBounds(
-                AppCompatResources.getDrawable(context, assetResources.coinIconWhite(asset)),
+                context.getResolvedDrawable(coinIcon(asset)),
                 null,
                 arrowDrawable,
                 null
@@ -203,11 +201,18 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
         }
     }
 
+    private fun coinIcon(asset: AssetInfo) =
+        when (asset) {
+            CryptoCurrency.BTC -> R.drawable.vector_bitcoin_white
+            CryptoCurrency.BCH -> R.drawable.vector_bitcoin_cash_white
+            else -> throw NotImplementedError("${asset.ticker} Not implemented")
+        }
+
     /**
-     * Pass null as the parameter here to close the view without triggering any [CryptoCurrency]
+     * Pass null as the parameter here to close the view without triggering any [AssetInfo]
      * change listeners.
      */
-    private fun closeLayout(cryptoCurrency: CryptoCurrency?) {
+    private fun closeLayout(cryptoCurrency: AssetInfo?) {
         // Update UI
         cryptoCurrency?.run { setCurrentlySelectedCurrency(this) }
         // Trigger layout change

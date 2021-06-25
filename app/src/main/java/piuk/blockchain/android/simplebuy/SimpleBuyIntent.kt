@@ -11,9 +11,9 @@ import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
+import info.blockchain.balance.AssetInfo
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import piuk.blockchain.android.cards.EverypayAuthOptions
@@ -30,11 +30,13 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
         oldState
 
-    class NewCryptoCurrencySelected(val currency: CryptoCurrency) : SimpleBuyIntent() {
+    class NewCryptoCurrencySelected(val asset: AssetInfo) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            if (oldState.selectedCryptoCurrency == currency) oldState else
+            if (oldState.selectedCryptoAsset == asset)
+                oldState
+            else
                 oldState.copy(
-                    selectedCryptoCurrency = currency,
+                    selectedCryptoAsset = asset,
                     amount = null,
                     exchangePriceWithDelta = null
                 )
@@ -192,7 +194,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     data class UpdatedBuyLimitsAndSupportedCryptoCurrencies(
         val buySellPairs: BuySellPairs,
-        private val selectedCryptoCurrency: CryptoCurrency?,
+        private val cryptoAsset: AssetInfo?,
         private val transferLimits: TransferLimits?
     ) : SimpleBuyIntent() {
 
@@ -205,7 +207,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
             return oldState.copy(
                 supportedPairsAndLimits = supportedPairsAndLimits,
-                selectedCryptoCurrency = selectedCryptoCurrency,
+                selectedCryptoAsset = cryptoAsset,
                 transferLimits = transferLimits
             )
         }
@@ -228,17 +230,20 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         }
     }
 
-    data class FetchBuyLimits(val fiatCurrency: String, val cryptoCurrency: CryptoCurrency) : SimpleBuyIntent() {
+    data class FetchBuyLimits(val fiatCurrency: String, val asset: AssetInfo) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(fiatCurrency = fiatCurrency, selectedCryptoCurrency = cryptoCurrency)
+            oldState.copy(fiatCurrency = fiatCurrency, selectedCryptoAsset = asset)
     }
 
     data class FlowCurrentScreen(val flowScreen: FlowScreen) : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState.copy(currentScreen = flowScreen)
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(currentScreen = flowScreen)
     }
 
-    data class FetchSuggestedPaymentMethod(val fiatCurrency: String, val selectedPaymentMethodId: String? = null) :
-        SimpleBuyIntent() {
+    data class FetchSuggestedPaymentMethod(
+        val fiatCurrency: String,
+        val selectedPaymentMethodId: String? = null
+    ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(paymentOptions = PaymentOptions(), selectedPaymentMethod = null)
     }
@@ -330,7 +335,9 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     object OrderCanceled : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            SimpleBuyState(orderState = OrderState.CANCELED)
+            SimpleBuyState(
+                orderState = OrderState.CANCELED
+            )
     }
 
     class OrderCreated(
@@ -391,7 +398,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(isLoading = true)
 
         override fun isValidFor(oldState: SimpleBuyState): Boolean {
-            return oldState.selectedCryptoCurrency != null &&
+            return oldState.selectedCryptoAsset != null &&
                 oldState.order.amount != null &&
                 oldState.orderState != OrderState.AWAITING_FUNDS &&
                 oldState.orderState != OrderState.PENDING_EXECUTION

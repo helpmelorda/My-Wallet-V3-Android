@@ -12,7 +12,7 @@ fun Number.usd() = FiatValue.fromMajor("USD", numberToBigDecimal())
 
 fun Number.cad() = FiatValue.fromMajor("CAD", numberToBigDecimal())
 
-private fun Number.numberToBigDecimal(): BigDecimal =
+fun Number.numberToBigDecimal(): BigDecimal =
     when (this) {
         is BigDecimal -> this
         is Double -> toBigDecimal()
@@ -21,7 +21,7 @@ private fun Number.numberToBigDecimal(): BigDecimal =
         else -> throw NotImplementedError(this.javaClass.name)
     }
 
-private fun Number.numberToBigInteger(): BigInteger =
+fun Number.numberToBigInteger(): BigInteger =
     when (this) {
         is BigInteger -> this
         is Int -> toBigInteger()
@@ -38,5 +38,3 @@ fun Number.bitcoinCash() = CryptoValue.fromMajor(CryptoCurrency.BCH, numberToBig
 fun Number.satoshiCash() = CryptoValue.fromMinor(CryptoCurrency.BCH, numberToBigDecimal())
 fun Number.lumens() = CryptoValue.fromMajor(CryptoCurrency.XLM, numberToBigDecimal())
 fun Number.stroops() = CryptoValue.fromMinor(CryptoCurrency.XLM, numberToBigInteger())
-fun Number.usdPax() = CryptoValue.fromMajor(CryptoCurrency.PAX, numberToBigDecimal())
-fun Number.usdt() = CryptoValue.fromMajor(CryptoCurrency.USDT, numberToBigDecimal())

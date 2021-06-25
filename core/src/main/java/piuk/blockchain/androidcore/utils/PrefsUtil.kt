@@ -11,7 +11,7 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.api.data.Settings.Companion.UNIT_FIAT
 import info.blockchain.wallet.crypto.AESUtil
 import kotlinx.serialization.decodeFromString
@@ -20,7 +20,6 @@ import kotlinx.serialization.json.Json
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.utils.PersistentPrefs.Companion.KEY_SWIPE_TO_RECEIVE_ENABLED
 import java.util.Currency
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -129,16 +128,6 @@ class PrefsUtil(
             }
         }
 
-    override var selectedCryptoCurrency: CryptoCurrency
-        get() =
-            try {
-                CryptoCurrency.valueOf(getValue(KEY_SELECTED_CRYPTO, DEFAULT_CRYPTO_CURRENCY.name))
-            } catch (e: IllegalArgumentException) {
-                removeValue(KEY_SELECTED_CRYPTO)
-                DEFAULT_CRYPTO_CURRENCY
-            }
-        set(crypto) = setValue(KEY_SELECTED_CRYPTO, crypto.name)
-
     override val defaultFiatCurrency: String
         get() = try {
             val localeFiat = Currency.getInstance(Locale.getDefault()).currencyCode
@@ -194,7 +183,7 @@ class PrefsUtil(
         }
     }
 
-    override fun clearState() = removeValue(KEY_SIMPLE_BUY_STATE)
+    override fun clearBuyState() = removeValue(KEY_SIMPLE_BUY_STATE)
 
     override var addCardInfoDismissed: Boolean
         get() = getValue(KEY_ADD_CARD_INFO, false)
@@ -263,11 +252,11 @@ class PrefsUtil(
 
     override fun setBitPaySuccess() = setValue(BITPAY_TRANSACTION_SUCCEEDED, true)
 
-    override fun setFeeTypeForAsset(cryptoCurrency: CryptoCurrency, type: Int) =
-        setValue(NETWORK_FEE_PRIORITY_KEY + cryptoCurrency.networkTicker, type)
+    override fun setFeeTypeForAsset(asset: AssetInfo, type: Int) =
+        setValue(NETWORK_FEE_PRIORITY_KEY + asset.ticker, type)
 
-    override fun getFeeTypeForAsset(cryptoCurrency: CryptoCurrency): Int =
-        getValue(NETWORK_FEE_PRIORITY_KEY + cryptoCurrency.networkTicker, -1)
+    override fun getFeeTypeForAsset(asset: AssetInfo): Int =
+        getValue(NETWORK_FEE_PRIORITY_KEY + asset.ticker, -1)
 
     override val hasSeenSwapPromo: Boolean
         get() = getValue(SWAP_KYC_PROMO, false)
@@ -384,22 +373,6 @@ class PrefsUtil(
         BackupManager.dataChanged(ctx.packageName)
     }
 
-    // SwipeToReceive
-    override var offlineCacheData: String?
-        get() = getValue(OFFLINE_CACHE_KEY)
-        set(value) {
-            if (value != null) {
-                setValue(OFFLINE_CACHE_KEY, value)
-            } else {
-                clearLegacyCacheData()
-                removeValue(OFFLINE_CACHE_KEY)
-            }
-        }
-
-    override var offlineCacheEnabled: Boolean
-        get() = getValue(KEY_SWIPE_TO_RECEIVE_ENABLED, true)
-        set(value) = setValue(KEY_SWIPE_TO_RECEIVE_ENABLED, value)
-
     override var encodedPin: String
         get() = decodeFromBase64ToString(getValue(KEY_ENCRYPTED_PIN_CODE, ""))
         set(value) = setValue(KEY_ENCRYPTED_PIN_CODE, encodeToBase64(value))
@@ -444,15 +417,6 @@ class PrefsUtil(
 
     private fun decodeFromBase64ToString(data: String): String =
         String(Base64.decode(data.toByteArray(charset("UTF-8")), Base64.DEFAULT))
-
-    private fun clearLegacyCacheData() {
-        removeValue(KEY_SWIPE_RECEIVE_BTC_ADDRESSES)
-        removeValue(KEY_SWIPE_RECEIVE_ETH_ADDRESS)
-        removeValue(KEY_SWIPE_RECEIVE_BCH_ADDRESSES)
-        removeValue(KEY_SWIPE_RECEIVE_XLM_ADDRESS)
-        removeValue(KEY_SWIPE_RECEIVE_BTC_ACCOUNT_NAME)
-        removeValue(KEY_SWIPE_RECEIVE_BCH_ACCOUNT_NAME)
-    }
 
     // internal feature flags
     override fun isFeatureEnabled(gatedFeature: GatedFeature): Boolean = getValue(gatedFeature.name, false)
@@ -601,7 +565,6 @@ class PrefsUtil(
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val DEFAULT_FIAT_CURRENCY = "USD"
-        val DEFAULT_CRYPTO_CURRENCY = CryptoCurrency.BTC
 
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -617,11 +580,8 @@ class PrefsUtil(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val KEY_LOGGED_OUT = "logged_out"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val KEY_SELECTED_CRYPTO = "KEY_CURRENCY_CRYPTO_STATE"
-
         private const val KEY_PIT_LINKING_LINK_ID = "pit_wallet_link_id"
-        private const val KEY_SIMPLE_BUY_STATE = "key_simple_buy_state"
+        private const val KEY_SIMPLE_BUY_STATE = "key_simple_buy_state_2"
         private const val KEY_CARD_STATE = "key_card_state"
         private const val KEY_ADD_CARD_INFO = "key_add_card_info"
         private const val KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY = "has_completed_at_least_one_buy"
@@ -667,18 +627,6 @@ class PrefsUtil(
         // Rating
         private const val HAS_SEEN_RATING = "has_seen_rating"
         private const val PRE_RATING_ACTION_COMPLETED_TIMES = "pre_rating_action_completed_times"
-
-        // Swipe to receive
-        // Legacy keys. Only clear, add new data with new key
-        private const val KEY_SWIPE_RECEIVE_BTC_ADDRESSES = "swipe_receive_addresses"
-        private const val KEY_SWIPE_RECEIVE_ETH_ADDRESS = "swipe_receive_eth_address"
-        private const val KEY_SWIPE_RECEIVE_BCH_ADDRESSES = "swipe_receive_bch_addresses"
-        private const val KEY_SWIPE_RECEIVE_XLM_ADDRESS = "key_swipe_receive_xlm_address"
-        private const val KEY_SWIPE_RECEIVE_BTC_ACCOUNT_NAME = "swipe_receive_account_name"
-        private const val KEY_SWIPE_RECEIVE_BCH_ACCOUNT_NAME = "swipe_receive_bch_account_name"
-
-        // New key
-        private const val OFFLINE_CACHE_KEY = "key_offline_address_cache"
 
         // Auth prefs
         private const val KEY_ENCRYPTED_PIN_CODE = "encrypted_pin_code"

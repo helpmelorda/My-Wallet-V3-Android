@@ -15,7 +15,8 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.ui.trackProgress
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -49,6 +50,8 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
     private val appUtil: AppUtil by inject()
     private val analytics: Analytics by inject()
     private val simpleBuySync: SimpleBuySyncFactory by scopedInject()
+    private val assetCatalogue: AssetCatalogue by inject()
+
     private val buySellFlowNavigator: BuySellFlowNavigator
         get() = payloadScope.get()
 
@@ -57,8 +60,10 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
             ?: BuySellViewType.TYPE_BUY
     }
 
-    private val selectedAsset: CryptoCurrency? by unsafeLazy {
-        arguments?.getSerializable(SELECTED_ASSET) as? CryptoCurrency
+    private val selectedAsset: AssetInfo? by unsafeLazy {
+        arguments?.getString(SELECTED_ASSET)?.let {
+            assetCatalogue.fromNetworkTicker(it)
+        }
     }
 
     private var hasReturnedFromBuyActivity = false
@@ -79,7 +84,9 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
     }
 
     private fun subscribeForNavigation() {
-        compositeDisposable += simpleBuySync.performSync().onErrorComplete().toSingleDefault(false)
+        compositeDisposable += simpleBuySync.performSync()
+            .onErrorComplete()
+            .toSingleDefault(false)
             .flatMap {
                 buySellFlowNavigator.navigateTo(selectedAsset)
             }
@@ -119,7 +126,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
                         startActivityForResult(
                             SimpleBuyActivity.newInstance(
                                 context = activity as Context,
-                                cryptoCurrency = action.selectedAsset,
+                                asset = action.selectedAsset,
                                 launchFromNavigationBar = true
                             ), SB_ACTIVITY
                         )
@@ -209,12 +216,14 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
         private const val SELECTED_ASSET = "SELECTED_ASSET"
         private const val SB_ACTIVITY = 321
 
-        fun newInstance(viewType: BuySellViewType = BuySellViewType.TYPE_BUY, asset: CryptoCurrency?) =
-            BuySellFragment().apply {
+        fun newInstance(
+            asset: AssetInfo?,
+            viewType: BuySellViewType = BuySellViewType.TYPE_BUY
+        ) = BuySellFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(VIEW_TYPE, viewType)
                     asset?.let {
-                        putSerializable(SELECTED_ASSET, it)
+                        putString(SELECTED_ASSET, it.ticker)
                     }
                 }
             }

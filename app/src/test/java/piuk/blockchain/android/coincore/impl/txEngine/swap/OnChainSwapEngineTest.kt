@@ -23,6 +23,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
 import com.nhaarman.mockito_kotlin.whenever
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -654,7 +655,7 @@ class OnChainSwapEngineTest {
 
     private fun verifyFeeLevels(
         feeSelection: FeeSelection,
-        feeAsset: CryptoCurrency? = FEE_ASSET
+        feeAsset: AssetInfo? = FEE_ASSET
     ) = feeSelection.selectedLevel == EXPECTED_FEE_LEVEL &&
         feeSelection.availableLevels == EXPECTED_FEE_OPTIONS &&
         feeSelection.availableLevels.contains(feeSelection.selectedLevel) &&

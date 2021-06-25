@@ -18,7 +18,7 @@ internal class BtcActivitySummaryItem(
     override val account: CryptoAccount
 ) : NonCustodialActivitySummaryItem() {
 
-    override val cryptoCurrency = CryptoCurrency.BTC
+    override val asset = CryptoCurrency.BTC
 
     override val transactionType: TransactionSummary.TransactionType
         get() = transactionSummary.transactionType

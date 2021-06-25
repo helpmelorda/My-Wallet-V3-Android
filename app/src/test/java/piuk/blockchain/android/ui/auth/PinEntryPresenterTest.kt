@@ -83,7 +83,7 @@ class PinEntryPresenterTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private val payloadManager: PayloadDataManager = mock()
     private val defaultLabels: DefaultLabels = mock {
-        on { getDefaultNonCustodialWalletLabel(any()) } itReturns "string resource"
+        on { getDefaultNonCustodialWalletLabel() } itReturns "string resource"
     }
 
     private val biometricsController: BiometricsController = mock()
@@ -826,7 +826,7 @@ class PinEntryPresenterTest {
         verify(prefsUtil).sharedKey
         verify(prefsUtil).sharedKey = SHARED_KEY
         verify(payloadManager, Mockito.atLeastOnce()).wallet
-        verify(defaultLabels).getDefaultNonCustodialWalletLabel(any())
+        verify(defaultLabels).getDefaultNonCustodialWalletLabel()
         verify(mockWallet).sharedKey
 
         verifyNoMoreInteractions(prefsUtil)

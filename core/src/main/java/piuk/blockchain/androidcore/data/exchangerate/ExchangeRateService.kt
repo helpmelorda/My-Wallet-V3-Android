@@ -1,6 +1,6 @@
 package piuk.blockchain.androidcore.data.exchangerate
 
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.prices.PriceApi
 import info.blockchain.wallet.prices.TimeInterval
 import info.blockchain.wallet.prices.data.PriceDatum
@@ -27,33 +27,34 @@ typealias PriceSeries = List<PriceDatum>
 class ExchangeRateService(private val priceApi: PriceApi, rxBus: RxBus) {
     private val rxPinning = RxPinning(rxBus)
 
-    fun getExchangeRateMap(cryptoCurrency: CryptoCurrency): Single<Map<String, PriceDatum>> =
-        priceApi.getPriceIndexes(cryptoCurrency.networkTicker)
+    fun getExchangeRateMap(asset: AssetInfo): Single<Map<String, PriceDatum>> =
+        priceApi.getPriceIndexes(asset.ticker)
 
     fun getHistoricPrice(
-        cryptoCurrency: CryptoCurrency,
-        currency: String,
+        asset: AssetInfo,
+        fiatCurrency: String,
         timeInSeconds: Long
     ): Single<Double> =
-        priceApi.getHistoricPrice(cryptoCurrency.networkTicker, currency, timeInSeconds)
+        priceApi.getHistoricPrice(asset.ticker, fiatCurrency, timeInSeconds)
 
     fun getHistoricPriceSeries(
-        cryptoCurrency: CryptoCurrency,
+        asset: AssetInfo,
         fiatCurrency: String,
         timeSpan: TimeSpan,
         timeInterval: TimeInterval = suggestedTimeIntervalForSpan(timeSpan)
     ): Single<PriceSeries> {
+        require(asset.startDate != null)
 
-        var proposedStartTime = getStartTimeForTimeSpan(timeSpan, cryptoCurrency)
+        var proposedStartTime = getStartTimeForTimeSpan(timeSpan, asset)
         // It's possible that the selected start time is before the currency existed, so check here
         // and show ALL_TIME instead if that's the case.
-        if (proposedStartTime < cryptoCurrency.startDateForPrice) {
-            proposedStartTime = getStartTimeForTimeSpan(TimeSpan.ALL_TIME, cryptoCurrency)
+        if (proposedStartTime < asset.startDate!!) {
+            proposedStartTime = getStartTimeForTimeSpan(TimeSpan.ALL_TIME, asset)
         }
 
-        return rxPinning.callSingle<PriceSeries> {
+        return rxPinning.callSingle {
             priceApi.getHistoricPriceSeries(
-                cryptoCurrency.networkTicker,
+                asset.ticker,
                 fiatCurrency,
                 proposedStartTime,
                 timeInterval.intervalSeconds
@@ -64,15 +65,14 @@ class ExchangeRateService(private val priceApi: PriceApi, rxBus: RxBus) {
     /**
      * Provides the first timestamp for which we have prices, returned in epoch-seconds
      *
-     * @param cryptoCurrency The [CryptoCurrency] that you want a start date for
-     * @return A [Long] in epoch-seconds since the start of our data
      */
     private fun getStartTimeForTimeSpan(
         timeSpan: TimeSpan,
-        cryptoCurrency: CryptoCurrency
+        asset: AssetInfo
     ): Long {
+        require(asset.startDate != null)
         val start = when (timeSpan) {
-            TimeSpan.ALL_TIME -> return cryptoCurrency.startDateForPrice
+            TimeSpan.ALL_TIME -> return asset.startDate!!
             TimeSpan.YEAR -> 365
             TimeSpan.MONTH -> 30
             TimeSpan.WEEK -> 7

@@ -2,7 +2,7 @@ package piuk.blockchain.android.coincore.dot
 
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import io.reactivex.Single
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AvailableActions
@@ -11,7 +11,7 @@ import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 
 class PolkadotCustodialTradingAccount(
-    cryptoCurrency: CryptoCurrency,
+    cryptoCurrency: AssetInfo,
     label: String,
     exchangeRates: ExchangeRateDataManager,
     custodialWalletManager: CustodialWalletManager,

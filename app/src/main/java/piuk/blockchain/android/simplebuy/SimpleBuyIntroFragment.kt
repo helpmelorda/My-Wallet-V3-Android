@@ -79,7 +79,7 @@ class SimpleBuyIntroFragment : Fragment(), SlidingModalBottomDialog.Host {
                     }
                     .subscribeBy(
                         onSuccess = {
-                            simpleBuyPrefs.clearState()
+                            simpleBuyPrefs.clearBuyState()
                             navigator().onStartMainActivity(null, true)
                         },
                         onError = {

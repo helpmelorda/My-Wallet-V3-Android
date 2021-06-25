@@ -1,7 +1,7 @@
 package com.blockchain.nabu.models.data
 
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import java.util.Date
 
@@ -28,6 +28,6 @@ data class RecurringBuy(
     val paymentMethodType: PaymentMethodType,
     val paymentMethodId: String?,
     val amount: FiatValue,
-    val asset: CryptoCurrency,
+    val asset: AssetInfo,
     val createDate: Date
 )

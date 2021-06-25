@@ -7,10 +7,12 @@ import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
+import info.blockchain.balance.isErc20
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -94,7 +96,7 @@ abstract class SellTxEngineBase(
         } else null
     }
 
-    private fun CryptoCurrency.disambiguateERC20() = if (this.hasFeature(CryptoCurrency.IS_ERC20)) {
+    private fun AssetInfo.disambiguateERC20() = if (this.isErc20()) {
         CryptoCurrency.ETHER
     } else this
 

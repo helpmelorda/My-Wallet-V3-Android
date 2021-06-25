@@ -66,7 +66,7 @@ class TransferReceiveFragment : AccountSelectorFragment() {
                 analytics.logEvent(
                     TransferAnalyticsEvent.ReceiveAccountSelected(
                         TxFlowAnalyticsAccountType.fromAccount(account),
-                        account.asset.networkTicker
+                        account.asset.ticker
                     )
                 )
             }

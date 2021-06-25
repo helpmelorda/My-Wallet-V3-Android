@@ -1,21 +1,21 @@
 package info.blockchain.wallet.payload
 
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.data.allAddresses
 import java.math.BigInteger
 
 data class CryptoBalanceMap(
-    private val cryptoCurrency: CryptoCurrency,
+    private val asset: AssetInfo,
     private val xpubs: List<XPubs>,
     private val imported: List<String>,
     private val balances: Map<String, BigInteger>
 ) {
-    val totalSpendable = CryptoValue(cryptoCurrency, (xpubs.allAddresses() + imported).sum(balances))
+    val totalSpendable = CryptoValue(asset, (xpubs.allAddresses() + imported).sum(balances))
     val totalSpendableImported: CryptoValue
         get() {
-            return CryptoValue(cryptoCurrency, imported.sum(balances))
+            return CryptoValue(asset, imported.sum(balances))
         }
 
     fun subtractAmountFromAddress(address: String, cryptoValue: CryptoValue): CryptoBalanceMap {
@@ -29,13 +29,13 @@ data class CryptoBalanceMap(
     }
 
     operator fun get(address: String) =
-        CryptoValue(cryptoCurrency, balances[address] ?: BigInteger.ZERO)
+        CryptoValue(asset, balances[address] ?: BigInteger.ZERO)
 
     companion object {
         @JvmStatic
-        fun zero(cryptoCurrency: CryptoCurrency) =
+        fun zero(asset: AssetInfo) =
             CryptoBalanceMap(
-                cryptoCurrency,
+                asset,
                 emptyList(),
                 emptyList(),
                 emptyMap()
@@ -44,13 +44,13 @@ data class CryptoBalanceMap(
 }
 
 fun calculateCryptoBalanceMap(
-    cryptoCurrency: CryptoCurrency,
+    asset: AssetInfo,
     balanceQuery: BalanceQuery,
     xpubs: List<XPubs>,
     imported: List<String>
 ): CryptoBalanceMap {
     return CryptoBalanceMap(
-        cryptoCurrency,
+        asset,
         xpubs,
         imported,
         balanceQuery.getBalancesForXPubs(xpubs, imported)

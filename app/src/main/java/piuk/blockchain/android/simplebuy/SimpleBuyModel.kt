@@ -16,7 +16,6 @@ import com.blockchain.nabu.models.responses.simplebuy.EverypayPaymentAttrs
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.google.gson.Gson
 import info.blockchain.balance.FiatValue
 import io.reactivex.Completable
 import io.reactivex.Scheduler
@@ -35,16 +34,16 @@ class SimpleBuyModel(
     private val ratingPrefs: RatingPrefs,
     initialState: SimpleBuyState,
     scheduler: Scheduler,
-    private val gson: Gson,
+    private val serializer: SimpleBuyPrefsSerializer,
     private val cardActivators: List<CardActivator>,
     private val interactor: SimpleBuyInteractor,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
-    gson.fromJson(prefs.simpleBuyState(), SimpleBuyState::class.java) ?: initialState,
-    scheduler,
-    environmentConfig,
-    crashLogger
+    initialState = serializer.fetch() ?: initialState,
+    observeScheduler = scheduler,
+    environmentConfig = environmentConfig,
+    crashLogger = crashLogger
 ) {
 
     override fun performAction(previousState: SimpleBuyState, intent: SimpleBuyIntent): Disposable? =
@@ -56,11 +55,11 @@ class SimpleBuyModel(
                             process(
                                 SimpleBuyIntent.UpdatedBuyLimitsAndSupportedCryptoCurrencies(
                                     pairs,
-                                    intent.cryptoCurrency,
+                                    intent.asset,
                                     transferLimits
                                 )
                             )
-                            process(SimpleBuyIntent.NewCryptoCurrencySelected(intent.cryptoCurrency))
+                            process(SimpleBuyIntent.NewCryptoCurrencySelected(intent.asset))
                         },
                         onError = { process(SimpleBuyIntent.ErrorIntent()) }
                     )
@@ -82,7 +81,7 @@ class SimpleBuyModel(
                 interactor.cancelOrder(it)
             } ?: Completable.complete()).thenSingle {
                 interactor.createOrder(
-                    previousState.selectedCryptoCurrency
+                    previousState.selectedCryptoAsset
                         ?: throw IllegalStateException("Missing Cryptocurrency "),
                     previousState.order.amount ?: throw IllegalStateException("Missing amount"),
                     previousState.selectedPaymentMethod?.concreteId(),
@@ -106,7 +105,7 @@ class SimpleBuyModel(
                 )
 
             is SimpleBuyIntent.FetchQuote -> interactor.fetchQuote(
-                previousState.selectedCryptoCurrency,
+                previousState.selectedCryptoAsset,
                 previousState.order.amount
             ).subscribeBy(
                 onSuccess = { process(it) },
@@ -134,7 +133,7 @@ class SimpleBuyModel(
                     }
                 )
             }
-            is SimpleBuyIntent.NewCryptoCurrencySelected -> interactor.exchangeRate(intent.currency)
+            is SimpleBuyIntent.NewCryptoCurrencySelected -> interactor.exchangeRate(intent.asset)
                 .subscribeBy(
                     onSuccess = { process(it) },
                     onError = { }
@@ -288,14 +287,14 @@ class SimpleBuyModel(
                 .map { intent to it }
                 .onErrorReturn { intent to emptyList() }
         }.subscribeBy(
-                onSuccess = { (intent, eligibility) ->
-                    process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibility))
-                    process(intent)
-                },
-                onError = {
-                    process(SimpleBuyIntent.ErrorIntent())
-                }
-            )
+            onSuccess = { (intent, eligibility) ->
+                process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibility))
+                process(intent)
+            },
+            onError = {
+                process(SimpleBuyIntent.ErrorIntent())
+            }
+        )
 
     private fun handleOrderAttrs(order: BuySellOrder) {
         order.attributes?.everypay?.let {
@@ -419,7 +418,7 @@ class SimpleBuyModel(
     }
 
     override fun onStateUpdate(s: SimpleBuyState) {
-        prefs.updateSimpleBuyState(gson.toJson(s))
+        serializer.update(s)
     }
 
     companion object {

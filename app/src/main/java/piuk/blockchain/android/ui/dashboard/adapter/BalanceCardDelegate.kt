@@ -10,14 +10,13 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.coincore.CryptoAsset
 import piuk.blockchain.android.databinding.ItemDashboardBalanceCardBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.BalanceState
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
 import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
 
@@ -113,7 +112,7 @@ private class BalanceCardViewHolder(
         with(binding) {
             val entries = ArrayList<PieEntry>().apply {
                 coincore.cryptoAssets.forEach {
-                    val asset = state[(it as CryptoAsset).asset]
+                    val asset = state[it.asset]
                     val point = asset.fiatBalance?.toFloat() ?: 0f
                     add(PieEntry(point))
                 }
@@ -126,7 +125,7 @@ private class BalanceCardViewHolder(
                 populateEmptyPieChart()
             } else {
                 val sliceColours = coincore.cryptoAssets.map {
-                    ContextCompat.getColor(itemView.context, assetResources.colorRes((it as CryptoAsset).asset))
+                    assetResources.assetColor(it.asset)
                 }.toMutableList()
 
                 // Add colour for Funds

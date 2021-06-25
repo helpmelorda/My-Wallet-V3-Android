@@ -17,7 +17,6 @@ import com.blockchain.ui.urllinks.URL_PRIVACY_POLICY
 import com.blockchain.ui.urllinks.URL_TOS_POLICY
 import com.blockchain.wallet.DefaultLabels
 import com.jakewharton.rxbinding2.widget.RxTextView
-import info.blockchain.balance.CryptoCurrency
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityCreateWalletBinding
@@ -241,7 +240,7 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
         }
     }
 
-    override fun getDefaultAccountName(): String = defaultLabels.getDefaultNonCustodialWalletLabel(CryptoCurrency.BTC)
+    override fun getDefaultAccountName(): String = defaultLabels.getDefaultNonCustodialWalletLabel()
 
     override fun enforceFlagSecure() = true
 

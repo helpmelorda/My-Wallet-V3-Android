@@ -1,21 +1,20 @@
 package info.blockchain.balance
 
-import info.blockchain.utils.tryParseBigDecimal
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.Locale
 
 data class CryptoValue(
-    val currency: CryptoCurrency,
+    val currency: AssetInfo,
     private val amount: BigInteger // Amount in the minor unit of the currency, Satoshi/Wei for example.
 ) : Money() {
 
-    override val maxDecimalPlaces: Int = currency.dp
+    override val maxDecimalPlaces: Int = currency.precisionDp
 
-    override val userDecimalPlaces: Int = currency.userDp
+    override val userDecimalPlaces: Int = DISPLAY_DP
 
-    override val currencyCode = currency.networkTicker
-    override val symbol = currency.displayTicker
+    override val currencyCode = currency.ticker
+    override val symbol = currency.ticker
 
     override fun toStringWithSymbol() = formatWithUnit(Locale.getDefault())
 
@@ -32,7 +31,7 @@ data class CryptoValue(
     /**
      * Amount in the major value of the currency, Bitcoin/Ether for example.
      */
-    override fun toBigDecimal(): BigDecimal = amount.toBigDecimal().movePointLeft(currency.dp)
+    override fun toBigDecimal(): BigDecimal = amount.toBigDecimal().movePointLeft(currency.precisionDp)
 
     override fun toBigInteger(): BigInteger = amount
     override fun toFloat(): Float = toBigDecimal().toFloat()
@@ -42,27 +41,23 @@ data class CryptoValue(
     override val isZero: Boolean get() = amount.signum() == 0
 
     companion object {
-        @Deprecated(
-            message = "As we add more assets, this will become a maintenance headache, prefer the zero(asset) method",
-            replaceWith = ReplaceWith("CryptoValue.zero(CryptoCurrency.BTC)")
-        )
-        val ZeroBtc = CryptoValue(CryptoCurrency.BTC, BigInteger.ZERO)
+        const val DISPLAY_DP = 8
 
-        fun zero(asset: CryptoCurrency) =
+        fun zero(asset: AssetInfo) =
             CryptoValue(asset, BigInteger.ZERO)
 
         fun fromMajor(
-            currency: CryptoCurrency,
+            currency: AssetInfo,
             major: BigDecimal
-        ) = CryptoValue(currency, major.movePointRight(currency.dp).toBigInteger())
+        ) = CryptoValue(currency, major.movePointRight(currency.precisionDp).toBigInteger())
 
         fun fromMinor(
-            currency: CryptoCurrency,
+            currency: AssetInfo,
             minor: BigDecimal
         ) = CryptoValue(currency, minor.toBigInteger())
 
         fun fromMinor(
-            currency: CryptoCurrency,
+            currency: AssetInfo,
             minor: BigInteger
         ) = CryptoValue(currency, minor)
     }
@@ -106,10 +101,3 @@ data class CryptoValue(
         }
     }
 }
-
-@Deprecated("Only used in tests")
-fun CryptoCurrency.withMajorValue(majorValue: BigDecimal) = CryptoValue.fromMajor(this, majorValue)
-
-@Deprecated("Only used in tests")
-fun CryptoCurrency.withMajorValueOrZero(majorValue: String, locale: Locale = Locale.getDefault()) =
-    CryptoValue.fromMajor(this, majorValue.tryParseBigDecimal(locale) ?: BigDecimal.ZERO)

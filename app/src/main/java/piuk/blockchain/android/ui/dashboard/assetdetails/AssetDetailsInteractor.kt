@@ -4,7 +4,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.remoteconfig.FeatureFlag
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.wallet.prices.TimeInterval
@@ -69,8 +69,8 @@ class AssetDetailsInteractor(
         asset.historicRateSeries(timeSpan, TimeInterval.FIFTEEN_MINUTES)
             .onErrorResumeNext(Single.just(emptyList()))
 
-    fun shouldShowCustody(cryptoCurrency: CryptoCurrency): Single<Boolean> {
-        return coincore[cryptoCurrency].accountGroup(AssetFilter.Custodial)
+    fun shouldShowCustody(asset: AssetInfo): Single<Boolean> {
+        return coincore[asset].accountGroup(AssetFilter.Custodial)
             .flatMapSingle { it.accountBalance }
             .map {
                 !dashboardPrefs.isCustodialIntroSeen && !it.isZero

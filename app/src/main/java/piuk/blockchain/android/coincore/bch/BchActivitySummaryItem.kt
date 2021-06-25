@@ -18,7 +18,7 @@ internal class BchActivitySummaryItem(
     private val payloadDataManager: PayloadDataManager
 ) : NonCustodialActivitySummaryItem() {
 
-    override val cryptoCurrency = CryptoCurrency.BCH
+    override val asset = CryptoCurrency.BCH
     override val transactionType: TransactionSummary.TransactionType = transactionSummary.transactionType
     override val timeStampMs: Long = transactionSummary.time * 1000
 

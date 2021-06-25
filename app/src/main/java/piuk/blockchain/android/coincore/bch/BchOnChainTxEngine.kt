@@ -134,7 +134,7 @@ class BchOnChainTxEngine(
         val changeOutputType = payloadDataManager.getXpubFormatOutputType(XPub.Format.LEGACY)
 
         val available = sendDataManager.getMaximumAvailable(
-            cryptoCurrency = sourceAsset,
+            asset = sourceAsset,
             targetOutputType = targetOutputType,
             unspentCoins = coins,
             feePerKb = feePerKb

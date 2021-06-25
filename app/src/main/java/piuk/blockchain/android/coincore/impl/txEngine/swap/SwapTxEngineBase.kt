@@ -224,6 +224,6 @@ abstract class SwapTxEngineBase(
         CryptoValue.fromMajor(
             sourceAsset,
             networkFee.toBigDecimal()
-                .divide(price.toBigDecimal(), sourceAsset.dp, RoundingMode.HALF_UP)
+                .divide(price.toBigDecimal(), sourceAsset.precisionDp, RoundingMode.HALF_UP)
         )
 }

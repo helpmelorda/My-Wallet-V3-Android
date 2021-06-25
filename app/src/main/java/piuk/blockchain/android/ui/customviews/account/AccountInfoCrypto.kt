@@ -17,7 +17,6 @@ import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
 import org.koin.core.KoinComponent
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.InterestAccount
@@ -41,7 +40,6 @@ class AccountInfoCrypto @JvmOverloads constructor(
     private val exchangeRates: ExchangeRates by scopedInject()
     private val currencyPrefs: CurrencyPrefs by scopedInject()
     private val coincore: Coincore by scopedInject()
-    private val assetResources: AssetResources by scopedInject()
     private val compositeDisposable = CompositeDisposable()
     private var accountBalance: Money? = null
     private var isEnabled: Boolean? = null
@@ -115,7 +113,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
             val crypto = account.asset
             walletName.text = account.label
 
-            assetSubtitle.setText(assetResources.assetNameRes(crypto))
+            assetSubtitle.text = crypto.name
 
             compositeDisposable += account.accountBalance
                 .doOnSuccess {

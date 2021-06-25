@@ -46,8 +46,8 @@ class KycProfilePresenter(
     }
 
     internal fun onContinueClicked(campaignType: CampaignType? = null) {
-        check(!view.firstName.isEmpty()) { "firstName is empty" }
-        check(!view.lastName.isEmpty()) { "lastName is empty" }
+        check(view.firstName.isNotEmpty()) { "firstName is empty" }
+        check(view.lastName.isNotEmpty()) { "lastName is empty" }
         check(view.dateOfBirth != null) { "dateOfBirth is null" }
 
         compositeDisposable +=

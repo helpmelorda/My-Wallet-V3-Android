@@ -187,7 +187,7 @@ class TransactionHelperTest {
     fun filterNonChangeAddressesMultipleInputBch() {
         // Arrange
         val item = TestNonCustodialSummaryItem(
-            cryptoCurrency = CryptoCurrency.BCH,
+            asset = CryptoCurrency.BCH,
             transactionType = TransactionSummary.TransactionType.SENT,
             inputsMap = mapOf(
                 "key0" to cryptoValBch_1,
@@ -213,7 +213,7 @@ class TransactionHelperTest {
     fun filterNonChangeAddressesSingleInputSingleOutputBch() {
         // Arrange
         val item = TestNonCustodialSummaryItem(
-            cryptoCurrency = CryptoCurrency.BCH,
+            asset = CryptoCurrency.BCH,
             transactionType = TransactionSummary.TransactionType.SENT,
             inputsMap = mapOf(
                 "key" to cryptoValBch_1

@@ -107,20 +107,6 @@ class PrefsUtilTest {
         verify(uuidGenerator).generateUUID()
     }
 
-    @Test
-    fun getSelectedCrypto_corruptedStore_returnDefault() {
-        // Arrange
-        whenever(store.getString(PrefsUtil.KEY_SELECTED_CRYPTO, PrefsUtil.DEFAULT_CRYPTO_CURRENCY.name))
-            .thenReturn("NOPE")
-
-        // Act
-        val currency = subject.selectedCryptoCurrency
-
-        // Arrange
-        assertEquals(currency, PrefsUtil.DEFAULT_CRYPTO_CURRENCY)
-        verify(editor).remove(PrefsUtil.KEY_SELECTED_CRYPTO)
-    }
-
     companion object {
         private const val STATIC_DEVICE_ID = "12345678901234567890"
         private const val RANDOM_DEVICE_ID = "84962066204735275920"

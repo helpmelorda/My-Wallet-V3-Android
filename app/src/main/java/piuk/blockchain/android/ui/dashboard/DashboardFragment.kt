@@ -15,7 +15,7 @@ import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -26,7 +26,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAccount
@@ -60,6 +59,7 @@ import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.BankLinkingHost
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
@@ -92,7 +92,7 @@ class DashboardFragment :
     private val analyticsReporter: BalanceAnalyticsReporter by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val coincore: Coincore by scopedInject()
-    private val assetResources: AssetResources by scopedInject()
+    private val assetResources: AssetResources by inject()
     private val txLauncher: TransactionLauncher by inject()
 
     private val theAdapter: DashboardDelegateAdapter by lazy {
@@ -480,9 +480,9 @@ class DashboardFragment :
         model.process(ResetDashboardNavigation)
     }
 
-    private fun onAssetClicked(cryptoCurrency: CryptoCurrency) {
-        analytics.logEvent(assetActionEvent(AssetDetailsAnalytics.WALLET_DETAILS, cryptoCurrency.networkTicker))
-        model.process(LaunchAssetDetailsFlow(cryptoCurrency))
+    private fun onAssetClicked(asset: AssetInfo) {
+        analytics.logEvent(assetActionEvent(AssetDetailsAnalytics.WALLET_DETAILS, asset.ticker))
+        model.process(LaunchAssetDetailsFlow(asset))
     }
 
     private fun onFundsClicked(fiatAccount: FiatAccount) {
@@ -536,8 +536,8 @@ class DashboardFragment :
             navigator().resumeSimpleBuyKyc()
         }
 
-        override fun startSimpleBuy(cryptoCurrency: CryptoCurrency) {
-            navigator().startSimpleBuy(cryptoCurrency)
+        override fun startSimpleBuy(asset: AssetInfo) {
+            navigator().startSimpleBuy(asset)
         }
 
         override fun startBuy() {
@@ -650,7 +650,7 @@ class DashboardFragment :
         model.process(LaunchInterestWithdrawFlow(fromAccount))
     }
 
-    override fun goToSummary(account: SingleAccount, asset: CryptoCurrency) {
+    override fun goToSummary(account: SingleAccount, asset: AssetInfo) {
         model.process(UpdateSelectedCryptoAccount(account, asset))
         model.process(ShowDashboardSheet(DashboardNavigationAction.InterestSummary))
     }
@@ -668,7 +668,7 @@ class DashboardFragment :
         navigator().startInterestDashboard()
     }
 
-    override fun goToBuy(asset: CryptoCurrency) {
+    override fun goToBuy(asset: AssetInfo) {
         navigator().launchSimpleBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset)
     }
 

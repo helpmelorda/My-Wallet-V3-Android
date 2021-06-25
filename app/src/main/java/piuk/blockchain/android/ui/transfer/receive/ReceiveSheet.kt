@@ -68,7 +68,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
     private fun renderReceive(newState: ReceiveState) {
         with(binding) {
             switcher.displayedChild = VIEW_RECEIVE
-            receiveTitle.text = getString(R.string.tx_title_receive, newState.account.asset.displayTicker)
+            receiveTitle.text = getString(R.string.tx_title_receive, newState.account.asset.ticker)
             val addressAvailable = newState.qrBitmap != null
             if (addressAvailable) {
                 shareButton.setOnClickListener { shareAddress() }
@@ -76,7 +76,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
                     analytics.logEvent(
                         TransferAnalyticsEvent.ReceiveDetailsCopied(
                             accountType = TxFlowAnalyticsAccountType.fromAccount(newState.account),
-                            currency = account?.asset?.networkTicker ?: throw IllegalStateException(
+                            currency = account?.asset?.ticker ?: throw IllegalStateException(
                                 "Account asset is missing"
                             )
                         )
@@ -104,7 +104,7 @@ internal class ReceiveSheet : MviBottomSheet<ReceiveModel, ReceiveIntent, Receiv
         with(binding) {
             switcher.displayedChild = VIEW_SHARE
 
-            shareTitle.text = getString(R.string.receive_share_title, newState.account.asset.displayTicker)
+            shareTitle.text = getString(R.string.receive_share_title, newState.account.asset.ticker)
             with(shareList) {
                 layoutManager = LinearLayoutManager(context)
                 adapter = ShareListAdapter(newState.shareList).apply {

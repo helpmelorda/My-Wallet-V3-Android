@@ -12,7 +12,7 @@ import com.blockchain.nabu.datamanagers.RecurringBuyTransaction
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -41,7 +41,7 @@ import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
 
 open class CustodialTradingAccount(
-    override val asset: CryptoCurrency,
+    override val asset: AssetInfo,
     override val label: String,
     override val exchangeRates: ExchangeRateDataManager,
     val custodialWalletManager: CustodialWalletManager,
@@ -168,9 +168,9 @@ open class CustodialTradingAccount(
 
     private fun appendTransferActivity(
         custodialWalletManager: CustodialWalletManager,
-        asset: CryptoCurrency,
+        asset: AssetInfo,
         summaryList: List<ActivitySummaryItem>
-    ) = custodialWalletManager.getCustodialCryptoTransactions(asset.networkTicker, Product.BUY)
+    ) = custodialWalletManager.getCustodialCryptoTransactions(asset.ticker, Product.BUY)
         .map { txs ->
             txs.map {
                 it.toSummaryItem()
@@ -179,7 +179,7 @@ open class CustodialTradingAccount(
 
     private fun CryptoTransaction.toSummaryItem() =
         CustodialTransferActivitySummaryItem(
-            cryptoCurrency = asset,
+            asset = asset,
             exchangeRates = exchangeRates,
             txId = id,
             timeStampMs = date.time,
@@ -197,7 +197,7 @@ open class CustodialTradingAccount(
         if (order.type == OrderType.BUY) {
             CustodialTradingActivitySummaryItem(
                 exchangeRates = exchangeRates,
-                cryptoCurrency = order.crypto.currency,
+                asset = order.crypto.currency,
                 value = order.crypto,
                 fundedFiat = order.fiat,
                 txId = order.id,
@@ -237,7 +237,7 @@ open class CustodialTradingAccount(
     private fun orderToSummary(order: RecurringBuyTransaction): ActivitySummaryItem =
         RecurringBuyActivitySummaryItem(
             exchangeRates = exchangeRates,
-            cryptoCurrency = order.destinationMoney.currency,
+            asset = order.destinationMoney.currency,
             txId = order.id,
             timeStampMs = order.insertedAt.time,
             account = this,

@@ -112,20 +112,20 @@
         app:layout_constraintStart_toEndOf="@+id/pinBox2"
         app:srcCompat="@drawable/rounded_view_blue_white_border" />
 
-    <ImageView
-        android:id="@+id/fingerprint_logo"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginBottom="24dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/fingerprint_logo"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/swipe_hint_layout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/vector_fingerprint"
-        app:tint="@color/primary_navy_dark"
-        tools:visibility="visible" />
+        <ImageView
+            android:id="@+id/fingerprint_logo"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/fingerprint_logo"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/text_view_version_code"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/vector_fingerprint"
+            app:tint="@color/primary_navy_dark"
+            tools:visibility="visible" />
 
     <include
         android:id="@+id/layout_warning"
@@ -139,37 +139,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:visibility="visible" />
-
-    <LinearLayout
-        android:id="@+id/swipe_hint_layout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="?selectableItemBackground"
-        android:contentDescription="@string/swipe_receive_hint"
-        android:gravity="right"
-        android:orientation="horizontal"
-        android:paddingBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/keyboard"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:ignore="RtlHardcoded">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="@string/swipe_receive_hint"
-            android:textColor="@color/primary_navy_medium"
-            android:textSize="14sp" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            app:srcCompat="@drawable/vector_arrow_forward_blue" />
-
-    </LinearLayout>
 
     <TextView
         android:id="@+id/text_view_version_code"
@@ -194,7 +163,6 @@
         android:paddingEnd="4dp"
         android:paddingBottom="8dp"
         app:layout_constraintBottom_toTopOf="@id/keyboard"
-        app:layout_constraintEnd_toStartOf="@id/swipe_hint_layout"
         app:layout_constraintStart_toEndOf="@id/text_view_version_code"
         tools:text="213423jrb2f112312kf22313123edfdsfds" />
 

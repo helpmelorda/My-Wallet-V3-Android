@@ -3,11 +3,12 @@ package piuk.blockchain.android.ui.dashboard
 import androidx.annotation.VisibleForTesting
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.data.LinkBankTransfer
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.isErc20
 import info.blockchain.balance.percentageDelta
 import info.blockchain.balance.total
 import io.reactivex.Scheduler
@@ -29,9 +30,9 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 import java.io.Serializable
 
-class AssetMap(private val map: Map<CryptoCurrency, CryptoAssetState>) :
-    Map<CryptoCurrency, CryptoAssetState> by map {
-    override operator fun get(key: CryptoCurrency): CryptoAssetState {
+class AssetMap(private val map: Map<AssetInfo, CryptoAssetState>) :
+    Map<AssetInfo, CryptoAssetState> by map {
+    override operator fun get(key: AssetInfo): CryptoAssetState {
         return map.getOrElse(key) {
             throw IllegalArgumentException("$key is not a known CryptoCurrency")
         }
@@ -66,7 +67,7 @@ class AssetMap(private val map: Map<CryptoCurrency, CryptoAssetState>) :
 }
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-fun mapOfAssets(vararg pairs: Pair<CryptoCurrency, CryptoAssetState>) = AssetMap(mapOf(*pairs))
+fun mapOfAssets(vararg pairs: Pair<AssetInfo, CryptoAssetState>) = AssetMap(mapOf(*pairs))
 
 interface DashboardItem
 
@@ -74,7 +75,7 @@ interface BalanceState : DashboardItem {
     val isLoading: Boolean
     val fiatBalance: Money?
     val delta: Pair<Money, Double>?
-    operator fun get(currency: CryptoCurrency): CryptoAssetState
+    operator fun get(currency: AssetInfo): CryptoAssetState
     fun getFundsFiat(fiat: String): Money
 }
 
@@ -127,7 +128,7 @@ data class DashboardState(
     val fiatAssets: FiatAssetState? = null,
     val selectedFiatAccount: FiatAccount? = null,
     val selectedCryptoAccount: SingleAccount? = null,
-    val selectedAsset: CryptoCurrency? = null,
+    val selectedAsset: AssetInfo? = null,
     val backupSheetDetails: BackupDetails? = null,
     val linkablePaymentMethodsForAction: LinkablePaymentMethodsForAction? = null,
     val hasLongCallInProgress: Boolean = false
@@ -176,7 +177,7 @@ data class DashboardState(
         }
     }
 
-    override operator fun get(currency: CryptoCurrency): CryptoAssetState =
+    override operator fun get(currency: AssetInfo): CryptoAssetState =
         assets[currency]
 
     override fun getFundsFiat(fiat: String): Money =
@@ -184,11 +185,11 @@ data class DashboardState(
 
     val assetMapKeys = assets.keys
 
-    val erc20Assets = assetMapKeys.filter { it.hasFeature(CryptoCurrency.IS_ERC20) }
+    val erc20Assets = assetMapKeys.filter { it.isErc20() }
 }
 
 data class CryptoAssetState(
-    val currency: CryptoCurrency,
+    val currency: AssetInfo,
     val balance: Money? = null,
     val price: ExchangeRate? = null,
     val price24h: ExchangeRate? = null,
@@ -255,22 +256,22 @@ class DashboardModel(
                 interactor.refreshBalances(this, AssetFilter.All, previousState)
             }
             is BalanceUpdate -> {
-                process(CheckForCustodialBalanceIntent(intent.cryptoCurrency))
+                process(CheckForCustodialBalanceIntent(intent.asset))
                 null
             }
             is CheckForCustodialBalanceIntent -> interactor.checkForCustodialBalance(
                 this,
-                intent.cryptoCurrency
+                intent.asset
             )
             is UpdateHasCustodialBalanceIntent -> {
-                process(RefreshPrices(intent.cryptoCurrency))
+                process(RefreshPrices(intent.asset))
                 null
             }
-            is RefreshPrices -> interactor.refreshPrices(this, intent.cryptoCurrency)
-            is PriceUpdate -> interactor.refreshPriceHistory(this, intent.cryptoCurrency)
+            is RefreshPrices -> interactor.refreshPrices(this, intent.asset)
+            is PriceUpdate -> interactor.refreshPriceHistory(this, intent.asset)
             is CheckBackupStatus -> checkBackupStatus(intent.account, intent.action)
             is CancelSimpleBuyOrder -> interactor.cancelSimpleBuyOrder(intent.orderId)
-            is LaunchAssetDetailsFlow -> interactor.getAssetDetailsFlow(this, intent.cryptoCurrency)
+            is LaunchAssetDetailsFlow -> interactor.getAssetDetailsFlow(this, intent.asset)
             is LaunchInterestDepositFlow ->
                 interactor.getInterestDepositFlow(this, intent.toAccount)
             is LaunchInterestWithdrawFlow ->

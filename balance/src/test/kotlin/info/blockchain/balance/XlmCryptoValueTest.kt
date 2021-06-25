@@ -21,7 +21,7 @@ class XlmCryptoValueTest {
 
     @Test
     fun `format 1`() {
-        CryptoCurrency.XLM.withMajorValue(BigDecimal.ONE)
+        CryptoValue.fromMajor(CryptoCurrency.XLM, BigDecimal.ONE)
             .toStringWithSymbol() `should equal` "1.0 XLM"
     }
 

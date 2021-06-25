@@ -5,7 +5,7 @@ import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
 import com.nhaarman.mockito_kotlin.whenever
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import io.reactivex.Observable
 import io.reactivex.Single
 import org.amshove.kluent.`it returns`
@@ -13,7 +13,7 @@ import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
 
 class MockCurrentPriceApi(
-    private val base: CryptoCurrency,
+    private val base: AssetInfo,
     private val quoteFiat: String,
     private val currentPriceApi: CurrentPriceApi = mock()
 ) : CurrentPriceApi by currentPriceApi {

@@ -1,171 +1,111 @@
 package info.blockchain.balance
 
-enum class CryptoCurrency(
-    val networkTicker: String,
-    val displayTicker: String,
-    val dp: Int,           // max decimal places; ie the quanta of this asset
-    val userDp: Int,       // user decimal places
-    val requiredConfirmations: Int,
-    val startDateForPrice: Long, // token price start times in epoch-seconds
-    private val featureFlags: Long
-) {
-    /**
-     * NB ordering in this enum matters - it is used as the default ordering for the dashboard if the remote config enum
-     * fails to load for whatever reason
-     */
-    BTC(
-        networkTicker = "BTC",
-        displayTicker = "BTC",
-        dp = 8,
-        userDp = 8,
-        requiredConfirmations = 3,
-        startDateForPrice = 1282089600L, // 2010-08-18 00:00:00 UTC
-        featureFlags =
-        CryptoCurrency.PRICE_CHARTING or
-                CryptoCurrency.MULTI_WALLET or
-                CryptoCurrency.OFFLINE_RECEIVE_ADDRESS
-    ),
-    ETHER(
-        networkTicker = "ETH",
-        displayTicker = "ETH",
-        dp = 18,
-        userDp = 8,
-        requiredConfirmations = 12,
-        startDateForPrice = 1438992000L, // 2015-08-08 00:00:00 UTC
-        featureFlags =
-        CryptoCurrency.PRICE_CHARTING or
-                CryptoCurrency.OFFLINE_RECEIVE_ADDRESS
-    ),
-    BCH(
-        networkTicker = "BCH",
-        displayTicker = "BCH",
-        dp = 8,
-        userDp = 8,
-        requiredConfirmations = 3,
-        startDateForPrice = 1500854400L, // 2017-07-24 00:00:00 UTC
-        featureFlags =
-        CryptoCurrency.PRICE_CHARTING or
-                CryptoCurrency.MULTI_WALLET or
-                CryptoCurrency.OFFLINE_RECEIVE_ADDRESS
-
-    ),
-    XLM(
-        networkTicker = "XLM",
-        displayTicker = "XLM",
-        dp = 7,
-        userDp = 7,
-        requiredConfirmations = 1,
-        startDateForPrice = 1409875200L, // 2014-09-04 00:00:00 UTC
-        featureFlags =
-        CryptoCurrency.PRICE_CHARTING or
-                CryptoCurrency.OFFLINE_RECEIVE_ADDRESS
-    ),
-    ALGO(
-        networkTicker = "ALGO",
-        displayTicker = "ALGO",
-        dp = 6,
-        userDp = 6,
-        requiredConfirmations = 12,
-        startDateForPrice = 1560985200L, // 2019-06-20 00:00:00 UTC
-        featureFlags = CryptoCurrency.PRICE_CHARTING or CryptoCurrency.CUSTODIAL_ONLY
-    ),
-    DGLD(
-        networkTicker = "WDGLD",
-        displayTicker = "wDGLD",
-        dp = 8,
-        userDp = 8,
-        requiredConfirmations = 12, // Same as ETHER
-        startDateForPrice = 1576108800L, // 2019-12-12 00:00:00 UTC
-        featureFlags = CryptoCurrency.PRICE_CHARTING or CryptoCurrency.IS_ERC20
-    ),
-    PAX(
-        networkTicker = "PAX",
-        displayTicker = "USD-D",
-        dp = 18,
-        userDp = 8,
-        requiredConfirmations = 12, // Same as ETHER
-        startDateForPrice = 1438992000L, // Same as ETHER
-        featureFlags = CryptoCurrency.IS_ERC20 or
-                CryptoCurrency.OFFLINE_RECEIVE_ADDRESS
-    ),
-    USDT(
-        networkTicker = "USDT",
-        displayTicker = "USDT",
-        dp = 6,
-        userDp = 6,
-        requiredConfirmations = 12, // Same as ETHER
-        startDateForPrice = 1438992000L, // Same as ETHER
-        featureFlags = CryptoCurrency.IS_ERC20
-    ),
-    STX(
-        networkTicker = "STX",
-        displayTicker = "STX",
-        dp = 7,
-        userDp = 7,
-        requiredConfirmations = 12,
-        startDateForPrice = 0,
-        featureFlags =
-        CryptoCurrency.STUB_ASSET
-    ),
-    AAVE(
-        networkTicker = "AAVE",
-        displayTicker = "AAVE",
-        dp = 18,
-        userDp = 8,
-        requiredConfirmations = 12, // Same as ETHER
-        startDateForPrice = 1615831200L, // 2021-03-15 00:00:00 UTC
-        featureFlags = CryptoCurrency.PRICE_CHARTING or CryptoCurrency.IS_ERC20
-    ),
-    YFI(
-        networkTicker = "YFI",
-        displayTicker = "YFI",
-        dp = 18,
-        userDp = 8,
-        requiredConfirmations = 12, // Same as ETHER
-        startDateForPrice = 1615831200L, // Same as AAVE
-        featureFlags = CryptoCurrency.PRICE_CHARTING or CryptoCurrency.IS_ERC20
-    ),
-    DOT(
-        networkTicker = "DOT",
-        displayTicker = "DOT",
-        dp = 10,
-        userDp = 10,
-        requiredConfirmations = 12,
-        startDateForPrice = 1615831200L, // Same as AAVE
-        featureFlags = CryptoCurrency.PRICE_CHARTING or CryptoCurrency.CUSTODIAL_ONLY
-    );
-
-    fun hasFeature(feature: Long): Boolean = (0L != (featureFlags and feature))
-
-    companion object {
-        fun fromNetworkTicker(symbol: String?): CryptoCurrency? =
-            values().firstOrNull { it.networkTicker.equals(symbol, ignoreCase = true) }
-
-        @Deprecated("Historical accessibility helper",
-            ReplaceWith("Coincore (cryptoAssets, fiatAssets, allAssets)")
-        )
-        fun activeCurrencies(): List<CryptoCurrency> = values().filter {
-            !it.hasFeature(STUB_ASSET)
-        }
-
-        fun erc20Assets(): List<CryptoCurrency> = values().filter {
-            it.hasFeature(IS_ERC20)
-        }
-
-        @Deprecated("Temporary fix")
-        fun swipeToReceiveAssets(): List<CryptoCurrency> = values().filter {
-            it.hasFeature(OFFLINE_RECEIVE_ADDRESS)
-        }
-
-        const val PRICE_CHARTING = 0x00000001L
-        const val MULTI_WALLET = 0x00000002L
-        const val CUSTODIAL_ONLY = 0x0000004L
-        const val IS_ERC20 = 0x00000008L
-        const val CUSTODIAL_MEMO = 0x00000010L
-
-        const val STUB_ASSET = 0x10000000L
-
-        // TEMP Crash workaround until swipe to receive is updated to use coincore
-        const val OFFLINE_RECEIVE_ADDRESS = 0x20000000L
-    }
+interface AssetInfo {
+    val ticker: String
+    val name: String
+    // token price start times in epoch-seconds. null if charting not supported
+    val startDate: Long?
+    // max decimal places; ie the quanta of this asset
+    val precisionDp: Int
+    val requiredConfirmations: Int // Not sure this should be here TODO: Review this
+    // If non-null, then this is an l2 asset, and this contains the ticker of the chain on which this is implemented?
+    val l2chain: AssetInfo?
+    // If non-null, then this an l2 asset and this is the id on the l1 chain. Ie contract address for erc20 assets
+    val l2identifier: String?
+    // For now, while I get this building
+    val isCustodialOnly: Boolean
+    // Resources
+    val colour: String
+    val logo: String?
 }
+
+interface AssetCatalogue {
+    fun fromNetworkTicker(symbol: String): AssetInfo?
+    fun supportedCryptoAssets(): List<AssetInfo>
+    fun supportedL2Assets(chain: AssetInfo): List<AssetInfo>
+
+    // Might maker this more flexible later, but now we need:
+    fun supportedCustodialAssets(): List<AssetInfo>
+}
+
+open class CryptoCurrency(
+    override val ticker: String,
+    override val name: String,
+    override val precisionDp: Int,
+    override val startDate: Long? = null, // token price start times in epoch-seconds. null if charting not supported
+    override val requiredConfirmations: Int,
+    override val l2chain: AssetInfo? = null,
+    override val l2identifier: String? = null,
+    override val isCustodialOnly: Boolean = false,
+    override val colour: String,
+    override val logo: String? = null
+) : AssetInfo {
+
+    object BTC : CryptoCurrency(
+        ticker = "BTC",
+        name = "Bitcoin",
+        precisionDp = 8,
+        requiredConfirmations = 3,
+        startDate = 1282089600L, // 2010-08-18 00:00:00 UTC
+        colour = "#FF9B22"
+    )
+
+    object ETHER : CryptoCurrency(
+        ticker = "ETH",
+        name = "Ether",
+        precisionDp = 18,
+        requiredConfirmations = 12,
+        startDate = 1438992000L, // 2015-08-08 00:00:00 UTC
+        colour = "#473BCB"
+    )
+
+    object BCH : CryptoCurrency(
+        ticker = "BCH",
+        name = "Bitcoin Cash",
+        precisionDp = 8,
+        requiredConfirmations = 3,
+        startDate = 1500854400L, // 2017-07-24 00:00:00 UTC
+        colour = "#8DC351"
+    )
+
+    object XLM : CryptoCurrency(
+        ticker = "XLM",
+        name = "Stellar",
+        precisionDp = 7,
+        requiredConfirmations = 1,
+        startDate = 1409875200L, // 2014-09-04 00:00:00 UTC
+        colour = "#000000"
+    )
+
+    object ALGO : CryptoCurrency(
+        ticker = "ALGO",
+        name = "Algorand",
+        precisionDp = 6,
+        requiredConfirmations = 12,
+        startDate = 1560985200L, // 2019-06-20 00:00:00 UTC
+        isCustodialOnly = true,
+        colour = "#000000"
+    )
+
+    object DOT : CryptoCurrency(
+        ticker = "DOT",
+        name = "Polkadot",
+        precisionDp = 10,
+        requiredConfirmations = 12,
+        startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
+        isCustodialOnly = true,
+        colour = "#E6007A"
+    )
+
+    object STX : CryptoCurrency(
+        ticker = "STX",
+        name = "Stacks",
+        precisionDp = 7,
+        requiredConfirmations = 12,
+        startDate = 0,
+        colour = "#000000"
+    )
+}
+
+fun AssetInfo.isErc20() =
+    l2chain?.equals(CryptoCurrency.ETHER) == true

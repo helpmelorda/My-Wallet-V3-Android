@@ -1,6 +1,6 @@
 package piuk.blockchain.android.coincore
 
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.wallet.prices.TimeInterval
 import io.reactivex.Completable
@@ -45,7 +45,7 @@ interface Asset {
 }
 
 interface CryptoAsset : Asset {
-    val asset: CryptoCurrency
+    val asset: AssetInfo
 
     fun defaultAccount(): Single<SingleAccount>
     fun interestRate(): Single<Double>
@@ -54,4 +54,8 @@ interface CryptoAsset : Asset {
     fun exchangeRate(): Single<ExchangeRate>
     fun historicRate(epochWhen: Long): Single<ExchangeRate>
     fun historicRateSeries(period: TimeSpan, interval: TimeInterval): Single<PriceSeries>
+
+    // Temp feature accessors - this will change, but until it's building these have to be somewhere
+    val isCustodialOnly: Boolean
+    val multiWallet: Boolean
 }

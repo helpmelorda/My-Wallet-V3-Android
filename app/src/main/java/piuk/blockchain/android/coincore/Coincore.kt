@@ -2,7 +2,8 @@ package piuk.blockchain.android.coincore
 
 import com.blockchain.logging.CrashLogger
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.percentageDelta
 import info.blockchain.wallet.prices.TimeAgo
 import io.reactivex.Completable
@@ -12,6 +13,7 @@ import io.reactivex.Single
 import io.reactivex.rxkotlin.zipWith
 import piuk.blockchain.android.coincore.alg.AlgoCryptoWalletAccount
 import piuk.blockchain.android.coincore.impl.AllWalletsAccount
+import piuk.blockchain.android.coincore.impl.AssetLoader
 import piuk.blockchain.android.coincore.impl.TxProcessorFactory
 import piuk.blockchain.android.ui.sell.ExchangePriceWithDelta
 import piuk.blockchain.android.ui.transfer.AccountsSorter
@@ -24,33 +26,37 @@ class Coincore internal constructor(
     // TODO: Build an interface on PayloadDataManager/PayloadManager for 'global' crypto calls; second password etc?
     private val payloadManager: PayloadDataManager,
     private val assetLoader: AssetLoader,
+    private val assetCatalogue: AssetCatalogue,
     private val txProcessorFactory: TxProcessorFactory,
     private val defaultLabels: DefaultLabels,
     private val fiatAsset: Asset,
     private val crashLogger: CrashLogger
 ) {
 
-    private val assetMap: Map<CryptoCurrency, CryptoAsset>
-        get() = assetLoader.assetMap
+    private lateinit var assetMap: Map<AssetInfo, CryptoAsset>
 
-    operator fun get(ccy: CryptoCurrency): CryptoAsset =
+    operator fun get(ccy: AssetInfo): CryptoAsset =
         assetMap[ccy] ?: throw IllegalArgumentException(
-            "Unknown CryptoCurrency ${ccy.networkTicker}"
+            "Unknown CryptoCurrency ${ccy.ticker}"
         )
 
     fun init(): Completable =
-        Completable.concat(
-            assetMap.values.map { asset ->
-                Completable.defer { asset.init() }
-                    .doOnError {
-                        crashLogger.logException(
-                            CoincoreInitFailure("Failed init: ${asset.asset.networkTicker}", it)
-                        )
-                    }
-            }.toList()
-        ).doOnError {
-            Timber.e("Coincore initialisation failed! $it")
-        }
+        assetLoader.loadCryptoAssets()
+            .doOnSuccess { assetList -> assetMap = assetList.associateBy { it.asset } }
+            .flatMapCompletable { assetList ->
+                Completable.concat(
+                    assetList.map { asset ->
+                        Completable.defer { asset.init() }
+                            .doOnError {
+                                crashLogger.logException(
+                                    CoincoreInitFailure("Failed init: ${asset.asset.ticker}", it)
+                                )
+                            }
+                    }.toList()
+                )
+            }.doOnError {
+                Timber.e("Coincore initialisation failed! $it")
+            }
 
     val fiatAssets: Asset
         get() = fiatAsset
@@ -155,10 +161,10 @@ class Coincore internal constructor(
         }
 
     fun findAccountByAddress(
-        cryptoCurrency: CryptoCurrency,
+        asset: AssetInfo,
         address: String
     ): Maybe<SingleAccount> =
-        filterAccountsByAddress(assetMap.getValue(cryptoCurrency).accountGroup(AssetFilter.All), address)
+        filterAccountsByAddress(assetMap.getValue(asset).accountGroup(AssetFilter.All), address)
 
     private fun filterAccountsByAddress(
         accountGroup: Maybe<AccountGroup>,
@@ -198,9 +204,9 @@ class Coincore internal constructor(
             action
         )
 
-    fun getExchangePriceWithDelta(cryptoCurrency: CryptoCurrency): Single<ExchangePriceWithDelta> =
-        this[cryptoCurrency].exchangeRate().zipWith(
-            this[cryptoCurrency].historicRate(TimeAgo.ONE_DAY.epoch)
+    fun getExchangePriceWithDelta(asset: AssetInfo): Single<ExchangePriceWithDelta> =
+        this[asset].exchangeRate().zipWith(
+            this[asset].historicRate(TimeAgo.ONE_DAY.epoch)
         ).map { (currentPrice, price24h) ->
             val price = currentPrice.percentageDelta(price24h)
             ExchangePriceWithDelta(currentPrice.price(), price)
@@ -216,4 +222,7 @@ class Coincore internal constructor(
             .filter { a -> a.label.compareTo(label, true) == 0 }
             .toList()
             .map { it.isEmpty() }
+
+    // "Active" means funded, but this is not yet supported until erc20 scaling is complete TODO
+    fun activeCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets()
 }

@@ -8,9 +8,8 @@ import java.util.Locale
 
 class DomainAddressNotFound : Exception()
 
-class AddressMappingService(
-    private val addressApi: AddressMappingApiInterface,
-    apiCode: String
+class AddressMappingService internal constructor(
+    private val addressApi: AddressMappingApiInterface
 ) {
     fun resolveAssetAddress(
         domainName: String,

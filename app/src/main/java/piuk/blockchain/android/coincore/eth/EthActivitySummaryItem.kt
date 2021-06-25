@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.eth
 
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.ethereum.data.EthTransaction
@@ -21,7 +22,7 @@ internal class EthActivitySummaryItem(
     override val account: EthCryptoWalletAccount
 ) : NonCustodialActivitySummaryItem() {
 
-    override val cryptoCurrency: CryptoCurrency = CryptoCurrency.ETHER
+    override val asset: AssetInfo = CryptoCurrency.ETHER
 
     override val transactionType: TransactionSummary.TransactionType by unsafeLazy {
         val ethAddress = account.address.toLowerCase(Locale.ROOT)

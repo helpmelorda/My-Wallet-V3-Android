@@ -20,8 +20,8 @@ import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import com.blockchain.utils.Optional
 import com.blockchain.veriff.VeriffApplicantAndToken
+import info.blockchain.balance.AssetInfo
 import com.blockchain.api.ApiException
-import info.blockchain.balance.CryptoCurrency
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.MaybeSource
@@ -133,7 +133,7 @@ interface NabuDataManager {
 
     fun fetchCryptoAddressFromThePit(
         offlineTokenResponse: NabuOfflineTokenResponse,
-        cryptoCurrency: CryptoCurrency
+        asset: AssetInfo
     ): Single<SendToMercuryAddressResponse>
 }
 
@@ -395,10 +395,10 @@ internal class NabuDataManagerImpl(
 
     override fun fetchCryptoAddressFromThePit(
         offlineTokenResponse: NabuOfflineTokenResponse,
-        cryptoCurrency: CryptoCurrency
+        asset: AssetInfo
     ): Single<SendToMercuryAddressResponse> =
         authenticate(offlineTokenResponse) {
-            nabuService.fetchPitSendToAddressForCrypto(it, cryptoCurrency.networkTicker)
+            nabuService.fetchPitSendToAddressForCrypto(it, asset.ticker)
         }
 
     private fun <T> refreshOrReturnError(

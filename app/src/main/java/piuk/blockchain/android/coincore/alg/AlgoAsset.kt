@@ -5,6 +5,7 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.Completable
 import io.reactivex.Maybe
@@ -14,7 +15,6 @@ import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.SingleAccount
 import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.impl.CryptoAssetBase
-import piuk.blockchain.android.coincore.impl.OfflineAccountUpdater
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
@@ -32,7 +32,6 @@ internal class AlgoAsset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     identity: UserIdentity,
-    offlineAccounts: OfflineAccountUpdater,
     features: InternalFeatureFlagApi
 ) : CryptoAssetBase(
     payloadManager,
@@ -43,13 +42,15 @@ internal class AlgoAsset(
     custodialManager,
     pitLinking,
     crashLogger,
-    offlineAccounts,
     identity,
     features
 ) {
 
-    override val asset: CryptoCurrency
+    override val asset: AssetInfo
         get() = CryptoCurrency.ALGO
+
+    override val isCustodialOnly: Boolean = asset.isCustodialOnly
+    override val multiWallet: Boolean = false
 
     override fun initToken(): Completable =
         Completable.complete()
@@ -64,7 +65,7 @@ internal class AlgoAsset(
     private fun getAlgoAccount(): SingleAccount =
         AlgoCryptoWalletAccount(
             payloadManager = payloadManager,
-            label = labels.getDefaultNonCustodialWalletLabel(asset),
+            label = labels.getDefaultNonCustodialWalletLabel(),
             custodialWalletManager = custodialManager,
             exchangeRates = exchangeRates,
             identity = identity
@@ -75,7 +76,7 @@ internal class AlgoAsset(
             listOf(
                 AlgoCustodialTradingAccount(
                     asset,
-                    labels.getDefaultCustodialWalletLabel(asset),
+                    labels.getDefaultCustodialWalletLabel(),
                     exchangeRates,
                     custodialManager,
                     identity,
@@ -91,5 +92,5 @@ internal class AlgoAddress(
     override val address: String,
     override val label: String = address
 ) : CryptoAddress {
-    override val asset: CryptoCurrency = CryptoCurrency.ALGO
+    override val asset: AssetInfo = CryptoCurrency.ALGO
 }

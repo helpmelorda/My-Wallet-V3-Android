@@ -538,7 +538,7 @@ class SettingsPresenter(
                         analytics.logEvent(AnalyticsEvents.ChangeFiatCurrency)
                     }
                     prefs.selectedFiatCurrency = fiatUnit
-                    prefs.clearState()
+                    prefs.clearBuyState()
                     analytics.logEvent(SettingsAnalyticsEvents.CurrencyChanged)
                     updateUi(it)
                 },
@@ -546,14 +546,7 @@ class SettingsPresenter(
             )
     }
 
-    fun clearOfflineAddressCache() {
-        prefs.offlineCacheData = null
-    }
-
     fun updateCloudData(newValue: Boolean) {
-        if (newValue) {
-            clearOfflineAddressCache()
-        }
         prefs.backupEnabled = newValue
     }
 

@@ -1,15 +1,15 @@
 package piuk.blockchain.android.coincore
 
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import piuk.blockchain.android.ui.transactionflow.flow.FeeInfo
 
 sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
 
-    data class ExchangePriceConfirmation(val money: Money, val asset: CryptoCurrency) :
+    data class ExchangePriceConfirmation(val money: Money, val asset: AssetInfo) :
         TxConfirmationValue(TxConfirmation.EXPANDABLE_SIMPLE_READ_ONLY)
 
-    data class From(val sourceAccount: BlockchainAccount, val sourceAsset: CryptoCurrency? = null) :
+    data class From(val sourceAccount: BlockchainAccount, val sourceAsset: AssetInfo? = null) :
         TxConfirmationValue(TxConfirmation.SIMPLE_READ_ONLY)
 
     data class PaymentMethod(
@@ -51,7 +51,7 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
     data class NetworkFee(
         val feeAmount: Money,
         val exchange: Money,
-        val asset: CryptoCurrency
+        val asset: AssetInfo
     ) : TxConfirmationValue(TxConfirmation.EXPANDABLE_COMPLEX_READ_ONLY)
 
     data class TransactionFee(

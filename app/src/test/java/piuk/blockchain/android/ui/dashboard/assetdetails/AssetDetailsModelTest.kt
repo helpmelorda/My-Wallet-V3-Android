@@ -40,7 +40,7 @@ class AssetDetailsModelTest {
             pitLinking = mock(),
             crashLogger = mock(),
             walletPreferences = mock(),
-            offlineAccounts = mock(),
+            notificationUpdater = mock(),
             identity = mock(),
             coinsWebsocket = mock(),
             features = mock()
@@ -90,7 +90,7 @@ class AssetDetailsModelTest {
         whenever(interactor.loadAssetDetails(asset)).thenReturn(Single.just(assetDisplayMap))
         whenever(interactor.loadExchangeRate(asset)).thenReturn(Single.just(price))
         whenever(interactor.loadHistoricPrices(asset, timeSpan)).thenReturn(Single.just(priceSeries))
-        whenever(interactor.loadRecurringBuysForAsset(asset.asset.networkTicker)).thenReturn(Single.just(recurringBuys))
+        whenever(interactor.loadRecurringBuysForAsset(asset.asset.ticker)).thenReturn(Single.just(recurringBuys))
 
         val testObserver = model.state.test()
         model.process(LoadAsset(asset))
@@ -143,7 +143,7 @@ class AssetDetailsModelTest {
 
         verify(interactor).loadAssetDetails(asset)
         verify(interactor).loadExchangeRate(asset)
-        verify(interactor).loadRecurringBuysForAsset(asset.asset.networkTicker)
+        verify(interactor).loadRecurringBuysForAsset(asset.asset.ticker)
         verify(interactor).loadHistoricPrices(asset, timeSpan)
 
         verifyNoMoreInteractions(interactor)

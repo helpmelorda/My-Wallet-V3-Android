@@ -3,7 +3,9 @@ package com.blockchain.api
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.analytics.AnalyticsApiInterface
 import com.blockchain.api.bitcoin.BitcoinApiInterface
+import com.blockchain.api.nabu.NabuUserApiInterface
 import com.blockchain.api.wallet.WalletApiInterface
+import com.blockchain.api.custodial.CustodialBalanceApiInterface
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.json.Json
@@ -16,7 +18,7 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 
 val blockchainApi = StringQualifier("blockchain-api")
 val explorerApi = StringQualifier("explorer-api")
-val addressResolutionApi = StringQualifier("address-resolution-api")
+val nabuApi = StringQualifier("nabu-api")
 
 val blockchainApiModule = module {
 
@@ -50,16 +52,15 @@ val blockchainApiModule = module {
             .build()
     }
 
-    single(addressResolutionApi) {
+    single(nabuApi) {
         Retrofit.Builder()
-            .baseUrl(getBaseUrl("blockchain-api"))
+            .baseUrl(getBaseUrl("nabu-api"))
             .client(get())
             .addCallAdapterFactory(get<RxJava2CallAdapterFactory>())
             .addConverterFactory(
                 Json {
                     ignoreUnknownKeys = true
                     isLenient = true
-                    classDiscriminator = "typeOf" // Override this?
                 }.asConverterFactory("application/json".toMediaType())
             )
             .build()
@@ -82,10 +83,9 @@ val blockchainApiModule = module {
     }
 
     factory {
-        val api = get<Retrofit>(addressResolutionApi).create(AddressMappingApiInterface::class.java)
+        val api = get<Retrofit>(blockchainApi).create(AddressMappingApiInterface::class.java)
         AddressMappingService(
-            api,
-            getProperty("api-code")
+            api
         )
     }
 
@@ -93,6 +93,20 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(blockchainApi).create(AnalyticsApiInterface::class.java)
         AnalyticsService(
             api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(NabuUserApiInterface::class.java)
+        NabuUserService(
+            api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(CustodialBalanceApiInterface::class.java)
+        CustodialBalanceService(
+            api = api
         )
     }
 }

@@ -20,7 +20,9 @@ import piuk.blockchain.android.util.lifecycle.LifecycleInterestedComponent
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 
-class CoinsWebSocketService(private val applicationContext: Context) : MessagesSocketHandler, KoinComponent {
+class CoinsWebSocketService(
+    private val applicationContext: Context
+) : MessagesSocketHandler, KoinComponent {
 
     private val compositeDisposable = CompositeDisposable()
     private val notificationManager: NotificationManager by inject()
@@ -34,14 +36,17 @@ class CoinsWebSocketService(private val applicationContext: Context) : MessagesS
         coinsWebSocketStrategy.close()
         coinsWebSocketStrategy.setMessagesHandler(this)
         coinsWebSocketStrategy.open()
-        compositeDisposable += lifecycleInterestedComponent.appStateUpdated.subscribe {
-            if (it == AppState.FOREGROUNDED) {
-                coinsWebSocketStrategy.open()
-            } else {
-                coinsWebSocketStrategy.close()
+
+        compositeDisposable += lifecycleInterestedComponent
+            .appStateUpdated
+            .subscribe {
+                if (it == AppState.FOREGROUNDED) {
+                    coinsWebSocketStrategy.open()
+                } else {
+                    coinsWebSocketStrategy.close()
+                }
             }
         }
-    }
 
     override fun showToast(message: Int) {
         ToastCustom.makeText(

@@ -11,7 +11,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -63,7 +63,7 @@ class ActivityDetailsInteractor(
             else
                 SellPurchaseAmount(summaryItem.fundedFiat),
             if (summaryItem.type == OrderType.BUY)
-                BuyCryptoWallet(summaryItem.cryptoCurrency)
+                BuyCryptoWallet(summaryItem.asset)
             else
                 SellCryptoWallet(summaryItem.fundedFiat.currencyCode),
             BuyFee(summaryItem.fee)
@@ -157,8 +157,7 @@ class ActivityDetailsInteractor(
             TransactionSummary.TransactionType.DEPOSIT -> {
                 list.add(
                     getToField(
-                        summaryItem.account.label, summaryItem.account.label,
-                        summaryItem.cryptoCurrency.displayTicker
+                        summaryItem.account.label, summaryItem.account.label, summaryItem.asset.ticker
                     )
                 )
             }
@@ -169,8 +168,7 @@ class ActivityDetailsInteractor(
                 list.add(From(stringUtils.getString(R.string.common_company_name)))
                 list.add(
                     getToField(
-                        summaryItem.account.label, summaryItem.account.label,
-                        summaryItem.cryptoCurrency.displayTicker
+                        summaryItem.account.label, summaryItem.account.label, summaryItem.asset.ticker
                     )
                 )
             }
@@ -184,7 +182,7 @@ class ActivityDetailsInteractor(
                 summaryItem.accountRef
             ).map {
                 if (it !is NullCryptoAccount) {
-                    list.add(getToField(it.label, it.label, summaryItem.cryptoCurrency.displayTicker))
+                    list.add(getToField(it.label, it.label, summaryItem.asset.ticker))
                 } else if (summaryItem.accountRef.isNotBlank()) {
                     list.add(To(summaryItem.accountRef))
                 }
@@ -266,12 +264,12 @@ class ActivityDetailsInteractor(
 
     private fun getSwapFromField(tradeActivity: TradeActivitySummaryItem): From {
         require(tradeActivity.currencyPair is CurrencyPair.CryptoCurrencyPair)
-        return From("${tradeActivity.currencyPair.source.displayTicker} ${tradeActivity.sendingAccount.label}")
+        return From("${tradeActivity.currencyPair.source.ticker} ${tradeActivity.sendingAccount.label}")
     }
 
     private fun getSellFromField(tradeActivity: TradeActivitySummaryItem): From {
         require(tradeActivity.currencyPair is CurrencyPair.CryptoToFiatCurrencyPair)
-        return From("${tradeActivity.currencyPair.source.displayTicker} ${tradeActivity.sendingAccount.label}")
+        return From("${tradeActivity.currencyPair.source.ticker} ${tradeActivity.sendingAccount.label}")
     }
 
     fun loadSellItems(
@@ -306,15 +304,15 @@ class ActivityDetailsInteractor(
                 cryptoPair.destination, item.receivingAddress!!
             )
                 .toSingle().map {
-                    val defaultLabel = defaultLabels.getDefaultNonCustodialWalletLabel(cryptoPair.destination)
-                    getToField(it.label, defaultLabel, cryptoPair.destination.displayTicker)
+                    val defaultLabel = defaultLabels.getDefaultNonCustodialWalletLabel()
+                    getToField(it.label, defaultLabel, cryptoPair.destination.ticker)
                 }
             TransferDirection.INTERNAL,
             TransferDirection.FROM_USERKEY -> coincore[cryptoPair.destination].accountGroup(AssetFilter.Custodial)
                 .toSingle()
                 .map {
                     val defaultLabel = it.selectFirstAccount().label
-                    getToField(defaultLabel, defaultLabel, cryptoPair.destination.displayTicker)
+                    getToField(defaultLabel, defaultLabel, cryptoPair.destination.ticker)
                 }
             TransferDirection.TO_USERKEY -> throw IllegalStateException("TO_USERKEY swap direction not supported")
         }
@@ -353,37 +351,37 @@ class ActivityDetailsInteractor(
     }
 
     fun getCustodialTradingActivityDetails(
-        cryptoCurrency: CryptoCurrency,
+        asset: AssetInfo,
         txHash: String
     ): CustodialTradingActivitySummaryItem? =
         assetActivityRepository.findCachedItem(
-            cryptoCurrency,
+            asset,
             txHash
         ) as? CustodialTradingActivitySummaryItem
 
     fun getCustodialInterestActivityDetails(
-        cryptoCurrency: CryptoCurrency,
+        asset: AssetInfo,
         txHash: String
     ): CustodialInterestActivitySummaryItem? =
         assetActivityRepository.findCachedItem(
-            cryptoCurrency,
+            asset,
             txHash
         ) as? CustodialInterestActivitySummaryItem
 
     fun getCustodialTransferActivityDetails(
-        cryptoCurrency: CryptoCurrency,
+        asset: AssetInfo,
         txHash: String
     ): CustodialTransferActivitySummaryItem? =
         assetActivityRepository.findCachedItem(
-            cryptoCurrency,
+            asset,
             txHash
         ) as? CustodialTransferActivitySummaryItem
 
     fun getTradeActivityDetails(
-        cryptoCurrency: CryptoCurrency,
+        asset: AssetInfo,
         txHash: String
     ): TradeActivitySummaryItem? =
-        assetActivityRepository.findCachedTradeItem(cryptoCurrency, txHash)
+        assetActivityRepository.findCachedTradeItem(asset, txHash)
 
     fun getRecurringBuyTransactionCacheDetails(
         txHash: String
@@ -394,14 +392,14 @@ class ActivityDetailsInteractor(
         currency: String,
         txHash: String
     ): FiatActivitySummaryItem? =
-        assetActivityRepository.findCachedItem(currency, txHash) as? FiatActivitySummaryItem
+        assetActivityRepository.findCachedItem(currency, txHash)
 
     fun getNonCustodialActivityDetails(
-        cryptoCurrency: CryptoCurrency,
+        asset: AssetInfo,
         txHash: String
     ): NonCustodialActivitySummaryItem? =
         assetActivityRepository.findCachedItem(
-            cryptoCurrency,
+            asset,
             txHash
         ) as? NonCustodialActivitySummaryItem
 
@@ -590,11 +588,11 @@ class ActivityDetailsInteractor(
 
     fun updateItemDescription(
         txId: String,
-        cryptoCurrency: CryptoCurrency,
+        asset: AssetInfo,
         description: String
     ): Completable {
         return when (val activityItem =
-            assetActivityRepository.findCachedItem(cryptoCurrency, txId)) {
+            assetActivityRepository.findCachedItem(asset, txId)) {
             is BtcActivitySummaryItem -> activityItem.updateDescription(description)
             is BchActivitySummaryItem -> activityItem.updateDescription(description)
             is EthActivitySummaryItem -> activityItem.updateDescription(description)

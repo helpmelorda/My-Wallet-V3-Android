@@ -6,7 +6,7 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.wallet.prices.TimeInterval
 import io.reactivex.Completable
@@ -48,7 +48,6 @@ internal abstract class CryptoAssetBase(
     protected val custodialManager: CustodialWalletManager,
     private val pitLinking: PitLinking,
     protected val crashLogger: CrashLogger,
-    protected val offlineAccounts: OfflineAccountUpdater,
     protected val identity: UserIdentity,
     protected val features: InternalFeatureFlagApi
 ) : CryptoAsset, AccountRefreshTrigger {
@@ -70,7 +69,7 @@ internal abstract class CryptoAssetBase(
                     cryptoNonCustodialAccount.updateLabel(
                         cryptoNonCustodialAccount.label.replace(
                             labels.getOldDefaultNonCustodialWalletLabel(asset),
-                            labels.getDefaultNonCustodialWalletLabel(asset)
+                            labels.getDefaultNonCustodialWalletLabel()
                         )
                     )
                         .doOnError { error ->
@@ -83,7 +82,7 @@ internal abstract class CryptoAssetBase(
         )
 
     override val isEnabled: Boolean
-        get() = !asset.hasFeature(CryptoCurrency.STUB_ASSET)
+        get() = true
 
     // Init token, set up accounts and fetch a few activities
     override fun init(): Completable =
@@ -102,7 +101,7 @@ internal abstract class CryptoAssetBase(
         ) { nc, c, i ->
             nc + c + i
         }.doOnError {
-            val errorMsg = "Error loading accounts for ${asset.networkTicker}"
+            val errorMsg = "Error loading accounts for ${asset.ticker}"
             Timber.e("$errorMsg: $it")
             crashLogger.logException(it, errorMsg)
         }
@@ -110,12 +109,6 @@ internal abstract class CryptoAssetBase(
     private fun CryptoNonCustodialAccount.labelNeedsUpdate(): Boolean {
         val regex = """${labels.getOldDefaultNonCustodialWalletLabel(asset)}(\s?)([\d]*)""".toRegex()
         return label.matches(regex)
-    }
-
-    // Called when the set of account in use bu this asset changes. Update the offline
-    // cache and the BE notification addresses here
-    protected open fun onAccountListChanged(accountList: List<SingleAccount>) {
-        Timber.d("Accounts changed!")
     }
 
     final override fun forceAccountsRefresh() {
@@ -133,7 +126,7 @@ internal abstract class CryptoAssetBase(
                     listOf(
                         CryptoInterestAccount(
                             asset,
-                            labels.getDefaultInterestWalletLabel(asset),
+                            labels.getDefaultInterestWalletLabel(),
                             custodialManager,
                             exchangeRates,
                             features
@@ -151,7 +144,7 @@ internal abstract class CryptoAssetBase(
             listOf(
                 CustodialTradingAccount(
                     asset = asset,
-                    label = labels.getDefaultCustodialWalletLabel(asset),
+                    label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
                     identity = identity,
@@ -172,7 +165,7 @@ internal abstract class CryptoAssetBase(
 
     private fun getNonCustodialAccountList(): Single<SingleAccountList> =
         accountGroup(filter = AssetFilter.NonCustodial)
-            .map { group -> group.accounts.mapNotNull { it as? SingleAccount } }
+            .map { group -> group.accounts }
             .toSingle(emptyList())
 
     final override fun exchangeRate(): Single<ExchangeRate> =
@@ -196,7 +189,7 @@ internal abstract class CryptoAssetBase(
             }
 
     override fun historicRateSeries(period: TimeSpan, interval: TimeInterval): Single<PriceSeries> =
-        if (asset.hasFeature(CryptoCurrency.PRICE_CHARTING))
+        if (asset.startDate != null)
             historicRates.getHistoricPriceSeries(asset, currencyPrefs.selectedFiatCurrency, period)
         else
             Single.just(emptyList())
@@ -283,7 +276,7 @@ internal abstract class CryptoAssetBase(
 }
 
 fun ExchangeRateDataManager.fetchExchangeRate(
-    cryptoCurrency: CryptoCurrency,
+    cryptoCurrency: AssetInfo,
     currencyName: String
 ): Single<BigDecimal> =
     updateTickers()
@@ -291,7 +284,7 @@ fun ExchangeRateDataManager.fetchExchangeRate(
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 internal class ActiveAccountList(
-    private val asset: CryptoCurrency,
+    private val asset: AssetInfo,
     private val custodialManager: CustodialWalletManager
 ) {
     private val activeList = mutableSetOf<CryptoAccount>()

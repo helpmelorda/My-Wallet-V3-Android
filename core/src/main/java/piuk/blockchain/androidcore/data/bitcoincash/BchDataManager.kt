@@ -233,8 +233,8 @@ class BchDataManager(
                 .forEach {
                     val accountNumber = it + 1
 
+                    val label = defaultLabels.getDefaultNonCustodialWalletLabel()
                     val walletBody = payloadDataManager.wallet!!.walletBody
-                    val label = defaultLabels.getDefaultNonCustodialWalletLabel(CryptoCurrency.BTC)
                     val newAccountLabel = "$label $accountNumber"
                     val acc = walletBody?.addAccount(newAccountLabel)
 
@@ -281,7 +281,7 @@ class BchDataManager(
             bchDataStore.bchWallet!!.addAccount()
         }
 
-        val defaultLabel = defaultLabels.getDefaultNonCustodialWalletLabel(CryptoCurrency.BCH)
+        val defaultLabel = defaultLabels.getDefaultNonCustodialWalletLabel()
         val count = bchDataStore.bchWallet!!.accountTotal
         bchDataStore.bchMetadata!!.addAccount(
             GenericMetadataAccount(

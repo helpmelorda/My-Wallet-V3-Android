@@ -3,7 +3,8 @@ package com.blockchain.nabu.datamanagers.repositories.interest
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import io.reactivex.Single
@@ -17,6 +18,7 @@ interface InterestLimitsProvider {
 }
 
 class InterestLimitsProviderImpl(
+    private val assetCatalogue: AssetCatalogue,
     private val nabuService: NabuService,
     private val authenticator: Authenticator,
     private val currencyPrefs: CurrencyPrefs,
@@ -27,13 +29,13 @@ class InterestLimitsProviderImpl(
             nabuService.getInterestLimits(it, currencyPrefs.selectedFiatCurrency)
                 .map { responseBody ->
                     InterestLimitsList(responseBody.limits.assetMap.entries.map { entry ->
-                        val cryptoCurrency = CryptoCurrency.fromNetworkTicker(entry.key)!!
+                        val crypto = assetCatalogue.fromNetworkTicker(entry.key)!!
                         val minDepositFiatValue = FiatValue.fromMinor(currencyPrefs.selectedFiatCurrency,
                             entry.value.minDepositAmount.toLong())
-                        val minDepositCryptoValue = minDepositFiatValue.toCrypto(exchangeRates, cryptoCurrency)
+                        val minDepositCryptoValue = minDepositFiatValue.toCrypto(exchangeRates, crypto)
                         val maxWithdrawalFiatValue = FiatValue.fromMinor(currencyPrefs.selectedFiatCurrency,
                             entry.value.maxWithdrawalAmount.toLong())
-                        val maxWithdrawalCryptoValue = maxWithdrawalFiatValue.toCrypto(exchangeRates, cryptoCurrency)
+                        val maxWithdrawalCryptoValue = maxWithdrawalFiatValue.toCrypto(exchangeRates, crypto)
 
                         val calendar = Calendar.getInstance()
                         calendar.set(Calendar.DAY_OF_MONTH, 1)
@@ -42,7 +44,7 @@ class InterestLimitsProviderImpl(
                         InterestLimits(
                             interestLockUpDuration = entry.value.lockUpDuration,
                             minDepositAmount = minDepositCryptoValue,
-                            cryptoCurrency = cryptoCurrency,
+                            cryptoCurrency = crypto,
                             currency = entry.value.currency,
                             nextInterestPayment = calendar.time,
                             maxWithdrawalAmount = maxWithdrawalCryptoValue
@@ -55,7 +57,7 @@ class InterestLimitsProviderImpl(
 data class InterestLimits(
     val interestLockUpDuration: Int,
     val minDepositAmount: CryptoValue,
-    val cryptoCurrency: CryptoCurrency,
+    val cryptoCurrency: AssetInfo,
     val currency: String,
     val nextInterestPayment: Date,
     val maxWithdrawalAmount: CryptoValue

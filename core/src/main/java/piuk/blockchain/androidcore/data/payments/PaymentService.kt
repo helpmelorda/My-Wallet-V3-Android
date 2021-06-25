@@ -1,6 +1,5 @@
 package piuk.blockchain.androidcore.data.payments
 
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.api.dust.DustService
 import info.blockchain.wallet.api.dust.data.DustInput
 import info.blockchain.wallet.exceptions.TransactionHashApiException
@@ -140,7 +139,8 @@ class PaymentService(
         changeAddress: String,
         bigIntFee: BigInteger,
         bigIntAmount: BigInteger
-    ): Observable<Pair<Transaction, DustInput?>> = dustService.getDust(CryptoCurrency.BCH)
+    ): Observable<Pair<Transaction, DustInput?>> =
+    dustService.getDust()
         .flatMapObservable {
             val receivers = HashMap<String, BigInteger>()
             receivers[toAddress] = bigIntAmount

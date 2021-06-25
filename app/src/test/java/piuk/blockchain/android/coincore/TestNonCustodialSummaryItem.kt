@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore
 
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
@@ -9,7 +10,7 @@ import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 
 internal class TestNonCustodialSummaryItem(
     override val exchangeRates: ExchangeRateDataManager = mock(),
-    override val cryptoCurrency: CryptoCurrency = CryptoCurrency.BTC,
+    override val asset: AssetInfo = CryptoCurrency.BTC,
     override val transactionType: TransactionSummary.TransactionType = TransactionSummary.TransactionType.RECEIVED,
     override val timeStampMs: Long = 0,
     override val value: CryptoValue = CryptoValue.zero(CryptoCurrency.BTC),

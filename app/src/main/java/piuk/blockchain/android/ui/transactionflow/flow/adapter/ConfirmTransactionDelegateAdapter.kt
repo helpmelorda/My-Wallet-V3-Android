@@ -2,11 +2,9 @@ package piuk.blockchain.android.ui.transactionflow.flow.adapter
 
 import android.app.Activity
 import info.blockchain.balance.ExchangeRates
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.TxConfirmationValue
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
-import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.flow.TxConfirmReadOnlyMapperCheckout
 import piuk.blockchain.android.util.StringUtils
@@ -15,11 +13,9 @@ class ConfirmTransactionDelegateAdapter(
     stringUtils: StringUtils,
     activityContext: Activity,
     model: TransactionModel,
-    analytics: TxFlowAnalytics,
     mapper: TxConfirmReadOnlyMapperCheckout,
     exchangeRates: ExchangeRates,
-    selectedCurrency: String,
-    assetResources: AssetResources
+    selectedCurrency: String
 ) : DelegationAdapter<TxConfirmationValue>(AdapterDelegatesManager(), emptyList()) {
     init {
         // Add all necessary AdapterDelegate objects here
@@ -38,8 +34,7 @@ class ConfirmTransactionDelegateAdapter(
                 ConfirmAgreementToTransferItemDelegate(
                     model,
                     exchangeRates,
-                    selectedCurrency,
-                    assetResources
+                    selectedCurrency
                 )
             )
             addAdapterDelegate(LargeTransactionWarningItemDelegate(model))

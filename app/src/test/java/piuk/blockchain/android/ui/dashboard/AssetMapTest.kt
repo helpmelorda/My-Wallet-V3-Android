@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.dashboard
 
 import com.blockchain.testutils.bitcoin
 import com.blockchain.testutils.ether
+import com.nhaarman.mockito_kotlin.mock
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.ExchangeRate
 import org.junit.Test
@@ -21,7 +23,9 @@ class AssetMapTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun `Exception thrown if unknown asset requested from get()`() {
-        subject[CryptoCurrency.PAX]
+        val invalidAsset: AssetInfo = mock()
+
+        subject[invalidAsset]
     }
 
     @Test

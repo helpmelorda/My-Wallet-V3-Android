@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.blockchain.koin.scopedInject
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -242,7 +242,7 @@ class EnterTargetAddressSheet : TransactionFlowSheet<DialogTxFlowEnterAddressBin
         QrScanActivity.start(this, QrExpected.ASSET_ADDRESS_QR(state.sendingAsset))
     }
 
-    private fun addressEntered(address: String, asset: CryptoCurrency) {
+    private fun addressEntered(address: String, asset: AssetInfo) {
         analyticsHooks.onManualAddressEntered(state)
         model.process(TransactionIntent.ValidateInputTargetAddress(address, asset))
     }
@@ -278,7 +278,7 @@ class EnterTargetAddressSheet : TransactionFlowSheet<DialogTxFlowEnterAddressBin
                         onComplete = {
                             ToastCustom.makeText(
                                 requireContext(),
-                                getString(R.string.scan_mismatch_transaction_target, state.sendingAsset.displayTicker),
+                                getString(R.string.scan_mismatch_transaction_target, state.sendingAsset.ticker),
                                 ToastCustom.LENGTH_SHORT,
                                 ToastCustom.TYPE_GENERAL
                             )

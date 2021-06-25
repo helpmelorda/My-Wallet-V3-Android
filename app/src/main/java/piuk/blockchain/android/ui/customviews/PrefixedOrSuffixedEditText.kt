@@ -8,7 +8,7 @@ import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import info.blockchain.utils.tryParseBigDecimal
+import com.blockchain.utils.tryParseBigDecimal
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import piuk.blockchain.android.util.AfterTextChangedWatcher

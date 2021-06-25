@@ -172,6 +172,6 @@ abstract class QuotedEngine(
 
     protected fun Money.withUserDpRounding(roundingMode: RoundingMode): CryptoValue =
         (this as? CryptoValue)?.let {
-            CryptoValue.fromMajor(it.currency, it.toBigDecimal().setScale(sourceAsset.userDp, roundingMode))
+            CryptoValue.fromMajor(it.currency, it.toBigDecimal().setScale(CryptoValue.DISPLAY_DP, roundingMode))
         } ?: throw IllegalStateException("Method only support cryptovalues")
 }

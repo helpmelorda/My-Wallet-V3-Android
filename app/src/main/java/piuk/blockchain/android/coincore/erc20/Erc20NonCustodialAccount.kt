@@ -2,8 +2,9 @@ package piuk.blockchain.android.coincore.erc20
 
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
+import info.blockchain.balance.isErc20
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.Singles
@@ -25,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class Erc20NonCustodialAccount(
     payloadManager: PayloadDataManager,
-    asset: CryptoCurrency,
+    asset: AssetInfo,
     private val ethDataManager: EthDataManager,
     internal val address: String,
     private val fees: FeeDataManager,
@@ -111,12 +112,12 @@ class Erc20NonCustodialAccount(
 }
 
 internal open class Erc20Address(
-    final override val asset: CryptoCurrency,
+    final override val asset: AssetInfo,
     override val address: String,
     override val label: String = address,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() }
 ) : CryptoAddress {
     init {
-        require(asset.hasFeature(CryptoCurrency.IS_ERC20))
+        require(asset.isErc20())
     }
 }

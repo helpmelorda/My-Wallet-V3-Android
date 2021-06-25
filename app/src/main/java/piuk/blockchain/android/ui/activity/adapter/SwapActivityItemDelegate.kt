@@ -4,16 +4,15 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.nabu.datamanagers.CurrencyPair
+import info.blockchain.balance.AssetInfo
 import com.blockchain.utils.toFormattedDate
-import info.blockchain.balance.CryptoCurrency
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.TradeActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.setAssetIconColours
+import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
 import piuk.blockchain.android.util.setTransactionIsConfirming
 import piuk.blockchain.android.util.visible
@@ -21,8 +20,7 @@ import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
 import java.util.Date
 
 class SwapActivityItemDelegate<in T>(
-    private val assetResources: AssetResources,
-    private val onItemClicked: (CryptoCurrency, String, CryptoActivityType) -> Unit // crypto, txID, type
+    private val onItemClicked: (AssetInfo, String, CryptoActivityType) -> Unit // crypto, txID, type
 ) : AdapterDelegate<T> {
 
     override fun isForViewType(items: List<T>, position: Int): Boolean =
@@ -41,7 +39,6 @@ class SwapActivityItemDelegate<in T>(
         holder: RecyclerView.ViewHolder
     ) = (holder as SwapActivityItemViewHolder).bind(
         items[position] as TradeActivitySummaryItem,
-        assetResources,
         onItemClicked
     )
 }
@@ -52,26 +49,22 @@ private class SwapActivityItemViewHolder(
 
     fun bind(
         tx: TradeActivitySummaryItem,
-        assetResources: AssetResources,
-        onAccountClicked: (CryptoCurrency, String, CryptoActivityType) -> Unit
+        onAccountClicked: (AssetInfo, String, CryptoActivityType) -> Unit
     ) {
         with(binding) {
             statusDate.text = Date(tx.timeStampMs).toFormattedDate()
             (tx.currencyPair as? CurrencyPair.CryptoCurrencyPair)?.let {
                 txType.text = context.resources.getString(
                     R.string.tx_title_swap,
-                    it.source.displayTicker,
-                    it.destination.displayTicker
+                    it.source.ticker,
+                    it.destination.ticker
                 )
                 when {
                     tx.state.isPending -> icon.setTransactionIsConfirming()
                     tx.state.hasFailed -> icon.setTransactionHasFailed()
                     else -> {
                         icon.setImageResource(R.drawable.ic_tx_swap)
-                        icon.setAssetIconColours(
-                            tintColor = assetResources.assetTint(it.source),
-                            filterColor = assetResources.assetFilter(it.source)
-                        )
+                        icon.setAssetIconColoursWithTint(it.source)
                     }
                 }
                 txRoot.setOnClickListener {

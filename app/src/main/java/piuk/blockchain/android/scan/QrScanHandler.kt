@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.koin.payloadScope
+import info.blockchain.balance.AssetInfo
 import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.util.FormatsUtil
@@ -18,7 +19,6 @@ import io.reactivex.subjects.SingleSubject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AddressFactory
 import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAccount
@@ -103,7 +103,7 @@ class QrScanResultProcessor(
         }
 
     private fun parseBitpayInvoice(bitpayUri: String): Single<CryptoTarget> {
-        val cryptoCurrency = bitpayUri.getCryptoCurrencyFromLink()
+        val cryptoCurrency = bitpayUri.getAssetFromLink()
         return BitPayInvoiceTarget.fromLink(cryptoCurrency, bitpayUri, bitPayDataManager)
             .onErrorResumeNext {
                 Single.error(QrScanError(QrScanError.ErrorCode.BitPayScanFailed, it.message ?: "Unknown reason"))
@@ -112,13 +112,12 @@ class QrScanResultProcessor(
 
     fun disambiguateScan(
         activity: Activity,
-        targets: Collection<CryptoTarget>,
-        assetResources: AssetResources
+        targets: Collection<CryptoTarget>
     ): Single<CryptoTarget> {
         // TEMP while refactoring - replace with bottom sheet.
         val optionsList = ArrayList(targets)
         val selectList = optionsList.map {
-            activity.resources.getString(assetResources.assetNameRes(it.asset))
+            it.asset.name
         }.toTypedArray()
 
         val subject = SingleSubject.create<CryptoTarget>()
@@ -140,7 +139,7 @@ class QrScanResultProcessor(
     }
 
     fun selectAssetTargetFromScan(
-        asset: CryptoCurrency,
+        asset: AssetInfo,
         scanResult: ScanResult
     ): Maybe<CryptoAddress> =
         Maybe.just(scanResult)
@@ -225,7 +224,7 @@ private const val bitpayInvoiceUrl = "$BITPAY_LIVE_BASE$PATH_BITPAY_INVOICE/"
 private fun String.isBitpayUri(): Boolean =
     FormatsUtil.getPaymentRequestUrl(this).contains(bitpayInvoiceUrl)
 
-private fun String.getCryptoCurrencyFromLink(): CryptoCurrency =
+private fun String.getAssetFromLink(): AssetInfo =
     when {
         this.startsWith(BTC_PREFIX) -> CryptoCurrency.BTC
         this.startsWith(BCH_PREFIX) -> CryptoCurrency.BCH

@@ -170,7 +170,7 @@ class BtcOnChainTxEngine(
         val changeOutputType = btcDataManager.getXpubFormatOutputType(btcSource.xpubs.default.derivation)
 
         val available = sendDataManager.getMaximumAvailable(
-            cryptoCurrency = sourceAsset,
+            asset = sourceAsset,
             targetOutputType = targetOutputType,
             unspentCoins = coins,
             feePerKb = feePerKb

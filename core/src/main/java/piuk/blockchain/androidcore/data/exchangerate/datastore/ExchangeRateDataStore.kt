@@ -1,5 +1,7 @@
 package piuk.blockchain.androidcore.data.exchangerate.datastore
 
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.prices.data.PriceDatum
 import io.reactivex.Completable
@@ -7,63 +9,43 @@ import io.reactivex.Single
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import timber.log.Timber
+import java.lang.IllegalStateException
 import java.math.BigDecimal
 
+// TODO: This will need rewriting before we greatly expand the number of supported cryptos.
+// updateExchangeRates() will have to be removed and we'll have to access individual
+// prices or demand, rather than batch loading on system start.
+// Also, this caching via system prefs is ugly and will also need replacing with something
+// more elegant. This is out of scope for this current refactor pass, however.
 class ExchangeRateDataStore(
     private val exchangeRateService: ExchangeRateService,
+    private val assetCatalogue: AssetCatalogue,
     private val prefs: PersistentPrefs
 ) {
-
-    // Ticker data
-    private var btcTickerData: Map<String, PriceDatum>? = null
-    private var ethTickerData: Map<String, PriceDatum>? = null
-    private var bchTickerData: Map<String, PriceDatum>? = null
-    private var xlmTickerData: Map<String, PriceDatum>? = null
-    private var paxTickerData: Map<String, PriceDatum>? = null
-    private var algTickerData: Map<String, PriceDatum>? = null
-    private var usdtTickerData: Map<String, PriceDatum>? = null
-    private var dgldTickerData: Map<String, PriceDatum>? = null
-    private var aaveTickerData: Map<String, PriceDatum>? = null
-    private var yfiTickerData: Map<String, PriceDatum>? = null
-    private var dotTickerData: Map<String, PriceDatum>? = null
+    // Map assets to a map of FIAT -> CURRENT PRICE in that fiat
+    private val tickerCache: MutableMap<AssetInfo, Map<String, PriceDatum>> = HashMap()
 
     fun updateExchangeRates(): Completable = Single.merge(
-        listOf(
-            exchangeRateService.getExchangeRateMap(CryptoCurrency.BTC)
-                .doOnSuccess { btcTickerData = it.toMap() },
-            exchangeRateService.getExchangeRateMap(CryptoCurrency.BCH)
-                .doOnSuccess { bchTickerData = it.toMap() },
-            exchangeRateService.getExchangeRateMap(CryptoCurrency.ETHER)
-                .doOnSuccess { ethTickerData = it.toMap() },
-            exchangeRateService.getExchangeRateMap(CryptoCurrency.XLM)
-                .doOnSuccess { xlmTickerData = it.toMap() },
-            exchangeRateService.getExchangeRateMap(CryptoCurrency.PAX)
-                .doOnSuccess { paxTickerData = it.toMap() },
-            exchangeRateService.getExchangeRateMap(CryptoCurrency.ALGO)
-                .doOnSuccess { algTickerData = it.toMap() },
-            exchangeRateService.getExchangeRateMap(CryptoCurrency.USDT)
-                .doOnSuccess { usdtTickerData = it.toMap() },
-            exchangeRateService.getExchangeRateMap(CryptoCurrency.DGLD)
-                .doOnSuccess { dgldTickerData = it.toMap() },
-            exchangeRateService.getExchangeRateMap(CryptoCurrency.AAVE)
-                .doOnSuccess { aaveTickerData = it.toMap() },
-            exchangeRateService.getExchangeRateMap(CryptoCurrency.YFI)
-                .doOnSuccess { yfiTickerData = it.toMap() },
-            exchangeRateService.getExchangeRateMap(CryptoCurrency.DOT)
-                .doOnSuccess { dotTickerData = it.toMap() }
-        )
-    ).ignoreElements()
+        assetCatalogue.supportedCryptoAssets()
+            .map { asset ->
+                exchangeRateService.getExchangeRateMap(asset)
+                    .doOnSuccess { tickerCache.put(asset, it.toMap()) }
+            }
+        ).ignoreElements()
 
-    fun getCurrencyLabels(): Array<String> = btcTickerData!!.keys.toTypedArray()
+    // TODO: The gets the 'known' list of supported fiat - for prices.
+    // Def a hack and should be fixed
+    fun getCurrencyLabels(): Array<String> =
+        tickerCache.entries.first().value.keys.toTypedArray()
 
-    fun getLastPrice(cryptoCurrency: CryptoCurrency, fiatCurrency: String): Double {
+    fun getLastPrice(asset: AssetInfo, fiatCurrency: String): Double {
         if (fiatCurrency.isEmpty()) {
             throw IllegalArgumentException("No currency supplied")
         }
 
-        val tickerData = cryptoCurrency.tickerData()
+        val tickerData = asset.tickerData()
 
-        val prefsKey = "LAST_KNOWN_${cryptoCurrency.networkTicker}_VALUE_FOR_CURRENCY_$fiatCurrency"
+        val prefsKey = "LAST_KNOWN_${asset.ticker}_VALUE_FOR_CURRENCY_$fiatCurrency"
 
         val lastKnown = try {
             prefs.getValue(prefsKey, "0.0").toDouble()
@@ -73,7 +55,7 @@ class ExchangeRateDataStore(
             0.0
         }
 
-        val price = tickerData?.get(fiatCurrency)?.price?.also {
+        val price = tickerData[fiatCurrency]?.price?.also {
             prefs.setValue(prefsKey, it.toString())
         } ?: lastKnown
 
@@ -86,33 +68,20 @@ class ExchangeRateDataStore(
 
     fun getFiatLastPrice(targetFiat: String, sourceFiat: String): Double {
         val targetCurrencyPrice =
-            CryptoCurrency.BTC.tickerData()?.get(targetFiat)?.price ?: return 0.0
+            CryptoCurrency.BTC.tickerData()[targetFiat]?.price ?: return 0.0
         val sourceCurrencyPrice =
-            CryptoCurrency.BTC.tickerData()?.get(sourceFiat)?.price ?: return 0.0
+            CryptoCurrency.BTC.tickerData()[sourceFiat]?.price ?: return 0.0
         return targetCurrencyPrice.div(sourceCurrencyPrice)
     }
 
-    private fun CryptoCurrency.tickerData() =
-        when (this) {
-            CryptoCurrency.BTC -> btcTickerData
-            CryptoCurrency.ETHER -> ethTickerData
-            CryptoCurrency.BCH -> bchTickerData
-            CryptoCurrency.XLM -> xlmTickerData
-            CryptoCurrency.PAX -> paxTickerData
-            CryptoCurrency.STX -> TODO("STUB: STX NOT IMPLEMENTED")
-            CryptoCurrency.ALGO -> algTickerData
-            CryptoCurrency.USDT -> usdtTickerData
-            CryptoCurrency.DGLD -> dgldTickerData
-            CryptoCurrency.AAVE -> aaveTickerData
-            CryptoCurrency.YFI -> yfiTickerData
-            CryptoCurrency.DOT -> dotTickerData
-        }
+    private fun AssetInfo.tickerData() =
+        tickerCache[this] ?: throw IllegalStateException("No data available for asset ${this.ticker}")
 
     fun getHistoricPrice(
-        cryptoCurrency: CryptoCurrency,
+        asset: AssetInfo,
         fiat: String,
         timeInSeconds: Long
     ): Single<BigDecimal> =
-        exchangeRateService.getHistoricPrice(cryptoCurrency, fiat, timeInSeconds)
+        exchangeRateService.getHistoricPrice(asset, fiat, timeInSeconds)
             .map { it.toBigDecimal() }
 }

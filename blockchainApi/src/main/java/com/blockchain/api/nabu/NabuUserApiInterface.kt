@@ -1,0 +1,14 @@
+package com.blockchain.api.nabu
+
+import com.blockchain.api.nabu.data.InterestEligibilityResponse
+import io.reactivex.Single
+import retrofit2.http.GET
+import retrofit2.http.Header
+
+interface NabuUserApiInterface {
+
+    @GET("eligible/product/savings")
+    fun getInterestEligibility(
+        @Header("authorization") authorization: String
+    ): Single<Map<String, InterestEligibilityResponse>>
+}

@@ -33,7 +33,7 @@ class ActivitiesInteractor(
     fun cancelSimpleBuyOrder(orderId: String): Disposable? {
         return custodialWalletManager.deleteBuyOrder(orderId)
                 .subscribeBy(
-                    onComplete = { simpleBuyPrefs.clearState() },
+                    onComplete = { simpleBuyPrefs.clearBuyState() },
                     onError = { error ->
                         analytics.logEvent(SimpleBuyAnalytics.BANK_DETAILS_CANCEL_ERROR)
                         Timber.e(error)

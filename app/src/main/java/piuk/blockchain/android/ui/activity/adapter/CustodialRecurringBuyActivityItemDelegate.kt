@@ -9,22 +9,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.nabu.datamanagers.RecurringBuyErrorState
 import com.blockchain.nabu.datamanagers.RecurringBuyTransactionState
 import com.blockchain.utils.toFormattedDate
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.ActivitySummaryItem
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.RecurringBuyActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.setAssetIconColours
+import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
 import java.util.Date
 
 class CustodialRecurringBuyActivityItemDelegate(
-    private val assetResources: AssetResources,
-    private val onItemClicked: (CryptoCurrency, String, CryptoActivityType) -> Unit
+    private val onItemClicked: (AssetInfo, String, CryptoActivityType) -> Unit
 ) : AdapterDelegate<ActivitySummaryItem> {
 
     override fun isForViewType(items: List<ActivitySummaryItem>, position: Int): Boolean =
@@ -41,7 +39,6 @@ class CustodialRecurringBuyActivityItemDelegate(
         holder: RecyclerView.ViewHolder
     ) = (holder as CustodialRecurringBuyActivityViewHolder).bind(
         items[position] as RecurringBuyActivitySummaryItem,
-        assetResources,
         onItemClicked
     )
 }
@@ -52,8 +49,7 @@ private class CustodialRecurringBuyActivityViewHolder(
 
     fun bind(
         tx: RecurringBuyActivitySummaryItem,
-        assetResources: AssetResources,
-        onAccountClicked: (CryptoCurrency, String, CryptoActivityType) -> Unit
+        onAccountClicked: (AssetInfo, String, CryptoActivityType) -> Unit
     ) {
         val context = binding.root.context
         with(binding) {
@@ -61,22 +57,19 @@ private class CustodialRecurringBuyActivityViewHolder(
                 RecurringBuyTransactionState.PENDING,
                 RecurringBuyTransactionState.COMPLETED -> {
                     icon.setImageResource(R.drawable.ic_tx_recurring_buy)
-                    icon.setAssetIconColours(
-                        assetResources.assetTint(tx.cryptoCurrency),
-                        assetResources.assetFilter(tx.cryptoCurrency)
-                    )
+                    icon.setAssetIconColoursWithTint(tx.asset)
                 }
                 else -> icon.setTransactionHasFailed()
             }
 
-            txType.text = context.resources.getString(R.string.tx_title_buy, tx.cryptoCurrency)
+            txType.text = context.resources.getString(R.string.tx_title_buy, tx.asset)
             statusDate.setTxStatus(tx)
             setTextColours(tx.state)
 
             tx.setFiatAndCryptoText()
 
             root.setOnClickListener {
-                onAccountClicked(tx.cryptoCurrency, tx.txId, CryptoActivityType.RECURRING_BUY)
+                onAccountClicked(tx.asset, tx.txId, CryptoActivityType.RECURRING_BUY)
             }
         }
     }

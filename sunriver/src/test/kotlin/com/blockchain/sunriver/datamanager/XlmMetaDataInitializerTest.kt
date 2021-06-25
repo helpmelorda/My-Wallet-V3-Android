@@ -15,7 +15,6 @@ import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
 import com.nhaarman.mockito_kotlin.verifyZeroInteractions
-import info.blockchain.balance.CryptoCurrency
 import io.github.novacrypto.bip39.SeedCalculator
 import io.reactivex.Completable
 import io.reactivex.Maybe
@@ -711,5 +710,5 @@ private fun KStubbing<MetadataRepository>.successfulSave() {
 
 private fun givenDefaultXlmLabel(defaultLabel: String): DefaultLabels =
     mock {
-        on { getDefaultNonCustodialWalletLabel(CryptoCurrency.XLM) } `it returns` defaultLabel
+        on { getDefaultNonCustodialWalletLabel() } `it returns` defaultLabel
     }

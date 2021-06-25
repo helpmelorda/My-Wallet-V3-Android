@@ -24,7 +24,8 @@ import com.blockchain.nabu.models.responses.simplebuy.PaymentAttributes
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.braintreepayments.cardform.utils.CardType
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -58,15 +59,15 @@ enum class OrderState {
 interface CustodialWalletManager {
 
     fun getTotalBalanceForAsset(
-        crypto: CryptoCurrency
+        asset: AssetInfo
     ): Maybe<CryptoValue>
 
     fun getActionableBalanceForAsset(
-        crypto: CryptoCurrency
+        asset: AssetInfo
     ): Maybe<CryptoValue>
 
     fun getPendingBalanceForAsset(
-        crypto: CryptoCurrency
+        asset: AssetInfo
     ): Maybe<CryptoValue>
 
     fun getSupportedBuySellCryptoCurrencies(
@@ -76,7 +77,7 @@ interface CustodialWalletManager {
     fun getSupportedFiatCurrencies(): Single<List<String>>
 
     fun getQuote(
-        cryptoCurrency: CryptoCurrency,
+        asset: AssetInfo,
         fiatCurrency: String,
         action: String,
         currency: String,
@@ -84,13 +85,13 @@ interface CustodialWalletManager {
     ): Single<CustodialQuote>
 
     fun fetchFiatWithdrawFeeAndMinLimit(
-        currency: String,
+        asset: String,
         product: Product,
         paymentMethodType: PaymentMethodType
     ): Single<FiatWithdrawalFeeAndLimit>
 
     fun fetchCryptoWithdrawFeeAndMinLimit(
-        currency: CryptoCurrency,
+        asset: AssetInfo,
         product: Product
     ): Single<CryptoWithdrawalFeeAndLimit>
 
@@ -134,18 +135,19 @@ interface CustodialWalletManager {
         currency: String
     ): Single<BankAccount>
 
-    fun getCustodialAccountAddress(cryptoCurrency: CryptoCurrency): Single<String>
+    fun getCustodialAccountAddress(asset: AssetInfo): Single<String>
 
     fun isCurrencySupportedForSimpleBuy(
         fiatCurrency: String
     ): Single<Boolean>
 
-    fun getOutstandingBuyOrders(crypto: CryptoCurrency): Single<BuyOrderList>
+    fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList>
+
     fun getAllOutstandingBuyOrders(): Single<BuyOrderList>
 
     fun getAllOutstandingOrders(): Single<List<BuySellOrder>>
 
-    fun getAllOrdersFor(crypto: CryptoCurrency): Single<BuyOrderList>
+    fun getAllOrdersFor(asset: AssetInfo): Single<BuyOrderList>
 
     fun getRecurringBuyOrders(): Single<RecurringBuyTransactions>
 
@@ -205,37 +207,37 @@ interface CustodialWalletManager {
         isBankPartner: Boolean?
     ): Single<BuySellOrder>
 
-    fun getInterestAccountBalance(crypto: CryptoCurrency): Single<CryptoValue>
+    fun getInterestAccountBalance(asset: AssetInfo): Single<CryptoValue>
 
-    fun getPendingInterestAccountBalance(crypto: CryptoCurrency): Single<CryptoValue>
+    fun getPendingInterestAccountBalance(asset: AssetInfo): Single<CryptoValue>
 
-    fun getActionableInterestAccountBalance(crypto: CryptoCurrency): Single<CryptoValue>
+    fun getActionableInterestAccountBalance(asset: AssetInfo): Single<CryptoValue>
 
-    fun getInterestAccountDetails(crypto: CryptoCurrency): Single<InterestAccountDetails>
+    fun getInterestAccountDetails(asset: AssetInfo): Single<InterestAccountDetails>
 
-    fun getInterestAccountRates(crypto: CryptoCurrency): Single<Double>
+    fun getInterestAccountRates(asset: AssetInfo): Single<Double>
 
-    fun getInterestAccountAddress(crypto: CryptoCurrency): Single<String>
+    fun getInterestAccountAddress(asset: AssetInfo): Single<String>
 
-    fun getInterestActivity(crypto: CryptoCurrency): Single<List<InterestActivityItem>>
+    fun getInterestActivity(asset: AssetInfo): Single<List<InterestActivityItem>>
 
-    fun getInterestLimits(crypto: CryptoCurrency): Maybe<InterestLimits>
+    fun getInterestLimits(asset: AssetInfo): Maybe<InterestLimits>
 
-    fun getInterestAvailabilityForAsset(crypto: CryptoCurrency): Single<Boolean>
+    fun getInterestAvailabilityForAsset(asset: AssetInfo): Single<Boolean>
 
-    fun getInterestEnabledAssets(): Single<List<CryptoCurrency>>
+    fun getInterestEnabledAssets(): Single<List<AssetInfo>>
 
-    fun getInterestEligibilityForAsset(crypto: CryptoCurrency): Single<Eligibility>
+    fun getInterestEligibilityForAsset(asset: AssetInfo): Single<Eligibility>
 
-    fun startInterestWithdrawal(cryptoCurrency: CryptoCurrency, amount: Money, address: String): Completable
+    fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String): Completable
 
-    fun invalidateInterestBalanceForAsset(crypto: CryptoCurrency)
+    fun invalidateInterestBalanceForAsset(asset: AssetInfo)
 
     fun getSupportedFundsFiats(fiatCurrency: String = defaultFiatCurrency): Single<List<String>>
 
     fun canTransactWithBankMethods(fiatCurrency: String): Single<Boolean>
 
-    fun getExchangeSendAddressFor(crypto: CryptoCurrency): Maybe<String>
+    fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String>
 
     fun isSimplifiedDueDiligenceEligible(): Single<Boolean>
 
@@ -250,7 +252,7 @@ interface CustodialWalletManager {
     ): Single<CustodialOrder>
 
     fun createPendingDeposit(
-        crypto: CryptoCurrency,
+        crypto: AssetInfo,
         address: String,
         hash: String,
         amount: Money,
@@ -266,7 +268,7 @@ interface CustodialWalletManager {
     fun getSwapTrades(): Single<List<CustodialOrder>>
 
     fun getCustodialActivityForAsset(
-        cryptoCurrency: CryptoCurrency,
+        cryptoCurrency: AssetInfo,
         directions: Set<TransferDirection>
     ): Single<List<TradeTransactionItem>>
 
@@ -302,7 +304,7 @@ interface CustodialWalletManager {
 
 data class InterestActivityItem(
     val value: CryptoValue,
-    val cryptoCurrency: CryptoCurrency,
+    val cryptoCurrency: AssetInfo,
     val id: String,
     val insertedAt: Date,
     val state: InterestState,
@@ -497,13 +499,14 @@ enum class CustodialOrderState {
         get() = isPending || this == FINISHED
 }
 
-data class BuySellPairs(val pairs: List<BuySellPair>)
+data class BuySellPair(
+    val cryptoCurrency: AssetInfo,
+    val fiatCurrency: String,
+    val buyLimits: BuySellLimits,
+    val sellLimits: BuySellLimits
+)
 
-data class BuySellPair(private val pair: String, val buyLimits: BuySellLimits, val sellLimits: BuySellLimits) {
-    val cryptoCurrency: CryptoCurrency
-        get() = CryptoCurrency.values().first { it.networkTicker == pair.split("-")[0] }
-    val fiatCurrency: String = pair.split("-")[1]
-}
+data class BuySellPairs(val pairs: List<BuySellPair>)
 
 data class BuySellLimits(private val min: Long, private val max: Long) {
     fun minLimit(currency: String): FiatValue = FiatValue.fromMinor(currency, min)
@@ -745,11 +748,11 @@ data class TransferQuote(
 )
 
 sealed class CurrencyPair(val rawValue: String) {
-    data class CryptoCurrencyPair(val source: CryptoCurrency, val destination: CryptoCurrency) :
-        CurrencyPair("${source.networkTicker}-${destination.networkTicker}")
+    data class CryptoCurrencyPair(val source: AssetInfo, val destination: AssetInfo) :
+        CurrencyPair("${source.ticker}-${destination.ticker}")
 
-    data class CryptoToFiatCurrencyPair(val source: CryptoCurrency, val destination: String) :
-        CurrencyPair("${source.networkTicker}-$destination")
+    data class CryptoToFiatCurrencyPair(val source: AssetInfo, val destination: String) :
+        CurrencyPair("${source.ticker}-$destination")
 
     fun toSourceMoney(value: BigInteger): Money =
         when (this) {
@@ -772,11 +775,12 @@ sealed class CurrencyPair(val rawValue: String) {
     companion object {
         fun fromRawPair(
             rawValue: String,
+            assetCatalogue: AssetCatalogue,
             supportedFiatCurrencies: List<String> = LiveCustodialWalletManager.SUPPORTED_FUNDS_CURRENCIES
         ): CurrencyPair? {
             val parts = rawValue.split("-")
-            val source: CryptoCurrency = CryptoCurrency.fromNetworkTicker(parts[0]) ?: return null
-            val destinationCryptoCurrency: CryptoCurrency? = CryptoCurrency.fromNetworkTicker(parts[1])
+            val source: AssetInfo = assetCatalogue.fromNetworkTicker(parts[0]) ?: return null
+            val destinationCryptoCurrency: AssetInfo? = assetCatalogue.fromNetworkTicker(parts[1])
             if (destinationCryptoCurrency != null)
                 return CryptoCurrencyPair(source, destinationCryptoCurrency)
             if (supportedFiatCurrencies.contains(parts[1]))

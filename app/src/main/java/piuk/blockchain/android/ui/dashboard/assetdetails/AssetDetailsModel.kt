@@ -62,7 +62,7 @@ class AssetDetailsModel(
         Timber.d("***> performAction: ${intent.javaClass.simpleName}")
 
         return when (intent) {
-            is ShowRelevantAssetDetailsSheet -> interactor.shouldShowCustody(intent.cryptoCurrency)
+            is ShowRelevantAssetDetailsSheet -> interactor.shouldShowCustody(intent.asset)
                 .subscribeBy(
                     onSuccess = {
                         if (it) {
@@ -147,7 +147,7 @@ class AssetDetailsModel(
                 })
 
     private fun loadRecurringBuysForAsset(asset: CryptoAsset): Disposable =
-        interactor.loadRecurringBuysForAsset(asset.asset.networkTicker)
+        interactor.loadRecurringBuysForAsset(asset.asset.ticker)
             .subscribeBy(
                 onSuccess = { list ->
                     process(RecurringBuyDataLoaded(list.map { it.id to it }.toMap()))

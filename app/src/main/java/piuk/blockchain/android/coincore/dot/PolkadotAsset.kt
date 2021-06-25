@@ -5,6 +5,7 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.Completable
 import io.reactivex.Maybe
@@ -13,7 +14,6 @@ import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.impl.CryptoAssetBase
-import piuk.blockchain.android.coincore.impl.OfflineAccountUpdater
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
@@ -30,7 +30,6 @@ internal class PolkadotAsset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     identity: UserIdentity,
-    offlineAccounts: OfflineAccountUpdater,
     features: InternalFeatureFlagApi
 ) : CryptoAssetBase(
     payloadManager,
@@ -41,13 +40,15 @@ internal class PolkadotAsset(
     custodialManager,
     pitLinking,
     crashLogger,
-    offlineAccounts,
     identity,
     features
 ) {
 
-    override val asset: CryptoCurrency
+    override val asset: AssetInfo
         get() = CryptoCurrency.DOT
+
+    override val isCustodialOnly: Boolean = asset.isCustodialOnly
+    override val multiWallet: Boolean = false
 
     override fun initToken(): Completable = Completable.complete()
 
@@ -59,7 +60,7 @@ internal class PolkadotAsset(
             listOf(
                 PolkadotCustodialTradingAccount(
                     asset,
-                    labels.getDefaultCustodialWalletLabel(asset),
+                    labels.getDefaultCustodialWalletLabel(),
                     exchangeRates,
                     custodialManager,
                     identity,
@@ -75,5 +76,5 @@ internal class PolkadotAddress(
     override val address: String,
     override val label: String = address
 ) : CryptoAddress {
-    override val asset: CryptoCurrency = CryptoCurrency.DOT
+    override val asset: AssetInfo = CryptoCurrency.DOT
 }

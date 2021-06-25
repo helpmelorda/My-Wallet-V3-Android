@@ -7,7 +7,6 @@ import com.blockchain.sunriver.derivation.deriveXlmAccountKeyPair
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.wallet.Seed
 import com.blockchain.wallet.SeedAccess
-import info.blockchain.balance.CryptoCurrency
 import io.reactivex.Completable
 import io.reactivex.Maybe
 
@@ -99,7 +98,7 @@ internal class XlmMetaDataInitializer(
                 accounts = listOf(
                     XlmAccount(
                         publicKey = derived.accountId,
-                        label = defaultLabels.getDefaultNonCustodialWalletLabel(CryptoCurrency.XLM),
+                        label = defaultLabels.getDefaultNonCustodialWalletLabel(),
                         archived = false
                     )
                 ),

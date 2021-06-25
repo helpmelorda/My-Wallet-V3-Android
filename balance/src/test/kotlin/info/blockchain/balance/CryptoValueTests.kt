@@ -19,18 +19,8 @@ class CryptoValueTests {
     }
 
     @Test
-    fun `zero bch function`() {
-        CryptoValue.zero(CryptoCurrency.BCH) `should equal` CryptoValue.zero(CryptoCurrency.BCH)
-    }
-
-    @Test
     fun `zero eth`() {
         CryptoValue.zero(CryptoCurrency.ETHER) `should equal` CryptoValue(CryptoCurrency.ETHER, BigInteger.ZERO)
-    }
-
-    @Test
-    fun `zero pax function`() {
-        CryptoValue.zero(CryptoCurrency.PAX) `should equal` CryptoValue(CryptoCurrency.PAX, BigInteger.ZERO)
     }
 
     @Test

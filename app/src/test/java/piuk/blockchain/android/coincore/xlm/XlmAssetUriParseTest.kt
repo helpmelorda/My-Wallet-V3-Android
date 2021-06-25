@@ -12,7 +12,6 @@ import com.blockchain.wallet.DefaultLabels
 import org.amshove.kluent.mock
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.coincore.impl.OfflineAccountUpdater
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
@@ -40,7 +39,6 @@ class XlmAssetUriParseTest {
     private val pitLinking: PitLinking = mock()
     private val crashLogger: CrashLogger = mock()
     private val walletPreferences: WalletStatus = mock()
-    private val offlineCache: OfflineAccountUpdater = mock()
     private val features: InternalFeatureFlagApi = com.nhaarman.mockito_kotlin.mock()
 
     private val subject = XlmAsset(
@@ -56,7 +54,6 @@ class XlmAssetUriParseTest {
         pitLinking = pitLinking,
         crashLogger = crashLogger,
         walletPreferences = walletPreferences,
-        offlineAccounts = offlineCache,
         identity = mock(),
         features = features
     )

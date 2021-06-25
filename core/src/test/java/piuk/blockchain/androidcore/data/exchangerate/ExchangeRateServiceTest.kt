@@ -45,9 +45,9 @@ class ExchangeRateServiceTest {
         val fiat = "USD"
         whenever(
             historicPriceApi.getHistoricPriceSeries(
-                btc.networkTicker,
+                btc.ticker,
                 fiat,
-                btc.startDateForPrice,
+                btc.startDate!!,
                 TimeInterval.FIVE_DAYS.intervalSeconds
             )
         ).thenReturn(Single.just(listOf(PriceDatum())))
@@ -59,9 +59,9 @@ class ExchangeRateServiceTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         verify(historicPriceApi).getHistoricPriceSeries(
-            btc.networkTicker,
+            btc.ticker,
             fiat,
-            btc.startDateForPrice,
+            btc.startDate!!,
             TimeInterval.FIVE_DAYS.intervalSeconds
         )
         verifyNoMoreInteractions(historicPriceApi)
@@ -74,9 +74,9 @@ class ExchangeRateServiceTest {
         val fiat = "USD"
         whenever(
             historicPriceApi.getHistoricPriceSeries(
-                eth.networkTicker,
+                eth.ticker,
                 fiat,
-                eth.startDateForPrice,
+                eth.startDate!!,
                 TimeInterval.FIVE_DAYS.intervalSeconds
             )
         ).thenReturn(Single.just(listOf(PriceDatum())))
@@ -88,9 +88,9 @@ class ExchangeRateServiceTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         verify(historicPriceApi).getHistoricPriceSeries(
-            eth.networkTicker,
+            eth.ticker,
             fiat,
-            eth.startDateForPrice,
+            eth.startDate!!,
             TimeInterval.FIVE_DAYS.intervalSeconds
         )
         verifyNoMoreInteractions(historicPriceApi)
@@ -103,7 +103,7 @@ class ExchangeRateServiceTest {
         val fiat = "USD"
         whenever(
             historicPriceApi.getHistoricPriceSeries(
-                eq(btc.networkTicker),
+                eq(btc.ticker),
                 eq(fiat),
                 any(),
                 eq(TimeInterval.ONE_DAY.intervalSeconds)
@@ -117,7 +117,7 @@ class ExchangeRateServiceTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         verify(historicPriceApi).getHistoricPriceSeries(
-            eq(btc.networkTicker),
+            eq(btc.ticker),
             eq(fiat),
             any(),
             eq(TimeInterval.ONE_DAY.intervalSeconds)
@@ -132,7 +132,7 @@ class ExchangeRateServiceTest {
         val fiat = "USD"
         whenever(
             historicPriceApi.getHistoricPriceSeries(
-                eq(btc.networkTicker),
+                eq(btc.ticker),
                 eq(fiat),
                 any(),
                 eq(TimeInterval.TWO_HOURS.intervalSeconds)
@@ -146,7 +146,7 @@ class ExchangeRateServiceTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         verify(historicPriceApi).getHistoricPriceSeries(
-            eq(btc.networkTicker),
+            eq(btc.ticker),
             eq(fiat),
             any(),
             eq(TimeInterval.TWO_HOURS.intervalSeconds)
@@ -161,7 +161,7 @@ class ExchangeRateServiceTest {
         val fiat = "USD"
         whenever(
             historicPriceApi.getHistoricPriceSeries(
-                eq(btc.networkTicker),
+                eq(btc.ticker),
                 eq(fiat),
                 any(),
                 eq(TimeInterval.ONE_HOUR.intervalSeconds)
@@ -175,7 +175,7 @@ class ExchangeRateServiceTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         verify(historicPriceApi).getHistoricPriceSeries(
-            eq(btc.networkTicker),
+            eq(btc.ticker),
             eq(fiat),
             any(),
             eq(TimeInterval.ONE_HOUR.intervalSeconds)
@@ -190,7 +190,7 @@ class ExchangeRateServiceTest {
         val fiat = "USD"
         whenever(
             historicPriceApi.getHistoricPriceSeries(
-                eq(btc.networkTicker),
+                eq(btc.ticker),
                 eq(fiat),
                 any(),
                 eq(TimeInterval.FIFTEEN_MINUTES.intervalSeconds)
@@ -204,7 +204,7 @@ class ExchangeRateServiceTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         verify(historicPriceApi).getHistoricPriceSeries(
-            eq(btc.networkTicker),
+            eq(btc.ticker),
             eq(fiat),
             any(),
             eq(TimeInterval.FIFTEEN_MINUTES.intervalSeconds)

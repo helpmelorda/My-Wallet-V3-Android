@@ -1,18 +1,18 @@
 package piuk.blockchain.android.ui.interest
 
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import io.reactivex.disposables.CompositeDisposable
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
+import piuk.blockchain.android.ui.resources.AssetResources
 
 class InterestDashboardAdapter(
     assetResources: AssetResources,
     disposables: CompositeDisposable,
     custodialWalletManager: CustodialWalletManager,
     verificationClicked: () -> Unit,
-    itemClicked: (CryptoCurrency, Boolean) -> Unit
+    itemClicked: (AssetInfo, Boolean) -> Unit
 ) :
     DelegationAdapter<Any>(AdapterDelegatesManager(), emptyList()) {
 
@@ -33,5 +33,5 @@ sealed class InterestDashboardItem
 object InterestIdentityVerificationItem : InterestDashboardItem()
 class InterestAssetInfoItem(
     val isKycGold: Boolean,
-    val cryptoCurrency: CryptoCurrency
+    val asset: AssetInfo
 ) : InterestDashboardItem()

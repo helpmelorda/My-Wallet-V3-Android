@@ -35,6 +35,7 @@ class WalletOptions {
 
     @JsonProperty("xlm")
     private val xlm: XlmOptions = XlmOptions()
+
     @JsonProperty("xlmExchange")
     private val xlmExchange: XlmExchange = XlmExchange()
 
@@ -43,9 +44,6 @@ class WalletOptions {
 
     @JsonProperty("domains")
     private val domains = HashMap<String, String>()
-
-    val bchFeePerByte: Int
-        get() = bitcoinCashFees["feePerByte"] ?: 0
 
     /**
      * Returns the XLM transaction timeout in seconds.
@@ -65,12 +63,6 @@ class WalletOptions {
 
     val buyWebviewWalletLink: String?
         get() = mobile["walletRoot"]
-
-    val comRootLink: String
-        get() = domains["comRoot"] ?: ""
-
-    val walletLink: String
-        get() = domains["comWalletApp"] ?: ""
 
     companion object {
         var XLM_DEFAULT_TIMEOUT_SECS: Long? = 10L

@@ -10,7 +10,6 @@ import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.api.data.UpdateType
 import info.blockchain.wallet.exceptions.AccountLockedException
 import info.blockchain.wallet.exceptions.DecryptionException
@@ -289,7 +288,7 @@ class PinEntryPresenter(
         // v2 -> v3 -> v4
         compositeDisposable += payloadDataManager.upgradeWalletPayload(
             secondPassword,
-            defaultLabels.getDefaultNonCustodialWalletLabel(CryptoCurrency.BTC)
+            defaultLabels.getDefaultNonCustodialWalletLabel()
         )
         .subscribeOn(Schedulers.computation())
         .observeOn(AndroidSchedulers.mainThread())
@@ -474,7 +473,7 @@ class PinEntryPresenter(
         val fails = prefs.pinFails
         getPinRetriesFromRemoteConfig { maxAttempts ->
             if (fails >= maxAttempts) {
-                showParameteredErrorToast(R.string.pin_max_strikes, maxAttempts)
+                showMaxAttemptsToast(maxAttempts)
                 view.showMaxAttemptsDialog()
             }
         }
@@ -486,7 +485,7 @@ class PinEntryPresenter(
             payloadDataManager.getAccount(0).label.isEmpty()
         ) {
             payloadDataManager.getAccount(0).label =
-                defaultLabels.getDefaultNonCustodialWalletLabel(CryptoCurrency.BTC)
+                defaultLabels.getDefaultNonCustodialWalletLabel()
         }
     }
 
@@ -516,9 +515,9 @@ class PinEntryPresenter(
     }
 
     @UiThread
-    private fun showParameteredErrorToast(@StringRes message: Int, parameter: Int) {
+    private fun showMaxAttemptsToast(maxAttempts: Int) {
         view.dismissProgressDialog()
-        view.showParameteredToast(message, ToastCustom.TYPE_ERROR, parameter)
+        view.showParameteredToast(R.string.pin_max_strikes, ToastCustom.TYPE_ERROR, maxAttempts)
     }
 
     private class PinEntryLogException(cause: Throwable) : Exception(cause)

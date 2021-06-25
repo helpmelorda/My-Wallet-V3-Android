@@ -39,7 +39,7 @@ class PricesInterpolator(
                         listOf(priceTier.price.toBigDecimal(), nextTier.price.toBigDecimal()),
                         amount.toBigDecimal(),
                         when (pair) {
-                            is CurrencyPair.CryptoCurrencyPair -> pair.destination.dp
+                            is CurrencyPair.CryptoCurrencyPair -> pair.destination.precisionDp
                             is CurrencyPair.CryptoToFiatCurrencyPair ->
                                 Currency.getInstance(pair.destination).defaultFractionDigits
                         }

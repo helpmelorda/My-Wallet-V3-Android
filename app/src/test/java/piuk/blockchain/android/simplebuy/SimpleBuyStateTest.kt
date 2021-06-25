@@ -19,7 +19,7 @@ class SimpleBuyStateTest {
             ),
             amount = FiatValue.fromMajor("USD", 99.32.toBigDecimal()),
             fiatCurrency = "USD",
-            selectedCryptoCurrency = CryptoCurrency.BTC
+            selectedCryptoAsset = CryptoCurrency.BTC
         )
         assertTrue(state.isAmountValid)
     }
@@ -34,7 +34,8 @@ class SimpleBuyStateTest {
             ),
             amount = FiatValue.fromMinor("USD", 30000),
             fiatCurrency = "USD",
-            selectedCryptoCurrency = CryptoCurrency.BTC
+            selectedCryptoAsset = CryptoCurrency.BTC
+
         )
         assertFalse(state.isAmountValid)
     }
@@ -42,12 +43,15 @@ class SimpleBuyStateTest {
     @Test
     fun `amount is not valid when entered amount is null`() {
         val state = SimpleBuyState(
-            amount = null, fiatCurrency = "USD", selectedCryptoCurrency = CryptoCurrency.BTC,
+            amount = null,
+            fiatCurrency = "USD",
             transferLimits = TransferLimits(
                 minLimit = FiatValue.zero("USD"),
                 maxOrder = FiatValue.fromMinor("USD", 10000),
                 maxLimit = FiatValue.fromMinor("USD", 10000)
-            )
+            ),
+            selectedCryptoAsset = CryptoCurrency.BTC
+
         )
         assertFalse(state.isAmountValid)
     }

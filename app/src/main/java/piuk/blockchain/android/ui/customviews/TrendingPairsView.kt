@@ -13,7 +13,7 @@ import io.reactivex.Single
 import io.reactivex.rxkotlin.Singles
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.AssetResources
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.databinding.ItemTrendingPairRowBinding
@@ -31,7 +31,6 @@ class TrendingPairsView(context: Context, attrs: AttributeSet) : ConstraintLayou
     private var viewType: TrendingType = TrendingType.OTHER
 
     init {
-
         setupView(context, attrs)
         binding.trendingList.addItemDecoration(
             BlockchainListDividerDecor(context)
@@ -107,22 +106,21 @@ class SwapTrendingPairsProvider(
             Singles.zip(
                 coincore[CryptoCurrency.BTC].accountGroup(filter).toSingle(),
                 coincore[CryptoCurrency.ETHER].accountGroup(filter).toSingle(),
-                coincore[CryptoCurrency.PAX].accountGroup(filter).toSingle(),
+                coincore[CryptoCurrency.DOT].accountGroup(filter).toSingle(),
                 coincore[CryptoCurrency.BCH].accountGroup(filter).toSingle(),
                 coincore[CryptoCurrency.XLM].accountGroup(filter).toSingle()
-            ) { btcGroup, ethGroup, paxGroup, bchGroup, xlmGroup ->
+            ) { btcGroup, ethGroup, dotGroup, bchGroup, xlmGroup ->
                 val btcAccount = btcGroup.selectFirstAccount()
                 val ethAccount = ethGroup.selectFirstAccount()
-                val paxAccount = paxGroup.selectFirstAccount()
+                val dotAccount = dotGroup.selectFirstAccount()
                 val bchAccount = bchGroup.selectFirstAccount()
                 val xlmAccount = xlmGroup.selectFirstAccount()
 
                 listOf(
                     TrendingPair(btcAccount, ethAccount, btcAccount.isFunded),
-                    TrendingPair(btcAccount, paxAccount, btcAccount.isFunded),
                     TrendingPair(btcAccount, xlmAccount, btcAccount.isFunded),
                     TrendingPair(btcAccount, bchAccount, btcAccount.isFunded),
-                    TrendingPair(ethAccount, paxAccount, ethAccount.isFunded)
+                    TrendingPair(btcAccount, dotAccount, ethAccount.isFunded)
                 )
             }.onErrorReturn {
                 emptyList()
@@ -155,8 +153,8 @@ private class TrendingPairsAdapter(
 
         fun bind(type: TrendingPairsView.TrendingType, item: TrendingPair, assetResources: AssetResources) {
             binding.apply {
-                trendingIconIn.setImageResource(assetResources.drawableResFilled(item.sourceAccount.asset))
-                trendingIconOut.setImageResource(assetResources.drawableResFilled(item.destinationAccount.asset))
+                assetResources.loadAssetIcon(trendingIconIn, item.sourceAccount.asset)
+                assetResources.loadAssetIcon(trendingIconOut, item.destinationAccount.asset)
                 if (item.enabled) {
                     trendingRoot.setOnClickListener {
                         itemClicked(item)
@@ -171,11 +169,11 @@ private class TrendingPairsAdapter(
                     TrendingPairsView.TrendingType.SWAP -> {
                         trendingTitle.text = context.getString(
                             R.string.trending_swap,
-                            context.getString(assetResources.assetNameRes(item.sourceAccount.asset))
+                            item.sourceAccount.asset.name
                         )
                         trendingSubtitle.text = context.getString(
                             R.string.trending_receive,
-                            context.getString(assetResources.assetNameRes(item.destinationAccount.asset))
+                            item.destinationAccount.asset.name
                         )
                         trendingIconType.setImageDrawable(context.getResolvedDrawable(R.drawable.ic_swap_light_blue))
                     }

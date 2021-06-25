@@ -104,8 +104,7 @@ val transactionModule = module {
 
     factory {
         NetworkFormatter(
-            context = get(),
-            assetResources = get()
+            context = get()
         )
     }.bind(TxOptionsFormatterCheckout::class)
 
@@ -117,8 +116,7 @@ val transactionModule = module {
 
     factory {
         CompoundNetworkFeeFormatter(
-            context = get(),
-            assetResources = get()
+            context = get()
         )
     }.bind(TxOptionsFormatterCheckout::class)
 

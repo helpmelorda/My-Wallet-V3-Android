@@ -84,23 +84,6 @@ data class InterestEnabledResponse(
     val instruments: List<String>
 )
 
-data class InterestEligibilityFullResponse(
-    val eligibleList: Map<String, InterestEligibilityResponse>
-)
-
-data class InterestEligibilityResponse(
-    val eligible: Boolean,
-    val ineligibilityReason: DisabledReason
-)
-
-enum class DisabledReason {
-    REGION,
-    KYC_TIER,
-    BLOCKED,
-    OTHER,
-    NONE
-}
-
 data class InterestWithdrawalBody(
     val withdrawalAddress: String,
     val amount: String,

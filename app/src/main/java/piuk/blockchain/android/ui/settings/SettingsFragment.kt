@@ -173,9 +173,6 @@ class SettingsFragment : PreferenceFragmentCompat(),
     private val launcherShortcutPrefs by lazy {
         findPreference<SwitchPreferenceCompat>("receive_shortcuts_enabled")
     }
-    private val swipeToReceivePrefs by lazy {
-        findPreference<SwitchPreferenceCompat>(PersistentPrefs.KEY_SWIPE_TO_RECEIVE_ENABLED)
-    }
     private val screenshotPref by lazy {
         findPreference<SwitchPreferenceCompat>("screenshots_enabled")
     }
@@ -309,21 +306,6 @@ class SettingsFragment : PreferenceFragmentCompat(),
                     ShortcutManager::class.java
                 )!!.removeAllDynamicShortcuts()
             }
-            true
-        }
-
-        swipeToReceivePrefs?.setOnPreferenceChangeListener { _, newValue ->
-            if (!(newValue as Boolean)) {
-                settingsPresenter.clearOfflineAddressCache()
-            } else {
-                AlertDialog.Builder(settingsActivity, R.style.AlertDialogStyle)
-                    .setTitle(R.string.swipe_receive_hint)
-                    .setMessage(R.string.swipe_receive_address_info)
-                    .setPositiveButton(android.R.string.ok) { _, _ -> }
-                    .setCancelable(false)
-                    .show()
-            }
-            analytics.logEvent(SettingsAnalyticsEvents.SwipeToReceiveSwitch)
             true
         }
 

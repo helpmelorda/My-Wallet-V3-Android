@@ -7,18 +7,16 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.utils.toFormattedDate
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.databinding.ViewAccountRecurringBuyOverviewBinding
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsItem
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.setAssetIconColours
+import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.visibleIf
 
 class RecurringBuyItemDelegate(
-    private val onRecurringBuyClicked: (RecurringBuy) -> Unit,
-    private val assetResources: AssetResources
+    private val onRecurringBuyClicked: (RecurringBuy) -> Unit
 ) : AdapterDelegate<AssetDetailsItem> {
     override fun isForViewType(items: List<AssetDetailsItem>, position: Int): Boolean =
         items[position] is AssetDetailsItem.RecurringBuyInfo
@@ -26,8 +24,7 @@ class RecurringBuyItemDelegate(
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         RecurringBuyViewHolder(
             ViewAccountRecurringBuyOverviewBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-            onRecurringBuyClicked,
-            assetResources
+            onRecurringBuyClicked
         )
 
     override fun onBindViewHolder(
@@ -42,22 +39,18 @@ class RecurringBuyItemDelegate(
 
 private class RecurringBuyViewHolder(
     private val binding: ViewAccountRecurringBuyOverviewBinding,
-    private val onRecurringBuyClicked: (RecurringBuy) -> Unit,
-    private val assetResources: AssetResources
+    private val onRecurringBuyClicked: (RecurringBuy) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(item: AssetDetailsItem.RecurringBuyInfo, isFirstItemOfCategory: Boolean) {
         with(binding) {
             rbHeaderGroup.visibleIf { isFirstItemOfCategory }
 
-            rbIcon.setAssetIconColours(
-                assetResources.assetTint(item.recurringBuy.asset),
-                assetResources.assetFilter(item.recurringBuy.asset)
-            )
+            rbIcon.setAssetIconColoursWithTint(item.recurringBuy.asset)
 
             rbTitle.text = context.getString(
                 R.string.dashboard_recurring_buy_item_title, item.recurringBuy.amount.toStringWithSymbol(),
-                item.recurringBuy.asset.displayTicker,
+                item.recurringBuy.asset.ticker,
                 item.recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy(context)
             )
 

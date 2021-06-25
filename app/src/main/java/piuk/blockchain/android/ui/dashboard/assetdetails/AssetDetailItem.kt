@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -56,9 +57,9 @@ class AssetDetailViewHolder(private val binding: ViewAccountCryptoOverviewBindin
             }
 
             walletName.text = when (item.assetFilter) {
-                AssetFilter.NonCustodial -> labels.getDefaultNonCustodialWalletLabel(asset)
-                AssetFilter.Custodial -> labels.getDefaultCustodialWalletLabel(asset)
-                AssetFilter.Interest -> labels.getDefaultInterestWalletLabel(asset)
+                AssetFilter.NonCustodial -> labels.getDefaultNonCustodialWalletLabel()
+                AssetFilter.Custodial -> labels.getDefaultCustodialWalletLabel()
+                AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
                 else -> throw IllegalArgumentException("Not supported filter")
             }
 
@@ -99,7 +100,7 @@ class AssetDetailViewHolder(private val binding: ViewAccountCryptoOverviewBindin
         }
     }
 
-    private fun getAsset(account: BlockchainAccount, currency: String): CryptoCurrency =
+    private fun getAsset(account: BlockchainAccount, currency: String): AssetInfo =
         when (account) {
             is CryptoAccount -> account.asset
             is AccountGroup -> account.accounts.filterIsInstance<CryptoAccount>()
@@ -123,7 +124,6 @@ class LabelViewHolder(private val binding: DialogDashboardAssetLabelItemBinding)
 
 internal class AssetDetailAdapter(
     private val onAccountSelected: (BlockchainAccount, AssetFilter) -> Unit,
-    private val showBanner: Boolean,
     private val token: CryptoAsset,
     private val labels: DefaultLabels,
     private val assetDetailsDecorator: AssetDetailsDecorator
@@ -151,6 +151,8 @@ internal class AssetDetailAdapter(
                 DialogDashboardAssetLabelItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             )
         }
+
+    private val showBanner = token.isCustodialOnly
 
     override fun getItemCount(): Int = if (showBanner) itemList.size + 1 else itemList.size
 

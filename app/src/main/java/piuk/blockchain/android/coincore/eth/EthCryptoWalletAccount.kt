@@ -2,6 +2,7 @@ package piuk.blockchain.android.coincore.eth
 
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
@@ -28,6 +29,7 @@ internal class EthCryptoWalletAccount(
     private val walletPreferences: WalletStatus,
     override val exchangeRates: ExchangeRateDataManager,
     private val custodialWalletManager: CustodialWalletManager,
+    private val assetCatalogue: AssetCatalogue,
     identity: UserIdentity
 ) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.ETHER, custodialWalletManager, identity) {
 
@@ -93,7 +95,7 @@ internal class EthCryptoWalletAccount(
             .doOnSuccess { setHasTransactions(it.isNotEmpty()) }
 
     fun isErc20FeeTransaction(to: String): Boolean =
-        CryptoCurrency.erc20Assets().firstOrNull {
+        assetCatalogue.supportedL2Assets(asset).firstOrNull {
             to.equals(ethDataManager.getErc20TokenData(it).contractAddress, true)
         } != null
 

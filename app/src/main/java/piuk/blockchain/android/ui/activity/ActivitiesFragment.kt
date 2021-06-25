@@ -11,7 +11,7 @@ import com.blockchain.annotations.CommonCode
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.ActivityAnalytics
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -19,9 +19,9 @@ import io.reactivex.rxkotlin.subscribeBy
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AccountIcon
+import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.coincore.ActivitySummaryItem
-import piuk.blockchain.android.coincore.AssetResources
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.databinding.FragmentActivitiesBinding
@@ -36,7 +36,7 @@ import piuk.blockchain.android.ui.home.HomeScreenMviFragment
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.putAccount
-import piuk.blockchain.android.util.setAssetIconColours
+import piuk.blockchain.android.util.setAssetIconColoursNoTint
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
@@ -53,7 +53,6 @@ class ActivitiesFragment :
     private val activityAdapter: ActivitiesDelegateAdapter by lazy {
         ActivitiesDelegateAdapter(
             prefs = get(),
-            assetResources = assetResources,
             onCryptoItemClicked = { cc, tx, type ->
                 onCryptoActivityClicked(cc, tx, type)
             },
@@ -67,7 +66,7 @@ class ActivitiesFragment :
     private val rxBus: RxBus by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val exchangeRates: ExchangeRateDataManager by scopedInject()
-    private val assetResources: AssetResources by scopedInject()
+    private val assetResources: AssetResources by inject()
 
     private val actionEvent by unsafeLazy {
         rxBus.register(ActionEvent::class.java)
@@ -157,7 +156,7 @@ class ActivitiesFragment :
             val account = newState.account
 
             val accIcon = AccountIcon(account, assetResources)
-            accountIcon.setImageResource(accIcon.icon)
+            accIcon.loadAssetIcon(accountIcon)
 
             accIcon.indicator?.let {
                 check(account is CryptoAccount) {
@@ -167,10 +166,7 @@ class ActivitiesFragment :
                 accountIndicator.apply {
                     visible()
                     setImageResource(it)
-                    setAssetIconColours(
-                        tintColor = R.color.white,
-                        filterColor = assetResources.assetFilter(currency)
-                    )
+                    setAssetIconColoursNoTint(currency)
                 }
             } ?: accountIndicator.gone()
 
@@ -275,11 +271,11 @@ class ActivitiesFragment :
     }
 
     private fun onCryptoActivityClicked(
-        cryptoCurrency: CryptoCurrency,
+        asset: AssetInfo,
         txHash: String,
         type: CryptoActivityType
     ) {
-        model.process(ShowActivityDetailsIntent(cryptoCurrency, txHash, type))
+        model.process(ShowActivityDetailsIntent(asset, txHash, type))
     }
 
     private fun onFiatActivityClicked(

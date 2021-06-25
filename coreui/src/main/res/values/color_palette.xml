@@ -61,8 +61,6 @@
     <color name="blue_900">#0D3578</color>
     <color name="blue_1000">#4C18BA</color>
 
-    <color name="purple_000">#EFECFE</color>
-
     <color name="grey_100_with_opacity">#66DFE3EB</color>
     <color name="grey_800_with_opacity">#66353F52</color>
 
@@ -77,33 +75,9 @@
     <color name="teal_300">#6CD0D9</color>
     <color name="teal_500">#12A5B2</color>
 
-    <color name="bch_bkgd">#E8F3DC</color>
-    <color name="pax_bkgd">#CCDCD5</color>
-    <color name="ether_bkgd">@color/purple_000</color>
-    <color name="btc_bkgd">@color/orange_000</color>
-    <color name="xlm_bkgd">@color/grey_000</color>
-    <color name="usdt_bkgd">#2626A17B</color>
-    <color name="ltc_bkgd">#26BFBBBB</color>
-    <color name="xrp_bkgd">#26000000</color>
-    <color name="algo_bkgd">#26000000</color>
-    <color name="dgld_bkgd">#26FFE738</color>
-    <color name="aave_bkgd">#262EBAC6</color>
-    <color name="yfi_bkgd">#260074FA</color>
-    <color name="dot_bkgd">#26E6007A</color>
-
     <color name="btc">#FF9B22</color>
-    <color name="bch">#8DC351</color>
-    <color name="eth">#473BCB</color>
-    <color name="xlm">#000000</color>
-    <color name="pax">#00522C</color>
-    <color name="usdt">#26A17B</color>
-    <color name="ltc">#BFBBBB</color>
-    <color name="xrp">#000000</color>
-    <color name="algo">#000000</color>
-    <color name="dgld">#A39424</color>
     <color name="aave">#2EBAC6</color>
-    <color name="yfi">#0074FA</color>
-    <color name="dot">#E6007A</color>
+
 </resources>
 
 

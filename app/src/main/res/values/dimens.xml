@@ -24,6 +24,7 @@
     <dimen name="size_tiny">8dp</dimen>
 
     <dimen name="asset_icon_size">32dp</dimen>
+    <dimen name="asset_icon_size_large">72dp</dimen>
 
     <dimen name="grid_0.25">1dp</dimen>
     <dimen name="grid_12">48dp</dimen>

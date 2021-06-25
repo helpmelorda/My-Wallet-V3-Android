@@ -12,7 +12,6 @@ import com.blockchain.testutils.stroops
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
-import info.blockchain.balance.withMajorValue
 import io.fabric8.mockwebserver.DefaultMockServer
 import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.`should be less than`
@@ -761,7 +760,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         proxy.sendTransaction(
             source,
             "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI",
-            CryptoCurrency.XLM.withMajorValue("1.23E+4".toBigDecimal()),
+            CryptoValue.fromMajor(CryptoCurrency.XLM, "1.23E+4".toBigDecimal()),
             10
         ).apply {
             success `should be` true
@@ -797,7 +796,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         proxy.sendTransaction(
             source,
             "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI",
-            CryptoCurrency.XLM.withMajorValue("1.23E+4".toBigDecimal()),
+            CryptoValue.fromMajor(CryptoCurrency.XLM, "1.23E+4".toBigDecimal()),
             memo,
             10
         ).apply {
@@ -824,7 +823,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         proxy.dryRunTransaction(
             source,
             "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI",
-            CryptoCurrency.XLM.withMajorValue("1.23E+4".toBigDecimal()),
+            CryptoValue.fromMajor(CryptoCurrency.XLM, "1.23E+4".toBigDecimal()),
             memo = memo
         ).apply {
             success `should be` true
@@ -851,7 +850,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         proxy.sendTransaction(
             source,
             "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI",
-            CryptoCurrency.XLM.withMajorValue("1.23E+4".toBigDecimal()),
+            CryptoValue.fromMajor(CryptoCurrency.XLM, "1.23E+4".toBigDecimal()),
             timeout = 10,
             memo = memo,
             perOperationFee = 2100.stroops()
@@ -879,7 +878,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         proxy.dryRunTransaction(
             source,
             "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI",
-            CryptoCurrency.XLM.withMajorValue("1.23E+4".toBigDecimal()),
+            CryptoValue.fromMajor(CryptoCurrency.XLM, "1.23E+4".toBigDecimal()),
             memo = memo,
             perOperationFee = 1700.stroops()
         ).apply {
@@ -905,7 +904,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
             proxy.dryRunTransaction(
                 source,
                 "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI",
-                CryptoCurrency.XLM.withMajorValue("1.23E+4".toBigDecimal()),
+                CryptoValue.fromMajor(CryptoCurrency.XLM, "1.23E+4".toBigDecimal()),
                 memo = Memo.none(),
                 perOperationFee = 1.bitcoin()
             )
@@ -929,7 +928,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         proxy.sendTransaction(
             source,
             "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI",
-            CryptoCurrency.XLM.withMajorValue("1.23E+4".toBigDecimal()),
+            CryptoValue.fromMajor(CryptoCurrency.XLM, "1.23E+4".toBigDecimal()),
             10
         ).apply {
             transaction!!.timeBounds `should not be` null

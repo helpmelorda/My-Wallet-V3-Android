@@ -7,11 +7,12 @@ import com.blockchain.ui.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
 import com.blockchain.ui.urllinks.NETWORK_ERC20_EXPLANATION
 import com.blockchain.ui.urllinks.NETWORK_FEE_EXPLANATION
 import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
+import info.blockchain.balance.isErc20
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.FeeLevel
 import piuk.blockchain.android.coincore.TxConfirmationValue
@@ -63,7 +64,7 @@ enum class ConfirmationPropertyKey {
 class FeeInfo(
     val feeAmount: Money,
     val fiatAmount: Money,
-    val asset: CryptoCurrency
+    val asset: AssetInfo
 )
 
 class ExchangePriceFormatter(
@@ -73,7 +74,7 @@ class ExchangePriceFormatter(
         require(property is TxConfirmationValue.ExchangePriceConfirmation)
         return mapOf(
             ConfirmationPropertyKey.LABEL to context.resources.getString(
-                R.string.quote_price, property.asset.displayTicker
+                R.string.quote_price, property.asset.ticker
             ),
             ConfirmationPropertyKey.TITLE to property.money.toStringWithSymbol(),
             ConfirmationPropertyKey.LINKED_NOTE to StringUtils.getResolvedStringWithAppendedMappedLearnMore(
@@ -102,15 +103,17 @@ class ToPropertyFormatter(
                 ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.checkout_item_send_to),
                 ConfirmationPropertyKey.TITLE to getLabel(
                     property.txTarget.label,
-                    defaultLabel.getDefaultNonCustodialWalletLabel(asset),
-                    asset.displayTicker
+                    defaultLabel.getDefaultNonCustodialWalletLabel(),
+                    asset.ticker
                 )
             )
         }
     }
 }
 
-class EstimatedCompletionPropertyFormatter(private val context: Context) : TxOptionsFormatterCheckout {
+class EstimatedCompletionPropertyFormatter(
+    private val context: Context
+) : TxOptionsFormatterCheckout {
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         return mapOf(
             ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.send_confirmation_eta),
@@ -119,7 +122,9 @@ class EstimatedCompletionPropertyFormatter(private val context: Context) : TxOpt
     }
 }
 
-class SalePropertyFormatter(private val context: Context) : TxOptionsFormatterCheckout {
+class SalePropertyFormatter(
+    private val context: Context
+) : TxOptionsFormatterCheckout {
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.Sale)
         return mapOf(
@@ -130,7 +135,9 @@ class SalePropertyFormatter(private val context: Context) : TxOptionsFormatterCh
     }
 }
 
-class PaymentMethodPropertyFormatter(private val context: Context) : TxOptionsFormatterCheckout {
+class PaymentMethodPropertyFormatter(
+    private val context: Context
+) : TxOptionsFormatterCheckout {
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.PaymentMethod)
         return mapOf(
@@ -162,8 +169,8 @@ class FromPropertyFormatter(
             property.sourceAsset?.let {
                 ConfirmationPropertyKey.TITLE to getLabel(
                     property.sourceAccount.label,
-                    defaultLabel.getDefaultNonCustodialWalletLabel(it),
-                    it.displayTicker
+                    defaultLabel.getDefaultNonCustodialWalletLabel(),
+                    it.ticker
                 )
             } ?: ConfirmationPropertyKey.TITLE to property.sourceAccount.label
         )
@@ -183,18 +190,17 @@ class TransactionFeeFormatter(
 }
 
 class NetworkFormatter(
-    private val context: Context,
-    private val assetResources: AssetResources
+    private val context: Context
 ) : TxOptionsFormatterCheckout {
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.NetworkFee)
         return mapOf(
             ConfirmationPropertyKey.LABEL to context.resources.getString(
-                R.string.checkout_item_network_fee, property.asset.displayTicker
+                R.string.checkout_item_network_fee, property.asset.ticker
             ),
             ConfirmationPropertyKey.TITLE to property.exchange.toStringWithSymbol(),
             ConfirmationPropertyKey.SUBTITLE to property.feeAmount.toStringWithSymbol(),
-            if (property.asset.hasFeature(CryptoCurrency.IS_ERC20)) {
+            if (property.asset.isErc20()) {
                 ConfirmationPropertyKey.LINKED_NOTE to StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(R.string.swap_erc_20_tooltip),
                     R.string.common_linked_learn_more, NETWORK_ERC20_EXPLANATION, context, R.color.blue_600
@@ -202,7 +208,7 @@ class NetworkFormatter(
             } else {
                 ConfirmationPropertyKey.LINKED_NOTE to StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
-                        R.string.checkout_item_network_fee_note, assetResources.assetName(property.asset)
+                        R.string.checkout_item_network_fee_note, property.asset.name
                     ),
                     R.string.common_linked_learn_more, NETWORK_FEE_EXPLANATION, context, R.color.blue_600
                 )
@@ -212,8 +218,7 @@ class NetworkFormatter(
 }
 
 class CompoundNetworkFeeFormatter(
-    private val context: Context,
-    private val assetResources: AssetResources
+    private val context: Context
 ) : TxOptionsFormatterCheckout {
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.CompoundNetworkFee)
@@ -260,49 +265,52 @@ class CompoundNetworkFeeFormatter(
         }
     }
 
-    private fun getDoubleFeeNote(sendingFeeInfo: FeeInfo, receivingFeeInfo: FeeInfo): SpannableStringBuilder? =
+    private fun getDoubleFeeNote(
+        sendingFeeInfo: FeeInfo,
+        receivingFeeInfo: FeeInfo
+    ): SpannableStringBuilder? =
         when {
-            !sendingFeeInfo.asset.hasFeature(CryptoCurrency.IS_ERC20) &&
-                !receivingFeeInfo.asset.hasFeature(CryptoCurrency.IS_ERC20) -> {
+            !sendingFeeInfo.asset.isErc20() &&
+                !receivingFeeInfo.asset.isErc20() -> {
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
-                        R.string.checkout_dual_fee_note, assetResources.getDisplayName(sendingFeeInfo.asset),
-                        assetResources.getDisplayName(receivingFeeInfo.asset)
+                        R.string.checkout_dual_fee_note, sendingFeeInfo.asset.name,
+                        receivingFeeInfo.asset.name
                     ),
                     R.string.checkout_fee_link, NETWORK_FEE_EXPLANATION, context, R.color.blue_600
                 )
             }
-            sendingFeeInfo.asset.hasFeature(CryptoCurrency.IS_ERC20) &&
-                !receivingFeeInfo.asset.hasFeature(CryptoCurrency.IS_ERC20) -> {
+            sendingFeeInfo.asset.isErc20() &&
+                !receivingFeeInfo.asset.isErc20() -> {
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
                         R.string.checkout_one_erc_20_one_not_fee_note,
-                        assetResources.getDisplayName(sendingFeeInfo.asset),
-                        assetResources.getDisplayName(CryptoCurrency.ETHER),
-                        assetResources.getDisplayName(receivingFeeInfo.asset)
+                        sendingFeeInfo.asset.name,
+                        CryptoCurrency.ETHER.name,
+                        receivingFeeInfo.asset.name
                     ),
                     R.string.checkout_fee_link, NETWORK_ERC20_EXPLANATION, context, R.color.blue_600
                 )
             }
-            !sendingFeeInfo.asset.hasFeature(CryptoCurrency.IS_ERC20) &&
-                receivingFeeInfo.asset.hasFeature(CryptoCurrency.IS_ERC20) -> {
+            !sendingFeeInfo.asset.isErc20() &&
+                receivingFeeInfo.asset.isErc20() -> {
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
                         R.string.checkout_one_erc_20_one_not_fee_note,
-                        assetResources.getDisplayName(receivingFeeInfo.asset),
-                        assetResources.getDisplayName(CryptoCurrency.ETHER),
-                        assetResources.getDisplayName(sendingFeeInfo.asset)
+                        receivingFeeInfo.asset.name,
+                        CryptoCurrency.ETHER.name,
+                        sendingFeeInfo.asset.name
                     ),
                     R.string.checkout_fee_link, NETWORK_ERC20_EXPLANATION, context, R.color.blue_600
                 )
             }
-            sendingFeeInfo.asset.hasFeature(CryptoCurrency.IS_ERC20) &&
-                receivingFeeInfo.asset.hasFeature(CryptoCurrency.IS_ERC20) -> {
+            sendingFeeInfo.asset.isErc20() &&
+                receivingFeeInfo.asset.isErc20() -> {
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
                         R.string.checkout_both_erc_20_fee_note,
-                        assetResources.getDisplayName(sendingFeeInfo.asset),
-                        assetResources.getDisplayName(sendingFeeInfo.asset)
+                        sendingFeeInfo.asset.name,
+                        sendingFeeInfo.asset.name
                     ),
                     R.string.checkout_fee_link, NETWORK_ERC20_EXPLANATION, context, R.color.blue_600
                 )
@@ -312,12 +320,15 @@ class CompoundNetworkFeeFormatter(
             }
         }
 
-    private fun getSingleFeeNote(item: FeeInfo, ignoreErc20LinkedNote: Boolean): SpannableStringBuilder =
+    private fun getSingleFeeNote(
+        item: FeeInfo,
+        ignoreErc20LinkedNote: Boolean
+    ): SpannableStringBuilder =
         when {
-            !item.asset.hasFeature(CryptoCurrency.IS_ERC20) || ignoreErc20LinkedNote -> {
+            !item.asset.isErc20() || ignoreErc20LinkedNote -> {
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
-                        R.string.checkout_one_fee_note, assetResources.getDisplayName(item.asset)
+                        R.string.checkout_one_fee_note, item.asset.name
                     ),
                     R.string.checkout_fee_link, NETWORK_FEE_EXPLANATION, context, R.color.blue_600
                 )
@@ -326,7 +337,7 @@ class CompoundNetworkFeeFormatter(
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
                         R.string.checkout_one_erc_20_fee_note,
-                        assetResources.getDisplayName(item.asset)
+                        item.asset.name
                     ),
                     R.string.checkout_fee_link, NETWORK_ERC20_EXPLANATION, context, R.color.blue_600
                 )

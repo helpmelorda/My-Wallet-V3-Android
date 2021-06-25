@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
 import com.blockchain.nabu.models.data.LinkBankTransfer
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import piuk.blockchain.android.coincore.AssetAction
@@ -203,7 +203,7 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
     // address sheet
     class ValidateInputTargetAddress(
         val targetAddress: String,
-        val expectedCrypto: CryptoCurrency
+        val expectedCrypto: AssetInfo
     ) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState = oldState
     }

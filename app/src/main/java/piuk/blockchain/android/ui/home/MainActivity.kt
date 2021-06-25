@@ -30,7 +30,7 @@ import com.blockchain.notifications.analytics.activityShown
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.ui.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -42,7 +42,6 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.CryptoTarget
@@ -120,7 +119,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override val presenter: MainPresenter by scopedInject()
     private val qrProcessor: QrScanResultProcessor by scopedInject()
-    private val assetResources: AssetResources by scopedInject()
     private val mwaFF: FeatureFlag by inject(mwaFeatureFlag)
     private val txLauncher: TransactionLauncher by inject()
 
@@ -611,7 +609,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     @SuppressLint("CheckResult")
     private fun disambiguateSendScan(targets: Collection<CryptoTarget>) {
-        qrProcessor.disambiguateScan(this, targets, assetResources)
+        qrProcessor.disambiguateScan(this, targets)
             .subscribeBy(
                 onSuccess = {
                     startTransactionFlowWithTarget(listOf(it))
@@ -697,12 +695,12 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         )
     }
 
-    override fun startSimpleBuy(cryptoCurrency: CryptoCurrency) {
+    override fun startSimpleBuy(asset: AssetInfo) {
         startActivity(
             SimpleBuyActivity.newInstance(
                 context = this,
                 launchFromNavigationBar = true,
-                cryptoCurrency = cryptoCurrency
+                asset = asset
             )
         )
     }
@@ -811,10 +809,10 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         }
     }
 
-    override fun launchSimpleBuySell(viewType: BuySellFragment.BuySellViewType, asset: CryptoCurrency?) {
+    override fun launchSimpleBuySell(viewType: BuySellFragment.BuySellViewType, asset: AssetInfo?) {
         setCurrentTabItem(ITEM_BUY_SELL)
 
-        val buySellFragment = BuySellFragment.newInstance(viewType, asset)
+        val buySellFragment = BuySellFragment.newInstance(asset, viewType)
         replaceContentFragment(buySellFragment)
     }
 
@@ -860,7 +858,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 state.fiatCurrency, getString(R.string.yapily_payment_to_fiat_wallet_title, state.fiatCurrency),
                 getString(
                     R.string.yapily_payment_to_fiat_wallet_subtitle,
-                    state.selectedCryptoCurrency?.displayTicker ?: getString(
+                    state.selectedCryptoAsset?.ticker ?: getString(
                         R.string.yapily_payment_to_fiat_wallet_default
                     ),
                     state.fiatCurrency

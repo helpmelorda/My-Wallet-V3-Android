@@ -3,7 +3,7 @@ package com.blockchain.nabu.datamanagers.repositories.swap
 import com.blockchain.rx.TimedCacheRequest
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.TransferDirection
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import io.reactivex.Single
 
 class CustodialRepository(pairsProvider: TradingPairsProvider, activityProvider: SwapActivityProvider) {
@@ -26,7 +26,7 @@ class CustodialRepository(pairsProvider: TradingPairsProvider, activityProvider:
         pairsCache.getCachedSingle().map { it.filterIsInstance<CurrencyPair.CryptoCurrencyPair>() }
 
     fun getCustodialActivityForAsset(
-        cryptoCurrency: CryptoCurrency,
+        cryptoCurrency: AssetInfo,
         directions: Set<TransferDirection>
     ): Single<List<TradeTransactionItem>> =
         swapActivityCache.getCachedSingle().map { list ->

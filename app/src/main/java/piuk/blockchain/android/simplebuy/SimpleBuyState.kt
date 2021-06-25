@@ -9,9 +9,9 @@ import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
+import info.blockchain.balance.AssetInfo
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
@@ -30,12 +30,12 @@ import java.util.Date
  * want to get serialized should be tagged as @Transient
  *
  */
-data class SimpleBuyState(
+data class SimpleBuyState constructor(
     val id: String? = null,
     val supportedPairsAndLimits: List<BuySellPair>? = null,
     private val amount: FiatValue? = null,
     val fiatCurrency: String = "USD",
-    val selectedCryptoCurrency: CryptoCurrency? = null,
+    val selectedCryptoAsset: AssetInfo? = null,
     val orderState: OrderState = OrderState.UNINITIALISED,
     private val expirationDate: Date? = null,
     val custodialQuote: CustodialQuote? = null,
@@ -46,26 +46,26 @@ data class SimpleBuyState(
     val orderExchangePrice: FiatValue? = null,
     val orderValue: CryptoValue? = null,
     val fee: FiatValue? = null,
-    @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
     val supportedFiatCurrencies: List<String> = emptyList(),
+    val paymentSucceeded: Boolean = false,
+    val showRating: Boolean = false,
+    val withdrawalLockPeriod: BigInteger = BigInteger.ZERO,
+    val recurringBuyFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
+    val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
+    @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
     @Transient val errorState: ErrorState? = null,
     @Transient val exchangePriceWithDelta: ExchangePriceWithDelta? = null,
     @Transient val isLoading: Boolean = false,
     @Transient val everypayAuthOptions: EverypayAuthOptions? = null,
     @Transient val authorisePaymentUrl: String? = null,
     @Transient val linkedBank: LinkedBank? = null,
-    val paymentSucceeded: Boolean = false,
-    val showRating: Boolean = false,
     @Transient val shouldShowUnlockHigherFunds: Boolean = false,
-    val withdrawalLockPeriod: BigInteger = BigInteger.ZERO,
     @Transient val linkBankTransfer: LinkBankTransfer? = null,
     @Transient val paymentPending: Boolean = false,
     @Transient val transferLimits: TransferLimits? = null,
     // we use this flag to avoid navigating back and forth, reset after navigating
     @Transient val confirmationActionRequested: Boolean = false,
     @Transient val newPaymentMethodToBeAdded: PaymentMethod? = null,
-    val recurringBuyFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
-    val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
     @Transient private val recurringBuyEligiblePaymentMethods: List<PaymentMethodType> = emptyList()
 ) : MviState {
 
@@ -108,25 +108,23 @@ data class SimpleBuyState(
             minPaymentMethodLimit ?: minUserLimit ?: FiatValue.zero(fiatCurrency)
     }
 
-    fun maxCryptoAmount(exchangeRateDataManager: ExchangeRateDataManager): Money? {
-        val exchangeRate = ExchangeRate.FiatToCrypto(
-            from = fiatCurrency,
-            to = selectedCryptoCurrency ?: return null,
-            rate = exchangeRateDataManager.getLastPrice(selectedCryptoCurrency, fiatCurrency)
+    fun maxCryptoAmount(exchangeRateDataManager: ExchangeRateDataManager): Money? =
+        selectedCryptoAsset?.let { asset ->
+            ExchangeRate.FiatToCrypto(
+                from = fiatCurrency,
+                to = selectedCryptoAsset,
+                rate = exchangeRateDataManager.getLastPrice(asset, fiatCurrency)
+            ).convert(maxFiatAmount)
+        }
 
-        )
-        return exchangeRate.convert(maxFiatAmount)
-    }
-
-    fun minCryptoAmount(exchangeRateDataManager: ExchangeRateDataManager): Money? {
-        val exchangeRate = ExchangeRate.FiatToCrypto(
-            from = fiatCurrency,
-            to = selectedCryptoCurrency ?: return null,
-            rate = exchangeRateDataManager.getLastPrice(selectedCryptoCurrency, fiatCurrency)
-
-        )
-        return exchangeRate.convert(minFiatAmount)
-    }
+    fun minCryptoAmount(exchangeRateDataManager: ExchangeRateDataManager): Money? =
+        selectedCryptoAsset?.let { asset ->
+            ExchangeRate.FiatToCrypto(
+                from = fiatCurrency,
+                to = selectedCryptoAsset,
+                rate = exchangeRateDataManager.getLastPrice(asset, fiatCurrency)
+            ).convert(minFiatAmount)
+        }
 
     fun isSelectedPaymentMethodRecurringBuyEligible(): Boolean =
         when (selectedPaymentMethodDetails) {

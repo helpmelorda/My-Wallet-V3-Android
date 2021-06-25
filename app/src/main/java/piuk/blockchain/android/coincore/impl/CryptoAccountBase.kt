@@ -2,9 +2,9 @@ package piuk.blockchain.android.coincore.impl
 
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.nabu.models.responses.interest.DisabledReason
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.FiatValue
@@ -61,8 +61,8 @@ abstract class CryptoAccountBase : CryptoAccount {
     override val isEnabled: Single<Boolean>
         get() = Single.just(true)
 
-    override val disabledReason: Single<DisabledReason>
-        get() = Single.just(DisabledReason.NONE)
+    override val disabledReason: Single<IneligibilityReason>
+        get() = Single.just(IneligibilityReason.NONE)
 
     private fun custodialItemToSummary(item: TradeTransactionItem): TradeActivitySummaryItem {
         val sendingAccount = this
@@ -92,7 +92,7 @@ abstract class CryptoAccountBase : CryptoAccount {
 
     protected fun appendTradeActivity(
         custodialWalletManager: CustodialWalletManager,
-        asset: CryptoCurrency,
+        asset: AssetInfo,
         activityList: List<ActivitySummaryItem>
     ) = custodialWalletManager.getCustodialActivityForAsset(asset, directions)
         .map { swapItems ->
@@ -111,7 +111,7 @@ abstract class CryptoAccountBase : CryptoAccount {
 
 // To handle Send to PIT
 internal class CryptoExchangeAccount(
-    override val asset: CryptoCurrency,
+    override val asset: AssetInfo,
     override val label: String,
     private val address: String,
     override val exchangeRates: ExchangeRateDataManager
@@ -161,7 +161,7 @@ internal class CryptoExchangeAccount(
 abstract class CryptoNonCustodialAccount(
     // TODO: Build an interface on PayloadDataManager/PayloadManager for 'global' crypto calls; second password etc?
     protected val payloadDataManager: PayloadDataManager,
-    override val asset: CryptoCurrency,
+    override val asset: AssetInfo,
     private val custodialWalletManager: CustodialWalletManager,
     private val identity: UserIdentity
 ) : CryptoAccountBase(), NonCustodialAccount {
@@ -216,7 +216,7 @@ abstract class CryptoNonCustodialAccount(
             if (hit?.transactionType == TransactionSummary.TransactionType.SENT) {
                 activityList.remove(hit)
                 val updatedSwap = custodialItem.copy(
-                    depositNetworkFee = hit.fee.first((CryptoValue(hit.cryptoCurrency, BigInteger.ZERO)))
+                    depositNetworkFee = hit.fee.first((CryptoValue(hit.asset, BigInteger.ZERO)))
                         .map { it as Money }
                 )
                 activityList.add(updatedSwap)
@@ -297,7 +297,7 @@ class CryptoAccountCustodialGroup(
 }
 
 class CryptoAccountNonCustodialGroup(
-    val asset: CryptoCurrency,
+    val asset: AssetInfo,
     override val label: String,
     override val accounts: SingleAccountList
 ) : AccountGroup {

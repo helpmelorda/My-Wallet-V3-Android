@@ -14,7 +14,6 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.InternalFeatureFlagPrefs
 import com.blockchain.preferences.NotificationPrefs
-import com.blockchain.preferences.OfflineCachePrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
@@ -178,6 +177,7 @@ val coreModule = module {
 
         scoped {
             ExchangeRateDataStore(
+                assetCatalogue = get(),
                 exchangeRateService = get(),
                 prefs = get()
             )
@@ -250,7 +250,6 @@ val coreModule = module {
         .bind(RatingPrefs::class)
         .bind(WalletStatus::class)
         .bind(EncryptedPrefs::class)
-        .bind(OfflineCachePrefs::class)
         .bind(AuthPrefs::class)
         .bind(BankLinkingPrefs::class)
         .bind(InternalFeatureFlagPrefs::class)

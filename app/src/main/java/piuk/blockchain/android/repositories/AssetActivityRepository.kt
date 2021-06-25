@@ -3,7 +3,7 @@ package piuk.blockchain.android.repositories
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.repositories.ExpiringRepository
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -60,7 +60,7 @@ class AssetActivityRepository(
                             account.includes(item.account)
                         }
                         is CryptoInterestAccount -> {
-                            account.asset == (item as? CustodialInterestActivitySummaryItem)?.cryptoCurrency
+                            account.asset == (item as? CustodialInterestActivitySummaryItem)?.asset
                         }
                         else -> {
                             account == item.account
@@ -128,17 +128,17 @@ class AssetActivityRepository(
         return activityList.toList().sorted()
     }
 
-    fun findCachedItem(cryptoCurrency: CryptoCurrency, txHash: String): ActivitySummaryItem? =
+    fun findCachedItem(asset: AssetInfo, txHash: String): ActivitySummaryItem? =
         transactionCache.filterIsInstance<CryptoActivitySummaryItem>().find {
-            it.cryptoCurrency == cryptoCurrency && it.txId == txHash
+            it.asset == asset && it.txId == txHash
         }
 
-    fun findCachedTradeItem(cryptoCurrency: CryptoCurrency, txHash: String): TradeActivitySummaryItem? =
+    fun findCachedTradeItem(asset: AssetInfo, txHash: String): TradeActivitySummaryItem? =
         transactionCache.filterIsInstance<TradeActivitySummaryItem>().find {
             when (it.currencyPair) {
-                is CurrencyPair.CryptoCurrencyPair -> it.currencyPair.source == cryptoCurrency && it.txId == txHash
+                is CurrencyPair.CryptoCurrencyPair -> it.currencyPair.source == asset && it.txId == txHash
                 is CurrencyPair.CryptoToFiatCurrencyPair ->
-                    it.currencyPair.source == cryptoCurrency && it.txId == txHash
+                    it.currencyPair.source == asset && it.txId == txHash
             }
         }
 

@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.ui.password.SecondPasswordHandler
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -151,7 +152,7 @@ class AccountActivity : MvpActivity<AccountView, AccountPresenter>(),
     }
 
     override fun renderAccountList(
-        asset: CryptoCurrency,
+        asset: AssetInfo,
         internal: List<CryptoNonCustodialAccount>,
         imported: List<CryptoNonCustodialAccount>
     ) {

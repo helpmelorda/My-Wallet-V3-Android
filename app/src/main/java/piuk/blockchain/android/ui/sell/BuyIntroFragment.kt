@@ -13,7 +13,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.ui.trackProgress
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.balance.percentageDelta
@@ -27,13 +27,13 @@ import io.reactivex.rxkotlin.zipWith
 import io.reactivex.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.databinding.BuyIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.account.HeaderDecoration
 import piuk.blockchain.android.ui.customviews.account.removeAllHeaderDecorations
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
@@ -50,7 +50,7 @@ class BuyIntroFragment : Fragment() {
     private val coinCore: Coincore by scopedInject()
     private val appUtil: AppUtil by inject()
     private val simpleBuyPrefs: SimpleBuyPrefs by scopedInject()
-    private val assetResources: AssetResources by scopedInject()
+    private val assetResources: AssetResources by inject()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -133,7 +133,7 @@ class BuyIntroFragment : Fragment() {
             rvCryptos.adapter = BuyCryptoCurrenciesAdapter(
                 buyPairs.pairs.map { pair ->
                     BuyCryptoItem(
-                        cryptoCurrency = pair.cryptoCurrency,
+                        asset = pair.cryptoCurrency,
                         price = pricesHistory.first { it.cryptoCurrency == pair.cryptoCurrency }
                             .currentExchangeRate
                             .price(),
@@ -141,7 +141,7 @@ class BuyIntroFragment : Fragment() {
                             it.cryptoCurrency == pair.cryptoCurrency
                         }.percentageDelta
                     ) {
-                        simpleBuyPrefs.clearState()
+                        simpleBuyPrefs.clearBuyState()
                         startActivity(
                             SimpleBuyActivity.newInstance(
                                 activity as Context,
@@ -182,14 +182,14 @@ data class PriceHistory(
     val currentExchangeRate: ExchangeRate.CryptoToFiat,
     val exchangeRate24h: ExchangeRate.CryptoToFiat
 ) {
-    val cryptoCurrency: CryptoCurrency
+    val cryptoCurrency: AssetInfo
         get() = currentExchangeRate.from
     val percentageDelta: Double
         get() = currentExchangeRate.percentageDelta(exchangeRate24h)
 }
 
 data class BuyCryptoItem(
-    val cryptoCurrency: CryptoCurrency,
+    val asset: AssetInfo,
     val price: Money,
     val percentageDelta: Double,
     val click: () -> Unit

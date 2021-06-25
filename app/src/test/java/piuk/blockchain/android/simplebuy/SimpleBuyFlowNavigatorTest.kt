@@ -6,6 +6,7 @@ import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -19,6 +20,7 @@ class SimpleBuyFlowNavigatorTest {
     private val tierService: TierService = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
+    private val assetCatalogue: AssetCatalogue = mock()
     private lateinit var subject: SimpleBuyFlowNavigator
 
     @Before
@@ -78,7 +80,11 @@ class SimpleBuyFlowNavigatorTest {
     fun `if  current is screen is KYC and tier 2 approved then screen should be enter amount`() {
         mockCurrencyIsSupported(true)
         whenever(simpleBuyModel.state)
-            .thenReturn(Observable.just(SimpleBuyState().copy(currentScreen = FlowScreen.KYC)))
+            .thenReturn(
+                Observable.just(
+                    SimpleBuyState().copy(currentScreen = FlowScreen.KYC)
+                )
+            )
         whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Verified)))
 
         val test =
@@ -95,7 +101,11 @@ class SimpleBuyFlowNavigatorTest {
     fun `if  current is screen is KYC and tier 2 is pending then screen should be kyc verification`() {
         mockCurrencyIsSupported(true)
         whenever(simpleBuyModel.state)
-            .thenReturn(Observable.just(SimpleBuyState().copy(currentScreen = FlowScreen.KYC)))
+            .thenReturn(
+                Observable.just(
+                    SimpleBuyState().copy(currentScreen = FlowScreen.KYC)
+                )
+            )
         whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Pending)))
 
         val test =
@@ -115,7 +125,11 @@ class SimpleBuyFlowNavigatorTest {
     fun `if  current is screen is KYC and tier 2 is none then screen should be kyc`() {
         mockCurrencyIsSupported(true)
         whenever(simpleBuyModel.state)
-            .thenReturn(Observable.just(SimpleBuyState().copy(currentScreen = FlowScreen.KYC)))
+            .thenReturn(
+                Observable.just(
+                    SimpleBuyState().copy(currentScreen = FlowScreen.KYC)
+                )
+            )
         whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.None)))
 
         val test =

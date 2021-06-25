@@ -5,7 +5,7 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import io.reactivex.Observable
 import io.reactivex.Single
 
@@ -20,12 +20,12 @@ class SimpleBuyFlowNavigator(
         startedFromKycResume: Boolean,
         startedFromNavigationBar: Boolean,
         startedFromApprovalDeepLink: Boolean,
-        preselectedCrypto: CryptoCurrency?
+        preselectedCrypto: AssetInfo?
     ): Single<BuyNavigation> =
         simpleBuyModel.state.flatMap {
-            val cryptoCurrency = preselectedCrypto ?: it.selectedCryptoCurrency ?: throw IllegalStateException(
-                "CryptoCurrency is not available"
-            )
+            val cryptoCurrency = preselectedCrypto
+                ?: it.selectedCryptoAsset ?: throw IllegalStateException("CryptoCurrency is not available")
+
             if (
                 startedFromKycResume ||
                 it.currentScreen == FlowScreen.KYC ||
@@ -63,12 +63,12 @@ class SimpleBuyFlowNavigator(
         startedFromKycResume: Boolean,
         startedFromDashboard: Boolean,
         startedFromApprovalDeepLink: Boolean,
-        preselectedCrypto: CryptoCurrency?
+        preselectedCrypto: AssetInfo?
     ): Single<BuyNavigation> {
 
-        val currencyCheck = (currencyPrefs.selectedFiatCurrency.takeIf { it.isNotEmpty() }?.let {
+        val currencyCheck = currencyPrefs.selectedFiatCurrency.takeIf { it.isNotEmpty() }?.let {
             custodialWalletManager.isCurrencySupportedForSimpleBuy(it)
-        } ?: Single.just(false))
+        } ?: Single.just(false)
 
         return currencyCheck.flatMap { currencySupported ->
             if (!currencySupported) {
@@ -84,7 +84,7 @@ class SimpleBuyFlowNavigator(
 
 sealed class BuyNavigation {
     data class CurrencySelection(val currencies: List<String>) : BuyNavigation()
-    data class FlowScreenWithCurrency(val flowScreen: FlowScreen, val cryptoCurrency: CryptoCurrency) : BuyNavigation()
+    data class FlowScreenWithCurrency(val flowScreen: FlowScreen, val cryptoCurrency: AssetInfo) : BuyNavigation()
     object PendingOrderScreen : BuyNavigation()
     object OrderInProgressScreen : BuyNavigation()
 }

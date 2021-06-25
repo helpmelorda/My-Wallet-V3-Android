@@ -19,7 +19,7 @@ import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.ui.urllinks.URL_CONTACT_SUPPORT
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -278,7 +278,7 @@ class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
         analytics.logEvent(BuySellViewedEvent(BuySellType.SELL))
     }
 
-    private fun supportedCryptoCurrencies(): Single<List<CryptoCurrency>> {
+    private fun supportedCryptoCurrencies(): Single<List<AssetInfo>> {
         val availableFiats =
             custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency)
         return custodialWalletManager.getSupportedBuySellCryptoCurrencies()

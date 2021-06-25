@@ -22,13 +22,14 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.tabs.TabLayout
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.wallet.prices.data.PriceDatum
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAccount
@@ -42,6 +43,7 @@ import piuk.blockchain.android.ui.customviews.account.PendingBalanceAccountDecor
 import piuk.blockchain.android.ui.dashboard.assetdetails.delegates.AssetDetailAdapterDelegate
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyOnboardingActivity
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.loadInterMedium
@@ -60,20 +62,22 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     AssetDetailsIntent, AssetDetailsState, DialogSheetDashboardAssetDetailsBinding>() {
     private val currencyPrefs: CurrencyPrefs by inject()
     private val labels: DefaultLabels by inject()
+    private val assetCatalogue: AssetCatalogue by inject()
     private val locale = Locale.getDefault()
 
-    private val cryptoCurrency: CryptoCurrency by lazy {
-        arguments?.getSerializable(ARG_CRYPTO_CURRENCY) as? CryptoCurrency
-            ?: throw IllegalArgumentException("No cryptoCurrency specified")
+    private val asset: AssetInfo by lazy {
+        arguments?.getString(ARG_CRYPTO_ASSET)?.let {
+            assetCatalogue.fromNetworkTicker(it)
+        } ?: throw IllegalArgumentException("No cryptoCurrency specified")
     }
 
     private val assetSelect: Coincore by scopedInject()
     private val internalFlags: InternalFeatureFlagApi by inject()
 
-    private val assetResources: AssetResources by scopedInject()
+    private val assetResources: AssetResources by inject()
 
     private val token: CryptoAsset by lazy {
-        assetSelect[cryptoCurrency]
+        assetSelect[asset]
     }
 
     private val isRecurringBuyEnabled: Boolean by lazy {
@@ -85,7 +89,6 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     private val detailsAdapter by lazy {
         AssetDetailAdapter(
             ::onAccountSelected,
-            cryptoCurrency.hasFeature(CryptoCurrency.CUSTODIAL_ONLY),
             token,
             labels
         ) {
@@ -157,13 +160,13 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
             configureChart(
                 chart,
                 getFiatSymbol(currencyPrefs.selectedFiatCurrency),
-                assetResources.numOfDecimalsForChart(cryptoCurrency)
+                numOfDecimalsForChart(asset)
             )
 
             configureTabs(chartPricePeriods)
 
             currentPriceTitle.text =
-                getString(R.string.dashboard_price_for_asset, cryptoCurrency.displayTicker)
+                getString(R.string.dashboard_price_for_asset, asset.ticker)
 
             assetList.apply {
                 adapter = if (isRecurringBuyEnabled) {
@@ -259,7 +262,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                 )
             }
 
-            if (cryptoCurrency.hasFeature(CryptoCurrency.CUSTODIAL_ONLY)) {
+            if (asset.isCustodialOnly) {
                 listItems.add(0, AssetDetailsItem.AssetLabel)
             }
 
@@ -354,7 +357,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                     context,
                     R.layout.price_chart_marker,
                     getFiatSymbol(currencyPrefs.selectedFiatCurrency),
-                    assetResources.numOfDecimalsForChart(cryptoCurrency)
+                    numOfDecimalsForChart(asset)
                 )
             })
             animateX(500)
@@ -522,17 +525,23 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     }
 
     companion object {
-        private const val ARG_CRYPTO_CURRENCY = "crypto"
+        private const val ARG_CRYPTO_ASSET = "crypto"
 
-        fun newInstance(cryptoCurrency: CryptoCurrency): AssetDetailSheet {
+        fun newInstance(asset: AssetInfo): AssetDetailSheet {
             return AssetDetailSheet().apply {
                 arguments = Bundle().apply {
-                    putSerializable(ARG_CRYPTO_CURRENCY, cryptoCurrency)
+                    putString(ARG_CRYPTO_ASSET, asset.ticker)
                 }
             }
         }
 
         private fun getFiatSymbol(currencyCode: String, locale: Locale = Locale.getDefault()) =
             Currency.getInstance(currencyCode).getSymbol(locale)
+
+        private fun numOfDecimalsForChart(asset: AssetInfo): Int =
+            when (asset.ticker) {
+                CryptoCurrency.XLM.ticker -> 4
+                else -> 2
+            }
     }
 }

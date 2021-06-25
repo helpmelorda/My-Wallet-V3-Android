@@ -25,7 +25,7 @@ class ReceiveMemoView @JvmOverloads constructor(
         require(address.memo != null)
 
         with(binding) {
-            val assetName = address.asset.displayTicker
+            val assetName = address.asset.ticker
             memoText.text = address.memo
             memoLabel.text = resources.getString(R.string.receive_memo_title, assetName)
             memoWarn.text = resources.getString(R.string.receive_memo_warning, assetName)

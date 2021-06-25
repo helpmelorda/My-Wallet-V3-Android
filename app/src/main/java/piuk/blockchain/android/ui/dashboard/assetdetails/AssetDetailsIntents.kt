@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
+import info.blockchain.balance.AssetInfo
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyState
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.prices.data.PriceDatum
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AvailableActions
@@ -179,7 +179,7 @@ object ShowInterestDashboard : AssetDetailsIntent() {
 }
 
 class ShowRelevantAssetDetailsSheet(
-    val cryptoCurrency: CryptoCurrency
+    val asset: AssetInfo
 ) : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState = oldState.updateBackstack(oldState)
 }

@@ -7,7 +7,7 @@ import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.Completable
@@ -67,7 +67,7 @@ class TransactionInteractor(
     fun validatePassword(password: String): Single<Boolean> =
         Single.just(coincore.validateSecondPassword(password))
 
-    fun validateTargetAddress(address: String, asset: CryptoCurrency): Single<ReceiveAddress> =
+    fun validateTargetAddress(address: String, asset: AssetInfo): Single<ReceiveAddress> =
         addressFactory.parse(address, asset)
             .switchIfEmpty(
                 Single.error(

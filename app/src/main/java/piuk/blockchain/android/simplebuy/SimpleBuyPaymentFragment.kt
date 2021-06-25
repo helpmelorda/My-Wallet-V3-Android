@@ -29,7 +29,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.cards.CardAuthoriseWebViewActivity
 import piuk.blockchain.android.cards.CardVerificationFragment
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.databinding.FragmentSimpleBuyPaymentBinding
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.base.mvi.MviFragment
@@ -53,7 +52,6 @@ class SimpleBuyPaymentFragment :
     override val model: SimpleBuyModel by scopedInject()
     private val stringUtils: StringUtils by inject()
     private val ratingPrefs: RatingPrefs by scopedInject()
-    private val assetResources: AssetResources by scopedInject()
     private var reviewInfo: ReviewInfo? = null
     private var isFirstLoad = false
     private val internalFlags: InternalFeatureFlagApi by inject()
@@ -80,21 +78,19 @@ class SimpleBuyPaymentFragment :
 
         // we need to make the request as soon as possible and cache the result
         if (!ratingPrefs.hasSeenRatingDialog) {
-            val request = reviewManager.requestReviewFlow()
-            request.addOnCompleteListener { request ->
-                if (request.isSuccessful) {
-                    reviewInfo = request.result
+            reviewManager.requestReviewFlow()
+                .addOnCompleteListener { request ->
+                    if (request.isSuccessful) {
+                        reviewInfo = request.result
+                    }
                 }
-            }
         }
     }
 
     override fun render(newState: SimpleBuyState) {
-        binding.transactionProgressView.setAssetIcon(
-            newState.selectedCryptoCurrency?.let {
-                assetResources.maskedAsset(it)
-            } ?: 0
-        )
+        newState.selectedCryptoAsset?.let {
+            binding.transactionProgressView.setAssetIcon(it)
+        }
 
         newState.errorState?.let {
             handleErrorStates(it)
@@ -217,13 +213,13 @@ class SimpleBuyPaymentFragment :
                         newState.order.amount?.toStringWithSymbol(),
                         newState.recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext())
                             .toLowerCase(Locale.getDefault()),
-                        getString(assetResources.assetNameRes(newState.orderValue.currency)),
-                        newState.selectedCryptoCurrency?.networkTicker
+                        newState.orderValue.currency.name,
+                        newState.selectedCryptoAsset?.ticker
                     )
                 } else {
                     getString(
                         R.string.card_purchased_available_now,
-                        getString(assetResources.assetNameRes(newState.orderValue.currency))
+                        newState.orderValue.currency.name
                     )
                 }
 

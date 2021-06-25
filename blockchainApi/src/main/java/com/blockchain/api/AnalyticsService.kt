@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import java.math.BigDecimal
 
-class AnalyticsService(
+class AnalyticsService internal constructor(
     private val api: AnalyticsApiInterface
 ) {
     fun postEvents(

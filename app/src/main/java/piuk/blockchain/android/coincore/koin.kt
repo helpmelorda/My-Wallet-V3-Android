@@ -2,44 +2,28 @@ package piuk.blockchain.android.coincore
 
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetCatalogue
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.coincore.alg.AlgoAsset
 import piuk.blockchain.android.coincore.bch.BchAsset
 import piuk.blockchain.android.coincore.btc.BtcAsset
 import piuk.blockchain.android.coincore.dot.PolkadotAsset
-import piuk.blockchain.android.coincore.erc20.Erc20Asset
 import piuk.blockchain.android.coincore.eth.EthAsset
 import piuk.blockchain.android.coincore.fiat.FiatAsset
 import piuk.blockchain.android.coincore.fiat.LinkedBanksFactory
-import piuk.blockchain.android.coincore.impl.AssetResourcesImpl
-import piuk.blockchain.android.coincore.impl.OfflineAccountUpdater
+import piuk.blockchain.android.coincore.impl.AssetCatalogueImpl
+import piuk.blockchain.android.coincore.impl.AssetLoader
+import piuk.blockchain.android.coincore.impl.CryptoAssetLoader
+import piuk.blockchain.android.coincore.impl.BackendNotificationUpdater
 import piuk.blockchain.android.coincore.impl.TxProcessorFactory
 import piuk.blockchain.android.coincore.impl.txEngine.TransferQuotesEngine
-import piuk.blockchain.android.coincore.stx.StxAsset
 import piuk.blockchain.android.coincore.xlm.XlmAsset
 import piuk.blockchain.android.repositories.AssetActivityRepository
 
 val coincoreModule = module {
 
     scope(payloadScopeQualifier) {
-
-        scoped {
-            StxAsset(
-                payloadManager = get(),
-                exchangeRates = get(),
-                historicRates = get(),
-                currencyPrefs = get(),
-                custodialManager = get(),
-                crashLogger = get(),
-                pitLinking = get(),
-                labels = get(),
-                identity = get(),
-                offlineAccounts = get(),
-                features = get()
-            )
-        }.bind(CryptoAsset::class)
 
         scoped {
             BtcAsset(
@@ -54,7 +38,7 @@ val coincoreModule = module {
                 crashLogger = get(),
                 labels = get(),
                 walletPreferences = get(),
-                offlineAccounts = get(),
+                notificationUpdater = get(),
                 coinsWebsocket = get(),
                 identity = get(),
                 features = get()
@@ -75,7 +59,7 @@ val coincoreModule = module {
                 pitLinking = get(),
                 labels = get(),
                 walletPreferences = get(),
-                offlineAccounts = get(),
+                beNotifyUpdate = get(),
                 identity = get(),
                 features = get()
             )
@@ -95,7 +79,6 @@ val coincoreModule = module {
                 crashLogger = get(),
                 labels = get(),
                 walletPreferences = get(),
-                offlineAccounts = get(),
                 identity = get(),
                 features = get()
             )
@@ -114,9 +97,10 @@ val coincoreModule = module {
                 custodialManager = get(),
                 pitLinking = get(),
                 labels = get(),
-                offlineAccounts = get(),
+                notificationUpdater = get(),
                 identity = get(),
-                features = get()
+                features = get(),
+                assetCatalogue = lazy { get() }
             )
         }.bind(CryptoAsset::class)
 
@@ -131,7 +115,6 @@ val coincoreModule = module {
                 crashLogger = get(),
                 labels = get(),
                 identity = get(),
-                offlineAccounts = get(),
                 features = get()
             )
         }.bind(CryptoAsset::class)
@@ -156,7 +139,6 @@ val coincoreModule = module {
                 crashLogger = get(),
                 labels = get(),
                 pitLinking = get(),
-                offlineAccounts = get(),
                 identity = get(),
                 features = get()
             )
@@ -167,6 +149,7 @@ val coincoreModule = module {
                 payloadManager = get(),
                 fiatAsset = get<FiatAsset>(),
                 assetLoader = get(),
+                assetCatalogue = get(),
                 txProcessorFactory = get(),
                 defaultLabels = get(),
                 crashLogger = get()
@@ -174,36 +157,25 @@ val coincoreModule = module {
         }
 
         scoped {
-            val erc20Assets = CryptoCurrency.erc20Assets().map {
-                Erc20Asset(
-                    asset = it,
-                    payloadManager = get(),
-                    ethDataManager = get(),
-                    feeDataManager = get(),
-                    exchangeRates = get(),
-                    historicRates = get(),
-                    currencyPrefs = get(),
-                    custodialManager = get(),
-                    crashLogger = get(),
-                    labels = get(),
-                    pitLinking = get(),
-                    offlineAccounts = get(),
-                    walletPreferences = get(),
-                    identity = get(),
-                    features = get()
-                )
-            }
             val nonErc20Assets: List<CryptoAsset> = payloadScope.getAll()
             CryptoAssetLoader(
-                cryptoAssets = nonErc20Assets + erc20Assets
+                fixedAssets = nonErc20Assets,
+                assetCatalogue = get(),
+                payloadManager = get(),
+                ethDataManager = get(),
+                feeDataManager = get(),
+                exchangeRates = get(),
+                historicRates = get(),
+                currencyPrefs = get(),
+                custodialManager = get(),
+                crashLogger = get(),
+                labels = get(),
+                pitLinking = get(),
+                walletPreferences = get(),
+                identity = get(),
+                features = get()
             )
         }.bind(AssetLoader::class)
-
-        scoped {
-            AssetResourcesImpl(
-                resources = get()
-            )
-        }.bind(AssetResources::class)
 
         scoped {
             TxProcessorFactory(
@@ -233,9 +205,8 @@ val coincoreModule = module {
         }.bind(AddressFactory::class)
 
         scoped {
-            OfflineAccountUpdater(
-                localCache = get(),
-                payloadManager = get(),
+            BackendNotificationUpdater(
+                prefs = get(),
                 walletApi = get()
             )
         }
@@ -250,4 +221,8 @@ val coincoreModule = module {
             )
         }
     }
+
+    single {
+        AssetCatalogueImpl()
+    }.bind(AssetCatalogue::class)
 }

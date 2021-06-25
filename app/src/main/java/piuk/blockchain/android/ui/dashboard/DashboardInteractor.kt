@@ -7,10 +7,12 @@ import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.Money
+import info.blockchain.balance.isErc20
 import info.blockchain.wallet.prices.TimeAgo
 import info.blockchain.wallet.prices.TimeInterval
 import info.blockchain.wallet.prices.data.PriceDatum
@@ -27,7 +29,6 @@ import piuk.blockchain.android.coincore.AssetFilter
 import piuk.blockchain.android.coincore.AssetOrdering
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.coincore.CryptoAsset
 import piuk.blockchain.android.coincore.FiatAccount
 import piuk.blockchain.android.coincore.InterestAccount
 import piuk.blockchain.android.coincore.SingleAccount
@@ -69,7 +70,7 @@ class DashboardInteractor(
         val cd = CompositeDisposable()
 
         state.assetMapKeys
-            .filter { !it.hasFeature(CryptoCurrency.IS_ERC20) }
+            .filter { !it.isErc20() }
             .forEach { asset ->
                 cd += refreshAssetBalance(asset, model, balanceFilter)
                     .ifEthLoadedGetErc20Balance(model, balanceFilter, cd, state)
@@ -86,7 +87,7 @@ class DashboardInteractor(
         assetOrdering.getAssetOrdering().subscribeBy(
             onSuccess = { assetOrder ->
                 val assets = coincore.cryptoAssets.map { enabledAssets ->
-                    (enabledAssets as CryptoAsset).asset
+                    enabledAssets.asset
                 }
 
                 val sortedAssets = assets.sortedBy { assetOrder.indexOf(it) }
@@ -100,7 +101,7 @@ class DashboardInteractor(
         )
 
     private fun refreshAssetBalance(
-        asset: CryptoCurrency,
+        asset: AssetInfo,
         model: DashboardModel,
         balanceFilter: AssetFilter
     ): Single<CryptoValue> =
@@ -112,11 +113,11 @@ class DashboardInteractor(
             }
             .map { balance -> balance as CryptoValue }
             .doOnError { e ->
-                Timber.e("Failed getting balance for ${asset.networkTicker}: $e")
+                Timber.e("Failed getting balance for ${asset.ticker}: $e")
                 model.process(BalanceUpdateError(asset))
             }
             .doOnSuccess { v ->
-                Timber.d("Got balance for ${asset.networkTicker}")
+                Timber.d("Got balance for ${asset.ticker}")
                 model.process(BalanceUpdate(asset, v))
             }
             .retryOnError()
@@ -142,28 +143,28 @@ class DashboardInteractor(
     }
 
     private fun Single<CryptoValue>.ifEthFailedThenErc20Failed(
-        asset: CryptoCurrency,
+        asset: AssetInfo,
         model: DashboardModel,
         state: DashboardState
     ) = this.doOnError {
-        if (asset == CryptoCurrency.ETHER) {
+        if (asset.ticker == CryptoCurrency.ETHER.ticker) {
             state.erc20Assets.forEach {
                 model.process(BalanceUpdateError(it))
             }
         }
     }
 
-    private fun Maybe<AccountGroup>.logGroupLoadError(asset: CryptoCurrency, filter: AssetFilter) =
+    private fun Maybe<AccountGroup>.logGroupLoadError(asset: AssetInfo, filter: AssetFilter) =
         this.doOnError { e ->
             crashLogger.logException(
-                DashboardGroupLoadFailure("Cannot load group for ${asset.networkTicker} - $filter:", e)
+                DashboardGroupLoadFailure("Cannot load group for ${asset.ticker} - $filter:", e)
             )
         }
 
-    private fun Single<Money>.logBalanceLoadError(asset: CryptoCurrency, filter: AssetFilter) =
+    private fun Single<Money>.logBalanceLoadError(asset: AssetInfo, filter: AssetFilter) =
         this.doOnError { e ->
             crashLogger.logException(
-                DashboardBalanceLoadFailure("Cannot load balance for ${asset.networkTicker} - $filter:", e)
+                DashboardBalanceLoadFailure("Cannot load balance for ${asset.ticker} - $filter:", e)
             )
         }
 
@@ -191,7 +192,7 @@ class DashboardInteractor(
                 }
             )
 
-    fun refreshPrices(model: DashboardModel, crypto: CryptoCurrency): Disposable {
+    fun refreshPrices(model: DashboardModel, crypto: AssetInfo): Disposable {
 
         return Singles.zip(
             coincore[crypto].exchangeRate(),
@@ -203,19 +204,19 @@ class DashboardInteractor(
             )
     }
 
-    fun refreshPriceHistory(model: DashboardModel, crypto: CryptoCurrency): Disposable =
-        if (crypto.hasFeature(CryptoCurrency.PRICE_CHARTING)) {
-            coincore[crypto].historicRateSeries(TimeSpan.DAY, TimeInterval.ONE_HOUR)
+    fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable =
+        if (asset.startDate != null) {
+            coincore[asset].historicRateSeries(TimeSpan.DAY, TimeInterval.ONE_HOUR)
         } else {
             Single.just(FLATLINE_CHART)
         }
-            .map { PriceHistoryUpdate(crypto, it) }
+            .map { PriceHistoryUpdate(asset, it) }
             .subscribeBy(
                 onSuccess = { model.process(it) },
                 onError = { Timber.e(it) }
             )
 
-    fun checkForCustodialBalance(model: DashboardModel, crypto: CryptoCurrency): Disposable? {
+    fun checkForCustodialBalance(model: DashboardModel, crypto: AssetInfo): Disposable? {
         return coincore[crypto].accountGroup(AssetFilter.Custodial)
             .flatMapSingle { it.accountBalance }
             .subscribeBy(
@@ -229,7 +230,7 @@ class DashboardInteractor(
     fun cancelSimpleBuyOrder(orderId: String): Disposable {
         return custodialWalletManager.deleteBuyOrder(orderId)
             .subscribeBy(
-                onComplete = { simpleBuyPrefs.clearState() },
+                onComplete = { simpleBuyPrefs.clearBuyState() },
                 onError = { error ->
                     analytics.logEvent(SimpleBuyAnalytics.BANK_DETAILS_CANCEL_ERROR)
                     Timber.e(error)
@@ -255,11 +256,11 @@ class DashboardInteractor(
         return null
     }
 
-    fun getAssetDetailsFlow(model: DashboardModel, cryptoCurrency: CryptoCurrency): Disposable? {
+    fun getAssetDetailsFlow(model: DashboardModel, asset: AssetInfo): Disposable? {
         model.process(
             UpdateLaunchDialogFlow(
                 AssetDetailsFlow(
-                    cryptoCurrency = cryptoCurrency,
+                    asset = asset,
                     coincore = coincore
                 )
             )

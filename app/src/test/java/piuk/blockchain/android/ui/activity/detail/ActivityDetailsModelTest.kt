@@ -8,6 +8,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
@@ -35,7 +36,7 @@ class ActivityDetailsModelTest {
 
     private data class NonCustodialTestClass(
         override val exchangeRates: ExchangeRateDataManager = mock(),
-        override val cryptoCurrency: CryptoCurrency = mock(),
+        override val asset: AssetInfo = mock(),
         override val txId: String = "123",
         override val timeStampMs: Long = 1L,
         override val value: CryptoValue = mock(),
@@ -49,7 +50,7 @@ class ActivityDetailsModelTest {
 
     private val custodialItem = CustodialTradingActivitySummaryItem(
         exchangeRates = mock(),
-        cryptoCurrency = mock(),
+        asset = mock(),
         txId = "123",
         timeStampMs = 1L,
         value = CryptoValue.zero(CryptoCurrency.BTC),
@@ -69,7 +70,7 @@ class ActivityDetailsModelTest {
 
     private val custodialInterestItem = CustodialInterestActivitySummaryItem(
         exchangeRates = mock(),
-        cryptoCurrency = mock(),
+        asset = mock(),
         txId = "123",
         timeStampMs = 1L,
         value = CryptoValue.zero(CryptoCurrency.BTC),
@@ -147,7 +148,7 @@ class ActivityDetailsModelTest {
                 isPending = item.isPending,
                 isFeeTransaction = item.isFeeTransaction,
                 confirmations = item.confirmations,
-                totalConfirmations = item.cryptoCurrency.requiredConfirmations
+                totalConfirmations = item.asset.requiredConfirmations
             )
         )
     }

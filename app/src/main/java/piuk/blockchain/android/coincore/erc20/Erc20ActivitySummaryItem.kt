@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.erc20
 
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
@@ -15,7 +16,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.math.BigInteger
 
 internal class Erc20ActivitySummaryItem(
-    override val cryptoCurrency: CryptoCurrency,
+    override val asset: AssetInfo,
     private val feedTransfer: FeedErc20Transfer,
     private val accountHash: String,
     private val ethDataManager: EthDataManager,
@@ -38,11 +39,11 @@ internal class Erc20ActivitySummaryItem(
     override val timeStampMs: Long = transfer.timestamp * 1000
 
     override val value: CryptoValue by unsafeLazy {
-        CryptoValue.fromMinor(cryptoCurrency, transfer.value)
+        CryptoValue.fromMinor(asset, transfer.value)
     }
 
     override val description: String?
-        get() = ethDataManager.getErc20TokenData(cryptoCurrency).txNotes[txId]
+        get() = ethDataManager.getErc20TokenData(asset).txNotes[txId]
 
     override val fee: Observable<CryptoValue>
         get() = feedTransfer.feeObservable
@@ -51,13 +52,13 @@ internal class Erc20ActivitySummaryItem(
     override val txId: String = transfer.transactionHash
 
     override val inputsMap: Map<String, CryptoValue> =
-        mapOf(transfer.from to CryptoValue.fromMinor(cryptoCurrency, transfer.value))
+        mapOf(transfer.from to CryptoValue.fromMinor(asset, transfer.value))
 
     override val outputsMap: Map<String, CryptoValue> =
-        mapOf(transfer.to to CryptoValue.fromMinor(cryptoCurrency, transfer.value))
+        mapOf(transfer.to to CryptoValue.fromMinor(asset, transfer.value))
 
     override val confirmations: Int = (lastBlockNumber - transfer.blockNumber).toInt()
 
     override fun updateDescription(description: String): Completable =
-        ethDataManager.updateErc20TransactionNotes(txId, description, cryptoCurrency)
+        ethDataManager.updateErc20TransactionNotes(txId, description, asset)
 }

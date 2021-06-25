@@ -6,21 +6,21 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.util.FormatsUtil
-import info.blockchain.wallet.bch.CashAddress
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
-import piuk.blockchain.android.coincore.CachedAddress
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.impl.CryptoAssetBase
-import piuk.blockchain.android.coincore.impl.OfflineAccountUpdater
+import piuk.blockchain.android.coincore.impl.BackendNotificationUpdater
+import piuk.blockchain.android.coincore.impl.NotificationAddresses
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
@@ -46,7 +46,7 @@ internal class BchAsset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     private val walletPreferences: WalletStatus,
-    offlineAccounts: OfflineAccountUpdater,
+    private val beNotifyUpdate: BackendNotificationUpdater,
     identity: UserIdentity,
     features: InternalFeatureFlagApi
 ) : CryptoAssetBase(
@@ -58,15 +58,17 @@ internal class BchAsset(
     custodialManager,
     pitLinking,
     crashLogger,
-    offlineAccounts,
     identity,
     features
 ) {
-    override val asset: CryptoCurrency
+    override val asset: AssetInfo
         get() = CryptoCurrency.BCH
 
+    override val isCustodialOnly: Boolean = asset.isCustodialOnly
+    override val multiWallet: Boolean = true
+
     override fun initToken(): Completable =
-        bchDataManager.initBchWallet(labels.getDefaultNonCustodialWalletLabel(CryptoCurrency.BCH))
+        bchDataManager.initBchWallet(labels.getDefaultNonCustodialWalletLabel())
             .doOnError { Timber.e("Unable to init BCH, because: $it") }
             .onErrorComplete()
 
@@ -89,7 +91,7 @@ internal class BchAsset(
                             identity = identity
                         )
                         if (bchAccount.isDefault) {
-                            updateOfflineCache(bchAccount)
+                            updateBackendNotificationAddresses(bchAccount)
                         }
                         add(bchAccount)
                     }
@@ -97,29 +99,23 @@ internal class BchAsset(
             }
         }
 
-    private fun updateOfflineCache(account: BchCryptoWalletAccount) {
+    private fun updateBackendNotificationAddresses(account: BchCryptoWalletAccount) {
         require(account.isDefault)
         require(!account.isArchived)
 
-        return offlineAccounts.updateOfflineAddresses(
-            Single.fromCallable {
-                val result = mutableListOf<CachedAddress>()
+        val result = mutableListOf<String>()
 
-                for (i in 0 until OFFLINE_CACHE_ITEM_COUNT) {
-                    account.getReceiveAddressAtPosition(i)?.let {
-                        val bech32 = CashAddress.toBech32Url(it)
-                        result += CachedAddress(
-                            address = it,
-                            addressUri = bech32
-                        )
-                    }
-                }
-                BchOfflineAccountItem(
-                    accountLabel = account.label,
-                    addressList = result
-                )
+        for (i in 0 until OFFLINE_CACHE_ITEM_COUNT) {
+            account.getReceiveAddressAtPosition(i)?.let {
+                result += it
             }
+        }
+
+        val notify = NotificationAddresses(
+            assetTicker = asset.ticker,
+            addressList = result
         )
+        return beNotifyUpdate.updateNotificationBackend(notify)
     }
 
     override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> =
@@ -151,7 +147,7 @@ internal class BchAddress(
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() }
 ) : CryptoAddress {
     override val address: String = address_.removeBchUri()
-    override val asset: CryptoCurrency = CryptoCurrency.BCH
+    override val asset: AssetInfo = CryptoCurrency.BCH
 
     override fun toUrl(amount: CryptoValue): String {
         return "$BCH_URL_PREFIX$address"

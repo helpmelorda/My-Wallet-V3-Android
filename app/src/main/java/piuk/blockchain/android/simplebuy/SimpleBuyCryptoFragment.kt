@@ -22,7 +22,8 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.isLastDayOfTheMonth
 import com.blockchain.utils.to12HourFormat
 import com.bumptech.glide.Glide
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -32,7 +33,6 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.cards.CardDetailsActivity.Companion.ADD_CARD_REQUEST_CODE
 import piuk.blockchain.android.cards.icon
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.databinding.FragmentSimpleBuyBuyCryptoBinding
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.base.mvi.MviFragment
@@ -45,8 +45,9 @@ import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBot
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.setAssetIconColours
+import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
@@ -65,15 +66,17 @@ class SimpleBuyCryptoFragment :
 
     override val model: SimpleBuyModel by scopedInject()
     private val exchangeRateDataManager: ExchangeRateDataManager by scopedInject()
-    private val assetResources: AssetResources by scopedInject()
+    private val assetResources: AssetResources by inject()
+    private val assetCatalogue: AssetCatalogue by inject()
     private val features: InternalFeatureFlagApi by inject()
 
     private var lastState: SimpleBuyState? = null
     private val compositeDisposable = CompositeDisposable()
 
-    private val cryptoCurrency: CryptoCurrency by unsafeLazy {
-        arguments?.getSerializable(ARG_CRYPTO_CURRENCY) as? CryptoCurrency
-            ?: throw IllegalArgumentException("No cryptoCurrency specified")
+    private val asset: AssetInfo by unsafeLazy {
+        arguments?.getString(ARG_CRYPTO_ASSET)?.let {
+            assetCatalogue.fromNetworkTicker(it)
+        } ?: throw IllegalArgumentException("No cryptoCurrency specified")
     }
 
     private val preselectedMethodId: String? by unsafeLazy {
@@ -97,18 +100,21 @@ class SimpleBuyCryptoFragment :
 
     override fun onResume() {
         super.onResume()
-        model.process(SimpleBuyIntent.FetchBuyLimits(currencyPrefs.selectedFiatCurrency, cryptoCurrency))
+        model.process(SimpleBuyIntent.FetchBuyLimits(currencyPrefs.selectedFiatCurrency, asset))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        activity.setupToolbar(getString(R.string.tx_title_buy, cryptoCurrency))
+        activity.setupToolbar(getString(R.string.tx_title_buy, asset.ticker))
 
         model.process(SimpleBuyIntent.FlowCurrentScreen(FlowScreen.ENTER_AMOUNT))
         model.process(
-            SimpleBuyIntent.FetchSuggestedPaymentMethod(currencyPrefs.selectedFiatCurrency, preselectedMethodId)
+            SimpleBuyIntent.FetchSuggestedPaymentMethod(
+                currencyPrefs.selectedFiatCurrency,
+                preselectedMethodId
+            )
         )
         model.process(SimpleBuyIntent.FetchSupportedFiatCurrencies)
         analytics.logEvent(SimpleBuyAnalytics.BUY_FORM_SHOWN)
@@ -124,14 +130,17 @@ class SimpleBuyCryptoFragment :
 
         binding.paymentMethodDetailsRoot.setOnClickListener {
             showPaymentMethodsBottomSheet(
-                if (lastState?.paymentOptions?.availablePaymentMethods?.any { it.canUsedForPaying() } == true)
+                if (lastState?.paymentOptions?.availablePaymentMethods?.any { it.canUsedForPaying() } == true) {
                     PaymentMethodsChooserState.AVAILABLE_TO_PAY
-                else PaymentMethodsChooserState.AVAILABLE_TO_ADD
+                } else {
+                    PaymentMethodsChooserState.AVAILABLE_TO_ADD
+                }
             )
         }
 
         compositeDisposable += binding.inputAmount.onImeAction.subscribe {
-            if (it == PrefixedOrSuffixedEditText.ImeOptions.NEXT) startBuy()
+            if (it == PrefixedOrSuffixedEditText.ImeOptions.NEXT)
+                startBuy()
         }
 
         binding.recurringBuyCta.setOnClickListener {
@@ -184,13 +193,13 @@ class SimpleBuyCryptoFragment :
                 )
                 check(lastState?.order?.amount != null)
                 check(lastState?.maxFiatAmount != null)
-                check(lastState?.selectedCryptoCurrency?.networkTicker != null)
+                check(lastState?.selectedCryptoAsset != null)
 
                 analytics.logEvent(
                     BuyAmountEntered(
                         lastState?.order?.amount ?: return,
                         lastState?.maxFiatAmount ?: return,
-                        lastState?.selectedCryptoCurrency?.networkTicker ?: return
+                        lastState?.selectedCryptoAsset?.ticker ?: return
                     )
                 )
             }
@@ -219,7 +228,7 @@ class SimpleBuyCryptoFragment :
         model.process(
             SimpleBuyIntent.FetchBuyLimits(
                 fiatCurrency,
-                lastState?.selectedCryptoCurrency ?: return
+                lastState?.selectedCryptoAsset ?: return
             )
         )
         model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod(currencyPrefs.selectedFiatCurrency))
@@ -234,7 +243,7 @@ class SimpleBuyCryptoFragment :
             return
         }
 
-        newState.selectedCryptoCurrency?.let {
+        newState.selectedCryptoAsset?.let {
             binding.inputAmount.configuration = FiatCryptoViewConfiguration(
                 inputCurrency = CurrencyType.Fiat(newState.fiatCurrency),
                 outputCurrency = CurrencyType.Fiat(newState.fiatCurrency),
@@ -242,14 +251,11 @@ class SimpleBuyCryptoFragment :
                 canSwap = false,
                 predefinedAmount = newState.order.amount ?: FiatValue.zero(newState.fiatCurrency)
             )
-            binding.buyIcon.setAssetIconColours(
-                tintColor = assetResources.assetTint(it),
-                filterColor = assetResources.assetFilter(it)
-            )
+            binding.buyIcon.setAssetIconColoursWithTint(it)
         }
-        newState.selectedCryptoCurrency?.let {
-            binding.cryptoIcon.setImageResource(assetResources.drawableResFilled(it))
-            binding.cryptoText.setText(assetResources.assetNameRes(it))
+        newState.selectedCryptoAsset?.let {
+            assetResources.loadAssetIcon(binding.cryptoIcon, it)
+            binding.cryptoText.text = it.name
         }
 
         newState.exchangePriceWithDelta?.let {
@@ -588,13 +594,13 @@ class SimpleBuyCryptoFragment :
     }
 
     companion object {
-        private const val ARG_CRYPTO_CURRENCY = "CRYPTO"
+        private const val ARG_CRYPTO_ASSET = "CRYPTO"
         private const val ARG_PAYMENT_METHOD_ID = "PAYMENT_METHOD_ID"
 
-        fun newInstance(cryptoCurrency: CryptoCurrency, preselectedMethodId: String? = null): SimpleBuyCryptoFragment {
+        fun newInstance(asset: AssetInfo, preselectedMethodId: String? = null): SimpleBuyCryptoFragment {
             return SimpleBuyCryptoFragment().apply {
                 arguments = Bundle().apply {
-                    putSerializable(ARG_CRYPTO_CURRENCY, cryptoCurrency)
+                    putString(ARG_CRYPTO_ASSET, asset.ticker)
                     preselectedMethodId?.let { putString(ARG_PAYMENT_METHOD_ID, preselectedMethodId) }
                 }
             }

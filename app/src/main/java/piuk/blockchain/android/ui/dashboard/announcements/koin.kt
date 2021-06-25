@@ -27,7 +27,6 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.SwapAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.TransferCryptoAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.TwoFAAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.VerifyEmailAnnouncement
-import piuk.blockchain.android.ui.dashboard.announcements.rule.WDGLDAvailableAnnouncement
 
 val dashboardAnnouncementsModule = module {
 
@@ -204,12 +203,6 @@ val dashboardAnnouncementsModule = module {
 
         factory {
             InterestAvailableAnnouncement(
-                dismissRecorder = get()
-            )
-        }.bind(AnnouncementRule::class)
-
-        factory {
-            WDGLDAvailableAnnouncement(
                 dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)

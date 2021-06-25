@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
 import androidx.annotation.VisibleForTesting
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Scheduler
@@ -31,7 +31,7 @@ interface AnnouncementHost {
 
     fun startStxReceivedDetail()
     fun finishSimpleBuySignup()
-    fun startSimpleBuy(cryptoCurrency: CryptoCurrency = CryptoCurrency.BTC)
+    fun startSimpleBuy(asset: AssetInfo)
     fun startInterestDashboard()
     fun startBuy()
     fun startSell()

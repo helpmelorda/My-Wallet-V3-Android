@@ -9,7 +9,6 @@ import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
 import com.nhaarman.mockito_kotlin.whenever
 import com.blockchain.api.ApiException
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.api.dust.DustService
 import info.blockchain.wallet.api.dust.data.DustInput
 import info.blockchain.wallet.exceptions.TransactionHashApiException
@@ -170,7 +169,7 @@ class PaymentServiceTest {
             )
         ).thenReturn(mockTx)
 
-        whenever(dustService.getDust(CryptoCurrency.BCH)).thenReturn(Single.just(mockDust))
+        whenever(dustService.getDust()).thenReturn(Single.just(mockDust))
 
         val response: Response<ResponseBody> = Response.success(mock())
         val mockCall: Call<ResponseBody> = mock {
@@ -223,7 +222,7 @@ class PaymentServiceTest {
                 eq(mockDust)
             )
         ).thenReturn(mockTx)
-        whenever(dustService.getDust(CryptoCurrency.BCH)).thenReturn(Single.just(mockDust))
+        whenever(dustService.getDust()).thenReturn(Single.just(mockDust))
         val mockCall: Call<ResponseBody> = mock()
         val response = Response.error<ResponseBody>(
             500,

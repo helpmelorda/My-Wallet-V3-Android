@@ -12,7 +12,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -23,11 +23,11 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.SingleAccount
 import piuk.blockchain.android.databinding.FragmentInterestDashboardBinding
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
 import piuk.blockchain.android.util.gone
@@ -38,7 +38,7 @@ class InterestDashboardFragment : Fragment() {
 
     interface InterestDashboardHost {
         fun startKyc()
-        fun showInterestSummarySheet(account: SingleAccount, cryptoCurrency: CryptoCurrency)
+        fun showInterestSummarySheet(account: SingleAccount, asset: AssetInfo)
         fun startAccountSelection(filter: Single<List<BlockchainAccount>>, toAccount: SingleAccount)
     }
 
@@ -56,7 +56,7 @@ class InterestDashboardFragment : Fragment() {
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val kycTierService: TierService by scopedInject()
     private val coincore: Coincore by scopedInject()
-    private val assetResources: AssetResources by scopedInject()
+    private val assetResources: AssetResources by inject()
     private val txLauncher: TransactionLauncher by inject()
 
     private val listAdapter: InterestDashboardAdapter by lazy {
@@ -118,7 +118,7 @@ class InterestDashboardFragment : Fragment() {
 
     private fun renderInterestDetails(
         tiers: KycTiers,
-        enabledAssets: List<CryptoCurrency>
+        enabledAssets: List<AssetInfo>
     ) {
         val items = mutableListOf<InterestDashboardItem>()
 
@@ -161,7 +161,7 @@ class InterestDashboardFragment : Fragment() {
         listAdapter.notifyDataSetChanged()
     }
 
-    private fun interestItemClicked(cryptoCurrency: CryptoCurrency, hasBalance: Boolean) {
+    private fun interestItemClicked(cryptoCurrency: AssetInfo, hasBalance: Boolean) {
         disposables += coincore[cryptoCurrency].accountGroup(AssetFilter.Interest).subscribe {
             val interestAccount = it.accounts.first()
             if (hasBalance) {
