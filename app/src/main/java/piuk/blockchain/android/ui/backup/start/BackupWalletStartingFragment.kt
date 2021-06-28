@@ -5,12 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.blockchain.koin.scopedInject
-import com.blockchain.koin.scopedInjectActivity
+import piuk.blockchain.android.util.scopedInjectActivity
 import com.blockchain.ui.password.SecondPasswordHandler
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupStartBinding
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListFragment
-import piuk.blockchain.androidcoreui.ui.base.BaseFragment
+import piuk.blockchain.android.ui.base.BaseFragment
 
 class BackupWalletStartingFragment :
     BaseFragment<BackupWalletStartingView, BackupWalletStartingPresenter>(),

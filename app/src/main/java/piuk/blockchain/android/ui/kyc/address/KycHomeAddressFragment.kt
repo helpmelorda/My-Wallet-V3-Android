@@ -21,7 +21,7 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
-import com.blockchain.ui.extensions.throttledClicks
+import piuk.blockchain.android.util.throttledClicks
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.gms.common.GooglePlayServicesRepairableException
@@ -39,6 +39,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycHomeAddressBinding
+import piuk.blockchain.android.ui.base.BaseMvpFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.customviews.toast
@@ -56,7 +57,6 @@ import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BaseMvpFragment
 import timber.log.Timber
 import java.util.Locale
 import java.util.concurrent.TimeUnit

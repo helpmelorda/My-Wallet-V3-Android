@@ -16,8 +16,8 @@ import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
-import com.blockchain.ui.urllinks.RESET_2FA
-import com.blockchain.ui.urllinks.SECOND_PASSWORD_EXPLANATION
+import piuk.blockchain.android.urllinks.RESET_2FA
+import piuk.blockchain.android.urllinks.SECOND_PASSWORD_EXPLANATION
 import com.google.android.material.textfield.TextInputLayout
 import io.reactivex.rxkotlin.subscribeBy
 import org.json.JSONObject

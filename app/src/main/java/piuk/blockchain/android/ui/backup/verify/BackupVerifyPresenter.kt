@@ -1,17 +1,30 @@
 package piuk.blockchain.android.ui.backup.verify
 
 import android.annotation.SuppressLint
+import android.os.Bundle
+import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import com.blockchain.preferences.WalletStatus
 import io.reactivex.rxkotlin.plusAssign
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListFragment.Companion.ARGUMENT_SECOND_PASSWORD
+import piuk.blockchain.android.ui.base.BasePresenter
+import piuk.blockchain.android.ui.base.View
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.BackupWalletUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
 import timber.log.Timber
+
+interface BackupVerifyView : View {
+    fun getPageBundle(): Bundle?
+    fun showProgressDialog()
+    fun hideProgressDialog()
+    fun showToast(@StringRes message: Int, @ToastCustom.ToastType toastType: String)
+    fun showCompletedFragment()
+    fun showStartingFragment()
+    fun showWordHints(hints: List<Int>)
+}
 
 class BackupVerifyPresenter(
     private val payloadDataManager: PayloadDataManager,

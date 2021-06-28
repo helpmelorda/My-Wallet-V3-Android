@@ -12,7 +12,6 @@ import com.blockchain.nabu.datamanagers.BuySellPairs
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.ui.trackProgress
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
@@ -36,6 +35,7 @@ import piuk.blockchain.android.ui.customviews.account.removeAllHeaderDecorations
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.android.util.visible
 
 class BuyIntroFragment : Fragment() {

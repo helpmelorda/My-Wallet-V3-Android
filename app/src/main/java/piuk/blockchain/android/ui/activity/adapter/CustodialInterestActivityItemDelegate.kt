@@ -18,10 +18,10 @@ import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
+import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
 import java.util.Date
 
 class CustodialInterestActivityItemDelegate<in T>(

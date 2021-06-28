@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.kyc.invalidcountry
 
+import piuk.blockchain.android.ui.base.View
 import piuk.blockchain.android.ui.kyc.countryselection.util.CountryDisplayModel
-import piuk.blockchain.androidcoreui.ui.base.View
 
 interface KycInvalidCountryView : View {
 

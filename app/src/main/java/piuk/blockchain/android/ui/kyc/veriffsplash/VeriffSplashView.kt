@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.kyc.veriffsplash
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.veriff.VeriffApplicantAndToken
 import io.reactivex.Observable
-import piuk.blockchain.androidcoreui.ui.base.UiState
-import piuk.blockchain.androidcoreui.ui.base.View
+import piuk.blockchain.android.ui.base.View
+import piuk.blockchain.android.ui.kyc.splash.UiState
 
 interface VeriffSplashView : View {
 

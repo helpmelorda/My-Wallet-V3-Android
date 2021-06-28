@@ -6,9 +6,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.androidcore.data.connectivity.ConnectionEvent
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BaseMvpActivity
 
 class SSLVerifyActivity : BaseMvpActivity<SSLVerifyView, SSLVerifyPresenter>(), SSLVerifyView {
 

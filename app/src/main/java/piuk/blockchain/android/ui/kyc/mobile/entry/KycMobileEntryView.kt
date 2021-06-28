@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneDisplayModel
 import piuk.blockchain.androidcore.data.settings.PhoneNumber
 import io.reactivex.Observable
-import piuk.blockchain.androidcoreui.ui.base.View
+import piuk.blockchain.android.ui.base.View
 
 interface KycMobileEntryView : View {
 

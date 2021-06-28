@@ -2,7 +2,6 @@ package piuk.blockchain.android.util
 
 import android.content.Context
 import android.content.Intent
-import com.blockchain.ui.ActivityIndicator
 import info.blockchain.wallet.payload.PayloadManagerWiper
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.utils.PersistentPrefs

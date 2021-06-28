@@ -1,7 +1,13 @@
 package piuk.blockchain.android.ui.backup.completed
 
 import com.blockchain.preferences.WalletStatus
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
+import piuk.blockchain.android.ui.base.BasePresenter
+import piuk.blockchain.android.ui.base.View
+
+interface BackupWalletCompletedView : View {
+    fun showLastBackupDate(lastBackup: Long)
+    fun hideLastBackupDate()
+}
 
 class BackupWalletCompletedPresenter(
     private val walletStatus: WalletStatus

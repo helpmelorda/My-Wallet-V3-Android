@@ -7,9 +7,9 @@ import androidx.appcompat.widget.Toolbar
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPitVerifyEmailLayoutBinding
+import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.androidcoreui.ui.base.BaseMvpActivity
 
 class PitVerifyEmailActivity : BaseMvpActivity<PitVerifyEmailView, PitVerifyEmailPresenter>(), PitVerifyEmailView {
 

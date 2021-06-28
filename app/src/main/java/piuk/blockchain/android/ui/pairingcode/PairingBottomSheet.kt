@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat.getColor
 import com.blockchain.koin.scopedInject
-import com.blockchain.ui.urllinks.WEB_WALLET_LOGIN_URI
+import piuk.blockchain.android.urllinks.WEB_WALLET_LOGIN_URI
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.PairingSheetBinding
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet

@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import piuk.blockchain.android.R
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
+import piuk.blockchain.android.util.getResolvedColor
 
 object ToastCustom {
     const val TYPE_ERROR = "TYPE_ERROR"

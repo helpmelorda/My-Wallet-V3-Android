@@ -17,7 +17,7 @@ import io.reactivex.Single
 import info.blockchain.wallet.util.FormatsUtil
 import org.bitcoinj.uri.BitcoinURI
 import piuk.blockchain.android.R
-import piuk.blockchain.androidcoreui.utils.logging.Logging
+import com.blockchain.notifications.analytics.Logging
 import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException

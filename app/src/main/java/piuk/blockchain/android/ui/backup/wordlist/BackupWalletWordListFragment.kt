@@ -16,7 +16,7 @@ import piuk.blockchain.android.ui.backup.verify.BackupWalletVerifyFragment
 import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BaseFragment
+import piuk.blockchain.android.ui.base.BaseFragment
 
 class BackupWalletWordListFragment :
     BaseFragment<BackupWalletWordListView, BackupWalletWordListPresenter>(),

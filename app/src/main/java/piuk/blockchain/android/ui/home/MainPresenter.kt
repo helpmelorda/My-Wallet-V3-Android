@@ -60,8 +60,8 @@ import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcoreui.utils.logging.Logging
-import piuk.blockchain.androidcoreui.utils.logging.secondPasswordEvent
+import com.blockchain.notifications.analytics.Logging
+import com.blockchain.notifications.analytics.secondPasswordEvent
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar

@@ -29,7 +29,6 @@ import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttri
 import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.BankLinkingPrefs
-import com.blockchain.ui.trackProgress
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import io.reactivex.Completable
@@ -48,6 +47,7 @@ import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.util.AppUtil
+import piuk.blockchain.android.util.trackProgress
 import java.util.concurrent.TimeUnit
 
 class SimpleBuyInteractor(

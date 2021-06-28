@@ -57,7 +57,6 @@ object KoinStarter {
                 transactionModule,
                 okHttpModule,
                 coreModule,
-                coreUiModule,
                 dashboardAnnouncementsModule,
                 environmentModule,
                 featureFlagsModule,

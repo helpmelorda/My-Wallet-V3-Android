@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.ui.trackProgress
 import info.blockchain.wallet.api.data.Settings.Companion.UNIT_FIAT
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -17,6 +16,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.FragmentSimpleBuyCurrencySelectionBinding
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.util.AppUtil
+import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.util.Locale

@@ -17,12 +17,12 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.RemoveBankBottomSheetBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.util.getResolvedColor
+import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedDrawable
 
 class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomSheetBinding>() {
 

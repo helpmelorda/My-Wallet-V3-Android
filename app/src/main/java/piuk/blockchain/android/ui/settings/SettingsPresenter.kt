@@ -34,6 +34,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyModel
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.android.thepit.PitLinkingState
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.androidcore.data.access.AccessState
@@ -44,7 +45,6 @@ import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
 import timber.log.Timber
 import java.io.Serializable
 

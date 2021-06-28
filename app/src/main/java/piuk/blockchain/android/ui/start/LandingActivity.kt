@@ -11,7 +11,7 @@ import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.ssoLoginFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
-import com.blockchain.ui.urllinks.WALLET_STATUS_URL
+import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import io.reactivex.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig

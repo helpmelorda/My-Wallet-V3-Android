@@ -18,7 +18,7 @@ import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.ui.urllinks.URL_CONTACT_SUPPORT
+import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
 import info.blockchain.balance.AssetInfo
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers

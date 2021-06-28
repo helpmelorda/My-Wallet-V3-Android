@@ -15,7 +15,7 @@ import io.reactivex.schedulers.Schedulers
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcoreui.ui.base.UiState
+import piuk.blockchain.android.ui.kyc.splash.UiState
 
 import timber.log.Timber
 

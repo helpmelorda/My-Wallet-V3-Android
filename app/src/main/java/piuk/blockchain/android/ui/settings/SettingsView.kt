@@ -6,7 +6,7 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import piuk.blockchain.android.scan.QrScanError
-import piuk.blockchain.androidcoreui.ui.base.View
+import piuk.blockchain.android.ui.base.View
 
 interface SettingsView : View {
 

@@ -4,9 +4,9 @@ import androidx.annotation.VisibleForTesting
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
 import piuk.blockchain.android.data.biometrics.BiometricsController
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
 
 internal class OnboardingPresenter constructor(
     private val biometricsController: BiometricsController,

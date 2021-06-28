@@ -14,7 +14,7 @@ import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.thepit.PitLinking
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
+import piuk.blockchain.android.ui.base.BasePresenter
 import timber.log.Timber
 import java.net.URLEncoder
 import java.util.concurrent.TimeUnit

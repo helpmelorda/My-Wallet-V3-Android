@@ -13,7 +13,7 @@ import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
-import com.blockchain.ui.extensions.throttledClicks
+import piuk.blockchain.android.util.throttledClicks
 import com.jakewharton.rxbinding2.widget.afterTextChangeEvents
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -25,6 +25,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycMobileValidationBinding
+import piuk.blockchain.android.ui.base.BaseMvpFragment
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.extensions.skipFirstUnless
@@ -36,7 +37,6 @@ import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.androidcore.data.settings.PhoneNumber
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BaseMvpFragment
 import java.util.concurrent.TimeUnit
 
 class KycMobileValidationFragment :

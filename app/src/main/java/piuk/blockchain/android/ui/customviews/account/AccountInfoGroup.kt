@@ -16,9 +16,9 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.impl.AllWalletsAccount
 import piuk.blockchain.android.databinding.ViewAccountGroupOverviewBinding
+import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedDrawable
 import timber.log.Timber
 
 class AccountInfoGroup @JvmOverloads constructor(

@@ -46,8 +46,8 @@ import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.SettingsAnalyticsEvents
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.remoteconfig.FeatureFlag
-import com.blockchain.ui.urllinks.URL_PRIVACY_POLICY
-import com.blockchain.ui.urllinks.URL_TOS_POLICY
+import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
+import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
@@ -112,7 +112,7 @@ import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.utils.logging.Logging
+import com.blockchain.notifications.analytics.Logging
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Locale

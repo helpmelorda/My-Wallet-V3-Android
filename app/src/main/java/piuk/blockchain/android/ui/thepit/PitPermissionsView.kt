@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.thepit
 
-import piuk.blockchain.androidcoreui.ui.base.View
+import piuk.blockchain.android.ui.base.View
 
 interface PitPermissionsView : View {
     fun showLoading()

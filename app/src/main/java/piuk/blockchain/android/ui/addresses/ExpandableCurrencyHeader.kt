@@ -29,11 +29,11 @@ import org.koin.core.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.databinding.ViewExpandingCurrencyHeaderBinding
+import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.setAnimationListener
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedDrawable
 import java.util.Locale
 
 class ExpandableCurrencyHeader @JvmOverloads constructor(

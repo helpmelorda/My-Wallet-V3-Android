@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.blockchain.koin.scopedInject
-import com.blockchain.ui.extensions.throttledClicks
+import piuk.blockchain.android.util.throttledClicks
 import com.jakewharton.rxbinding2.widget.afterTextChangeEvents
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
 import io.reactivex.Observable
@@ -20,17 +20,17 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycAddPhoneNumberBinding
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
-import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.extensions.skipFirstUnless
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneDisplayModel
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
-import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.util.getTextString
 import piuk.blockchain.androidcore.data.settings.PhoneNumber
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BaseFragment
+import piuk.blockchain.android.ui.base.BaseFragment
+import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.kyc.navigate
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 

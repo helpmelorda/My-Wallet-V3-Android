@@ -9,8 +9,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import info.blockchain.wallet.util.PasswordUtil
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewPasswordStrengthBinding
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedDrawable
+import piuk.blockchain.android.util.getResolvedColor
+import piuk.blockchain.android.util.getResolvedDrawable
 import kotlin.math.roundToInt
 
 class PasswordStrengthView(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {

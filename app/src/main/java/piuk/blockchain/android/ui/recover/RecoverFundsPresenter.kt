@@ -15,12 +15,12 @@ import org.bitcoinj.crypto.MnemonicCode
 import org.bitcoinj.crypto.MnemonicException
 import java.util.Locale
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.createwallet.WalletCreationEvent
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadata
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
 import timber.log.Timber
 import java.util.NoSuchElementException
 

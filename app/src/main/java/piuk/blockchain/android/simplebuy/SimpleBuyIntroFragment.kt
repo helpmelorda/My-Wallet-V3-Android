@@ -100,7 +100,7 @@ class SimpleBuyIntroFragment : Fragment(), SlidingModalBottomDialog.Host {
             ErrorDialogData(
                 resources.getString(R.string.ops),
                 resources.getString(R.string.something_went_wrong_try_again),
-                resources.getString(R.string.ok_cap)
+                resources.getString(R.string.common_ok)
             )
         )
             .show(childFragmentManager, "BOTTOM_SHEET")

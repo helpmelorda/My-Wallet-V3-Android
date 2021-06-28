@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.ui.extensions.throttledClicks
+import piuk.blockchain.android.util.throttledClicks
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.parcelize.Parcelize

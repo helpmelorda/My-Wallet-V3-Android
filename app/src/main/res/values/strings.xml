@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- common -->
     <string name="debug_app_shortcut">BC Debug Opts</string>
     <string name="debug_app_shortcut_short">BC Opts</string>
@@ -45,6 +44,20 @@
     <string name="common_payment">Payment</string>
     <string name="common_unknown">Unknown</string>
     <string name="common_wallets">Wallets</string>
+
+    <string name="exit">Exit</string>
+    <string name="screen_overlay_warning">Screen overlay detected!</string>
+    <string name="screen_overlay_note">Apps that use screen overlays have the ability to trick you
+        into tapping on unseen objects and potentially steal funds. Note that this warning will also be triggered by screen dimming apps. If you are confident that there
+        is no threat you may continue.
+    </string>
+    <string name="unexpected_error">Unexpected error, please try again later.</string>
+
+    <string name="dialog_continue">Continue</string>
+    <string name="search">Search</string>
+
+    <string name="bitcoin" translatable="false">Bitcoin</string>
+    <string name="bitcoin_cash" translatable="false">Bitcoin Cash</string>
 
     <plurals name="transfer_label_plural">
         <item quantity="one">1 imported address</item>

@@ -18,8 +18,8 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import piuk.blockchain.android.util.AndroidUtils
-import piuk.blockchain.androidcoreui.utils.logging.launcherShortcutEvent
-import piuk.blockchain.androidcoreui.utils.logging.Logging
+import com.blockchain.notifications.analytics.launcherShortcutEvent
+import com.blockchain.notifications.analytics.Logging
 
 class LauncherShortcutHelper(
     private val ctx: Context

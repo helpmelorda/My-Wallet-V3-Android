@@ -42,9 +42,9 @@ import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.connectivity.ConnectionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PrngFixer
-import piuk.blockchain.androidcoreui.ApplicationLifeCycle
-import piuk.blockchain.androidcoreui.utils.logging.Logging
-import piuk.blockchain.androidcoreui.utils.logging.appLaunchEvent
+import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
+import com.blockchain.notifications.analytics.Logging
+import com.blockchain.notifications.analytics.appLaunchEvent
 import retrofit2.Retrofit
 import timber.log.Timber
 

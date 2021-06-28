@@ -14,7 +14,6 @@ import androidx.fragment.app.FragmentPagerAdapter
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.ui.trackProgress
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -35,6 +34,7 @@ import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import kotlin.properties.Delegates

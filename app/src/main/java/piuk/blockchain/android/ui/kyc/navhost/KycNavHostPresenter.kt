@@ -21,7 +21,7 @@ import piuk.blockchain.android.ui.kyc.logging.kycResumedEvent
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecision
-import piuk.blockchain.androidcoreui.utils.logging.Logging
+import com.blockchain.notifications.analytics.Logging
 import timber.log.Timber
 
 class KycNavHostPresenter(

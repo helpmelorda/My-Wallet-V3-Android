@@ -7,9 +7,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
 import piuk.blockchain.android.deeplink.EmailVerificationDeepLinkHelper
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.androidcore.data.settings.Email
 import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
 import java.util.concurrent.TimeUnit
 
 class PitVerifyEmailPresenter(

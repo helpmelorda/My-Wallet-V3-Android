@@ -10,7 +10,7 @@ import piuk.blockchain.android.databinding.ActivityPinEntryBinding
 import piuk.blockchain.android.ui.customviews.dialogs.OverlayDetection
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BaseAuthActivity
+import piuk.blockchain.android.ui.base.BaseAuthActivity
 
 class PinEntryActivity : BaseAuthActivity() {
 

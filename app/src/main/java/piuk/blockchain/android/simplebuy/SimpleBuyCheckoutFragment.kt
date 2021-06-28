@@ -16,8 +16,8 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
-import com.blockchain.ui.urllinks.ORDER_PRICE_EXPLANATION
-import com.blockchain.ui.urllinks.PRIVATE_KEY_EXPLANATION
+import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
+import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
 import info.blockchain.balance.AssetInfo
 import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.FiatValue
@@ -341,7 +341,7 @@ class SimpleBuyCheckoutFragment :
                     text = if (isOrderAwaitingFunds && !isForPendingPayment) {
                         getString(R.string.complete_payment)
                     } else {
-                        getString(R.string.ok_cap)
+                        getString(R.string.common_ok)
                     }
                     setOnClickListener {
                         if (isForPendingPayment) {

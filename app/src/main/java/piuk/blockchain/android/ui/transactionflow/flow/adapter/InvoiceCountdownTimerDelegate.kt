@@ -10,7 +10,7 @@ import piuk.blockchain.android.coincore.TxConfirmationValue
 import piuk.blockchain.android.databinding.ItemSendConfirmCountdownBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
+import piuk.blockchain.android.util.getResolvedColor
 import java.util.concurrent.TimeUnit
 
 class InvoiceCountdownTimerDelegate<in T> : AdapterDelegate<T> {

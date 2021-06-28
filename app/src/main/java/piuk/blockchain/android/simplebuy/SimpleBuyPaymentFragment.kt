@@ -20,7 +20,7 @@ import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.preferences.RatingPrefs
-import com.blockchain.ui.urllinks.URL_SUPPORT_BALANCE_LOCKED
+import piuk.blockchain.android.urllinks.URL_SUPPORT_BALANCE_LOCKED
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManagerFactory
 import info.blockchain.balance.FiatValue

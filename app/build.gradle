@@ -308,13 +308,10 @@ kapt {
 }
 
 dependencies {
-    implementation project(':coreui')
     implementation project(':notifications')
     implementation project(':nabu')
     implementation project(':sunriver')
     implementation project(':core')
-
-    implementation project(':coreui')
     implementation project(':notifications')
     implementation project(':veriff')
     implementation project(':blockchainApi')
@@ -338,9 +335,16 @@ dependencies {
     // Google core
     implementation Libraries.googlePlayCore
 
-    api Libraries.appCompat
+    implementation Libraries.appCompat
     implementation Libraries.navigationControllerCore
     implementation Libraries.navigationControllerFragments
+    implementation Libraries.recyclerView
+    implementation Libraries.cardView
+    implementation Libraries.gridLayout
+    implementation Libraries.design
+    implementation Libraries.v14
+    implementation Libraries.dynamicAnims
+    implementation Libraries.constraintLayout
 
     implementation Libraries.lifecycleViewModel
     implementation Libraries.lifecycleExtensions
@@ -348,6 +352,7 @@ dependencies {
     implementation Libraries.camera
     implementation Libraries.cameraView
     implementation Libraries.cameraLifecycle
+    implementation Libraries.dexter
 
     implementation(Libraries.googlePlayServicesBase) {
         exclude group: 'com.android.support'
@@ -370,9 +375,12 @@ dependencies {
     // Navigation
     implementation Libraries.navigationControllerCore
     implementation Libraries.navigationControllerFragments
+
     // RxJava
     implementation Libraries.rxReplayShare
     implementation Libraries.rxRelay
+    implementation Libraries.rxBindingV4
+    implementation Libraries.rxBindingV7
 
     // Glide
     implementation Libraries.glide

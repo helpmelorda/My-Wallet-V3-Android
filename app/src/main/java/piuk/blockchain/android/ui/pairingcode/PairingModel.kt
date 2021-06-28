@@ -11,9 +11,9 @@ import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcoreui.utils.logging.Logging
-import piuk.blockchain.androidcoreui.utils.logging.PairingMethod
-import piuk.blockchain.androidcoreui.utils.logging.pairingEvent
+import com.blockchain.notifications.analytics.Logging
+import com.blockchain.notifications.analytics.PairingMethod
+import com.blockchain.notifications.analytics.pairingEvent
 
 class PairingModel(
     initialState: PairingState,

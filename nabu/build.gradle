@@ -65,8 +65,7 @@ dependencies {
     implementation project(':balance')
     implementation project(':wallet')
     implementation project(':blockchainApi')
-
-    api project(':notifications')
+    implementation project(':core')
     implementation project(':veriff')
 
     coreLibraryDesugaring Libraries.desugaring

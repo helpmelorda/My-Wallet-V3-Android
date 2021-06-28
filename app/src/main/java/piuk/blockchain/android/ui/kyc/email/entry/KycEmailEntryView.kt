@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.kyc.email.entry
 
 import androidx.annotation.StringRes
 import io.reactivex.Observable
-import piuk.blockchain.androidcoreui.ui.base.View
+import piuk.blockchain.android.ui.base.View
 
 interface KycEmailEntryView : View {
 

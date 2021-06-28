@@ -2,10 +2,10 @@ package piuk.blockchain.android.ui.transactionflow.flow
 
 import android.content.Context
 import android.text.SpannableStringBuilder
-import com.blockchain.ui.urllinks.CHECKOUT_PRICE_EXPLANATION
-import com.blockchain.ui.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
-import com.blockchain.ui.urllinks.NETWORK_ERC20_EXPLANATION
-import com.blockchain.ui.urllinks.NETWORK_FEE_EXPLANATION
+import piuk.blockchain.android.urllinks.CHECKOUT_PRICE_EXPLANATION
+import piuk.blockchain.android.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
+import piuk.blockchain.android.urllinks.NETWORK_ERC20_EXPLANATION
+import piuk.blockchain.android.urllinks.NETWORK_FEE_EXPLANATION
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency

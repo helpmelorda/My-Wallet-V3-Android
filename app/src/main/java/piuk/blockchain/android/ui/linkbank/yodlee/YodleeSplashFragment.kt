@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.YodleeAttributes
 import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.ui.urllinks.YODLEE_LEARN_MORE
+import piuk.blockchain.android.urllinks.YODLEE_LEARN_MORE
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimpleBuyYodleeSplashBinding

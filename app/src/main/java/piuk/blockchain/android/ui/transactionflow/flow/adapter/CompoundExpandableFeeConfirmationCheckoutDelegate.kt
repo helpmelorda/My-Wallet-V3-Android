@@ -18,9 +18,9 @@ import piuk.blockchain.android.ui.transactionflow.flow.ConfirmationPropertyKey
 import piuk.blockchain.android.ui.transactionflow.flow.FeeInfo
 import piuk.blockchain.android.ui.transactionflow.flow.TxConfirmReadOnlyMapperCheckout
 import piuk.blockchain.android.util.context
+import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.goneIf
 import piuk.blockchain.android.util.visibleIf
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
 
 class CompoundExpandableFeeConfirmationCheckoutDelegate(private val mapper: TxConfirmReadOnlyMapperCheckout) :
     AdapterDelegate<TxConfirmationValue> {

@@ -9,8 +9,6 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedDrawable
 
 private const val TINT_ALPHA = 0x26
 

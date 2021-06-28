@@ -9,7 +9,7 @@ import com.blockchain.notifications.analytics.logEvent
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.ui.extensions.throttledClicks
+import piuk.blockchain.android.util.throttledClicks
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy

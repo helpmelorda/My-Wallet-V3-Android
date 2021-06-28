@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.ui.urllinks.MODULAR_TERMS_AND_CONDITIONS
+import piuk.blockchain.android.urllinks.MODULAR_TERMS_AND_CONDITIONS
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign

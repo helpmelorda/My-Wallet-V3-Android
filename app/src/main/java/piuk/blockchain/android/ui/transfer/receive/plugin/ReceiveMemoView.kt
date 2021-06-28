@@ -6,7 +6,7 @@ import android.text.method.LinkMovementMethod
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.blockchain.ui.urllinks.URL_XLM_MEMO
+import piuk.blockchain.android.urllinks.URL_XLM_MEMO
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.databinding.ViewReceiveMemoBinding

@@ -6,7 +6,7 @@ import android.net.Uri
 import android.widget.FrameLayout
 import android.widget.ImageView
 import com.blockchain.nabu.datamanagers.TransactionError
-import com.blockchain.ui.urllinks.CHECKOUT_REFUND_POLICY
+import piuk.blockchain.android.urllinks.CHECKOUT_REFUND_POLICY
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue

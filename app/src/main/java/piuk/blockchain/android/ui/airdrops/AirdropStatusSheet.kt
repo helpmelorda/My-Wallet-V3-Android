@@ -12,7 +12,7 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
-import com.blockchain.ui.urllinks.STX_STACKS_LEARN_MORE
+import piuk.blockchain.android.urllinks.STX_STACKS_LEARN_MORE
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.campaign.sunriverCampaignName

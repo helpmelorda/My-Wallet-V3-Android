@@ -25,12 +25,12 @@ import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.identity.Feature
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.sdd.SDDAnalytics
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
 import piuk.blockchain.androidcore.data.metadata.MetadataInitException
 import timber.log.Timber
 import java.io.Serializable

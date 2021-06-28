@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -28,7 +29,7 @@ import com.blockchain.notifications.analytics.SendAnalytics
 import com.blockchain.notifications.analytics.TransactionsAnalyticsEvents
 import com.blockchain.notifications.analytics.activityShown
 import com.blockchain.remoteconfig.FeatureFlag
-import com.blockchain.ui.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
+import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
@@ -94,13 +95,12 @@ import piuk.blockchain.android.ui.transfer.receive.ReceiveSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.ui.upsell.UpsellHost
 import piuk.blockchain.android.util.AndroidUtils
-import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
 import piuk.blockchain.android.util.getAccount
+import piuk.blockchain.android.util.getResolvedColor
+import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedDrawable
 import timber.log.Timber
 import java.net.URLDecoder
 
@@ -137,6 +137,9 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     val refreshAnnouncements: Observable<Unit>
         get() = _refreshAnnouncements
 
+    private val toolbar: Toolbar
+        get() = binding.toolbarGeneral.toolbarGeneral
+
     private var activityResultAction: () -> Unit = {}
 
     private val tabSelectedListener =
@@ -170,7 +173,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                         startTransferFragment()
                     }
                 }
-                ViewUtils.setElevation(binding.appbarLayout, 4f)
+                binding.appbarLayout.elevation = 4f
             }
             true
         }
@@ -214,7 +217,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         })
 
         // Set up toolbar_constraint
-        with(binding.toolbarGeneral.toolbarGeneral) {
+        with(toolbar) {
             navigationIcon = this@MainActivity.getResolvedDrawable(R.drawable.vector_menu)
             title = ""
             setSupportActionBar(this)
@@ -491,7 +494,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     }
 
     private fun resetUi() {
-        binding.toolbarGeneral.toolbarGeneral.title = ""
+        toolbar.title = ""
 
         // Set selected appropriately.
         with(binding.bottomNavigation) {
@@ -652,7 +655,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         viewToShow: TransferFragment.TransferViewType = TransferFragment.TransferViewType.TYPE_SEND
     ) {
         setCurrentTabItem(ITEM_TRANSFER)
-        binding.toolbarGeneral.toolbarGeneral.title = getString(R.string.transfer)
+        toolbar.title = getString(R.string.transfer)
 
         val transferFragment = TransferFragment.newInstance(viewToShow)
         replaceContentFragment(transferFragment)
@@ -661,7 +664,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     private fun startSwapFlow(sourceAccount: CryptoAccount? = null, destinationAccount: CryptoAccount? = null) {
         if (sourceAccount == null && destinationAccount == null) {
             setCurrentTabItem(ITEM_SWAP)
-            binding.toolbarGeneral.toolbarGeneral.title = getString(R.string.common_swap)
+            toolbar.title = getString(R.string.common_swap)
             val swapFragment = SwapFragment.newInstance()
             replaceContentFragment(swapFragment)
         } else if (sourceAccount != null) {
@@ -720,7 +723,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         setCurrentTabItem(ITEM_ACTIVITY)
         val fragment = ActivitiesFragment.newInstance(account)
         replaceContentFragment(fragment)
-        binding.toolbarGeneral.toolbarGeneral.title = ""
+        toolbar.title = ""
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
     }
 

@@ -12,8 +12,8 @@ import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
 import timber.log.Timber
 
 internal class KycCountrySelectionPresenter(

@@ -18,11 +18,11 @@ import androidx.appcompat.app.AppCompatActivity.RESULT_CANCELED
 import androidx.appcompat.app.AppCompatActivity.RESULT_OK
 import androidx.appcompat.widget.AppCompatEditText
 import com.blockchain.koin.scopedInject
-import com.blockchain.koin.scopedInjectActivity
+import piuk.blockchain.android.util.scopedInjectActivity
 import com.blockchain.ui.password.SecondPasswordHandler
-import com.blockchain.ui.urllinks.APP_STORE_URI
-import com.blockchain.ui.urllinks.APP_STORE_URL
-import com.blockchain.ui.urllinks.WALLET_STATUS_URL
+import piuk.blockchain.android.urllinks.APP_STORE_URI
+import piuk.blockchain.android.urllinks.APP_STORE_URL
+import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -62,7 +62,7 @@ import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import piuk.blockchain.androidcoreui.ui.base.BaseFragment
+import piuk.blockchain.android.ui.base.BaseFragment
 
 class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
     PinEntryView, BiometricsEnrollmentBottomSheet.Host {

@@ -12,7 +12,7 @@ import piuk.blockchain.android.databinding.FragmentBackupCompleteBinding
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingFragment
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setOnClickListenerDebounced
-import piuk.blockchain.androidcoreui.ui.base.BaseFragment
+import piuk.blockchain.android.ui.base.BaseFragment
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

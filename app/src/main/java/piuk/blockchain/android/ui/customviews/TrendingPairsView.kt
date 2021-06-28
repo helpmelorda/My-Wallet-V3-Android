@@ -20,9 +20,9 @@ import piuk.blockchain.android.databinding.ItemTrendingPairRowBinding
 import piuk.blockchain.android.databinding.ViewTrendingPairsBinding
 import piuk.blockchain.android.ui.dashboard.assetdetails.selectFirstAccount
 import piuk.blockchain.android.util.context
+import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedDrawable
 
 class TrendingPairsView(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
 

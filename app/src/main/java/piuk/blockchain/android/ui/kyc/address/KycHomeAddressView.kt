@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import piuk.blockchain.android.ui.kyc.address.models.AddressModel
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import io.reactivex.Observable
-import piuk.blockchain.androidcoreui.ui.base.View
+import piuk.blockchain.android.ui.base.View
 
 interface KycHomeAddressView : View {
 

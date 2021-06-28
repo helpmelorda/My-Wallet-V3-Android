@@ -13,8 +13,8 @@ import piuk.blockchain.android.data.biometrics.BiometricAuthOther
 import piuk.blockchain.android.data.biometrics.BiometricKeysInvalidated
 import piuk.blockchain.android.data.biometrics.BiometricsCallback
 import piuk.blockchain.android.data.biometrics.BiometricsController
+import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
-import piuk.blockchain.androidcoreui.ui.base.BaseMvpActivity
 
 internal class OnboardingActivity : BaseMvpActivity<OnboardingView, OnboardingPresenter>(),
     OnboardingView,

@@ -19,7 +19,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.notifications.analytics.ActivityAnalytics
 import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.LaunchOrigin
-import com.blockchain.ui.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
+import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.android.schedulers.AndroidSchedulers

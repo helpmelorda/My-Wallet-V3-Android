@@ -7,7 +7,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.blockchain.notifications.analytics.Analytics
@@ -26,6 +28,8 @@ class NotificationsUtil(
         @DrawableRes icon: Int,
         pendingIntent: PendingIntent,
         id: Int,
+        @StringRes appName: Int,
+        @ColorRes colorRes: Int,
         channelId: String? = null
     ) {
 
@@ -33,7 +37,7 @@ class NotificationsUtil(
             context,
             channelId ?: NOTIFICATION_CHANNEL_ID
         ).setSmallIcon(icon)
-            .setColor(ContextCompat.getColor(context, R.color.primary_navy_medium))
+            .setColor(ContextCompat.getColor(context, colorRes))
             .setContentTitle(title)
             .setContentIntent(pendingIntent)
             .setWhen(System.currentTimeMillis())
@@ -51,11 +55,11 @@ class NotificationsUtil(
             val importance = NotificationManager.IMPORTANCE_HIGH
             val notificationChannel = NotificationChannel(
                 channelId ?: NOTIFICATION_CHANNEL_ID,
-                context.getString(R.string.app_name),
+                context.getString(appName),
                 importance
             ).apply {
                 enableLights(true)
-                lightColor = ContextCompat.getColor(context, R.color.primary_navy_medium)
+                lightColor = ContextCompat.getColor(context, colorRes)
                 enableVibration(true)
                 vibrationPattern = longArrayOf(100)
             }

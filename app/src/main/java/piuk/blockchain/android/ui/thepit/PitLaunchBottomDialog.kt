@@ -6,8 +6,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.ui.extensions.throttledClicks
-import com.blockchain.ui.urllinks.URL_THE_PIT_LAUNCH_SUPPORT
+import piuk.blockchain.android.util.throttledClicks
+import piuk.blockchain.android.urllinks.URL_THE_PIT_LAUNCH_SUPPORT
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
 import piuk.blockchain.android.BuildConfig

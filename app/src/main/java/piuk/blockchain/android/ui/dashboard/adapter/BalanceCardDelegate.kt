@@ -18,7 +18,7 @@ import piuk.blockchain.android.ui.dashboard.asDeltaPercent
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
+import piuk.blockchain.android.util.getResolvedColor
 
 class BalanceCardDelegate<in T>(
     private val selectedFiat: String,

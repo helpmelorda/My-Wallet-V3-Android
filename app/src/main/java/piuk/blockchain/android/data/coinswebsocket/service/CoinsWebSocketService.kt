@@ -66,13 +66,20 @@ class CoinsWebSocketService(
             notifyIntent,
             PendingIntent.FLAG_UPDATE_CURRENT)
 
-        NotificationsUtil(applicationContext, notificationManager, analytics).triggerNotification(
-            title,
-            marquee,
-            text,
-            R.mipmap.ic_launcher,
-            pendingIntent,
-            1000)
+        NotificationsUtil(
+            context = applicationContext,
+            notificationManager = notificationManager,
+            analytics = analytics
+        ).triggerNotification(
+            title = title,
+            marquee = marquee,
+            text = text,
+            icon = R.mipmap.ic_launcher,
+            pendingIntent = pendingIntent,
+            id = 1000,
+            appName = R.string.app_name,
+            colorRes = R.color.primary_navy_medium
+        )
     }
 
     override fun sendBroadcast(event: ActionEvent) {

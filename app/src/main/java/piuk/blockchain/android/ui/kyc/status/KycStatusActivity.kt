@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
-import com.blockchain.extensions.px
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.notifications.analytics.AnalyticsEvents
@@ -15,20 +14,23 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.databinding.ActivityKycStatusBinding
+import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
+import piuk.blockchain.android.util.getResolvedColor
+import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.px
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BaseMvpActivity
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedDrawable
 
-class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(), KycStatusView, DialogFlow.FlowHost {
+class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
+    KycStatusView,
+    DialogFlow.FlowHost {
 
     private val binding: ActivityKycStatusBinding by lazy {
         ActivityKycStatusBinding.inflate(layoutInflater)

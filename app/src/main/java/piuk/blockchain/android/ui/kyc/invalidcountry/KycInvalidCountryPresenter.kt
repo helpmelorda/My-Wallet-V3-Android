@@ -10,7 +10,7 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
+import piuk.blockchain.android.ui.base.BasePresenter
 import timber.log.Timber
 
 class KycInvalidCountryPresenter(
