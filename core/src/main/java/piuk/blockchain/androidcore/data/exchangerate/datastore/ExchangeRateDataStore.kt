@@ -9,7 +9,6 @@ import io.reactivex.Single
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import timber.log.Timber
-import java.lang.IllegalStateException
 import java.math.BigDecimal
 
 // TODO: This will need rewriting before we greatly expand the number of supported cryptos.
