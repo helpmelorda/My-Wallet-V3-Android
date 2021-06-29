@@ -43,11 +43,10 @@ import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsEvents
+import com.blockchain.notifications.analytics.Logging
 import com.blockchain.notifications.analytics.SettingsAnalyticsEvents
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.remoteconfig.FeatureFlag
-import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
-import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
@@ -102,6 +101,8 @@ import piuk.blockchain.android.ui.settings.preferences.KycStatusPreference
 import piuk.blockchain.android.ui.settings.preferences.ThePitStatusPreference
 import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
+import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
+import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.FormatChecker
@@ -112,7 +113,6 @@ import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import com.blockchain.notifications.analytics.Logging
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Locale
@@ -682,7 +682,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
             .setPositiveButton(R.string.common_yes) { _, _ ->
                 startActivityForResult(
                     Intent(
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                             android.provider.Settings.ACTION_SECURITY_SETTINGS
                         } else {
                             android.provider.Settings.ACTION_BIOMETRIC_ENROLL

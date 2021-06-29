@@ -28,7 +28,9 @@ class BackupWalletWordListPresenter(
         }
     }
 
-    internal fun getWordForIndex(index: Int) = mnemonic!![index]
+    internal fun getWordForIndex(index: Int) = mnemonic?.let {
+        it[index]
+    }
 
     internal fun getMnemonicSize() = mnemonic?.size ?: -1
 }
