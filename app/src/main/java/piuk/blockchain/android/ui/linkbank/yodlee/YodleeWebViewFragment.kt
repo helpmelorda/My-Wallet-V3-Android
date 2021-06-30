@@ -139,9 +139,11 @@ class YodleeWebViewFragment : Fragment(), FastLinkInterfaceHandler.FastLinkListe
 
     override fun flowSuccess(providerAccountId: String, accountId: String) {
         analytics.logEvent(SimpleBuyAnalytics.ACH_SUCCESS)
-        navigator().launchBankLinking(
-            accountProviderId = providerAccountId, accountId = accountId, bankId = linkingBankId
-        )
+        requireActivity().runOnUiThread {
+            navigator().launchBankLinking(
+                accountProviderId = providerAccountId, accountId = accountId, bankId = linkingBankId
+            )
+        }
     }
 
     override fun flowError(error: FastLinkInterfaceHandler.FastLinkFlowError, reason: String?) {
