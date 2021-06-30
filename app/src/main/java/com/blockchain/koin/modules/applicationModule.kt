@@ -99,6 +99,8 @@ import piuk.blockchain.android.ui.pairingcode.PairingState
 import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
 import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
+import piuk.blockchain.android.ui.reset.ResetAccountModel
+import piuk.blockchain.android.ui.reset.ResetAccountState
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
@@ -371,6 +373,15 @@ val applicationModule = module {
                 metadataInteractor = get(),
                 metadataDerivation = MetadataDerivation(),
                 nabuDataManager = get()
+            )
+        }
+
+        factory {
+            ResetAccountModel(
+                initialState = ResetAccountState(),
+                mainScheduler = AndroidSchedulers.mainThread(),
+                environmentConfig = get(),
+                crashLogger = get()
             )
         }
 

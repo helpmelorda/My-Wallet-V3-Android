@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.method.LinkMovementMethod
 import androidx.annotation.StringRes
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
@@ -12,6 +13,7 @@ import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.reset.ResetAccountFragment
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.visibleIf
 
@@ -69,16 +71,23 @@ class AccountRecoveryActivity :
                 })
             }
             // TODO add URLs
-            resetAccountLabel.text = StringUtils.getStringWithMappedAnnotations(
-                context = this@AccountRecoveryActivity,
-                stringId = R.string.reset_account_notice,
-                linksMap = mapOf("reset_account" to Uri.EMPTY)
-            )
-            resetKycLabel.text = StringUtils.getStringWithMappedAnnotations(
-                context = this@AccountRecoveryActivity,
-                stringId = R.string.reset_kyc_notice,
-                linksMap = mapOf("learn_more" to Uri.EMPTY)
-            )
+            resetAccountLabel.apply {
+                text = StringUtils.getStringWithMappedAnnotations(
+                    context = this@AccountRecoveryActivity,
+                    stringId = R.string.reset_account_notice,
+                    linksMap = emptyMap(),
+                    onClick = { launchAccountResetFlow() }
+                )
+                movementMethod = LinkMovementMethod.getInstance()
+            }
+            resetKycLabel.apply {
+                text = StringUtils.getStringWithMappedAnnotations(
+                    context = this@AccountRecoveryActivity,
+                    stringId = R.string.reset_kyc_notice,
+                    linksMap = mapOf("learn_more" to Uri.EMPTY)
+                )
+                movementMethod = LinkMovementMethod.getInstance()
+            }
             verifyButton.setOnClickListener {
                 model.process(
                     AccountRecoveryIntents.VerifySeedPhrase(
@@ -87,6 +96,17 @@ class AccountRecoveryActivity :
                 )
             }
         }
+    }
+
+    private fun launchAccountResetFlow() {
+        supportFragmentManager.beginTransaction()
+            .replace(
+                binding.fragmentContainer.id,
+                ResetAccountFragment(),
+                ResetAccountFragment::class.simpleName
+            )
+            .addToBackStack(ResetAccountFragment::class.simpleName)
+            .commitAllowingStateLoss()
     }
 
     private fun showSeedPhraseInputError(@StringRes errorText: Int) {
