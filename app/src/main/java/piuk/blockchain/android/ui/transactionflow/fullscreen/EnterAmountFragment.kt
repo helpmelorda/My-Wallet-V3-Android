@@ -61,11 +61,11 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 analyticsHooks.onEnterAmountCtaClick(state)
                 onCtaClick()
             }
-            //            amountSheetBack.setOnClickListener {
-            //                analyticsHooks.onStepBackClicked(state)
-            //                model.process(TransactionIntent.NavigateBackFromEnterAmount)
-            //            }
         }
+        //              amountSheetBack.setOnClickListener {
+        //                analyticsHooks.onStepBackClicked(state)
+        //                model.process(TransactionIntent.NavigateBackFromEnterAmount)
+        //            }
 
         compositeDisposable += binding.amountSheetInput.amount
             .debounce(AMOUNT_DEBOUNCE_TIME_MS, TimeUnit.MILLISECONDS)

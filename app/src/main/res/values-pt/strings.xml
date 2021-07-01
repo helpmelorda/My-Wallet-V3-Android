@@ -1870,7 +1870,6 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="recurring_buy_subtitle_4">Comprará menos.</string>
     <string name="recurring_buy_subtitle_5_1">Nos últimos 5 anos, comprar Bitcoin todas as semanas teve um desempenho melhor do que cronometrar o mercado</string>
     <string name="recurring_buy_subtitle_5_2">82% das vezes.</string>
-    <string name="recurring_buy_label">Frequência</string>
     <string name="recurring_buy_one_time_short">Uma vez</string>
     <string name="recurring_buy_one_time">Compra única</string>
     <string name="recurring_buy_daily">Todos os dias</string>

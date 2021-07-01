@@ -1893,7 +1893,6 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="recurring_buy_subtitle_4">Вы купите меньше.</string>
     <string name="recurring_buy_subtitle_5_1">За последние 5 лет покупка биткойнов каждую неделю приносила больше результатов, чем расчет времени на рынке.</string>
     <string name="recurring_buy_subtitle_5_2">82% времени.</string>
-    <string name="recurring_buy_label">Частота</string>
     <string name="recurring_buy_one_time_short">Один раз</string>
     <string name="recurring_buy_one_time">Одноразовая покупка</string>
     <string name="recurring_buy_daily">Каждый день</string>

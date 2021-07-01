@@ -243,6 +243,8 @@ class SimpleBuyCryptoFragment :
             return
         }
 
+        binding.recurringBuyCta.text = newState.recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext())
+
         newState.selectedCryptoAsset?.let {
             binding.inputAmount.configuration = FiatCryptoViewConfiguration(
                 inputCurrency = CurrencyType.Fiat(newState.fiatCurrency),

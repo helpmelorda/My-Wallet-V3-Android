@@ -35,8 +35,6 @@ class RecurringBuySelectionBottomSheet : SlidingModalBottomDialog<DialogSheetRec
             recurringBuySelectionGroup.check(intervalToId(interval))
             recurringBuySelectionGroup.setOnCheckedChangeListener { _, checkedId ->
                 selectedFrequency = idToInterval(checkedId)
-            }
-            recurringBuySelectCta.setOnClickListener {
                 host.onIntervalSelected(selectedFrequency)
                 dismiss()
             }

@@ -1890,7 +1890,6 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué sur %
     <string name="recurring_buy_subtitle_4">Vous achèterez moins.</string>
     <string name="recurring_buy_subtitle_5_1">Au cours des cinq dernières années, l\'achat de bitcoins chaque semaine a donné de meilleurs résultats que les prévisions du marché. </string>
     <string name="recurring_buy_subtitle_5_2">82 % du temps.</string>
-    <string name="recurring_buy_label">Fréquence</string>
     <string name="recurring_buy_one_time_short">Une fois</string>
     <string name="recurring_buy_one_time">Achat ponctuel</string>
     <string name="recurring_buy_daily">Tous les jours</string>

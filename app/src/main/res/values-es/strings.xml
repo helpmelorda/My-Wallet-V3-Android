@@ -1885,7 +1885,6 @@ Sus fondos estarán disponibles para ser retirados una vez que la transferencia 
     <string name="recurring_buy_subtitle_4">Comprará menos.</string>
     <string name="recurring_buy_subtitle_5_1">En los últimos 5 años, ha sido más fructífero la compra de Bitcoin semanal que la sincronización del mercado</string>
     <string name="recurring_buy_subtitle_5_2">82 % del tiempo.</string>
-    <string name="recurring_buy_label">Frecuencia</string>
     <string name="recurring_buy_one_time_short">Puntual</string>
     <string name="recurring_buy_one_time">Compra única</string>
     <string name="recurring_buy_daily">Cada día</string>
