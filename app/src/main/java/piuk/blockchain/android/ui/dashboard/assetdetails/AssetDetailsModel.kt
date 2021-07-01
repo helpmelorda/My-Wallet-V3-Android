@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import info.blockchain.balance.Money
 import info.blockchain.wallet.prices.data.PriceDatum
@@ -35,6 +36,7 @@ data class AssetDetailsState(
     val selectedAccountFiatBalance: Money? = null,
     val navigateToInterestDashboard: Boolean = false,
     val selectedRecurringBuy: RecurringBuy? = null,
+    val paymentId: String? = null,
     val stepsBackStack: Stack<AssetDetailsStep> = Stack()
 ) : MviState
 
@@ -89,6 +91,11 @@ class AssetDetailsModel(
                     deleteRecurringBuy(it.id)
                 }
             }
+            is GetPaymentDetails -> {
+                previousState.selectedRecurringBuy?.let {
+                    loadPaymentDetails(it.paymentMethodType, it.paymentMethodId.orEmpty(), it.amount.currencyCode)
+                }
+            }
             is HandleActionIntent,
             is ChartLoading,
             is ChartDataLoaded,
@@ -112,9 +119,26 @@ class AssetDetailsModel(
             is ShowRecurringBuySheet,
             is ClearSelectedRecurringBuy,
             is UpdateRecurringBuy,
-            is UpdateRecurringBuyError -> null
+            is UpdateRecurringBuyError,
+            is UpdatePaymentDetails -> null
         }
     }
+
+    private fun loadPaymentDetails(
+        paymentMethodType: PaymentMethodType,
+        paymentMethodId: String,
+        originCurrency: String
+    ) =
+        interactor.loadPaymentDetails(
+            paymentMethodType,
+            paymentMethodId,
+            originCurrency
+        )
+            .subscribeBy(
+                onSuccess = {
+                    process(UpdatePaymentDetails(it))
+                }
+            )
 
     private fun deleteRecurringBuy(id: String) =
         interactor.deleteRecurringBuy(id)

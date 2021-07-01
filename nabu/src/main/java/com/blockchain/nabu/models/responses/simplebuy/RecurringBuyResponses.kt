@@ -36,7 +36,7 @@ data class RecurringBuyResponse(
 ) {
     companion object {
         const val ACTIVE = "ACTIVE"
-        const val NOT_ACTIVE = "NOT_ACTIVE"
+        const val INACTIVE = "INACTIVE"
         const val DAILY = "DAILY"
         const val WEEKLY = "WEEKLY"
         const val BI_WEEKLY = "BI_WEEKLY"
@@ -49,7 +49,7 @@ fun RecurringBuyResponse.toRecurringBuy(assetCatalogue: AssetCatalogue): Recurri
     return asset?.let {
         RecurringBuy(
             id = id,
-            state = recurringBuyState(),
+            state = state.toRecurringBuyState(),
             recurringBuyFrequency = period.toRecurringBuyFrequency(),
             nextPaymentDate = nextPayment.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
             paymentMethodType = paymentMethod.toPaymentMethodType(),
@@ -61,15 +61,15 @@ fun RecurringBuyResponse.toRecurringBuy(assetCatalogue: AssetCatalogue): Recurri
     }
 }
 
-private fun RecurringBuyResponse.recurringBuyState() =
-    when (state) {
+private fun String.toRecurringBuyState() =
+    when (this) {
         RecurringBuyResponse.ACTIVE -> RecurringBuyState.ACTIVE
-        RecurringBuyResponse.NOT_ACTIVE -> RecurringBuyState.NOT_ACTIVE
+        RecurringBuyResponse.INACTIVE -> RecurringBuyState.INACTIVE
         else -> throw IllegalStateException("Unsupported recurring state")
     }
 
 fun RecurringBuyResponse.toRecurringBuyOrder(): RecurringBuyOrder =
-    RecurringBuyOrder(state = recurringBuyState())
+    RecurringBuyOrder(state = this.state.toRecurringBuyState())
 
 private fun String.toRecurringBuyFrequency(): RecurringBuyFrequency =
     when (this) {
@@ -83,7 +83,8 @@ private fun String.toRecurringBuyFrequency(): RecurringBuyFrequency =
 data class RecurringBuyTransactionResponse(
     val id: String,
     val recurringBuyId: String,
-    val state: String,
+    val transactionState: String,
+    val recurringBuyState: String,
     val failureReason: String?,
     val originValue: String,
     val originCurrency: String,
@@ -115,15 +116,14 @@ fun RecurringBuyTransactionResponse.toRecurringBuyTransaction(assetCatalogue: As
     return RecurringBuyTransaction(
         id = id,
         recurringBuyId = recurringBuyId,
-        state = state.toRecurringBuyActivityState(),
-
+        transactionState = transactionState.toRecurringBuyActivityState(),
+        recurringBuyState = recurringBuyState.toRecurringBuyState(),
         failureReason = failureReason?.toRecurringBuyError(),
         destinationMoney = destinationValue?.let {
             CryptoValue.fromMinor(
                 asset, destinationValue.toBigInteger()
             )
         } ?: CryptoValue.zero(asset),
-
         originMoney = FiatValue.fromMinor(originCurrency, originValue.toLong()),
         paymentMethodId = paymentMethodId,
         paymentMethod = paymentMethod.toPaymentMethodType(),

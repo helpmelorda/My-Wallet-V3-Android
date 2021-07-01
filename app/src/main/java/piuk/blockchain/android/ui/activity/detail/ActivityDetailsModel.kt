@@ -7,6 +7,7 @@ import com.blockchain.nabu.datamanagers.RecurringBuyErrorState
 import com.blockchain.nabu.datamanagers.RecurringBuyTransactionState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.nabu.models.data.RecurringBuyState
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
@@ -79,7 +80,8 @@ data class ActivityDetailState(
     val listOfItems: Set<ActivityDetailsType> = emptySet(),
     val isError: Boolean = false,
     val hasDeleteError: Boolean = false,
-    val recurringBuyState: RecurringBuyTransactionState = RecurringBuyTransactionState.UNKNOWN,
+    val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
+    val transactionRecurringBuyState: RecurringBuyTransactionState = RecurringBuyTransactionState.UNKNOWN,
     val recurringBuyError: RecurringBuyErrorState = RecurringBuyErrorState.UNKNOWN,
     val descriptionState: DescriptionState = DescriptionState.NOT_SET,
     val recurringBuyId: String? = "",

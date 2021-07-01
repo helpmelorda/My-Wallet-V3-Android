@@ -89,14 +89,15 @@ class LoadRecurringBuyDetailsHeaderDataIntent(
             } else {
                 recurringBuyItem.originMoney
             },
-            isPending = recurringBuyItem.state == RecurringBuyTransactionState.PENDING,
-            isPendingExecution = recurringBuyItem.state == RecurringBuyTransactionState.PENDING,
-            isError = recurringBuyItem.state == RecurringBuyTransactionState.FAILED,
+            isPending = recurringBuyItem.transactionState == RecurringBuyTransactionState.PENDING,
+            isPendingExecution = recurringBuyItem.transactionState == RecurringBuyTransactionState.PENDING,
+            isError = recurringBuyItem.transactionState == RecurringBuyTransactionState.FAILED,
             isFeeTransaction = false,
             confirmations = 0,
             totalConfirmations = 0,
             recurringBuyError = recurringBuyItem.failureReason ?: RecurringBuyErrorState.UNKNOWN,
-            recurringBuyState = recurringBuyItem.state,
+            transactionRecurringBuyState = recurringBuyItem.transactionState,
+            recurringBuyState = recurringBuyItem.recurringBuyState,
             recurringBuyPaymentMethodType = recurringBuyItem.paymentMethodType,
             recurringBuyOriginCurrency = recurringBuyItem.originMoney.currencyCode
         )

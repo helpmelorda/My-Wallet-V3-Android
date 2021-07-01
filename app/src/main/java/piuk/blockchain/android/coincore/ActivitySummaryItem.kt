@@ -13,6 +13,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import info.blockchain.balance.AssetInfo
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.nabu.models.data.RecurringBuyState
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -113,7 +114,8 @@ data class RecurringBuyActivitySummaryItem(
     override val account: SingleAccount,
     val originMoney: FiatValue,
     val destinationMoney: Money,
-    val state: RecurringBuyTransactionState,
+    val recurringBuyState: RecurringBuyState,
+    val transactionState: RecurringBuyTransactionState,
     val failureReason: RecurringBuyErrorState?,
     val nextPayment: Date,
     val insertedAt: Date,

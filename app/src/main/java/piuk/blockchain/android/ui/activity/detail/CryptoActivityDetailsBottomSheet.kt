@@ -16,6 +16,7 @@ import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.RecurringBuyErrorState
 import com.blockchain.nabu.datamanagers.RecurringBuyTransactionState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.notifications.analytics.ActivityAnalytics
 import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -215,14 +216,13 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                 }
             }
         }
-        setErrorMessageAndLinks(state.recurringBuyError, state.recurringBuyState)
+        setErrorMessageAndLinks(state.recurringBuyError, state.transactionRecurringBuyState)
     }
 
-    // TODO recurringBuyState needs to be added by BE
     private fun ActivityDetailState.recurringBuyHasFailedAndCanBeFixedByAddingFunds(): Boolean {
         return this.recurringBuyPaymentMethodType == PaymentMethodType.FUNDS &&
-            this.recurringBuyError == RecurringBuyErrorState.INSUFFICIENT_FUNDS
-        // && this.recurringBuyState == RecurringBuyState.ACTIVE
+            this.recurringBuyError == RecurringBuyErrorState.INSUFFICIENT_FUNDS &&
+            this.recurringBuyState == RecurringBuyState.ACTIVE
     }
 
     private fun launchDepositFlow(originCurrency: String) {

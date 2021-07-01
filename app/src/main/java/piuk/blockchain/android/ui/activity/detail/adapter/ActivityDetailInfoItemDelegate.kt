@@ -159,34 +159,40 @@ private class InfoItemViewHolder(private val binding: ItemListInfoRowBinding) : 
             )
             is SellPurchaseAmount -> infoType.value.toStringWithSymbol()
             is BuyPaymentMethod -> {
-                when {
-                    infoType.paymentDetails.endDigits != null &&
-                        infoType.paymentDetails.label != null -> {
-                        with(context) {
-                            infoType.paymentDetails.accountType?.let {
-                                val accType = getString(
-                                    R.string.payment_method_type_account_info,
-                                    infoType.paymentDetails.accountType,
-                                    infoType.paymentDetails.endDigits
-                                )
+                with(infoType.paymentDetails) {
+                    when {
+                        endDigits != null &&
+                            label != null -> {
+                            with(context) {
+                                accountType?.let {
+                                    val accType = getString(
+                                        R.string.payment_method_type_account_info,
+                                        accountType,
+                                        endDigits
+                                    )
 
-                                getString(
-                                    R.string.common_spaced_strings,
-                                    infoType.paymentDetails.label,
-                                    accType
+                                    getString(
+                                        R.string.common_spaced_strings,
+                                        label,
+                                        accType
+                                    )
+                                } ?: getString(
+                                    R.string.common_hyphenated_strings,
+                                    label,
+                                    endDigits
                                 )
-                            } ?: getString(
-                                R.string.common_hyphenated_strings,
-                                infoType.paymentDetails.label,
-                                infoType.paymentDetails.endDigits
-                            )
+                            }
                         }
-                    }
-                    infoType.paymentDetails.paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
-                        context.getString(R.string.checkout_funds_label)
-                    }
-                    else -> {
-                        context.getString(R.string.activity_details_payment_load_fail)
+                        paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
+                            if (label.isNullOrBlank()) {
+                                context.getString(R.string.checkout_funds_label)
+                            } else {
+                                context.getString(R.string.recurring_buy_funds_label, label)
+                            }
+                        }
+                        else -> {
+                            context.getString(R.string.activity_details_payment_load_fail)
+                        }
                     }
                 }
             }

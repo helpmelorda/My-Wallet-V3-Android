@@ -78,7 +78,6 @@ class ActivityDetailsInteractor(
                     list.toList()
                 }.onErrorReturn {
                     addPaymentDetailsToList(list, null, summaryItem)
-
                     list.toList()
                 }
             PaymentMethodType.BANK_TRANSFER -> custodialWalletManager.getLinkedBank(
@@ -138,7 +137,10 @@ class ActivityDetailsInteractor(
             else -> {
                 list.add(
                     BuyPaymentMethod(
-                        PaymentDetails(summaryItem.paymentMethodId)
+                        PaymentDetails(
+                            paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
+                            label = summaryItem.originMoney.currencyCode
+                        )
                     )
                 )
                 Single.just(list.toList())

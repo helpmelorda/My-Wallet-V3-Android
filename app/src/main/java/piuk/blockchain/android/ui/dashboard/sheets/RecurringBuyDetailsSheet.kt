@@ -6,6 +6,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.datamanagers.PaymentMethod
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyState
 import piuk.blockchain.android.R
@@ -25,6 +27,7 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.ClearSelectedRecurringB
 import piuk.blockchain.android.ui.dashboard.assetdetails.DeleteRecurringBuy
 import piuk.blockchain.android.ui.dashboard.assetdetails.ReturnToPreviousStep
 import com.blockchain.utils.toFormattedDate
+import piuk.blockchain.android.ui.dashboard.assetdetails.GetPaymentDetails
 
 class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
     AssetDetailsIntent, AssetDetailsState, DialogSheetRecurringBuyInfoBinding>() {
@@ -64,9 +67,13 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
     }
 
     override fun render(newState: AssetDetailsState) {
+        if (newState.selectedRecurringBuy?.paymentDetails == null
+        ) {
+            model.process(GetPaymentDetails)
+        }
         newState.selectedRecurringBuy?.let {
             when {
-                it.state == RecurringBuyState.NOT_ACTIVE -> {
+                it.state == RecurringBuyState.INACTIVE -> {
                     ToastCustom.makeText(
                         requireContext(), getString(R.string.recurring_buy_cancelled_toast), Toast.LENGTH_LONG,
                         ToastCustom.TYPE_OK
@@ -98,13 +105,29 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
     }
 
     private fun RecurringBuy.renderListItems() {
-        listAdapter.items = listOf(
-            SimpleBuyCheckoutItem.ComplexCheckoutItem(
-                getString(R.string.payment_method),
-                // TODO when the BE gets updated with payment method info we can update this
-                paymentMethodType.toString(),
-                paymentMethodType.toString()
-            ),
+        listAdapter.items = listOfNotNull(
+            if (paymentMethodType == PaymentMethodType.FUNDS) {
+                SimpleBuyCheckoutItem.SimpleCheckoutItem(
+                    getString(R.string.payment_method),
+                    getString(R.string.recurring_buy_funds_label, amount.currencyCode)
+                )
+            } else {
+                if (paymentMethodType == PaymentMethodType.PAYMENT_CARD) {
+                    val paymentDetails = (paymentDetails as PaymentMethod.Card)
+                    SimpleBuyCheckoutItem.ComplexCheckoutItem(
+                        getString(R.string.payment_method),
+                        paymentDetails.uiLabel(),
+                        paymentDetails.endDigits
+                    )
+                } else {
+                    val paymentDetails = (paymentDetails as PaymentMethod.Bank)
+                    SimpleBuyCheckoutItem.ComplexCheckoutItem(
+                        getString(R.string.payment_method),
+                        paymentDetails.bankName,
+                        paymentDetails.accountEnding
+                    )
+                }
+            },
             SimpleBuyCheckoutItem.ComplexCheckoutItem(
                 getString(R.string.recurring_buy_frequency_label),
                 recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext()),
@@ -124,7 +147,7 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
     }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogSheetRecurringBuyInfoBinding =
-        DialogSheetRecurringBuyInfoBinding.inflate(layoutInflater, container, false)
+        DialogSheetRecurringBuyInfoBinding.inflate(inflater, container, false)
 
     companion object {
         fun newInstance(): RecurringBuyDetailsSheet = RecurringBuyDetailsSheet()

@@ -21,6 +21,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkedBank
+import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
@@ -117,21 +118,22 @@ class SimpleBuyInteractor(
         }
 
     fun createRecurringBuyOrder(state: SimpleBuyState): Single<RecurringBuyOrder> {
-        return if (isRecurringBuyEnabled) {
-
+        return if (isRecurringBuyEnabled && state.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
             val asset = state.selectedCryptoAsset
             require(asset != null) { "createRecurringBuyOrder selected crypto is null" }
             require(state.order.amount != null) { "createRecurringBuyOrder amount is null" }
             require(state.selectedPaymentMethod != null) { "createRecurringBuyOrder selected payment method is null" }
 
+            val amount = state.order.amount
+            val paymentMethod = state.selectedPaymentMethod
             custodialWalletManager.createRecurringBuyOrder(
                 RecurringBuyRequestBody(
-                    inputValue = state.order.amount?.toBigDecimal().toString(),
-                    inputCurrency = state.order.amount?.currencyCode.toString(),
+                    inputValue = amount?.toBigInteger().toString(),
+                    inputCurrency = amount?.currencyCode.toString(),
                     destinationCurrency = asset.ticker,
-                    paymentMethod = state.selectedPaymentMethod.paymentMethodType.name,
+                    paymentMethod = paymentMethod.paymentMethodType.name,
                     period = state.recurringBuyFrequency.name,
-                    beneficiaryId = state.selectedPaymentMethod.id
+                    beneficiaryId = paymentMethod.id
                 )
             )
         } else {

@@ -2167,6 +2167,7 @@
     <string name="recurring_buy_details_total_cost">Total Cost</string>
     <string name="recurring_buy_details_fees">Fees</string>
     <string name="activity_details_label_btn_cash">Add Cash</string>
+    <string name="recurring_buy_funds_label">%s Account</string>
 
     <string name="recurring_buy_short_error">Failed</string>
     <string name="recurring_buy_insufficient_funds_short_error">Failed. Low Balance</string>

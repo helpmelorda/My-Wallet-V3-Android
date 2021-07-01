@@ -1,7 +1,10 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.nabu.models.data.FundsAccount
 import com.blockchain.nabu.models.data.RecurringBuy
+import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
@@ -75,6 +78,29 @@ class AssetDetailsInteractor(
             .map {
                 !dashboardPrefs.isCustodialIntroSeen && !it.isZero
             }
+    }
+
+    fun loadPaymentDetails(
+        paymentMethodType: PaymentMethodType,
+        paymentMethodId: String,
+        originCurrency: String
+    ): Single<RecurringBuyPaymentDetails> {
+        return when (paymentMethodType) {
+            PaymentMethodType.PAYMENT_CARD -> custodialWalletManager.getCardDetails(paymentMethodId)
+                .map {
+                    it
+                }
+            PaymentMethodType.BANK_TRANSFER -> custodialWalletManager.getLinkedBank(paymentMethodId)
+                .map {
+                    it
+                }
+            PaymentMethodType.FUNDS -> Single.just(FundsAccount(currency = originCurrency))
+
+            else -> Single.just(object : RecurringBuyPaymentDetails {
+                override val paymentDetails: PaymentMethodType
+                    get() = paymentMethodType
+            })
+        }
     }
 
     fun deleteRecurringBuy(id: String) = custodialWalletManager.cancelRecurringBuy(id)

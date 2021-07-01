@@ -16,6 +16,7 @@ import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.nabu.models.responses.interest.InterestActivityItemResponse
 import com.blockchain.nabu.models.responses.interest.InterestAttributes
@@ -640,7 +641,7 @@ sealed class PaymentMethod(
         val cardType: CardType,
         val status: CardStatus,
         override val isEligible: Boolean
-    ) : PaymentMethod(cardId, limits, CARD_PAYMENT_METHOD_ORDER, isEligible), Serializable {
+    ) : PaymentMethod(cardId, limits, CARD_PAYMENT_METHOD_ORDER, isEligible), Serializable, RecurringBuyPaymentDetails {
 
         override fun detailedLabel() =
             "${uiLabel()} ${dottedEndDigits()}"
@@ -665,6 +666,9 @@ sealed class PaymentMethod(
                 CardType.JCB -> "JCB"
                 else -> ""
             }
+
+        override val paymentDetails: PaymentMethodType
+            get() = PaymentMethodType.PAYMENT_CARD
     }
 
     fun canUsedForPaying(): Boolean =
@@ -833,7 +837,8 @@ data class RecurringBuyOrder(
 data class RecurringBuyTransaction(
     val id: String,
     val recurringBuyId: String,
-    val state: RecurringBuyTransactionState,
+    val transactionState: RecurringBuyTransactionState,
+    val recurringBuyState: RecurringBuyState,
     val failureReason: RecurringBuyErrorState?,
     val originMoney: FiatValue,
     val destinationMoney: CryptoValue,

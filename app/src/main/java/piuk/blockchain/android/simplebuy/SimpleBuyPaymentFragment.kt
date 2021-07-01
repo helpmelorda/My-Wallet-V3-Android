@@ -102,7 +102,7 @@ class SimpleBuyPaymentFragment :
         }
 
         if (internalFlags.isFeatureEnabled(GatedFeature.RECURRING_BUYS) &&
-            newState.recurringBuyState == RecurringBuyState.NOT_ACTIVE) {
+            newState.recurringBuyState == RecurringBuyState.INACTIVE) {
             toast(resources.getString(R.string.recurring_buy_creation_error), ToastCustom.TYPE_ERROR)
         }
 

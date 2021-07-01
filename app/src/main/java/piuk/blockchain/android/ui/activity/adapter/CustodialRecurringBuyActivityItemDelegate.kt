@@ -53,7 +53,7 @@ private class CustodialRecurringBuyActivityViewHolder(
     ) {
         val context = binding.root.context
         with(binding) {
-            when (tx.state) {
+            when (tx.transactionState) {
                 RecurringBuyTransactionState.PENDING,
                 RecurringBuyTransactionState.COMPLETED -> {
                     icon.setImageResource(R.drawable.ic_tx_recurring_buy)
@@ -64,7 +64,7 @@ private class CustodialRecurringBuyActivityViewHolder(
 
             txType.text = context.resources.getString(R.string.tx_title_buy, tx.asset)
             statusDate.setTxStatus(tx)
-            setTextColours(tx.state)
+            setTextColours(tx.transactionState)
 
             tx.setFiatAndCryptoText()
 
@@ -103,7 +103,7 @@ private class CustodialRecurringBuyActivityViewHolder(
 
     private fun RecurringBuyActivitySummaryItem.setFiatAndCryptoText() {
         with(binding) {
-            when (state) {
+            when (transactionState) {
                 RecurringBuyTransactionState.COMPLETED -> {
                     assetBalanceFiat.text = value.toStringWithSymbol()
                     assetBalanceCrypto.text = destinationMoney.toStringWithSymbol()
@@ -118,7 +118,7 @@ private class CustodialRecurringBuyActivityViewHolder(
     }
 
     private fun TextView.setTxStatus(tx: RecurringBuyActivitySummaryItem) {
-        text = when (tx.state) {
+        text = when (tx.transactionState) {
             RecurringBuyTransactionState.COMPLETED -> Date(tx.timeStampMs).toFormattedDate()
             RecurringBuyTransactionState.PENDING -> context.getString(R.string.recurring_buy_activity_pending)
             RecurringBuyTransactionState.FAILED -> tx.failureReason?.toShortErrorMessage(context)

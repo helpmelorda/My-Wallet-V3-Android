@@ -329,7 +329,7 @@ class SimpleBuyModel(
         ).flatMap { buySellOrder ->
             interactor.createRecurringBuyOrder(previousState)
                 .map { buySellOrder to it }
-                .onErrorReturn { buySellOrder to RecurringBuyOrder(RecurringBuyState.NOT_ACTIVE) }
+                .onErrorReturn { buySellOrder to RecurringBuyOrder(RecurringBuyState.INACTIVE) }
         }.subscribeBy(
             onSuccess = { (buySellOrder, recurringBuy) ->
                 val orderCreatedSuccessfully = buySellOrder.state == OrderState.FINISHED
