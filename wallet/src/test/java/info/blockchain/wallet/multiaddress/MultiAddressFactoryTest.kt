@@ -5,6 +5,7 @@ import com.nhaarman.mockito_kotlin.anyOrNull
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
 import com.blockchain.api.NonCustodialBitcoinService
+import com.nhaarman.mockito_kotlin.eq
 import info.blockchain.wallet.MockedResponseTest
 import info.blockchain.wallet.multiaddress.TransactionSummary.TransactionType
 import info.blockchain.wallet.payload.data.XPub
@@ -21,7 +22,7 @@ import retrofit2.Response
 class MultiAddressFactoryTest : MockedResponseTest() {
 
     private val bitcoinApi: NonCustodialBitcoinService = mock()
-    private val subject = MultiAddressFactory(bitcoinApi)
+    private val subject = MultiAddressFactoryBtc(bitcoinApi)
 
     private val dormantAddress = "1jH7K4RJrQBXijtLj1JpzqPRhR7MdFtaW"
     private val dormantXpub =
@@ -34,23 +35,31 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         val body = parseMultiAddressResponse(resource)
 
         val mockResponse = mockApiResponse(body)
-        whenever(bitcoinApi.getMultiAddress(any(), any(), any(), any(), any(), any(), any()))
-            .thenReturn(mockResponse)
+        whenever(
+            bitcoinApi.getMultiAddress(
+                coin = any(),
+                addressListLegacy = any(),
+                addressListBech32 = any(),
+                context = any(),
+                filter = any(),
+                limit = any(),
+                offset = any()
+            )
+        ).thenReturn(mockResponse)
 
         val xpub = XPub(address = dormantAddress, derivation = XPub.Format.LEGACY)
         val xpubs = XPubs(xpub)
 
         val summary = subject.getAccountTransactions(
             all = listOf(xpubs),
-            activeImported = null,
             onlyShow = listOf(dormantAddress),
             limit = 100,
             offset = 0,
             startingBlockHeight = 0
         )
         assertEquals(2, summary.size.toLong())
-        assertEquals(1, summary[0].getInputsMap().size.toLong())
-        assertEquals(1, summary[0].getOutputsMap().size.toLong())
+        assertEquals(1, summary[0].inputsMap.size.toLong())
+        assertEquals(1, summary[0].outputsMap.size.toLong())
         assertEquals(20000, summary[0].total.toLong())
         assertEquals(TransactionType.SENT, summary[0].transactionType)
         assertEquals(10000, summary[0].fee.toLong())
@@ -66,8 +75,17 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         val body = parseMultiAddressResponse(resource)
 
         val mockResponse = mockApiResponse(body)
-        whenever(bitcoinApi.getMultiAddress(any(), any(), any(), any(), any(), any(), any()))
-            .thenReturn(mockResponse)
+        whenever(
+            bitcoinApi.getMultiAddress(
+                coin = any(),
+                addressListLegacy = any(),
+                addressListBech32 = any(),
+                context = eq(null),
+                filter = any(),
+                limit = any(),
+                offset = any()
+            )
+        ).thenReturn(mockResponse)
 
         val xpub = XPub(address = dormantAddress, derivation = XPub.Format.LEGACY)
         val xpubs = XPubs(xpub)
@@ -75,15 +93,14 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         val summary = subject.getAccountTransactions(
             listOf(xpubs),
             null,
-            listOf(dormantXpub),
             100,
             0,
             0
         )
 
         assertEquals(34, summary.size.toLong())
-        assertEquals(1, summary[0].getInputsMap().size.toLong())
-        assertEquals(1, summary[0].getOutputsMap().size.toLong())
+        assertEquals(1, summary[0].inputsMap.size.toLong())
+        assertEquals(1, summary[0].outputsMap.size.toLong())
         assertEquals(20000, summary[0].total.toLong())
         assertEquals(TransactionType.SENT, summary[0].transactionType)
         assertEquals(10000, summary[0].fee.toLong())
@@ -118,7 +135,6 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         /* List<TransactionSummary> summary =*/
         val summary = subject.getAccountTransactions(
             all = listOf(xpubs1, xpubs2),
-            activeImported = null,
             onlyShow = null,
             limit = 100,
             offset = 0,
@@ -126,8 +142,8 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         )
 
         assertEquals(36, summary.size.toLong())
-        assertEquals(1, summary[0].getInputsMap().size.toLong())
-        assertEquals(1, summary[0].getOutputsMap().size.toLong())
+        assertEquals(1, summary[0].inputsMap.size.toLong())
+        assertEquals(1, summary[0].outputsMap.size.toLong())
         assertEquals(20000, summary[0].total.toLong())
         assertEquals(TransactionType.SENT, summary[0].transactionType)
         assertEquals(10000, summary[0].fee.toLong())
@@ -170,15 +186,14 @@ class MultiAddressFactoryTest : MockedResponseTest() {
                 XPubs(XPub(address = address, derivation = XPub.Format.LEGACY))
             ),
             null,
-            null,
             100, 0, 0
         )
 
         assertEquals(7, summary.size.toLong())
 
         var txSummary = summary[0]
-        assertEquals(1, txSummary.getInputsMap().size.toLong())
-        assertEquals(1, txSummary.getOutputsMap().size.toLong())
+        assertEquals(1, txSummary.inputsMap.size.toLong())
+        assertEquals(1, txSummary.outputsMap.size.toLong())
         assertEquals(166486, txSummary.total.toLong())
         assertEquals(TransactionType.SENT, txSummary.transactionType)
         assertEquals(27120, txSummary.fee.toLong())
@@ -186,8 +201,8 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         assertEquals("de2db2e9b430f949f8c94ef4cd9093a020ef10c614b6802320920f7d84a8afab", txSummary.hash)
 
         txSummary = summary[1]
-        assertEquals(1, txSummary.getInputsMap().size.toLong())
-        assertEquals(1, txSummary.getOutputsMap().size.toLong())
+        assertEquals(1, txSummary.inputsMap.size.toLong())
+        assertEquals(1, txSummary.outputsMap.size.toLong())
         assertEquals(446212, txSummary.total.toLong())
         assertEquals(TransactionType.SENT, txSummary.transactionType)
         assertEquals(27120, txSummary.fee.toLong())
@@ -195,8 +210,8 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         assertEquals("8a5327e09c1789f9ef9467298bfb8e46748effd79ff981226df14e5a468378b6", txSummary.hash)
 
         txSummary = summary[2]
-        assertEquals(1, txSummary.getInputsMap().size.toLong())
-        assertEquals(1, txSummary.getOutputsMap().size.toLong())
+        assertEquals(1, txSummary.inputsMap.size.toLong())
+        assertEquals(1, txSummary.outputsMap.size.toLong())
         assertEquals(166486, txSummary.total.toLong())
         assertEquals(TransactionType.TRANSFERRED, txSummary.transactionType)
         assertEquals(27120, txSummary.fee.toLong())
@@ -204,8 +219,8 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         assertEquals("165b251a736e0e5d1e9aa287687b8d6fd5eb91c72b1138dd6047e34f8ed17217", txSummary.hash)
 
         txSummary = summary[3]
-        assertEquals(1, txSummary.getInputsMap().size.toLong())
-        assertEquals(1, txSummary.getOutputsMap().size.toLong())
+        assertEquals(1, txSummary.inputsMap.size.toLong())
+        assertEquals(1, txSummary.outputsMap.size.toLong())
         assertEquals(83243, txSummary.total.toLong())
         assertEquals(TransactionType.TRANSFERRED, txSummary.transactionType)
         assertEquals(27120, txSummary.fee.toLong())
@@ -213,8 +228,8 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         assertEquals("0b2804884f0ae1d151a7260d2009168078259ef6428c861b001ce6a028a19977", txSummary.hash)
 
         txSummary = summary[4]
-        assertEquals(1, txSummary.getInputsMap().size.toLong())
-        assertEquals(1, txSummary.getOutputsMap().size.toLong())
+        assertEquals(1, txSummary.inputsMap.size.toLong())
+        assertEquals(1, txSummary.outputsMap.size.toLong())
         assertEquals(750181, txSummary.total.toLong())
         assertEquals(TransactionType.RECEIVED, txSummary.transactionType)
         assertEquals(0, txSummary.fee.toLong())
@@ -222,8 +237,8 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         assertEquals("9fccf050f52ed23ee4fe20a89b03780a944d795ad897b38ff44a7369d6c7e665", txSummary.hash)
 
         txSummary = summary[5]
-        assertEquals(1, txSummary.getInputsMap().size.toLong())
-        assertEquals(2, txSummary.getOutputsMap().size.toLong())
+        assertEquals(1, txSummary.inputsMap.size.toLong())
+        assertEquals(2, txSummary.outputsMap.size.toLong())
         assertEquals(909366, txSummary.total.toLong())
         assertEquals(TransactionType.SENT, txSummary.transactionType)
         assertEquals(133680, txSummary.fee.toLong())
@@ -231,8 +246,8 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         assertEquals("8765362f7fd1895bb35942197c9f74a6e25c85d0043f38858021442b20bfa112", txSummary.hash)
 
         txSummary = summary[6]
-        assertEquals(1, txSummary.getInputsMap().size.toLong())
-        assertEquals(1, txSummary.getOutputsMap().size.toLong())
+        assertEquals(1, txSummary.inputsMap.size.toLong())
+        assertEquals(1, txSummary.outputsMap.size.toLong())
         assertEquals(909366, txSummary.total.toLong())
         assertEquals(TransactionType.RECEIVED, txSummary.transactionType)
         assertEquals(0, txSummary.fee.toLong())
@@ -264,7 +279,6 @@ class MultiAddressFactoryTest : MockedResponseTest() {
                 XPubs(XPub(address = address, derivation = XPub.Format.LEGACY))
             ),
             null,
-            null,
             100,
             0,
             0
@@ -275,89 +289,89 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         var summary = transactionSummaries[0]
         assertEquals(68563, summary.total.toLong())
         assertEquals(TransactionType.TRANSFERRED, summary.transactionType)
-        assertEquals(1, summary.getInputsMap().size.toLong())
+        assertEquals(1, summary.inputsMap.size.toLong())
         assertTrue(
-            summary.getInputsMap().keys.contains("125QEfWq3eKzAQQHeqcMcDMeZGm13hVRvU")
+            summary.inputsMap.keys.contains("125QEfWq3eKzAQQHeqcMcDMeZGm13hVRvU")
         ) // My Bitcoin Account
-        assertEquals(2, summary.getOutputsMap().size.toLong())
+        assertEquals(2, summary.outputsMap.size.toLong())
         assertTrue(
-            summary.getOutputsMap().keys.contains("1Nm1yxXCTodAkQ9RAEquVdSneJGeubqeTw")
+            summary.outputsMap.keys.contains("1Nm1yxXCTodAkQ9RAEquVdSneJGeubqeTw")
         ) // Savings account
-        assertTrue(summary.getOutputsMap().keys.contains("189iKJLruPtUorasDuxmc6fMRVxz6zxpPS"))
+        assertTrue(summary.outputsMap.keys.contains("189iKJLruPtUorasDuxmc6fMRVxz6zxpPS"))
 
         summary = transactionSummaries[1]
         assertEquals(138068, summary.total.toLong())
         assertEquals(TransactionType.SENT, summary.transactionType)
-        assertEquals(1, summary.getInputsMap().size.toLong())
+        assertEquals(1, summary.inputsMap.size.toLong())
         assertTrue(
-            summary.getInputsMap().keys.contains("1CQpuTQrJQLW6PEar17zsd9EV14cZknqWJ")
+            summary.inputsMap.keys.contains("1CQpuTQrJQLW6PEar17zsd9EV14cZknqWJ")
         ) // My Bitcoin Wallet
-        assertEquals(2, summary.getOutputsMap().size.toLong())
-        assertTrue(summary.getOutputsMap().keys.contains("1LQwNvEMnYjNCNxeUJzDfD8mcSqhm2ouPp"))
-        assertTrue(summary.getOutputsMap().keys.contains("1AdTcerDBY735kDhQWit5Scroae6piQ2yw"))
+        assertEquals(2, summary.outputsMap.size.toLong())
+        assertTrue(summary.outputsMap.keys.contains("1LQwNvEMnYjNCNxeUJzDfD8mcSqhm2ouPp"))
+        assertTrue(summary.outputsMap.keys.contains("1AdTcerDBY735kDhQWit5Scroae6piQ2yw"))
 
         summary = transactionSummaries[2]
         assertEquals(800100, summary.total.toLong())
         assertEquals(TransactionType.RECEIVED, summary.transactionType)
-        assertEquals(1, summary.getInputsMap().size.toLong())
-        assertTrue(summary.getInputsMap().keys.contains("19CMnkUgBnTBNiTWXwoZr6Gb3aeXKHvuGG"))
-        assertEquals(1, summary.getOutputsMap().size.toLong())
+        assertEquals(1, summary.inputsMap.size.toLong())
+        assertTrue(summary.inputsMap.keys.contains("19CMnkUgBnTBNiTWXwoZr6Gb3aeXKHvuGG"))
+        assertEquals(1, summary.outputsMap.size.toLong())
         assertTrue(
-            summary.getOutputsMap().keys.contains("1CQpuTQrJQLW6PEar17zsd9EV14cZknqWJ")
+            summary.outputsMap.keys.contains("1CQpuTQrJQLW6PEar17zsd9EV14cZknqWJ")
         ) // My Bitcoin Wallet
 
         summary = transactionSummaries[3]
         assertEquals(35194, summary.total.toLong())
         assertEquals(TransactionType.SENT, summary.transactionType)
-        assertEquals(1, summary.getInputsMap().size.toLong())
+        assertEquals(1, summary.inputsMap.size.toLong())
         assertTrue(
-            summary.getInputsMap().keys.contains("15HjFY96ZANBkN5kvPRgrXH93jnntqs32n")
+            summary.inputsMap.keys.contains("15HjFY96ZANBkN5kvPRgrXH93jnntqs32n")
         ) // My Bitcoin Wallet
-        assertEquals(1, summary.getOutputsMap().size.toLong())
+        assertEquals(1, summary.outputsMap.size.toLong())
         assertTrue(
-            summary.getOutputsMap().keys.contains("1PQ9ZYhv9PwbWQQN74XRqUCjC32JrkyzB9")
+            summary.outputsMap.keys.contains("1PQ9ZYhv9PwbWQQN74XRqUCjC32JrkyzB9")
         )
 
         summary = transactionSummaries[4]
         assertEquals(98326, summary.total.toLong())
         assertEquals(TransactionType.TRANSFERRED, summary.transactionType)
-        assertEquals(1, summary.getInputsMap().size.toLong())
+        assertEquals(1, summary.inputsMap.size.toLong())
         assertTrue(
-            summary.getInputsMap().keys.contains("1Peysd3qYDe35yNp6KB1ZkbVYHr42JT9zZ")
+            summary.inputsMap.keys.contains("1Peysd3qYDe35yNp6KB1ZkbVYHr42JT9zZ")
         ) // My Bitcoin Wallet
-        assertEquals(1, summary.getOutputsMap().size.toLong())
-        assertTrue(summary.getOutputsMap().keys.contains("189iKJLruPtUorasDuxmc6fMRVxz6zxpPS"))
+        assertEquals(1, summary.outputsMap.size.toLong())
+        assertTrue(summary.outputsMap.keys.contains("189iKJLruPtUorasDuxmc6fMRVxz6zxpPS"))
 
         summary = transactionSummaries[5]
         assertEquals(160640, summary.total.toLong())
         assertEquals(TransactionType.RECEIVED, summary.transactionType)
-        assertEquals(1, summary.getInputsMap().size.toLong())
-        assertTrue(summary.getInputsMap().keys.contains("1BZe6YLaf2HiwJdnBbLyKWAqNia7foVe1w"))
-        assertEquals(1, summary.getOutputsMap().size.toLong())
+        assertEquals(1, summary.inputsMap.size.toLong())
+        assertTrue(summary.inputsMap.keys.contains("1BZe6YLaf2HiwJdnBbLyKWAqNia7foVe1w"))
+        assertEquals(1, summary.outputsMap.size.toLong())
         assertTrue(
-            summary.getOutputsMap().keys.contains("1Peysd3qYDe35yNp6KB1ZkbVYHr42JT9zZ")
+            summary.outputsMap.keys.contains("1Peysd3qYDe35yNp6KB1ZkbVYHr42JT9zZ")
         ) // My Bitcoin Wallet
 
         summary = transactionSummaries[6]
         assertEquals(9833, summary.total.toLong())
         assertEquals(TransactionType.TRANSFERRED, summary.transactionType)
-        assertEquals(1, summary.getInputsMap().size.toLong())
+        assertEquals(1, summary.inputsMap.size.toLong())
         assertTrue(
-            summary.getInputsMap().keys.contains("17ijgwpGsVQRzMjsdAfdmeP53kpw9yvXur")
+            summary.inputsMap.keys.contains("17ijgwpGsVQRzMjsdAfdmeP53kpw9yvXur")
         ) // My Bitcoin Wallet
-        assertEquals(1, summary.getOutputsMap().size.toLong())
+        assertEquals(1, summary.outputsMap.size.toLong())
         assertTrue(
-            summary.getOutputsMap().keys.contains("1AtunWT3F6WvQc3aaPuPbNGeBpVF3ZPM5r")
+            summary.outputsMap.keys.contains("1AtunWT3F6WvQc3aaPuPbNGeBpVF3ZPM5r")
         ) // Savings account
 
         summary = transactionSummaries[7]
         assertEquals(40160, summary.total.toLong())
         assertEquals(TransactionType.RECEIVED, summary.transactionType)
-        assertEquals(1, summary.getInputsMap().size.toLong())
-        assertTrue(summary.getInputsMap().keys.contains("1Baa1cjB1CyBVSjw8SkFZ2YBuiwKnKLXhe"))
-        assertEquals(1, summary.getOutputsMap().size.toLong())
+        assertEquals(1, summary.inputsMap.size.toLong())
+        assertTrue(summary.inputsMap.keys.contains("1Baa1cjB1CyBVSjw8SkFZ2YBuiwKnKLXhe"))
+        assertEquals(1, summary.outputsMap.size.toLong())
         assertTrue(
-            summary.getOutputsMap().keys.contains("17ijgwpGsVQRzMjsdAfdmeP53kpw9yvXur")
+            summary.outputsMap.keys.contains("17ijgwpGsVQRzMjsdAfdmeP53kpw9yvXur")
         ) // My Bitcoin Wallet
     }
 

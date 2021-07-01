@@ -93,7 +93,7 @@ internal class BtcCryptoWalletAccount(
 
     override val activity: Single<ActivitySummaryList>
         get() = payloadDataManager.getAccountTransactions(
-            xpubAddress,
+            xpubs,
             transactionFetchCount,
             transactionFetchOffset
         ).onErrorReturn { emptyList() }

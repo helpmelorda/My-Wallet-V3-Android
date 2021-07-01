@@ -79,16 +79,18 @@ class BtcAccountActivityTest {
     // on-chain event. Otherwise they are not.
     @Test
     fun fetchTransactionsOnAccountReceive() {
-        val summary = TransactionSummary().apply {
-            confirmations = 3
-            transactionType = TransactionSummary.TransactionType.RECEIVED
-            fee = BigInteger.ONE
-            total = BigInteger.TEN
-            hash = TX_HASH_RECEIVE
-            inputsMap = HashMap()
-            outputsMap = HashMap()
+        val summary = TransactionSummary(
+            confirmations = 3,
+            transactionType = TransactionSummary.TransactionType.RECEIVED,
+            fee = BigInteger.ONE,
+            total = BigInteger.TEN,
+            hash = TX_HASH_RECEIVE,
+            inputsMap = emptyMap(),
+            outputsMap = emptyMap(),
+            inputsXpubMap = emptyMap(),
+            outputsXpubMap = emptyMap(),
             time = 1000000L
-        }
+        )
 
         val transactionSummaries = listOf(summary)
 
@@ -135,16 +137,18 @@ class BtcAccountActivityTest {
     @Test
     fun fetchTransactionsOnAccountSendMatch() {
 
-        val summary = TransactionSummary().apply {
-            confirmations = 3
-            transactionType = TransactionSummary.TransactionType.SENT
-            fee = BigInteger.ONE
-            total = BigInteger.TEN
-            hash = TX_HASH_SEND_MATCH
-            inputsMap = HashMap()
-            outputsMap = HashMap()
+        val summary = TransactionSummary(
+            confirmations = 3,
+            transactionType = TransactionSummary.TransactionType.SENT,
+            fee = BigInteger.ONE,
+            total = BigInteger.TEN,
+            hash = TX_HASH_SEND_MATCH,
+            inputsMap = emptyMap(),
+            outputsMap = emptyMap(),
+            inputsXpubMap = emptyMap(),
+            outputsXpubMap = emptyMap(),
             time = 1000000L
-        }
+        )
 
         val transactionSummaries = listOf(summary)
 
@@ -197,16 +201,18 @@ class BtcAccountActivityTest {
     @Test
     fun fetchTransactionsOnAccountSendNoMatch() {
 
-        val summary = TransactionSummary().apply {
-            confirmations = 3
-            transactionType = TransactionSummary.TransactionType.SENT
-            fee = BigInteger.ONE
-            total = BigInteger.TEN
-            hash = TX_HASH_SEND_NO_MATCH
-            inputsMap = HashMap()
-            outputsMap = HashMap()
+        val summary = TransactionSummary(
+            confirmations = 3,
+            transactionType = TransactionSummary.TransactionType.SENT,
+            fee = BigInteger.ONE,
+            total = BigInteger.TEN,
+            hash = TX_HASH_SEND_NO_MATCH,
+            inputsMap = emptyMap(),
+            outputsMap = emptyMap(),
+            inputsXpubMap = emptyMap(),
+            outputsXpubMap = emptyMap(),
             time = 1000000L
-        }
+        )
 
         val transactionSummaries = listOf(summary)
 

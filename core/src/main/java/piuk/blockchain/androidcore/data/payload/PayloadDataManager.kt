@@ -20,7 +20,6 @@ import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Balance
 import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
-import info.blockchain.wallet.stx.STXAccount
 import info.blockchain.wallet.util.PrivateKeyFactory
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -110,15 +109,6 @@ class PayloadDataManager internal constructor(
     val isDoubleEncrypted: Boolean
         get() = wallet!!.isDoubleEncryption
 
-    val stxAccount: STXAccount
-        get() {
-            val hdWallet = payloadManager.payload?.walletBody
-                ?: throw IllegalStateException("Wallet not available")
-
-            return hdWallet.stxAccount
-                ?: throw IllegalStateException("Wallet not available")
-        }
-
     val isBackedUp: Boolean
         get() = payloadManager.isWalletBackedUp
 
@@ -185,12 +175,12 @@ class PayloadDataManager internal constructor(
     fun generateMasterKeyFromSeed(
         recoveryPhrase: String
     ): MasterKey = HDWalletFactory.restoreWallet(
-        HDWalletFactory.Language.US,
-        recoveryPhrase,
-        "",
-        1,
+        language = HDWalletFactory.Language.US,
+        data = recoveryPhrase,
+        passphrase = "",
+        nbAccounts = 1,
         // masterKey is independent from the derivation purpose
-        Derivation.SEGWIT_BECH32_PURPOSE
+        purpose = Derivation.SEGWIT_BECH32_PURPOSE
     ).masterKey
 
     /**
@@ -206,7 +196,11 @@ class PayloadDataManager internal constructor(
         walletName: String,
         email: String
     ): Single<Wallet> = rxPinning.callSingle {
-        payloadService.createHdWallet(password, walletName, email)
+        payloadService.createHdWallet(
+            password = password,
+            walletName = walletName,
+            email = email
+        )
     }.applySchedulers()
 
     /**
@@ -220,7 +214,11 @@ class PayloadDataManager internal constructor(
      */
     fun initializeAndDecrypt(sharedKey: String, guid: String, password: String): Completable =
         rxPinning.call {
-            payloadService.initializeAndDecrypt(sharedKey, guid, password)
+            payloadService.initializeAndDecrypt(
+                sharedKey = sharedKey,
+                guid = guid,
+                password = password
+            )
         }.applySchedulers()
 
     /**
@@ -586,7 +584,7 @@ class PayloadDataManager internal constructor(
     fun getAccount(accountPosition: Int): Account =
         wallet!!.walletBody?.getAccount(accountPosition) ?: throw NoSuchElementException()
 
-    fun getAccountTransactions(xpub: String?, limit: Int, offset: Int):
+    fun getAccountTransactions(xpub: XPubs, limit: Int, offset: Int):
         Single<List<TransactionSummary>> =
             Single.fromCallable {
                 payloadManager.getAccountTransactions(xpub, limit, offset)

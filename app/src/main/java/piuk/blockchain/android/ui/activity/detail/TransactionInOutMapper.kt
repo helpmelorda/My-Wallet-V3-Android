@@ -5,7 +5,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
-import info.blockchain.wallet.multiaddress.MultiAddressFactory
+import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.Single
 import io.reactivex.rxkotlin.Singles
@@ -165,7 +165,7 @@ class TransactionInOutMapper(
             value.toStringWithoutSymbol(),
             cryptoCurrency.ticker
         ).apply {
-            if (address == MultiAddressFactory.ADDRESS_DECODE_ERROR) {
+            if (address == TransactionSummary.ADDRESS_DECODE_ERROR) {
                 address = stringUtils.getString(R.string.tx_decode_error)
                 addressDecodeError = true
             }

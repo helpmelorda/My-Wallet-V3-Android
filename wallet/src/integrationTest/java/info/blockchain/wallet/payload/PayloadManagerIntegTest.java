@@ -8,6 +8,7 @@ import info.blockchain.wallet.BlockchainFramework;
 import info.blockchain.wallet.api.WalletApi;
 import info.blockchain.wallet.api.WalletExplorerEndpoints;
 import info.blockchain.wallet.multiaddress.MultiAddressFactory;
+import info.blockchain.wallet.multiaddress.MultiAddressFactoryBtc;
 import info.blockchain.wallet.payload.data.WalletBody;
 import info.blockchain.wallet.payload.data.ImportedAddress;
 import info.blockchain.wallet.payload.data.Wallet;
@@ -42,7 +43,7 @@ public final class PayloadManagerIntegTest extends BaseIntegTest {
                     siteKey
                 ),
                 bitcoinApi,
-                new MultiAddressFactory(bitcoinApi),
+                new MultiAddressFactoryBtc(bitcoinApi),
                 new BalanceManagerBtc(bitcoinApi),
                 new BalanceManagerBch(bitcoinApi)
         );

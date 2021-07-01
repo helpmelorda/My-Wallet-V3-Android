@@ -4,9 +4,10 @@ import com.blockchain.api.NonCustodialBitcoinService
 import com.blockchain.api.bitcoin.data.MultiAddress
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.data.legacyXpubAddresses
+import info.blockchain.wallet.payload.data.segwitXpubAddresses
 import retrofit2.Call
 
-class MultiAddressFactoryBch(bitcoinApi: NonCustodialBitcoinService)
+class MultiAddressFactoryBtc(bitcoinApi: NonCustodialBitcoinService)
     : MultiAddressFactory(bitcoinApi) {
 
     override fun getMultiAddress(
@@ -14,13 +15,16 @@ class MultiAddressFactoryBch(bitcoinApi: NonCustodialBitcoinService)
         limit: Int,
         offset: Int,
         context: List<String>?
-    ): Call<MultiAddress> =
-        bitcoinApi.getMultiAddress(
-            NonCustodialBitcoinService.BITCOIN_CASH,
+    ): Call<MultiAddress> {
+        val r = bitcoinApi.getMultiAddress(
+            NonCustodialBitcoinService.BITCOIN,
             xpubs.legacyXpubAddresses(),
-            emptyList(),
+            xpubs.segwitXpubAddresses(),
             context?.joinToString("|"),
             NonCustodialBitcoinService.BalanceFilter.RemoveUnspendable,
             limit,
-            offset)
+            offset
+        )
+        return r
+    }
 }

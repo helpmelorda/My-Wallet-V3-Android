@@ -95,7 +95,6 @@ open class BitcoinCashWallet : DeterministicWallet {
     ): List<TransactionSummary> =
         multiAddressFactoryBch.getAccountTransactions(
             activeXpubs,
-            null,
             context,
             limit,
             offset,

@@ -12,6 +12,7 @@ import info.blockchain.wallet.exceptions.UnsupportedVersionException;
 import info.blockchain.wallet.keys.SigningKey;
 import info.blockchain.wallet.keys.SigningKeyImpl;
 import info.blockchain.wallet.multiaddress.MultiAddressFactory;
+import info.blockchain.wallet.multiaddress.MultiAddressFactoryBtc;
 import info.blockchain.wallet.multiaddress.TransactionSummary;
 import info.blockchain.wallet.multiaddress.TransactionSummary.TransactionType;
 import info.blockchain.wallet.payload.data.Account;
@@ -56,7 +57,7 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         payloadManager = new PayloadManager(
             walletApi,
             bitcoinApi,
-            new MultiAddressFactory(bitcoinApi),
+            new MultiAddressFactoryBtc(bitcoinApi),
             new BalanceManagerBtc(bitcoinApi),
             new BalanceManagerBch(bitcoinApi)
         );
@@ -530,7 +531,13 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         Call<MultiAddress> multiResponse4 = makeMultiAddressResponse(multi4);
 
         when(bitcoinApi.getMultiAddress(
-            any(String.class), any(), any(), any(String.class), any(), any(Integer.class), any(Integer.class)
+            any(String.class),
+            any(),
+            any(),
+            eq(null),
+            any(),
+            any(Integer.class),
+            any(Integer.class)
         )).thenReturn(multiResponse1)
             .thenReturn(multiResponse2)
             .thenReturn(multiResponse3)
@@ -551,7 +558,7 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
 
         // set up indexes first
         payloadManager.getAccountTransactions(
-            account.getXpubs().getDefault().getAddress(), 50, 0
+            account.getXpubs(), 50, 0
         );
 
         // Next Receive
@@ -684,11 +691,17 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         );
 
         //Account 1
-        String first = "xpub6CdH6yzYXhTtR7UHJHtoTeWm3nbuyg9msj3rJvFnfMew9CBff6Rp62zdTrC57Spz4TpeRPL8m9xLiVaddpjEx4Dzidtk44rd4N2xu9XTrSV";
+        XPubs first = new XPubs(
+            new XPub(
+                "xpub6CdH6yzYXhTtR7UHJHtoTeWm3nbuyg9msj3rJvFnfMew9CBff6Rp62zdTrC57Spz4TpeRPL8m9xLiVaddpjEx4Dzidtk44rd4N2xu9XTrSV",
+                XPub.Format.LEGACY
+            )
+        );
         mockMultiAddress(bitcoinApi, "multiaddress/wallet_v3_6_m2.txt");
 
         List<TransactionSummary> transactionSummaries = payloadManager
             .getAccountTransactions(first, 50, 0);
+
         Assert.assertEquals(8, transactionSummaries.size());
         TransactionSummary summary = transactionSummaries.get(0);
         Assert.assertEquals(68563, summary.getTotal().longValue());
@@ -757,7 +770,12 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         Assert.assertTrue(summary.getOutputsMap().containsKey("17ijgwpGsVQRzMjsdAfdmeP53kpw9yvXur"));//My Bitcoin Wallet
 
         //Account 2
-        String second = "xpub6CdH6yzYXhTtTGPPL4Djjp1HqFmAPx4uyqoG6Ffz9nPysv8vR8t8PEJ3RGaSRwMm7kRZ3MAcKgB6u4g1znFo82j4q2hdShmDyw3zuMxhDSL";
+        XPubs second = new XPubs(
+            new XPub(
+                "xpub6CdH6yzYXhTtTGPPL4Djjp1HqFmAPx4uyqoG6Ffz9nPysv8vR8t8PEJ3RGaSRwMm7kRZ3MAcKgB6u4g1znFo82j4q2hdShmDyw3zuMxhDSL",
+                XPub.Format.LEGACY
+            )
+        );
         mockMultiAddress(bitcoinApi, "multiaddress/wallet_v3_6_m3.txt");
 
         transactionSummaries = payloadManager.getAccountTransactions(second, 50, 0);
@@ -778,29 +796,5 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         Assert.assertTrue(summary.getInputsMap().containsKey("17ijgwpGsVQRzMjsdAfdmeP53kpw9yvXur"));//My Bitcoin Wallet
         Assert.assertEquals(1, summary.getOutputsMap().size());
         Assert.assertTrue(summary.getOutputsMap().containsKey("1AtunWT3F6WvQc3aaPuPbNGeBpVF3ZPM5r"));//Savings account
-
-        //Imported addresses (consolidated)
-        mockMultiAddress(bitcoinApi, "multiaddress/wallet_v3_6_m1.txt");
-        transactionSummaries = payloadManager.getImportedAddressesTransactions(50, 0);
-
-        Assert.assertEquals(2, transactionSummaries.size());
-
-        summary = transactionSummaries.get(0);
-        Assert.assertEquals(2, transactionSummaries.size());
-        Assert.assertEquals(68563, summary.getTotal().longValue());
-        Assert.assertEquals(TransactionType.TRANSFERRED, summary.getTransactionType());
-        Assert.assertEquals(1, summary.getInputsMap().size());
-        Assert.assertTrue(summary.getInputsMap().containsKey("125QEfWq3eKzAQQHeqcMcDMeZGm13hVRvU"));//My Bitcoin Wallet
-        Assert.assertEquals(2, summary.getOutputsMap().size());
-        Assert.assertTrue(summary.getOutputsMap().containsKey("1Nm1yxXCTodAkQ9RAEquVdSneJGeubqeTw"));//Savings account
-        Assert.assertTrue(summary.getOutputsMap().containsKey("189iKJLruPtUorasDuxmc6fMRVxz6zxpPS"));
-
-        summary = transactionSummaries.get(1);
-        Assert.assertEquals(98326, summary.getTotal().longValue());
-        Assert.assertEquals(TransactionSummary.TransactionType.TRANSFERRED, summary.getTransactionType());
-        Assert.assertEquals(1, summary.getInputsMap().size());
-        Assert.assertTrue(summary.getInputsMap().containsKey("1Peysd3qYDe35yNp6KB1ZkbVYHr42JT9zZ"));//My Bitcoin Wallet
-        Assert.assertEquals(1, summary.getOutputsMap().size());
-        Assert.assertTrue(summary.getOutputsMap().containsKey("189iKJLruPtUorasDuxmc6fMRVxz6zxpPS"));
     }
 }

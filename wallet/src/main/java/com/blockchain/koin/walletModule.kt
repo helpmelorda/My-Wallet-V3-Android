@@ -6,6 +6,7 @@ import info.blockchain.wallet.api.dust.DustService
 import info.blockchain.wallet.metadata.MetadataService
 import info.blockchain.wallet.metadata.MetadataInteractor
 import info.blockchain.wallet.multiaddress.MultiAddressFactory
+import info.blockchain.wallet.multiaddress.MultiAddressFactoryBtc
 import info.blockchain.wallet.payload.BalanceManagerBch
 import info.blockchain.wallet.payload.BalanceManagerBtc
 import info.blockchain.wallet.payload.PayloadManager
@@ -24,14 +25,19 @@ val walletModule = module {
 
         scoped { PayloadManager(get(), get(), get(), get(), get()) }
 
-        factory { MultiAddressFactory(get()) }
+        factory { MultiAddressFactoryBtc(bitcoinApi = get()) }.bind(MultiAddressFactory::class)
 
-        factory { BalanceManagerBtc(get()) }
+        factory { BalanceManagerBtc(bitcoinApi = get()) }
 
-        factory { BalanceManagerBch(get()) }
+        factory { BalanceManagerBch(bitcoinApi = get()) }
     }
 
-    factory { PriceApi(get(), get()) }.bind(CurrentPriceApi::class)
+    factory {
+        PriceApi(
+            endpoints = get(),
+            apiCode = get()
+        )
+    }.bind(CurrentPriceApi::class)
 
     factory {
         MetadataInteractor(

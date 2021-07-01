@@ -56,7 +56,6 @@ import info.blockchain.wallet.payload.data.WalletExtensionsKt;
 import info.blockchain.wallet.payload.data.WalletWrapper;
 import info.blockchain.wallet.payload.data.XPub;
 import info.blockchain.wallet.payload.data.XPubs;
-import info.blockchain.wallet.payload.data.XPubxKt;
 import info.blockchain.wallet.payload.model.Balance;
 import info.blockchain.wallet.payload.model.BalanceKt;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
@@ -782,31 +781,14 @@ public class PayloadManager {
         IOException,
         ApiException {
 
-        return getAccountTransactions(null, limit, offset);
-    }
-
-    /**
-     * Updates internal balance and transaction list for imported BTC addresses
-     *
-     * @param limit  Amount of transactions per page
-     * @param offset Page offset
-     * @return Consolidated list of tx summaries for specified imported transactions
-     */
-    public List<TransactionSummary> getImportedAddressesTransactions(int limit, int offset)
-        throws IOException, ApiException {
-
-        Wallet wallet = getPayload();
-        List<XPubs> xpubs = WalletExtensionsKt.activeXpubs(wallet);
-        List<String> allImported = WalletExtensionsKt.nonArchivedImportedAddressStrings(wallet);
-
-      return multiAddressFactory.getAccountTransactions(
-            xpubs,
-            allImported,
+        List<XPubs> activeXpubs = getPayload().getWalletBody().getActiveXpubs();
+        return multiAddressFactory.getAccountTransactions(
+            activeXpubs,
             null,
             limit,
             offset,
             0
-        );
+            );
     }
 
     public MasterKey masterKey() throws HDWalletException {
@@ -828,16 +810,15 @@ public class PayloadManager {
      * @param offset Page offset
      * @return List of BTC tx summaries for specified xpubs transactions
      */
-    public List<TransactionSummary> getAccountTransactions(String xpub, int limit, int offset)
+    public List<TransactionSummary> getAccountTransactions(@Nonnull XPubs xpubs, int limit, int offset)
         throws IOException, ApiException {
 
-        List<XPubs> activeXpubs = getPayload().getWalletBody().getActiveXpubs();
-        List<String> activeImported = getPayload().getImportedAddressStringList(ImportedAddress.NORMAL_ADDRESS);
+        List<XPubs> activeXpubs = new ArrayList<XPubs>();
+        activeXpubs.add(xpubs);
 
         return multiAddressFactory.getAccountTransactions(
             activeXpubs,
             null,
-            XPubxKt.allAddresses(activeXpubs),
             limit,
             offset,
             0
