@@ -122,7 +122,7 @@ class YodleeWebViewFragment : Fragment(), FastLinkInterfaceHandler.FastLinkListe
 
     private fun loadYodlee() {
         requireActivity().runOnUiThread {
-            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+            if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
                 updateViewsVisibility(true)
                 with(binding) {
                     yodleeWebview.clearCache(true)
