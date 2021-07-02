@@ -56,8 +56,6 @@ internal class AssetResourcesImpl(val resources: Resources) : AssetResources {
             CryptoCurrency.DOT.ticker -> R.drawable.vector_dot_colored
             CryptoCurrency.ALGO.ticker -> R.drawable.vector_algo_colored
             CryptoCurrency.STX.ticker -> R.drawable.ic_logo_stx
-            // TODO: Get WDGLD logo uri when it's supported in the erc20 asset list. FIXME
-            "WDGLD" -> R.drawable.vector_dgld_colored
             else -> throw NotImplementedError("${asset.ticker} Not implemented")
         }
 

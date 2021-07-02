@@ -34,7 +34,8 @@ internal object DGLD : CryptoCurrency(
     l2identifier = "0x123151402076fc819b7564510989e475c9cd93ca",
     requiredConfirmations = 12, // Same as ETHER
     startDate = 1576108800L, // 2019-12-12 00:00:00 UTC
-    colour = "#A39424"
+    colour = "#A39424",
+    logo = "https://login.blockchain.com/img/wdgld.png"
 )
 
 internal object AAVE : CryptoCurrency(
