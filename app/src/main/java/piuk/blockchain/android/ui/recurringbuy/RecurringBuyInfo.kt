@@ -5,8 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class RecurringBuyInfo(
-    val title: String,
-    val subtitle1: String,
-    val subtitle2: String? = null,
-    val hasImage: Boolean
+    val title1: String,
+    val title2: String,
+    val noteLink: Int? = null
 ) : Parcelable

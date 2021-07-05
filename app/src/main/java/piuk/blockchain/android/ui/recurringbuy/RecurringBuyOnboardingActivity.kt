@@ -5,9 +5,11 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRecurringBuyOnBoardingBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
+import piuk.blockchain.android.util.visibleIf
 
 class RecurringBuyOnboardingActivity : AppCompatActivity() {
 
@@ -29,6 +31,7 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
             recurringBuyCta.setOnClickListener { goToRecurringSetUpScreen() }
             closeBtn.setOnClickListener { finish() }
         }
+        setupViewPagerListener()
     }
 
     private fun showFullScreen() {
@@ -39,6 +42,24 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
         }
     }
 
+    private fun showHeader(isShown: Boolean) {
+        binding.apply {
+            title.visibleIf { isShown }
+            icon.visibleIf { isShown }
+            headerBkgd.visibleIf { isShown }
+            headerText.visibleIf { isShown }
+        }
+    }
+
+    fun setupViewPagerListener() {
+        binding.viewpager.registerOnPageChangeCallback(object : OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                showHeader(position == 0)
+            }
+        })
+    }
+
     private fun goToRecurringSetUpScreen() {
         startActivity(Intent(this, SimpleBuyActivity::class.java))
         finish()
@@ -46,27 +67,25 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
 
     private fun createListOfRecurringBuyInfo(): List<RecurringBuyInfo> = listOf(
         RecurringBuyInfo(
-            title = getString(R.string.recurring_buy_title_1),
-            subtitle1 = getString(R.string.recurring_buy_subtitle_1),
-            hasImage = false
+            title1 = getString(R.string.recurring_buy_title_1_1),
+            title2 = getString(R.string.recurring_buy_title_1_2)
         ),
         RecurringBuyInfo(
-            title = getString(R.string.recurring_buy_title_2),
-            subtitle1 = getString(R.string.recurring_buy_subtitle_2), hasImage = true
+            title1 = getString(R.string.recurring_buy_title_2_1),
+            title2 = getString(R.string.recurring_buy_title_2_2)
         ),
         RecurringBuyInfo(
-            title = getString(R.string.recurring_buy_title_3),
-            subtitle1 = getString(R.string.recurring_buy_subtitle_3), hasImage = true
+            title1 = getString(R.string.recurring_buy_title_3_1),
+            title2 = getString(R.string.recurring_buy_title_3_2)
         ),
         RecurringBuyInfo(
-            title = getString(R.string.recurring_buy_title_4),
-            subtitle1 = getString(R.string.recurring_buy_subtitle_4), hasImage = true
+            title1 = getString(R.string.recurring_buy_title_4_1),
+            title2 = getString(R.string.recurring_buy_title_4_2)
         ),
         RecurringBuyInfo(
-            title = getString(R.string.recurring_buy_title_5),
-            subtitle1 = getString(R.string.recurring_buy_subtitle_5_1),
-            subtitle2 = getString(R.string.recurring_buy_subtitle_5_2),
-            hasImage = false
+            title1 = getString(R.string.recurring_buy_title_5_1),
+            title2 = getString(R.string.recurring_buy_title_5_2),
+            noteLink = R.string.recurring_buy_note
         )
     )
 

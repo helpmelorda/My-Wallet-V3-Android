@@ -380,6 +380,9 @@ dependencies {
     implementation Libraries.rxBindingV4
     implementation Libraries.rxBindingV7
 
+    //Animations
+    implementation Libraries.lottie
+
     // Glide
     implementation Libraries.glide
     annotationProcessor Libraries.glideAnnotations

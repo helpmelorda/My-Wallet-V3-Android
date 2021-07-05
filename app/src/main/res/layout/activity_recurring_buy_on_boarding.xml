@@ -6,16 +6,26 @@
     android:layout_height="match_parent">
 
     <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/header_bkgd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scaleType="centerCrop"
+        android:src="@drawable/bckg_rb_pattern"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginTop="@dimen/standard_margin"
-        android:src="@drawable/ic_recurring_tx_buy"
+        android:src="@drawable/ic_tx_recurring_buy"
+        android:tint="@color/blue_600"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/title"
         style="@style/Text.Semibold.20"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -26,16 +36,37 @@
         app:layout_constraintStart_toEndOf="@+id/icon"
         app:layout_constraintTop_toTopOf="@id/icon" />
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/header_text"
+        style="@style/Text.Semibold.14"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/recurring_buy_on_boarding_header"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        android:layout_margin="@dimen/standard_margin"/>
+
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/close_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/small_margin"
-        android:src="@drawable/ic_close"
-        android:padding="@dimen/tiny_margin"
-        app:layout_constraintBottom_toBottomOf="@id/icon"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:src="@drawable/ic_close_circle_greys"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/icon" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_animation"
+        android:layout_width="match_parent"
+        android:layout_marginTop="80dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/viewpager"
+        app:layout_constraintTop_toBottomOf="@id/close_btn"
+        app:lottie_autoPlay="true"
+        app:lottie_repeatMode="restart"
+        app:lottie_loop="true"
+        app:lottie_imageAssetsFolder="lottie/pricechart.json"
+        app:lottie_fileName="lottie/pricechart.json" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewpager"
@@ -44,7 +75,7 @@
         android:layout_marginTop="@dimen/small_margin"
         android:layout_marginBottom="@dimen/small_margin"
         app:layout_constraintBottom_toTopOf="@+id/indicator"
-        app:layout_constraintTop_toBottomOf="@id/icon" />
+        app:layout_constraintTop_toBottomOf="@id/lottie_animation" />
 
     <me.relex.circleindicator.CircleIndicator3
         android:id="@+id/indicator"
@@ -66,7 +97,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/standard_margin"
-        android:text="@string/recurring_buy_cta"
+        android:text="@string/recurring_buy_cta_1"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

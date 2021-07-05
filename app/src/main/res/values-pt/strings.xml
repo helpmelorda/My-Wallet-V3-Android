@@ -1863,7 +1863,6 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="recurring_buy_title_2">A estratégia é bastante simples</string>
     <string name="recurring_buy_title_3">Quando o preço desce,</string>
     <string name="recurring_buy_title_4">Quando o preço sobe,</string>
-    <string name="recurring_buy_title_5">Mas será que funciona?</string>
     <string name="recurring_buy_subtitle_1">Média do custo em dólares</string>
     <string name="recurring_buy_subtitle_2">Invista a mesma quantia todas as semanas</string>
     <string name="recurring_buy_subtitle_3">Comprará mais criptomoeda.</string>

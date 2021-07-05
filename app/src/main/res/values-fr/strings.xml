@@ -1883,7 +1883,6 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué sur %
     <string name="recurring_buy_title_2">La stratégie est assez simple</string>
     <string name="recurring_buy_title_3">Quand le prix baisse,</string>
     <string name="recurring_buy_title_4">Quand le prix augmente,</string>
-    <string name="recurring_buy_title_5">Mais est-ce que ça marche ?</string>
     <string name="recurring_buy_subtitle_1">Moyenne des coûts en dollars</string>
     <string name="recurring_buy_subtitle_2">Investir le même montant chaque semaine</string>
     <string name="recurring_buy_subtitle_3">Vous achèterez plus de crypto.</string>

@@ -106,6 +106,7 @@ object Versions {
     const val sift = "0.11.1"
     const val cardForm = "4.2.0"
     const val xlmSunriver = "0.21.1"
+    const val lottieVersion = "3.5.0"
 
     // Logging
     const val timber = "4.7.1"
@@ -251,6 +252,7 @@ object Libraries {
     const val sift = "com.siftscience:sift-android:${Versions.sift}"
     const val cardForm = "com.braintreepayments:card-form:${Versions.cardForm}"
     const val sunriver = "com.github.stellar:java-stellar-sdk:${Versions.xlmSunriver}"
+    const val lottie = "com.airbnb.android:lottie:${Versions.lottieVersion}"
 
     // Logging
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"

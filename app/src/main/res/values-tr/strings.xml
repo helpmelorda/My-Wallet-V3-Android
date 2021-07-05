@@ -1885,7 +1885,6 @@ Banka transferiniz %3$s tarihinde tamamlandıktan sonra para çekme işlemi ger�
     <string name="recurring_buy_title_2">Strateji oldukça basit</string>
     <string name="recurring_buy_title_3">Fiyatlar düştüğünde,</string>
     <string name="recurring_buy_title_4">Fiyatlar yükseldiğinde,</string>
-    <string name="recurring_buy_title_5">Ama bu işe yarar mı?</string>
     <string name="recurring_buy_subtitle_1">Dolar maliyet ortalaması</string>
     <string name="recurring_buy_subtitle_2">Her hafta aynı miktarda yatırım yapın</string>
     <string name="recurring_buy_subtitle_3">Daha fazla kripto satın alacaksınız.</string>

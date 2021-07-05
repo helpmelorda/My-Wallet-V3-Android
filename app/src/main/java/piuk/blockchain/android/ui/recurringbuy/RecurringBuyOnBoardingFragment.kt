@@ -1,8 +1,10 @@
 package piuk.blockchain.android.ui.recurringbuy
 
+import android.net.Uri
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableStringBuilder
+import android.text.method.LinkMovementMethod
 import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +13,10 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentRecurringBuyOnBoardingBinding
-import piuk.blockchain.android.util.visibleIf
+import piuk.blockchain.android.urllinks.DOLLAR_COST_AVERAGING
+import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class RecurringBuyOnBoardingFragment : Fragment() {
@@ -36,22 +41,36 @@ class RecurringBuyOnBoardingFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.apply {
-            title.text = recurringBuyInfo.title
-            subtitle.text = buildColorStrings()
-            mainImage.visibleIf { recurringBuyInfo.hasImage }
+        binding.note.apply {
+            recurringBuyInfo.noteLink?.let {
+                visible()
+                movementMethod = LinkMovementMethod.getInstance()
+                text = setNote(it)
+            } ?: gone()
         }
+        binding.title.text = buildColorStrings()
+    }
+
+    private fun setNote(stringId: Int): CharSequence {
+        val linksMap = mapOf<String, Uri>(
+            "learn_more" to Uri.parse(DOLLAR_COST_AVERAGING)
+        )
+        return StringUtils.getStringWithMappedAnnotations(
+            requireContext(),
+            stringId,
+            linksMap
+        )
     }
 
     private fun buildColorStrings(): Spannable {
-        val subtitle1 = recurringBuyInfo.subtitle1
-        val subtitle2 = recurringBuyInfo.subtitle2 ?: return SpannableStringBuilder(subtitle1)
+        val title1 = recurringBuyInfo.title1
+        val title2 = recurringBuyInfo.title2
         val sb = SpannableStringBuilder()
-        sb.append(subtitle1)
-            .append(subtitle2)
+        sb.append(title1)
+            .append(title2)
             .setSpan(
                 ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.grey_800)),
-                0, subtitle1.length,
+                0, title1.length,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         return sb

@@ -1886,7 +1886,6 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="recurring_buy_title_2">Стратегия очень проста</string>
     <string name="recurring_buy_title_3">Когда цена снижается,</string>
     <string name="recurring_buy_title_4">Когда цена повышается,</string>
-    <string name="recurring_buy_title_5">Но работает ли это?</string>
     <string name="recurring_buy_subtitle_1">Усреднение долларовой стоимости</string>
     <string name="recurring_buy_subtitle_2">Вкладывайте одинаковую сумму каждую неделю</string>
     <string name="recurring_buy_subtitle_3">Вы купите больше криптовалюты.</string>
