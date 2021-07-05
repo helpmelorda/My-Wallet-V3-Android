@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.transactionflow.fullscreen
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -30,6 +31,7 @@ import piuk.blockchain.android.util.getTarget
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.putTarget
+import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class TransactionFlowActivity :
@@ -56,11 +58,19 @@ class TransactionFlowActivity :
     private val compositeDisposable = CompositeDisposable()
     private var currentStep: TransactionStep = TransactionStep.ZERO
     private lateinit var state: TransactionState
+    private var fragmentStackCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(binding.toolbarGeneral.toolbarGeneral)
+
+        with(binding.toolbarGeneral.toolbarGeneral) {
+            setSupportActionBar(this)
+            title = ""
+        }
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+
+        binding.txProgress.visible()
 
         val intentMapper = TransactionFlowIntentMapper(
             sourceAccount = sourceAccount,
@@ -84,7 +94,6 @@ class TransactionFlowActivity :
     override fun initBinding(): ActivityTransactionFlowBinding = ActivityTransactionFlowBinding.inflate(layoutInflater)
 
     override fun render(newState: TransactionState) {
-        binding.txProgress.gone()
         state = newState
         handleStateChange(newState)
     }
@@ -108,26 +117,55 @@ class TransactionFlowActivity :
             }
         }
         newState.currentStep.takeIf { it != TransactionStep.ZERO }?.let {
-            showFlowStep(it)
+            showFlowStep(it, newState)
             currentStep = it
+            updateNavigationUI()
         }
+    }
+
+    private fun updateNavigationUI() {
+        supportActionBar?.setDisplayHomeAsUpEnabled(fragmentStackCount > 1)
+        invalidateOptionsMenu()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_tx_flow, menu)
+        menu.findItem(R.id.tx_flow_close).isVisible = fragmentStackCount == 1
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == android.R.id.home) {
-            Timber.e("home selected, nav back")
-            if (::state.isInitialized && state.canGoBack) {
-                model.process(TransactionIntent.ReturnToPreviousStep)
-            } else {
-                finish()
+        return when (item.itemId) {
+            android.R.id.home -> {
+                navigateOnBackPressed {
+                    finish()
+                }
+                true
             }
-            true
-        } else {
-            super.onOptionsItemSelected(item)
+            R.id.tx_flow_close -> {
+                finish()
+                true
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
         }
     }
 
-    private fun showFlowStep(step: TransactionStep) =
+    override fun onBackPressed() {
+        navigateOnBackPressed { finish() }
+    }
+
+    private fun navigateOnBackPressed(finalAction: () -> Unit) {
+        if (::state.isInitialized && state.canGoBack) {
+            model.process(TransactionIntent.ReturnToPreviousStep)
+            fragmentStackCount--
+        } else {
+            finalAction()
+        }
+    }
+
+    private fun showFlowStep(step: TransactionStep, state: TransactionState) =
         when (step) {
             TransactionStep.ZERO,
             TransactionStep.CLOSED -> null
@@ -139,18 +177,23 @@ class TransactionFlowActivity :
             TransactionStep.CONFIRM_DETAIL -> ConfirmTransactionFragment.newInstance()
             TransactionStep.IN_PROGRESS -> TransactionProgressFragment.newInstance()
         }?.let {
-            Timber.e("flow step ${it.tag}")
-            supportActionBar?.title = it.getActionName()
-            supportFragmentManager.beginTransaction()
+            binding.txProgress.gone()
+
+            val transaction = supportFragmentManager.beginTransaction()
                 .setCustomAnimations(
                     R.anim.fragment_slide_left_enter,
                     R.anim.fragment_slide_left_exit,
                     R.anim.fragment_slide_right_enter,
                     R.anim.fragment_slide_right_exit
                 )
-                .replace(R.id.tx_flow_content, it)
-                .addToBackStack(it.tag)
-                .commitAllowingStateLoss()
+                .replace(R.id.tx_flow_content, it, it.toString())
+
+            if (!supportFragmentManager.fragments.contains(it)) {
+                transaction.addToBackStack(it.toString())
+                fragmentStackCount++
+            }
+
+            transaction.commit()
         }
 
     override fun onDestroy() {

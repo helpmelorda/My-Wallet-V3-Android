@@ -25,6 +25,7 @@
     <string name="common_error">Something went wrong, please try again</string>
     <string name="common_company_name">Blockchain.com</string>
     <string name="common_confirm">Confirm</string>
+    <string name="common_parametrised_confirm">Confirm %1$s</string>
     <string name="common_linked_learn_more"><annotation link="learn_more_link">Learn more.</annotation></string>
     <string name="common_empty_title">Can’t load your Wallets</string>
     <string name="common_empty_details">Looks like there is an issue with your internet connection. Please check and try again</string>

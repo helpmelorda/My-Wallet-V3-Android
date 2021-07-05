@@ -90,17 +90,19 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! EnterTargetAddressSheet")
+        activity.setToolbarTitle(customiser.selectTargetAddressTitle(state))
 
         with(binding) {
-            if (state.sendingAccount != newState.sendingAccount) {
-                if (sourceSlot == null) {
-                    sourceSlot = customiser.installAddressSheetSource(requireContext(), fromDetails, newState)
-                }
-                sourceSlot?.update(newState)
-
-                setupTransferList(customiser.enterTargetAddressSheetState(newState))
-                setupLabels(newState)
+            // this is commented out because if we cache from the newInstance we already have the sending account
+            // but we need a better strategy to pass the state around
+            // if (state.sendingAccount != newState.sendingAccount) {
+            if (sourceSlot == null) {
+                sourceSlot = customiser.installAddressSheetSource(requireContext(), fromDetails, newState)
             }
+            sourceSlot?.update(newState)
+
+            setupTransferList(customiser.enterTargetAddressSheetState(newState))
+            setupLabels(newState)
 
             upsellGroup.visibleIf { customiser.shouldShowCustodialUpsell(newState) }
 
@@ -133,13 +135,10 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         }
     }
 
-    override fun getActionName(): String = customiser.selectTargetAddressTitle(state)
-
     private fun setupLabels(state: TransactionState) {
         with(binding) {
             titleFrom.text = customiser.selectTargetSourceLabel(state)
             titleTo.text = customiser.selectTargetDestinationLabel(state)
-            title.text = customiser.selectTargetAddressTitle(state)
             subtitle.visibleIf { customiser.selectTargetShouldShowSubtitle(state) }
             subtitle.text = customiser.selectTargetSubtitle(state)
             selectAccountCta.text = customiser.selectTargetAddressWalletsCta(state)

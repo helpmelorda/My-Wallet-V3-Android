@@ -24,6 +24,11 @@ class TransactionProgressFragment : TransactionFlowFragment<DialogTxFlowInProgre
     private val customiser: TransactionProgressCustomisations by inject()
     private val MAX_STACKTRACE_CHARS = 400
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        activity.supportActionBar?.hide()
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.txProgressView.onCtaClick {
@@ -48,8 +53,6 @@ class TransactionProgressFragment : TransactionFlowFragment<DialogTxFlowInProgre
         handleStatusUpdates(newState)
         cacheState(newState)
     }
-
-    override fun getActionName(): String = ""
 
     private fun handleStatusUpdates(
         newState: TransactionState

@@ -6,7 +6,6 @@ import android.net.Uri
 import android.widget.FrameLayout
 import android.widget.ImageView
 import com.blockchain.nabu.datamanagers.TransactionError
-import piuk.blockchain.android.urllinks.CHECKOUT_REFUND_POLICY
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
@@ -40,8 +39,9 @@ import piuk.blockchain.android.ui.transactionflow.plugin.SimpleInfoHeaderView
 import piuk.blockchain.android.ui.transactionflow.plugin.SmallBalanceView
 import piuk.blockchain.android.ui.transactionflow.plugin.SwapInfoHeaderView
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
-import piuk.blockchain.android.util.setImageDrawable
+import piuk.blockchain.android.urllinks.CHECKOUT_REFUND_POLICY
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.setImageDrawable
 import java.math.BigInteger
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
@@ -180,7 +180,9 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Send -> resources.getString(
                 R.string.send_enter_amount_title, state.sendingAsset.ticker
             )
-            AssetAction.Swap -> resources.getString(R.string.common_swap)
+            AssetAction.Swap -> resources.getString(
+                R.string.tx_title_swap, state.sendingAsset.ticker, (state.selectedTarget as CryptoAccount).asset.ticker
+            )
             AssetAction.InterestDeposit -> resources.getString(
                 R.string.tx_title_deposit,
                 state.sendingAsset.ticker
@@ -292,16 +294,18 @@ class TransactionFlowCustomiserImpl(
             state.sendingAccount is NonCustodialAccount && state.selectedTarget is NonCustodialAccount
 
     override fun confirmTitle(state: TransactionState): String =
-        when (state.action) {
-            AssetAction.Send -> resources.getString(R.string.send_confirmation_title)
-            AssetAction.Swap -> resources.getString(R.string.common_confirm)
-            AssetAction.InterestDeposit,
-            AssetAction.InterestWithdraw -> resources.getString(R.string.common_confirm)
-            AssetAction.Sell -> resources.getString(R.string.checkout)
-            AssetAction.FiatDeposit -> resources.getString(R.string.common_deposit)
-            AssetAction.Withdraw -> resources.getString(R.string.common_withdraw)
-            else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
-        }
+        resources.getString(
+            R.string.common_parametrised_confirm, when (state.action) {
+                AssetAction.Send -> resources.getString(R.string.send_confirmation_title)
+                AssetAction.Swap -> resources.getString(R.string.common_swap)
+                AssetAction.InterestDeposit -> resources.getString(R.string.common_transfer)
+                AssetAction.InterestWithdraw -> resources.getString(R.string.common_withdraw)
+                AssetAction.Sell -> resources.getString(R.string.common_sell)
+                AssetAction.FiatDeposit -> resources.getString(R.string.common_deposit)
+                AssetAction.Withdraw -> resources.getString(R.string.common_withdraw)
+                else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
+            }
+        )
 
     override fun confirmCtaText(state: TransactionState): String {
         val amount = state.pendingTx?.amount?.toStringWithSymbol().orEmpty()
@@ -496,7 +500,7 @@ class TransactionFlowCustomiserImpl(
 
     override fun selectSourceAccountTitle(state: TransactionState): String {
         return when (state.action) {
-            AssetAction.Swap -> resources.getString(R.string.common_swap)
+            AssetAction.Swap -> resources.getString(R.string.swap_select_target_title)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_source_select_title)
             AssetAction.InterestDeposit -> resources.getString(R.string.select_deposit_source_title)
             else -> ""

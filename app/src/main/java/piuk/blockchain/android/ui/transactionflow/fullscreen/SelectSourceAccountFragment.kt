@@ -50,6 +50,8 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     }
 
     override fun render(newState: TransactionState) {
+        activity.setToolbarTitle(customiser.selectSourceAccountTitle(state))
+
         if (availableSources != newState.availableSources)
             updateSources(newState)
 
@@ -60,8 +62,6 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
         linkingBankState = newState.linkBankState
         cacheState(newState)
     }
-
-    override fun getActionName(): String = getString(R.string.select_account_sheet_title)
 
     private fun handleBankLinking(
         newState: TransactionState
@@ -91,7 +91,6 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
                 source = Single.just(newState.availableSources.map { it }),
                 status = customiser.sourceAccountSelectionStatusDecorator(newState)
             )
-            accountListTitle.text = customiser.selectSourceAccountTitle(newState)
             accountListSubtitle.text = customiser.selectSourceAccountSubtitle(newState)
             accountListSubtitle.visible()
             // accountListBack.visibleIf { newState.canGoBack }

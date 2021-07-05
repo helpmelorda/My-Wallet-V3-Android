@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
@@ -52,6 +53,11 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
 
     private val imm: InputMethodManager by lazy {
         requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        return super.onCreateView(inflater, container, savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -119,6 +125,8 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
     @SuppressLint("SetTextI18n")
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! EnterAmountSheet")
+        activity.setToolbarTitle(customiser.enterAmountTitle(newState))
+
         cacheState(newState)
         with(binding) {
             amountSheetCtaButton.isEnabled = newState.nextEnabled
@@ -147,8 +155,6 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                     amountSheetInput.updateValue(state.maxSpendable)
                 }
 
-                amountSheetTitle.text = customiser.enterAmountTitle(newState)
-
                 initialiseLowerSlotIfNeeded(newState)
                 initialiseUpperSlotIfNeeded(newState)
 
@@ -159,8 +165,6 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
             }
         }
     }
-
-    override fun getActionName(): String = customiser.enterAmountTitle(state)
 
     private fun FragmentTxFlowEnterAmountBinding.showFlashMessageIfNeeded(
         newState: TransactionState
@@ -203,8 +207,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 initControl(model, customiser, analyticsHooks)
             }
             (lowerSlot as? ExpandableTxFlowWidget)?.let {
-                it.expanded.observeOn(AndroidSchedulers.mainThread()).subscribe { expanded ->
-                    upperSlot?.setVisible(!expanded)
+                it.expanded.observeOn(AndroidSchedulers.mainThread()).subscribe {
                     configureCtaButton()
                 }
             }

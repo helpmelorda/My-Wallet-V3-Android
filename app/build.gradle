@@ -67,10 +67,8 @@ android {
         ]
 
         resConfigs 'en',
-                'de',
                 'es',
                 'fr',
-                'it',
                 'pt',
                 'pt-rBR',
                 'ru',

@@ -74,6 +74,8 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
         Timber.d("!TRANSACTION!> Rendering! ConfirmTransactionSheet")
         require(newState.currentStep == TransactionStep.CONFIRM_DETAIL)
 
+        activity.setToolbarTitle(customiser.confirmTitle(state))
+
         // We _should_ always have a pending Tx when we get here
         newState.pendingTx?.let {
             listAdapter.items = newState.pendingTx.confirmations.toList()
@@ -82,7 +84,6 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
 
         with(binding) {
             confirmCtaButton.text = customiser.confirmCtaText(newState)
-            confirmSheetTitle.text = customiser.confirmTitle(newState)
             confirmCtaButton.isEnabled = newState.nextEnabled
             // confirmSheetBack.visibleIf { newState.canGoBack }
 
@@ -99,8 +100,6 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
         headerSlot?.update(newState)
         cacheState(newState)
     }
-
-    override fun getActionName(): String = customiser.confirmTitle(state)
 
     private fun FragmentTxFlowConfirmBinding.initialiseHeaderSlotIfNeeded(state: TransactionState) {
         if (headerSlot == null) {
