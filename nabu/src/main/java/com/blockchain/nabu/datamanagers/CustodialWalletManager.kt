@@ -595,6 +595,13 @@ sealed class PaymentMethod(
         UndefinedPaymentMethod {
         override val paymentMethodType: PaymentMethodType
             get() = PaymentMethodType.FUNDS
+
+        val showAvailability: Boolean
+            get() = currenciesRequiringAvailabilityLabel.contains(fiatCurrency)
+
+        companion object {
+            private val currenciesRequiringAvailabilityLabel = listOf("USD")
+        }
     }
 
     data class UndefinedBankTransfer(

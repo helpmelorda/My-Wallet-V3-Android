@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/payment_method_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -35,18 +37,32 @@
         app:layout_constraintTop_toTopOf="@+id/payment_method_icon" />
 
     <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/payment_method_availability"
+        style="@style/Text.Light.14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/small_margin"
+        android:layout_marginTop="2dp"
+        android:text="@string/payment_wire_transfer_subtitle"
+        android:textColor="@color/grey_900"
+        android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
+        app:layout_constraintTop_toBottomOf="@+id/payment_method_title"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/instructions"
         style="@style/Text.Light.12"
-        android:textColor="@color/grey_600"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
         android:layout_marginStart="@dimen/small_margin"
+        android:layout_marginTop="2dp"
         android:layout_marginEnd="@dimen/standard_margin"
         android:text="@string/send_funds_directly_from_your_bank"
+        android:textColor="@color/grey_600"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
-        app:layout_constraintTop_toBottomOf="@+id/payment_method_title" />
+        app:layout_constraintTop_toBottomOf="@+id/payment_method_availability" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/add_payment_method_icon"
