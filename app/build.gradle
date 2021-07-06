@@ -63,7 +63,8 @@ android {
         buildConfigString "SHAPE_SHIFT_API_KEY", buildProperties.secrets['shapeShiftApiKey']
 
         manifestPlaceholders = [
-                FABRIC_API_KEY: buildProperties.secrets['fabricApiKey'].string
+            APP_NAME: "@string/app_name",
+            FABRIC_API_KEY: buildProperties.secrets['fabricApiKey'].string
         ]
 
         resConfigs 'en',
@@ -124,9 +125,11 @@ android {
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['prodSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
         }
+
         envInternalProd {
             dimension "environment"
             manifestPlaceholders = [
+                    APP_NAME: "@string/dogfood_app_name",
                     BACKUP_API_KEY     : buildProperties.secrets['prodGoogleBackupApiKey'].string,
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['prodDynamicLink'].string,
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['prodDynamicLink2'].string,
@@ -152,7 +155,6 @@ android {
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
 
             applicationId "com.blockchain.wallet.internal"
-            resValue "string", "app_name", "BlockInternal"
 
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
             if (ciVersionCode != null) {
@@ -165,9 +167,11 @@ android {
                 versionNameSuffix = ".local"
             }
         }
+
         envDev {
             dimension "environment"
             manifestPlaceholders = [
+                    APP_NAME: "@string/dev_app_name",
                     BACKUP_API_KEY     : buildProperties.secrets['devGoogleBackupApiKey'].string,
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['devDynamicLink'].string,
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['devDynamicLink2'].string,
@@ -194,11 +198,12 @@ android {
 
             versionNameSuffix '-dev'
             applicationId "piuk.blockchain.android.dev"
-            resValue "string", "app_name", "BlockDev"
         }
+        
         envStaging {
             dimension "environment"
             manifestPlaceholders = [
+                    APP_NAME: "@string/staging_app_name",
                     BACKUP_API_KEY     : buildProperties.secrets['stagingGoogleBackupApiKey'].string,
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['stagingDynamicLink'].string,
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['stagingDynamicLink2'].string,
@@ -225,7 +230,6 @@ android {
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"
-            resValue "string", "app_name", "BlockStaging"
         }
     }
 
