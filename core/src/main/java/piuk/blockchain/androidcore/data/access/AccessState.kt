@@ -81,9 +81,6 @@ internal class AccessStateImpl(
         set(loggedIn) {
             logIn()
             field = loggedIn
-            if (!this.isLoggedIn) {
-                rxBus.emitEvent(AuthEvent::class.java, AuthEvent.LOGOUT)
-            }
         }
 
     override var isNewlyCreated: Boolean

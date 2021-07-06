@@ -6,8 +6,6 @@ import com.blockchain.nabu.datamanagers.repositories.ExpiringRepository
 import info.blockchain.balance.AssetInfo
 import io.reactivex.Maybe
 import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.ActivitySummaryList
@@ -23,23 +21,11 @@ import piuk.blockchain.android.coincore.TradeActivitySummaryItem
 import piuk.blockchain.android.coincore.TradingAccount
 import piuk.blockchain.android.coincore.impl.AllWalletsAccount
 import piuk.blockchain.android.coincore.impl.CryptoInterestAccount
-import piuk.blockchain.androidcore.data.access.AuthEvent
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import timber.log.Timber
 
 class AssetActivityRepository(
-    private val coincore: Coincore,
-    private val rxBus: RxBus
+    private val coincore: Coincore
 ) : ExpiringRepository<ActivitySummaryList>() {
-    private val event = rxBus.register(AuthEvent.LOGOUT::class.java)
-
-    init {
-        val compositeDisposable = CompositeDisposable()
-        compositeDisposable += event
-            .subscribe {
-                doOnLogout()
-            }
-    }
 
     private val transactionCache = mutableListOf<ActivitySummaryItem>()
 
@@ -183,8 +169,7 @@ class AssetActivityRepository(
         return Maybe.just(transactionCache)
     }
 
-    private fun doOnLogout() {
+    fun clear() {
         transactionCache.clear()
-        rxBus.unregister(AuthEvent::class.java, event)
     }
 }
