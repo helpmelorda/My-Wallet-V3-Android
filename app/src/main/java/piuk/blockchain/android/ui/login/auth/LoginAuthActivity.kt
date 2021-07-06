@@ -15,6 +15,7 @@ import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
+import com.blockchain.logging.CrashLogger
 import com.blockchain.remoteconfig.FeatureFlag
 import piuk.blockchain.android.urllinks.RESET_2FA
 import piuk.blockchain.android.urllinks.SECOND_PASSWORD_EXPLANATION
@@ -33,6 +34,8 @@ import piuk.blockchain.android.ui.recover.RecoverFundsActivity
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
+import timber.log.Timber
+import java.lang.Exception
 
 class LoginAuthActivity :
     MviActivity<LoginAuthModel, LoginAuthIntents, LoginAuthState, ActivityLoginAuthBinding>() {
@@ -41,6 +44,8 @@ class LoginAuthActivity :
         get() = true
 
     override val model: LoginAuthModel by scopedInject()
+
+    private val crashLogger: CrashLogger by inject()
 
     private lateinit var currentState: LoginAuthState
 
@@ -54,26 +59,42 @@ class LoginAuthActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val compositeDisposable = ssoARFF.enabled.subscribeBy(
+        subscription = ssoARFF.enabled.subscribeBy(
             onSuccess = { enabled ->
                 isAccountRecoveryEnabled = enabled
             },
             onError = { isAccountRecoveryEnabled = false }
         )
 
+        processIntentData()
+    }
+
+    private fun processIntentData() {
         intent.data?.let { uri ->
             uri.fragment?.let { fragment ->
-                val json = decodeJson(fragment)
-                val guid = json.getString(GUID)
+                try {
+                    val json = decodeJson(fragment)
+                    val guid = json.getString(GUID)
 
-                initControls(json.getString(EMAIL), guid)
-                if (json.has(EMAIL_CODE)) {
-                    val authToken = json.getString(EMAIL_CODE)
-                    model.process(LoginAuthIntents.GetSessionId(guid, authToken))
-                } else {
-                    model.process(LoginAuthIntents.GetSessionId(guid, ""))
+                    initControls(json.getString(EMAIL), guid)
+                    if (json.has(EMAIL_CODE)) {
+                        val authToken = json.getString(EMAIL_CODE)
+                        model.process(LoginAuthIntents.GetSessionId(guid, authToken))
+                    } else {
+                        model.process(LoginAuthIntents.GetSessionId(guid, ""))
+                    }
+                } catch (ex: Exception) {
+                    Timber.e(ex)
+                    crashLogger.logException(ex)
+                    model.process(LoginAuthIntents.ShowError(ex))
                 }
+            } ?: kotlin.run {
+                Timber.v("The URI fragment from the Intent is empty!")
+                model.process(LoginAuthIntents.ShowAuthRequired)
             }
+        } ?: kotlin.run {
+            Timber.v("The Intent data is empty!")
+            model.process(LoginAuthIntents.ShowAuthRequired)
         }
     }
 
@@ -215,12 +236,13 @@ class LoginAuthActivity :
     }
 
     private fun decodeJson(fragment: String): JSONObject {
-        val encodedData = fragment.split("/").last()
-        val data = Base64.decode(encodedData.toByteArray(Charsets.UTF_8), Base64.DEFAULT)
+        val encodedData = fragment.substringAfterLast(LINK_DELIMITER)
+        val data = Base64.decode(encodedData.toByteArray(Charsets.UTF_8), Base64.URL_SAFE)
         return JSONObject(String(data))
     }
 
     companion object {
+        private const val LINK_DELIMITER = "/login/"
         private const val GUID = "guid"
         private const val EMAIL = "email"
         private const val EMAIL_CODE = "email_code"
