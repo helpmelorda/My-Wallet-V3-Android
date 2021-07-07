@@ -44,6 +44,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
     private val customiser: TargetSelectionCustomisations by inject()
     private val qrProcessor: QrScanResultProcessor by scopedInject()
     private var sourceSlot: TxFlowWidget? = null
+    private var state = TransactionState()
 
     private val disposables = CompositeDisposable()
 
@@ -52,8 +53,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         with(binding) {
             addressEntry.addTextChangedListener(addressTextWatcher)
             btnScan.setOnClickListener { onLaunchAddressScan() }
-            ctaButton.setOnClickListener { onCtaClick() }
-            selectAnAccount.setOnClickListener { showMoreAccounts() }
+
             walletSelect.apply {
                 onLoadError = {
                     hideTransferList()
@@ -77,40 +77,25 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         if (address.isEmpty()) {
             model.process(TransactionIntent.EnteredAddressReset)
         } else {
-            if (customiser.enterTargetAddressSheetState(state) is
-                    TargetAddressSheetState.SelectAccountWhenOverMaxLimitSurpassed
-            ) {
-                binding.selectAnAccount.visible()
-            } else {
-                binding.walletSelect.clearSelectedAccount()
-            }
+            binding.walletSelect.clearSelectedAccount()
             addressEntered(address, state.sendingAsset)
         }
     }
 
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! EnterTargetAddressSheet")
-        activity.setToolbarTitle(customiser.selectTargetAddressTitle(state))
+        activity.setToolbarTitle(customiser.selectTargetAddressTitle(newState))
 
         with(binding) {
-            // this is commented out because if we cache from the newInstance we already have the sending account
-            // but we need a better strategy to pass the state around
-            // if (state.sendingAccount != newState.sendingAccount) {
             if (sourceSlot == null) {
                 sourceSlot = customiser.installAddressSheetSource(requireContext(), fromDetails, newState)
+
+                setupTransferList(newState)
+                setupLabels(newState)
             }
             sourceSlot?.update(newState)
 
-            setupTransferList(customiser.enterTargetAddressSheetState(newState))
-            setupLabels(newState)
-
             upsellGroup.visibleIf { customiser.shouldShowCustodialUpsell(newState) }
-
-            if (customiser.enterTargetAddressSheetState(newState) is
-                    TargetAddressSheetState.SelectAccountWhenOverMaxLimitSurpassed
-            ) {
-                selectAnAccount.visible()
-            }
 
             if (customiser.selectTargetShowManualEnterAddress(newState)) {
                 showManualAddressEntry(newState)
@@ -128,11 +113,11 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 }
             } ?: hideErrorState()
 
-            // addressSheetBack.visibleIf { newState.canGoBack }
-
             ctaButton.isEnabled = newState.nextEnabled
-            cacheState(newState)
+            ctaButton.setOnClickListener { onCtaClick(newState) }
         }
+
+        state = newState
     }
 
     private fun setupLabels(state: TransactionState) {
@@ -141,7 +126,6 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             titleTo.text = customiser.selectTargetDestinationLabel(state)
             subtitle.visibleIf { customiser.selectTargetShouldShowSubtitle(state) }
             subtitle.text = customiser.selectTargetSubtitle(state)
-            selectAccountCta.text = customiser.selectTargetAddressWalletsCta(state)
         }
     }
 
@@ -193,19 +177,17 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         }
     }
 
-    private fun showMoreAccounts() {
-        model.process(TransactionIntent.ShowMoreAccounts)
-    }
+    private fun setupTransferList(state: TransactionState) {
+        val fragmentState = customiser.enterTargetAddressFragmentState(state)
 
-    private fun setupTransferList(targetAddressSheetState: TargetAddressSheetState) {
         with(binding.walletSelect) {
             initialise(
-                Single.just(targetAddressSheetState.accounts.filterIsInstance<BlockchainAccount>()),
+                source = Single.just(fragmentState.accounts.filterIsInstance<BlockchainAccount>()),
+                status = customiser.selectTargetStatusDecorator(state),
                 shouldShowSelectionStatus = true
             )
-            // set visibility of component here so bottom sheet grows to the correct height
-            visible()
-            when (targetAddressSheetState) {
+
+            when (fragmentState) {
                 is TargetAddressSheetState.SelectAccountWhenWithinMaxLimit -> {
                     onAccountSelected = {
                         accountSelected(it)
@@ -213,10 +195,10 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 }
                 is TargetAddressSheetState.TargetAccountSelected -> {
                     updatedSelectedAccount(
-                        targetAddressSheetState.accounts.filterIsInstance<BlockchainAccount>().first()
+                        fragmentState.accounts.filterIsInstance<BlockchainAccount>().first()
                     )
                     onAccountSelected = {
-                        model.process(TransactionIntent.ShowTargetSelection)
+                        accountSelected(it)
                     }
                 }
                 else -> {
@@ -300,7 +282,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         }
     }
 
-    private fun onCtaClick() {
+    private fun onCtaClick(state: TransactionState) {
         analyticsHooks.onEnterAddressCtaClick(state)
         model.process(TransactionIntent.TargetSelected)
     }

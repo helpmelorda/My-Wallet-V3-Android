@@ -30,19 +30,18 @@ class EnterSecondPasswordFragment : TransactionFlowFragment<FragmentTxFlowPasswo
                 true
             }
         }
+
+        activity.setToolbarTitle(getString(R.string.transfer_second_pswd_title))
     }
 
     override fun render(newState: TransactionState) {
         require(newState.currentStep == TransactionStep.ENTER_PASSWORD)
-
-        activity.setToolbarTitle(getString(R.string.transfer_second_pswd_title))
 
         if (newState.errorState == TransactionErrorState.INVALID_PASSWORD) {
             Toast.makeText(requireContext(), getString(R.string.invalid_password), Toast.LENGTH_SHORT).show()
         }
 
         Timber.d("!TRANSACTION!> Rendering! EnterSecondPasswordSheet")
-        cacheState(newState)
     }
 
     private fun onCtaClick() {

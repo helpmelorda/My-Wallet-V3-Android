@@ -31,16 +31,11 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
-            accountList.onAccountSelected = {
-                model.process(TransactionIntent.SourceAccountSelected(it))
-                analyticsHooks.onSourceAccountSelected(it, state)
+            with(accountList) {
+                onListLoaded = ::doOnListLoaded
+                onLoadError = ::doOnLoadError
+                onListLoading = ::doOnListLoading
             }
-            //            accountListBack.setOnClickListener {
-            //                model.process(TransactionIntent.ReturnToPreviousStep)
-            //            }
-            accountList.onListLoaded = ::doOnListLoaded
-            accountList.onLoadError = ::doOnLoadError
-            accountList.onListLoading = ::doOnListLoading
 
             addMethod.setOnClickListener {
                 binding.progress.visible()
@@ -50,17 +45,23 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     }
 
     override fun render(newState: TransactionState) {
-        activity.setToolbarTitle(customiser.selectSourceAccountTitle(state))
+        activity.setToolbarTitle(customiser.selectSourceAccountTitle(newState))
 
-        if (availableSources != newState.availableSources)
+        binding.accountList.onAccountSelected = {
+            model.process(TransactionIntent.SourceAccountSelected(it))
+            analyticsHooks.onSourceAccountSelected(it, newState)
+        }
+
+        if (availableSources != newState.availableSources) {
             updateSources(newState)
+        }
 
-        if (newState.linkBankState != BankLinkingState.NotStarted && linkingBankState != newState.linkBankState)
+        if (newState.linkBankState != BankLinkingState.NotStarted && linkingBankState != newState.linkBankState) {
             handleBankLinking(newState)
+        }
 
         availableSources = newState.availableSources
         linkingBankState = newState.linkBankState
-        cacheState(newState)
     }
 
     private fun handleBankLinking(

@@ -24,9 +24,10 @@ class SimpleInfoHeaderView @JvmOverloads constructor(
     private lateinit var customiser: TransactionConfirmationCustomisations
     private lateinit var analytics: TxFlowAnalytics
     private lateinit var cachedState: TransactionState
+    var shouldShowExchange = true
 
     private val binding: ViewCheckoutHeaderBinding =
-        ViewCheckoutHeaderBinding.inflate(LayoutInflater.from(context), this, false)
+        ViewCheckoutHeaderBinding.inflate(LayoutInflater.from(context), this, true)
 
     override fun initControl(
         model: TransactionModel,
@@ -43,19 +44,18 @@ class SimpleInfoHeaderView @JvmOverloads constructor(
     override fun update(state: TransactionState) {
         check(::model.isInitialized) { "Control not initialised" }
         cachedState = state
-        with(binding) {
+            with(binding) {
             state.pendingTx?.amount?.let { amnt ->
                 headerTitle.text = amnt.toStringWithSymbol()
+
+                if (shouldShowExchange) {
+                    state.fiatRate?.let {
+                        headerSubtitle.text = it.convert(amnt, false).toStringWithSymbol()
+                    }
+                } else {
+                    headerSubtitle.gone()
+                }
             }
-        }
-    }
-    fun showExchange(showExchange: Boolean) {
-        if (showExchange) {
-            cachedState.fiatRate?.let {
-                binding.headerSubtitle.text = it.convert(cachedState.pendingTx?.amount!!, false).toStringWithSymbol()
-            }
-        } else {
-            binding.headerSubtitle.gone()
         }
     }
 

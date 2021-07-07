@@ -22,6 +22,7 @@ interface TargetSelectionCustomisations {
     fun selectTargetAccountTitle(state: TransactionState): String
     fun selectTargetAccountDescription(state: TransactionState): String
     fun enterTargetAddressSheetState(state: TransactionState): TargetAddressSheetState
+    fun enterTargetAddressFragmentState(state: TransactionState): TargetAddressSheetState
     fun issueFlashMessage(state: TransactionState, input: CurrencyType?): String?
     fun installAddressSheetSource(ctx: Context, frame: FrameLayout, state: TransactionState): TxFlowWidget
 }

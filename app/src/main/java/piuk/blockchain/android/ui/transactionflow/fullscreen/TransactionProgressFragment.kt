@@ -51,7 +51,6 @@ class TransactionProgressFragment : TransactionFlowFragment<DialogTxFlowInProgre
         } ?: binding.txProgressView.setAssetIcon(newState.sendingAsset)
 
         handleStatusUpdates(newState)
-        cacheState(newState)
     }
 
     private fun handleStatusUpdates(

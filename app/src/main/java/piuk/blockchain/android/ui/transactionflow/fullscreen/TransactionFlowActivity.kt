@@ -158,7 +158,20 @@ class TransactionFlowActivity :
 
     private fun navigateOnBackPressed(finalAction: () -> Unit) {
         if (::state.isInitialized && state.canGoBack) {
-            model.process(TransactionIntent.ReturnToPreviousStep)
+            // TODO these checks should go in the activity customiser interface
+            when (state.currentStep) {
+                TransactionStep.ENTER_ADDRESS -> {
+                    model.process(TransactionIntent.ClearSelectedTarget)
+                    model.process(TransactionIntent.ReturnToPreviousStep)
+                }
+                TransactionStep.ENTER_AMOUNT -> {
+                    model.process(TransactionIntent.InvalidateTransaction)
+                }
+                else -> {
+                    Timber.e("back from current step: ${state.currentStep}")
+                    model.process(TransactionIntent.ReturnToPreviousStep)
+                }
+            }
             fragmentStackCount--
         } else {
             finalAction()

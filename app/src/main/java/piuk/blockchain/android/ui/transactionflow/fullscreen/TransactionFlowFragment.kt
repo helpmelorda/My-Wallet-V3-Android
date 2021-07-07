@@ -18,9 +18,6 @@ abstract class TransactionFlowFragment<T : ViewBinding> :
 
     override val model: TransactionModel by transactionInject()
 
-    protected var state: TransactionState = TransactionState()
-        private set
-
     protected val analyticsHooks: TxFlowAnalytics by inject()
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -41,9 +38,5 @@ abstract class TransactionFlowFragment<T : ViewBinding> :
             ToastCustom.LENGTH_LONG,
             ToastCustom.TYPE_ERROR
         )
-    }
-
-    protected fun cacheState(newState: TransactionState) {
-        state = newState
     }
 }

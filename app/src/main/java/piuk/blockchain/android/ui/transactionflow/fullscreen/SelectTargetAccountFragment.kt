@@ -22,17 +22,13 @@ class SelectTargetAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
-            accountList.onAccountSelected = ::doOnAccountSelected
             accountList.onListLoaded = ::doOnListLoaded
             accountList.onLoadError = ::doOnLoadError
-//            accountListBack.setOnClickListener {
-//                model.process(TransactionIntent.ReturnToPreviousStep)
-//            }
         }
     }
 
     override fun render(newState: TransactionState) {
-        activity.setToolbarTitle(customiser.selectTargetAccountTitle(state))
+        activity.setToolbarTitle(customiser.selectTargetAccountTitle(newState))
 
         with(binding) {
             accountList.initialise(
@@ -41,9 +37,8 @@ class SelectTargetAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
             )
             accountListSubtitle.text = customiser.selectTargetAccountDescription(newState)
             accountListSubtitle.visible()
-            // accountListBack.visibleIf { newState.canGoBack }
+            accountList.onAccountSelected = { account: BlockchainAccount -> doOnAccountSelected(account, newState) }
         }
-        cacheState(newState)
     }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentTxAccountSelectorBinding =
@@ -53,7 +48,7 @@ class SelectTargetAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
         binding.progress.gone()
     }
 
-    private fun doOnAccountSelected(account: BlockchainAccount) {
+    private fun doOnAccountSelected(account: BlockchainAccount, state: TransactionState) {
         require(account is SingleAccount)
         model.process(TransactionIntent.TargetAccountSelected(account))
         analyticsHooks.onTargetAccountSelected(account, state)

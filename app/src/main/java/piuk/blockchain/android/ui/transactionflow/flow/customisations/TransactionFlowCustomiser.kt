@@ -494,7 +494,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit -> resources.getString(R.string.common_deposit)
             AssetAction.Withdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_target_select_title)
-            else -> ""
+            else -> resources.getString(R.string.select_a_wallet)
         }
     }
 
@@ -503,7 +503,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Swap -> resources.getString(R.string.swap_select_target_title)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_source_select_title)
             AssetAction.InterestDeposit -> resources.getString(R.string.select_deposit_source_title)
-            else -> ""
+            else -> resources.getString(R.string.select_a_wallet)
         }
     }
 
@@ -536,6 +536,15 @@ class TransactionFlowCustomiserImpl(
                     MAX_ACCOUNTS_FOR_SHEET
                 ).map { it as BlockchainAccount })
             }
+        } else {
+            TargetAddressSheetState.TargetAccountSelected(state.selectedTarget)
+        }
+    }
+
+    override fun enterTargetAddressFragmentState(state: TransactionState): TargetAddressSheetState {
+        return if (state.selectedTarget == NullAddress) {
+            TargetAddressSheetState.SelectAccountWhenWithinMaxLimit(
+                state.availableTargets.map { it as BlockchainAccount })
         } else {
             TargetAddressSheetState.TargetAccountSelected(state.selectedTarget)
         }
@@ -837,8 +846,8 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit,
             AssetAction.Withdraw ->
                 SimpleInfoHeaderView(ctx).also {
-                    it.showExchange(true)
                     frame.addView(it)
+                    it.shouldShowExchange = false
                 }
             else -> SimpleInfoHeaderView(ctx).also { frame.addView(it) }
         }

@@ -488,6 +488,13 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             ).updateBackstack(oldState)
     }
 
+    object ClearSelectedTarget : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                selectedTarget = NullAddress
+            )
+    }
+
     // Fired from when the confirm transaction sheet is created.
     // Forces a validation pass; we will get a
     object ValidateTransaction : TransactionIntent() {

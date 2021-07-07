@@ -243,6 +243,7 @@ class TransactionModel(
             is TransactionIntent.ClearBackStack -> null
             is TransactionIntent.NavigateBackFromEnterAmount -> processTransactionInvalidation(previousState.action)
             is TransactionIntent.ApprovalRequired -> null
+            is TransactionIntent.ClearSelectedTarget -> null
         }
     }
 

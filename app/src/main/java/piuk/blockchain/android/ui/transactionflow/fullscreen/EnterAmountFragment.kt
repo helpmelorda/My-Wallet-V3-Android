@@ -47,6 +47,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
 
     private val customiser: EnterAmountCustomisations by inject()
     private val compositeDisposable = CompositeDisposable()
+    private var state: TransactionState = TransactionState()
 
     private var lowerSlot: TxFlowWidget? = null
     private var upperSlot: TxFlowWidget? = null
@@ -62,12 +63,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.apply {
-            amountSheetCtaButton.setOnClickListener {
-                analyticsHooks.onEnterAmountCtaClick(state)
-                onCtaClick()
-            }
-        }
+
         //              amountSheetBack.setOnClickListener {
         //                analyticsHooks.onStepBackClicked(state)
         //                model.process(TransactionIntent.NavigateBackFromEnterAmount)
@@ -102,12 +98,11 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 when (it) {
                     PrefixedOrSuffixedEditText.ImeOptions.NEXT -> {
                         if (state.nextEnabled) {
-                            onCtaClick()
+                            onCtaClick(state)
                         }
                     }
                     PrefixedOrSuffixedEditText.ImeOptions.BACK -> {
                         hideKeyboard()
-                        // dismiss()
                     }
                     else -> {
                         // do nothing
@@ -127,13 +122,15 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         Timber.d("!TRANSACTION!> Rendering! EnterAmountSheet")
         activity.setToolbarTitle(customiser.enterAmountTitle(newState))
 
-        cacheState(newState)
         with(binding) {
             amountSheetCtaButton.isEnabled = newState.nextEnabled
+            amountSheetCtaButton.setOnClickListener {
+                onCtaClick(newState)
+            }
 
             if (!amountSheetInput.configured) {
                 newState.pendingTx?.let {
-                    amountSheetInput.configure(newState, customiser.defInputType(state, it.selectedFiat))
+                    amountSheetInput.configure(newState, customiser.defInputType(newState, it.selectedFiat))
                 }
             }
 
@@ -152,7 +149,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 }
 
                 if (state.setMax) {
-                    amountSheetInput.updateValue(state.maxSpendable)
+                    amountSheetInput.updateValue(newState.maxSpendable)
                 }
 
                 initialiseLowerSlotIfNeeded(newState)
@@ -164,13 +161,15 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 showFlashMessageIfNeeded(newState)
             }
         }
+
+        state = newState
     }
 
     private fun FragmentTxFlowEnterAmountBinding.showFlashMessageIfNeeded(
-        newState: TransactionState
+        state: TransactionState
     ) {
-        customiser.issueFlashMessage(newState, amountSheetInput.configuration.inputCurrency)?.let {
-            when (customiser.selectIssueType(newState)) {
+        customiser.issueFlashMessage(state, amountSheetInput.configuration.inputCurrency)?.let {
+            when (customiser.selectIssueType(state)) {
                 IssueType.ERROR -> {
                     amountSheetInput.showError(it, customiser.shouldDisableInput(state.errorState))
                 }
@@ -181,14 +180,14 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                     }
                 }
             }
-        } ?: showFeesTooHighMessageOrHide(newState)
+        } ?: showFeesTooHighMessageOrHide(state)
     }
 
     private fun FragmentTxFlowEnterAmountBinding.showFeesTooHighMessageOrHide(
-        newState: TransactionState
+        state: TransactionState
     ) {
         val feesTooHighMsg = customiser.issueFeesTooHighMessage(state)
-        if (newState.pendingTx != null && newState.pendingTx.isLowOnBalance() && feesTooHighMsg != null) {
+        if (state.pendingTx != null && state.pendingTx.isLowOnBalance() && feesTooHighMsg != null) {
             amountSheetInput.showError(
                 errorMessage = feesTooHighMsg
             )
@@ -197,12 +196,12 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         }
     }
 
-    private fun FragmentTxFlowEnterAmountBinding.initialiseUpperSlotIfNeeded(newState: TransactionState) {
+    private fun FragmentTxFlowEnterAmountBinding.initialiseUpperSlotIfNeeded(state: TransactionState) {
         if (upperSlot == null) {
             upperSlot = customiser.installEnterAmountUpperSlotView(
                 requireContext(),
                 frameUpperSlot,
-                newState
+                state
             ).apply {
                 initControl(model, customiser, analyticsHooks)
             }
@@ -254,9 +253,10 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         else roundedDownAmount
     }
 
-    private fun onCtaClick() {
+    private fun onCtaClick(state: TransactionState) {
         hideKeyboard()
         model.process(TransactionIntent.PrepareTransaction)
+        analyticsHooks.onEnterAmountCtaClick(state)
     }
 
     private fun hideKeyboard() {
@@ -264,28 +264,28 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
     }
 
     private fun FiatCryptoInputView.configure(
-        newState: TransactionState,
+        state: TransactionState,
         inputCurrency: CurrencyType
     ) {
-        if (inputCurrency is CurrencyType.Crypto || newState.amount.takeIf { it is CryptoValue }?.isPositive == true) {
-            val selectedFiat = newState.pendingTx?.selectedFiat ?: return
+        if (inputCurrency is CurrencyType.Crypto || state.amount.takeIf { it is CryptoValue }?.isPositive == true) {
+            val selectedFiat = state.pendingTx?.selectedFiat ?: return
             configuration = FiatCryptoViewConfiguration(
-                inputCurrency = CurrencyType.Crypto(newState.sendingAsset),
+                inputCurrency = CurrencyType.Crypto(state.sendingAsset),
                 exchangeCurrency = CurrencyType.Fiat(selectedFiat),
-                predefinedAmount = newState.amount
+                predefinedAmount = state.amount
             )
         } else {
-            val selectedFiat = newState.pendingTx?.selectedFiat ?: return
-            val fiatRate = newState.fiatRate ?: return
-            val isCryptoWithFiatExchange = newState.amount is CryptoValue && fiatRate is ExchangeRate.CryptoToFiat
+            val selectedFiat = state.pendingTx?.selectedFiat ?: return
+            val fiatRate = state.fiatRate ?: return
+            val isCryptoWithFiatExchange = state.amount is CryptoValue && fiatRate is ExchangeRate.CryptoToFiat
             configuration = FiatCryptoViewConfiguration(
                 inputCurrency = CurrencyType.Fiat(selectedFiat),
                 outputCurrency = CurrencyType.Fiat(selectedFiat),
-                exchangeCurrency = newState.sendingAccount.currencyType(),
+                exchangeCurrency = state.sendingAccount.currencyType(),
                 predefinedAmount = if (isCryptoWithFiatExchange) {
-                    fiatRate.convert(newState.amount)
+                    fiatRate.convert(state.amount)
                 } else {
-                    newState.amount
+                    state.amount
                 }
             )
         }

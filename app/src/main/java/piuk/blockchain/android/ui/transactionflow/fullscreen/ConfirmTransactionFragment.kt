@@ -46,7 +46,6 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.confirmCtaButton.setOnClickListener { onCtaClick() }
 
         with(binding.confirmDetailsList) {
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
@@ -74,7 +73,7 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
         Timber.d("!TRANSACTION!> Rendering! ConfirmTransactionSheet")
         require(newState.currentStep == TransactionStep.CONFIRM_DETAIL)
 
-        activity.setToolbarTitle(customiser.confirmTitle(state))
+        activity.setToolbarTitle(customiser.confirmTitle(newState))
 
         // We _should_ always have a pending Tx when we get here
         newState.pendingTx?.let {
@@ -83,9 +82,11 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
         }
 
         with(binding) {
-            confirmCtaButton.text = customiser.confirmCtaText(newState)
-            confirmCtaButton.isEnabled = newState.nextEnabled
-            // confirmSheetBack.visibleIf { newState.canGoBack }
+            with(confirmCtaButton) {
+                text = customiser.confirmCtaText(newState)
+                isEnabled = newState.nextEnabled
+                setOnClickListener { onCtaClick(newState) }
+            }
 
             if (customiser.confirmDisclaimerVisibility(newState.action)) {
                 confirmDisclaimer.apply {
@@ -98,7 +99,6 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
         }
 
         headerSlot?.update(newState)
-        cacheState(newState)
     }
 
     private fun FragmentTxFlowConfirmBinding.initialiseHeaderSlotIfNeeded(state: TransactionState) {
@@ -113,7 +113,7 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
         }
     }
 
-    private fun onCtaClick() {
+    private fun onCtaClick(state: TransactionState) {
         analyticsHooks.onConfirmationCtaClick(state)
         model.process(TransactionIntent.ExecuteTransaction)
     }
