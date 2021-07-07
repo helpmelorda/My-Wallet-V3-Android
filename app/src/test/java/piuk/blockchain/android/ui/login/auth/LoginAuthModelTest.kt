@@ -132,7 +132,12 @@ class LoginAuthModelTest {
     fun `verify password without 2fa`() {
         // Arrange
         val password = "password"
+        val isMobileSetup = true
+        val deviceType = DEVICE_TYPE_ANDROID
         whenever(interactor.verifyPassword(anyString(), anyString())).thenReturn(
+            Completable.complete()
+        )
+        whenever(interactor.updateMobileSetup(isMobileSetup, deviceType)).thenReturn(
             Completable.complete()
         )
 
@@ -147,8 +152,16 @@ class LoginAuthModelTest {
                 password = password
             ),
             LoginAuthState(
+                authStatus = AuthStatus.UpdateMobileSetup,
+                password = password,
+                isMobileSetup = isMobileSetup,
+                deviceType = deviceType
+            ),
+            LoginAuthState(
                 authStatus = AuthStatus.Complete,
-                password = password
+                password = password,
+                isMobileSetup = isMobileSetup,
+                deviceType = deviceType
             )
         )
     }
@@ -185,10 +198,15 @@ class LoginAuthModelTest {
         // Arrange
         val password = "password"
         val twoFACode = "code"
+        val isMobileSetup = true
+        val deviceType = DEVICE_TYPE_ANDROID
         whenever(interactor.submitCode(anyString(), anyString(), anyString(), anyString())).thenReturn(
             Single.just(TWO_FA_PAYLOAD.toResponseBody((JSON_HEADER).toMediaTypeOrNull()))
         )
         whenever(interactor.verifyPassword(anyString(), anyString())).thenReturn(
+            Completable.complete()
+        )
+        whenever(interactor.updateMobileSetup(isMobileSetup, deviceType)).thenReturn(
             Completable.complete()
         )
 
@@ -210,10 +228,20 @@ class LoginAuthModelTest {
                 payloadJson = TWO_FA_PAYLOAD
             ),
             LoginAuthState(
+                authStatus = AuthStatus.UpdateMobileSetup,
+                password = password,
+                code = twoFACode,
+                payloadJson = TWO_FA_PAYLOAD,
+                isMobileSetup = isMobileSetup,
+                deviceType = deviceType
+            ),
+            LoginAuthState(
                 authStatus = AuthStatus.Complete,
                 password = password,
                 code = twoFACode,
-                payloadJson = TWO_FA_PAYLOAD
+                payloadJson = TWO_FA_PAYLOAD,
+                isMobileSetup = isMobileSetup,
+                deviceType = deviceType
             )
         )
     }
@@ -256,5 +284,7 @@ class LoginAuthModelTest {
         private const val INITIAL_ERROR_RESPONSE = "{\"initial_error\":\"$INITIAL_ERROR_MESSAGE\"}"
 
         private const val TWO_FA_PAYLOAD = "{\"payload\":\"{auth_type: 4}\"}"
+
+        private const val DEVICE_TYPE_ANDROID = 2
     }
 }

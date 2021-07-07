@@ -66,6 +66,15 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
             )
     }
 
+    data class UpdateMobileSetup(val isMobileSetup: Boolean, val deviceType: Int) : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState =
+            oldState.copy(
+                authStatus = AuthStatus.UpdateMobileSetup,
+                isMobileSetup = isMobileSetup,
+                deviceType = deviceType
+            )
+    }
+
     object ShowAuthComplete : LoginAuthIntents() {
         override fun reduce(oldState: LoginAuthState): LoginAuthState =
             oldState.copy(

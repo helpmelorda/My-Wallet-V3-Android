@@ -143,7 +143,8 @@ class LoginAuthActivity :
             AuthStatus.AuthorizeApproval,
             AuthStatus.GetPayload -> binding.progressBar.gone()
             AuthStatus.Submit2FA,
-            AuthStatus.VerifyPassword -> binding.progressBar.visible()
+            AuthStatus.VerifyPassword,
+            AuthStatus.UpdateMobileSetup -> binding.progressBar.visible()
             AuthStatus.Complete -> startActivity(Intent(this, PinEntryActivity::class.java))
             AuthStatus.PairingFailed -> showErrorToast(R.string.pairing_failed)
             AuthStatus.InvalidPassword -> {

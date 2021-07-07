@@ -5,6 +5,7 @@ import info.blockchain.wallet.api.WalletApi
 import info.blockchain.wallet.api.data.Status
 import info.blockchain.wallet.api.data.WalletOptions
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import okhttp3.ResponseBody
@@ -166,5 +167,55 @@ class AuthService(private val walletApi: WalletApi, rxBus: RxBus) {
     fun sendEmailForDeviceVerification(sessionId: String, email: String, captcha: String): Single<ResponseBody> =
         rxPinning.callSingle {
             walletApi.sendEmailForVerification(sessionId, email, captcha)
+        }
+
+    /**
+     * Update the account model fields for mobile setup
+     *
+     * @param guid The user's GUID
+     * @param sharedKey The shared key of the specified GUID
+     * @param isMobileSetup has mobile device linked
+     * @param deviceType the type of the linked device: 1 - iOS, 2 - Android
+     * @return A [Single] wrapping the result
+     */
+    fun updateMobileSetup(
+        guid: String,
+        sharedKey: String,
+        isMobileSetup: Boolean,
+        deviceType: Int
+    ): Single<ResponseBody> =
+        rxPinning.callSingle {
+            walletApi.updateMobileSetup(guid, sharedKey, isMobileSetup, deviceType)
+        }
+
+    /**
+     * Update the mnemonic backup date (calculated on the backend)
+     *
+     * @param guid The user's GUID
+     * @param sharedKey The shared key of the specified GUID
+     * @return A [Completable] wrapping the result
+     */
+    fun updateMnemonicBackup(guid: String, sharedKey: String): Completable =
+        rxPinning.call {
+            Completable.fromSingle(walletApi.updateMnemonicBackup(guid, sharedKey))
+        }
+
+    /**
+     * Verify that the cloud backup has been completed
+     *
+     * @param guid The user's GUID
+     * @param sharedKey The shared key of the specified GUID
+     * @param hasCloudBackup has cloud backup
+     * @param deviceType the type of the linked device: 1 - iOS, 2 - Android
+     * @return A [Single] wrapping the result
+     */
+    fun verifyCloudBackup(
+        guid: String,
+        sharedKey: String,
+        hasCloudBackup: Boolean,
+        deviceType: Int
+    ): Single<ResponseBody> =
+        rxPinning.callSingle {
+            walletApi.verifyCloudBackup(guid, sharedKey, hasCloudBackup, deviceType)
         }
 }

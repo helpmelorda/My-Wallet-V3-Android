@@ -180,4 +180,32 @@ public interface WalletExplorerEndpoints {
         @Field("captcha") String captcha,
         @Field("siteKey") String siteKey
     );
+
+    @FormUrlEncoded
+    @POST("wallet")
+    Single<ResponseBody> updateMobileSetup(
+        @Field("method") String method,
+        @Field("guid") String guid,
+        @Field("sharedKey") String sharedKey,
+        @Field("is_mobile_setup") Boolean isMobileSetup,
+        @Field("mobile_device_type") int deviceType
+    );
+
+    @FormUrlEncoded
+    @POST("wallet")
+    Single<ResponseBody> updateMnemonicBackup(
+        @Field("method") String method,
+        @Field("guid") String guid,
+        @Field("sharedKey") String sharedKey
+    );
+
+    @FormUrlEncoded
+    @POST("wallet")
+    Single<ResponseBody> verifyCloudBackup(
+        @Field("method") String method,
+        @Field("guid") String guid,
+        @Field("sharedKey") String sharedKey,
+        @Field("has_cloud_backup") Boolean isMobileSetup,
+        @Field("mobile_device_type") int deviceType
+    );
 }

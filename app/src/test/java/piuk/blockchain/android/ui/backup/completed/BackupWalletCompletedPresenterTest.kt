@@ -7,16 +7,18 @@ import com.nhaarman.mockito_kotlin.whenever
 import org.amshove.kluent.mock
 import org.junit.Before
 import org.junit.Test
+import piuk.blockchain.androidcore.data.auth.AuthDataManager
 
 class BackupWalletCompletedPresenterTest {
 
     private lateinit var subject: BackupWalletCompletedPresenter
     private val view: BackupWalletCompletedView = mock()
     private val walletStatus: WalletStatus = mock()
+    private val authDataManager: AuthDataManager = mock()
 
     @Before
     fun setUp() {
-        subject = BackupWalletCompletedPresenter(walletStatus)
+        subject = BackupWalletCompletedPresenter(walletStatus, authDataManager)
         subject.initView(view)
     }
 

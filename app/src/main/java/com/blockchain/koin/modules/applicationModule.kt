@@ -684,7 +684,8 @@ val applicationModule = module {
 
         factory {
             BackupWalletCompletedPresenter(
-                walletStatus = get()
+                walletStatus = get(),
+                authDataManager = get()
             )
         }
 

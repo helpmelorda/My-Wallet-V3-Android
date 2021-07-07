@@ -342,6 +342,7 @@ class PinEntryPresenterTest {
         subject.isForValidatingPinForResult = true
         whenever(prefsUtil.pinId).thenReturn("1234567890")
         whenever(authDataManager.validatePin(anyString())).thenReturn(Observable.just(""))
+        whenever(authDataManager.verifyCloudBackup()).thenReturn(Completable.complete())
 
         // Act
         subject.onPadClicked("7")
@@ -351,6 +352,7 @@ class PinEntryPresenterTest {
         verify(activity).showProgressDialog(anyInt())
         verify(activity).dismissProgressDialog()
         verify(authDataManager).validatePin(anyString())
+        verify(authDataManager).verifyCloudBackup()
         verify(activity).finishWithResultOk("1337")
     }
 
@@ -484,6 +486,7 @@ class PinEntryPresenterTest {
         whenever(prefsUtil.pinId).thenReturn("")
         whenever(authDataManager.createPin(anyString(), anyString())).thenReturn(Completable.complete())
         whenever(authDataManager.validatePin(anyString())).thenReturn(Observable.just("password"))
+        whenever(authDataManager.verifyCloudBackup()).thenReturn(Completable.complete())
         whenever(accessState.pin).thenReturn("1337")
 
         // Act
@@ -673,6 +676,8 @@ class PinEntryPresenterTest {
         val password = "change_me"
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
             .thenReturn(Completable.error(InvalidCredentialsException()))
+        whenever(authDataManager.verifyCloudBackup())
+            .thenReturn(Completable.complete())
 
         // Act
         subject.updatePayload(password, false)
@@ -695,6 +700,8 @@ class PinEntryPresenterTest {
         val password = "password"
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
             .thenReturn(Completable.error(ServerConnectionException()))
+        whenever(authDataManager.verifyCloudBackup())
+            .thenReturn(Completable.complete())
 
         val mockPayload: Wallet = mock {
             on { sharedKey } itReturns SHARED_KEY
@@ -716,6 +723,8 @@ class PinEntryPresenterTest {
         val password = "password"
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
             .thenReturn(Completable.error(DecryptionException()))
+        whenever(authDataManager.verifyCloudBackup())
+            .thenReturn(Completable.complete())
 
         val mockPayload: Wallet = mock {
             on { sharedKey } itReturns SHARED_KEY
@@ -741,6 +750,8 @@ class PinEntryPresenterTest {
             on { sharedKey } itReturns SHARED_KEY
         }
         whenever(payloadManager.wallet).thenReturn(mockPayload)
+        whenever(authDataManager.verifyCloudBackup())
+            .thenReturn(Completable.complete())
 
         // Act
         subject.updatePayload(password, false)
@@ -763,6 +774,8 @@ class PinEntryPresenterTest {
             on { sharedKey } itReturns SHARED_KEY
         }
         whenever(payloadManager.wallet).thenReturn(mockPayload)
+        whenever(authDataManager.verifyCloudBackup())
+            .thenReturn(Completable.complete())
 
         // Act
         subject.updatePayload(password, false)
@@ -784,6 +797,8 @@ class PinEntryPresenterTest {
             on { sharedKey } itReturns SHARED_KEY
         }
         whenever(payloadManager.wallet).thenReturn(mockPayload)
+        whenever(authDataManager.verifyCloudBackup())
+            .thenReturn(Completable.complete())
 
         // Act
         subject.updatePayload(password, false)
@@ -812,6 +827,8 @@ class PinEntryPresenterTest {
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
         whenever(accessState.isNewlyCreated).thenReturn(true)
+        whenever(authDataManager.verifyCloudBackup())
+            .thenReturn(Completable.complete())
 
         // Act
         subject.updatePayload(password, false)
@@ -850,6 +867,8 @@ class PinEntryPresenterTest {
         whenever(payloadManager.wallet).thenReturn(mockWallet)
         whenever(payloadManager.isWalletUpgradeRequired).thenReturn(true)
         whenever(accessState.isNewlyCreated).thenReturn(false)
+        whenever(authDataManager.verifyCloudBackup())
+            .thenReturn(Completable.complete())
 
         // Act
         subject.updatePayload(password, false)
@@ -890,6 +909,8 @@ class PinEntryPresenterTest {
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
         whenever(accessState.isNewlyCreated).thenReturn(false)
+        whenever(authDataManager.verifyCloudBackup())
+            .thenReturn(Completable.complete())
 
         // Act
         subject.updatePayload(password, false)

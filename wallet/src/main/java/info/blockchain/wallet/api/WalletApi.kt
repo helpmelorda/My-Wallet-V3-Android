@@ -260,6 +260,44 @@ class WalletApi(
         )
     }
 
+    fun updateMobileSetup(
+        guid: String,
+        sharedKey: String,
+        isMobileSetup: Boolean,
+        deviceType: Int
+    ): Single<ResponseBody> {
+        return explorerInstance.updateMobileSetup(
+            "update-mobile-setup",
+            guid,
+            sharedKey,
+            isMobileSetup,
+            deviceType
+        )
+    }
+
+    fun updateMnemonicBackup(guid: String, sharedKey: String): Single<ResponseBody> {
+        return explorerInstance.updateMnemonicBackup(
+            "update-mnemonic-backup",
+            guid,
+            sharedKey
+        )
+    }
+
+    fun verifyCloudBackup(
+        guid: String,
+        sharedKey: String,
+        hasCloudBackup: Boolean,
+        deviceType: Int
+    ): Single<ResponseBody> {
+        return explorerInstance.verifyCloudBackup(
+            "verify-cloud-backup",
+            guid,
+            sharedKey,
+            hasCloudBackup,
+            deviceType
+        )
+    }
+
     private fun getApiCode(): String {
         return apiCode.apiCode
     }

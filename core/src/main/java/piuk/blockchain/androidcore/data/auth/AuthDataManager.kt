@@ -34,6 +34,8 @@ class AuthDataManager(
     @VisibleForTesting
     internal var timer: Int = 0
 
+    private var shouldVerifyCloudBackup = false
+
     /**
      * Returns a [WalletOptions] object from the website. This object is used to get the
      * current buy/sell partner info as well as a list of countries where buy/sell is rolled out.
@@ -207,17 +209,21 @@ class AuthDataManager(
     the automatic backup, and also decrypts the values when necessary into local storage.
      */
     private fun handleBackup(decryptionKey: String) {
-        if (!prefs.backupEnabled) {
+        shouldVerifyCloudBackup = when {
             // Just to make sure, if the user specifically opted out out of cloud backups,
-            // always clear the backup over here. 
-            prefs.clearBackup()
-            return
-        }
-
-        if (prefs.hasBackup() && prefs.walletGuid.isEmpty()) {
-            prefs.restoreFromBackup(decryptionKey, aesUtilWrapper)
-        } else {
-            prefs.backupCurrentPrefs(decryptionKey, aesUtilWrapper)
+            // always clear the backup over here.
+            !prefs.backupEnabled -> {
+                prefs.clearBackup()
+                false
+            }
+            prefs.hasBackup() && prefs.walletGuid.isEmpty() -> {
+                prefs.restoreFromBackup(decryptionKey, aesUtilWrapper)
+                false
+            }
+            else -> {
+                prefs.backupCurrentPrefs(decryptionKey, aesUtilWrapper)
+                true
+            }
         }
     }
 
@@ -283,8 +289,54 @@ class AuthDataManager(
         authService.getPairingEncryptionPassword(guid)
             .applySchedulers()
 
+    /**
+     * Update the account model fields for mobile setup
+     *
+     * @param guid The user's GUID
+     * @param sharedKey The shared key of the specified GUID
+     * @param isMobileSetup has mobile device linked
+     * @param deviceType the type of the linked device: 1 - iOS, 2 - Android
+     * @return A [Single] wrapping the result
+     */
+    fun updateMobileSetup(
+        guid: String,
+        sharedKey: String,
+        isMobileSetup: Boolean,
+        deviceType: Int
+    ): Single<ResponseBody> = authService.updateMobileSetup(guid, sharedKey, isMobileSetup, deviceType)
+
+    /**
+     * Update the mnemonic backup date (calculated on the backend)
+     *
+     * @param guid The user's GUID
+     * @param sharedKey The shared key of the specified GUID
+     * @return A [Completable] wrapping the result
+     */
+    fun updateMnemonicBackup(): Completable =
+        authService.updateMnemonicBackup(prefs.walletGuid, prefs.sharedKey)
+            .applySchedulers()
+
+    /**
+     * Verify that the cloud backup has been completed
+     *
+     * @return A [Completable] wrapping the result
+     */
+    fun verifyCloudBackup() = if (shouldVerifyCloudBackup) {
+        Completable.fromSingle(
+            authService.verifyCloudBackup(
+                guid = prefs.walletGuid,
+                sharedKey = prefs.sharedKey,
+                hasCloudBackup = true,
+                deviceType = DEVICE_TYPE_ANDROID
+            )
+        ).applySchedulers()
+    } else {
+        Completable.complete()
+    }
+
     companion object {
         @VisibleForTesting
         internal const val AUTHORIZATION_REQUIRED = "authorization_required"
+        private const val DEVICE_TYPE_ANDROID = 2
     }
 }

@@ -512,6 +512,7 @@ class SettingsPresenter(
         compositeDisposable += authDataManager.createPin(password, accessState.pin)
             .doOnSubscribe { view?.showProgress() }
             .doOnTerminate { view?.hideProgress() }
+            .andThen(authDataManager.verifyCloudBackup())
             .andThen(payloadDataManager.syncPayloadWithServer())
             .subscribeBy(
                 onComplete = {

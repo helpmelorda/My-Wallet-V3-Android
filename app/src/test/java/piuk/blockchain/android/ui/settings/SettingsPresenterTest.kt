@@ -584,6 +584,7 @@ class SettingsPresenterTest {
         val pin = "PIN"
         whenever(accessState.pin).thenReturn(pin)
         whenever(authDataManager.createPin(newPassword, pin)).thenReturn(Completable.complete())
+        whenever(authDataManager.verifyCloudBackup()).thenReturn(Completable.complete())
         whenever(payloadDataManager.syncPayloadWithServer()).thenReturn(Completable.complete())
 
         // Act
@@ -607,6 +608,7 @@ class SettingsPresenterTest {
         whenever(accessState.pin).thenReturn(pin)
         whenever(authDataManager.createPin(newPassword, pin))
             .thenReturn(Completable.error(Throwable()))
+        whenever(authDataManager.verifyCloudBackup()).thenReturn(Completable.complete())
         whenever(payloadDataManager.syncPayloadWithServer()).thenReturn(Completable.complete())
 
         // Act
