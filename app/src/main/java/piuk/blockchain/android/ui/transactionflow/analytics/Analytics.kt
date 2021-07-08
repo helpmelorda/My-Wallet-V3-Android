@@ -293,8 +293,8 @@ class TxFlowAnalytics(
                 analytics.logEvent(
                     SendAnalyticsEvent.SendAmountMaxClicked(
                         currency = state.sendingAsset.ticker,
-                        toAccountType = TxFlowAnalyticsAccountType.fromAccount(state.sendingAccount),
-                        fromAccountType = TxFlowAnalyticsAccountType.fromTransactionTarget(state.selectedTarget)
+                        toAccountType = TxFlowAnalyticsAccountType.fromTransactionTarget(state.selectedTarget),
+                        fromAccountType = TxFlowAnalyticsAccountType.fromAccount(state.sendingAccount)
                     )
                 )
             }

@@ -17,6 +17,7 @@ import piuk.blockchain.android.ui.linkbank.BankAuthFlowNavigator
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankPaymentApproval
 import piuk.blockchain.android.ui.linkbank.bankAuthEvent
+import piuk.blockchain.android.ui.linkbank.toAnalyticsBankProvider
 import piuk.blockchain.android.ui.linkbank.yapily.adapters.YapilyAgreementDelegateAdapter
 import piuk.blockchain.android.ui.linkbank.yapily.adapters.YapilyApprovalDelegateAdapter
 import piuk.blockchain.android.ui.linkbank.yapily.adapters.YapilyPermissionItem
@@ -117,7 +118,7 @@ class YapilyPermissionFragment : Fragment() {
                 } else {
                     navigator().yapilyAgreementAccepted(institution)
                     analytics.logEvent(
-                        BankAuthAnalytics.LinkBankConditionsApproved(institution.name, entity)
+                        BankAuthAnalytics.LinkBankConditionsApproved(institution.name, entity.toAnalyticsBankProvider())
                     )
                 }
             }
