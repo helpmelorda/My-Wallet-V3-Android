@@ -26,8 +26,18 @@ class AuthNewLoginModel(
 
     override fun performAction(previousState: AuthNewLoginState, intent: AuthNewLoginIntents): Disposable? {
         return when (intent) {
-            is AuthNewLoginIntents.InitAuthInfo -> parseMessage(intent.pubKeyHash, intent.messageInJson)
-            is AuthNewLoginIntents.ProcessBrowserMessage -> processIp(previousState)
+            is AuthNewLoginIntents.InitAuthInfo ->
+                parseMessage(
+                    pubKeyHash = intent.pubKeyHash,
+                    messageInJson = intent.messageInJson,
+                    originIp = intent.originIp
+                )
+            is AuthNewLoginIntents.ProcessBrowserMessage ->
+                processIp(
+                    browserIdentity = intent.browserIdentity,
+                    message = intent.message,
+                    originIp = intent.originIp
+                )
             is AuthNewLoginIntents.LoginDenied -> processLoginDenied(previousState)
             is AuthNewLoginIntents.LoginApproved -> processLoginApproved(previousState)
             is AuthNewLoginIntents.EnableApproval -> null
@@ -54,10 +64,11 @@ class AuthNewLoginModel(
         return null
     }
 
-    private fun parseMessage(pubKeyHash: String, messageInJson: String): Disposable? {
+    private fun parseMessage(pubKeyHash: String, messageInJson: String, originIp: String): Disposable? {
 
         process(
             AuthNewLoginIntents.ProcessBrowserMessage(
+                originIp = originIp,
                 browserIdentity = secureChannelPrefs.getBrowserIdentity(pubKeyHash)!!,
                 message = SecureChannelManager.jsonBuilder.decodeFromString(messageInJson)
             )
@@ -65,13 +76,13 @@ class AuthNewLoginModel(
         return null
     }
 
-    private fun processIp(previousState: AuthNewLoginState) =
+    private fun processIp(browserIdentity: BrowserIdentity, message: SecureChannelBrowserMessage, originIp: String) =
         walletApi.getExternalIP().subscribeBy(
-            onSuccess = {
+            onSuccess = { deviceIp ->
                 process(
                     AuthNewLoginIntents.EnableApproval(
-                        enableApproval = isAuthorized(previousState.browserIdentity, previousState.message) ||
-                            previousState.ip == it
+                        enableApproval = isAuthorized(browserIdentity, message) ||
+                            originIp == deviceIp
                     )
                 )
             },

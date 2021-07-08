@@ -121,6 +121,7 @@ class SecureChannelManager(
 @Serializable
 sealed class SecureChannelMessage {
 
+    @Serializable
     object Empty : SecureChannelMessage()
 
     @Serializable

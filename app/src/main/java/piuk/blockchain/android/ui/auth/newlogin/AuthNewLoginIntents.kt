@@ -7,11 +7,13 @@ sealed class AuthNewLoginIntents : MviIntent<AuthNewLoginState> {
     data class InitAuthInfo(
         val pubKeyHash: String,
         val messageInJson: String,
+        val originIp: String,
         private val items: List<AuthNewLoginDetailsType>,
         private val forcePin: Boolean
     ) : AuthNewLoginIntents() {
         override fun reduce(oldState: AuthNewLoginState): AuthNewLoginState {
             return oldState.copy(
+                ip = originIp,
                 items = items,
                 forcePin = forcePin
             )
@@ -19,14 +21,16 @@ sealed class AuthNewLoginIntents : MviIntent<AuthNewLoginState> {
     }
 
     data class ProcessBrowserMessage(
-        private val browserIdentity: BrowserIdentity,
-        private val message: SecureChannelBrowserMessage
+        val originIp: String,
+        val browserIdentity: BrowserIdentity,
+        val message: SecureChannelBrowserMessage
     ) : AuthNewLoginIntents() {
         override fun reduce(oldState: AuthNewLoginState): AuthNewLoginState =
             oldState.copy(
                 items = oldState.items + AuthNewLoginLastLogin(message.timestamp),
                 browserIdentity = browserIdentity,
-                message = message
+                message = message,
+                ip = originIp
             )
     }
 
