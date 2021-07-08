@@ -119,8 +119,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
 
     @SuppressLint("SetTextI18n")
     override fun render(newState: TransactionState) {
-        Timber.d("!TRANSACTION!> Rendering! EnterAmountSheet")
-        activity.setToolbarTitle(customiser.enterAmountTitle(newState))
+        Timber.d("!TRANSACTION!> Rendering! EnterAmountFragment")
 
         with(binding) {
             amountSheetCtaButton.isEnabled = newState.nextEnabled

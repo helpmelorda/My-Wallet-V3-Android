@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.transactionflow.fullscreen
 
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,22 +23,11 @@ class TransactionProgressFragment : TransactionFlowFragment<DialogTxFlowInProgre
     private val customiser: TransactionProgressCustomisations by inject()
     private val MAX_STACKTRACE_CHARS = 400
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        activity.supportActionBar?.hide()
-        return super.onCreateView(inflater, container, savedInstanceState)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.txProgressView.onCtaClick {
             activity.finish()
         }
-
-        // this is needed to show the expanded dialog, with space at the top and bottom
-        val metrics = DisplayMetrics()
-        requireActivity().windowManager?.defaultDisplay?.getMetrics(metrics)
-        binding.root.layoutParams.height = (metrics.heightPixels - (48 * metrics.density)).toInt()
-        binding.root.requestLayout()
     }
 
     override fun render(newState: TransactionState) {

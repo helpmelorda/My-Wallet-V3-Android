@@ -17,6 +17,8 @@ import piuk.blockchain.android.coincore.NullCryptoAccount
 import piuk.blockchain.android.coincore.TransactionTarget
 import piuk.blockchain.android.databinding.ActivityTransactionFlowBinding
 import piuk.blockchain.android.ui.base.mvi.MviActivity
+import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.transactionflow.TransactionFlowIntentMapper
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.closeTransactionScope
@@ -25,6 +27,8 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.BackNavigationState
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomisations
 import piuk.blockchain.android.ui.transactionflow.transactionInject
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.getTarget
@@ -38,10 +42,11 @@ class TransactionFlowActivity :
     MviActivity<TransactionModel, TransactionIntent, TransactionState, ActivityTransactionFlowBinding>() {
 
     override val model: TransactionModel by transactionInject()
-    private val analyticsHooks: TxFlowAnalytics by inject()
-
     override val alwaysDisableScreenshots: Boolean
         get() = false
+
+    private val analyticsHooks: TxFlowAnalytics by inject()
+    private val customiser: TransactionFlowCustomisations by inject()
 
     private val sourceAccount: BlockchainAccount by lazy {
         intent.extras?.getAccount(SOURCE) ?: throw IllegalStateException("No source account specified")
@@ -87,22 +92,23 @@ class TransactionFlowActivity :
                 },
                 onError = {
                     Timber.e("Unable to configure transaction flow, aborting. e == $it")
-                    // finishFlow()
+                    toast(R.string.common_error, ToastCustom.TYPE_ERROR)
+                    finish()
                 })
     }
 
     override fun initBinding(): ActivityTransactionFlowBinding = ActivityTransactionFlowBinding.inflate(layoutInflater)
 
     override fun render(newState: TransactionState) {
-        state = newState
         handleStateChange(newState)
+        state = newState
     }
 
-    private fun handleStateChange(newState: TransactionState) {
-        if (currentStep == newState.currentStep)
+    private fun handleStateChange(state: TransactionState) {
+        if (currentStep == state.currentStep)
             return
 
-        when (newState.currentStep) {
+        when (state.currentStep) {
             TransactionStep.ZERO -> kotlin.run {
                 model.process(TransactionIntent.ResetFlow)
                 finish()
@@ -113,12 +119,16 @@ class TransactionFlowActivity :
                 closeTransactionScope()
             }
             else -> kotlin.run {
-                analyticsHooks.onStepChanged(newState)
+                analyticsHooks.onStepChanged(state)
             }
         }
-        newState.currentStep.takeIf { it != TransactionStep.ZERO }?.let {
-            showFlowStep(it, newState)
-            currentStep = it
+        state.currentStep.takeIf { it != TransactionStep.ZERO }?.let { step ->
+            showFlowStep(step, state)
+            customiser.getScreenTitle(state).takeIf { it.isNotEmpty() }?.let {
+                supportActionBar?.title = it
+            } ?: supportActionBar?.hide()
+
+            currentStep = step
             updateNavigationUI()
         }
     }
@@ -158,19 +168,13 @@ class TransactionFlowActivity :
 
     private fun navigateOnBackPressed(finalAction: () -> Unit) {
         if (::state.isInitialized && state.canGoBack) {
-            // TODO these checks should go in the activity customiser interface
-            when (state.currentStep) {
-                TransactionStep.ENTER_ADDRESS -> {
+            when (customiser.getBackNavigationAction(state)) {
+                BackNavigationState.ClearTransactionTarget -> {
                     model.process(TransactionIntent.ClearSelectedTarget)
                     model.process(TransactionIntent.ReturnToPreviousStep)
                 }
-                TransactionStep.ENTER_AMOUNT -> {
-                    model.process(TransactionIntent.InvalidateTransaction)
-                }
-                else -> {
-                    Timber.e("back from current step: ${state.currentStep}")
-                    model.process(TransactionIntent.ReturnToPreviousStep)
-                }
+                BackNavigationState.ResetPendingTransaction -> model.process(TransactionIntent.InvalidateTransaction)
+                BackNavigationState.NavigateToPreviousScreen -> model.process(TransactionIntent.ReturnToPreviousStep)
             }
             fragmentStackCount--
         } else {

@@ -278,7 +278,9 @@ class TransactionModel(
                 onSuccess = {
                     process(TransactionIntent.AvailableAccountsListUpdated(it))
                 },
-                onError = { }
+                onError = {
+                    Timber.e("Error getting target accounts $it")
+                }
             )
         } else {
             process(TransactionIntent.TargetSelected)

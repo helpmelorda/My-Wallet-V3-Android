@@ -45,8 +45,6 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     }
 
     override fun render(newState: TransactionState) {
-        activity.setToolbarTitle(customiser.selectSourceAccountTitle(newState))
-
         binding.accountList.onAccountSelected = {
             model.process(TransactionIntent.SourceAccountSelected(it))
             analyticsHooks.onSourceAccountSelected(it, newState)

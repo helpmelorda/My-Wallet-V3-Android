@@ -30,6 +30,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmoun
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.SourceSelectionCustomisations
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TargetSelectionCustomisations
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionConfirmationCustomisations
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomisations
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiser
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionProgressCustomisations
@@ -50,6 +51,7 @@ val transactionModule = module {
         .bind(TargetSelectionCustomisations::class)
         .bind(TransactionConfirmationCustomisations::class)
         .bind(TransactionProgressCustomisations::class)
+        .bind(TransactionFlowCustomisations::class)
 
     factory {
         TransactionLauncher(

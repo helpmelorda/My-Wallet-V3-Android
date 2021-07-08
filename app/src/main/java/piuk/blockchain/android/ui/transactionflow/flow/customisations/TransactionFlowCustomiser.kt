@@ -29,6 +29,7 @@ import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.swap.SwapAccountSelectSheetFeeDecorator
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
+import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
 import piuk.blockchain.android.ui.transactionflow.plugin.AccountLimitsView
 import piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView
@@ -54,7 +55,8 @@ interface TransactionFlowCustomiser :
     SourceSelectionCustomisations,
     TargetSelectionCustomisations,
     TransactionConfirmationCustomisations,
-    TransactionProgressCustomisations
+    TransactionProgressCustomisations,
+    TransactionFlowCustomisations
 
 class TransactionFlowCustomiserImpl(
     private val resources: Resources,
@@ -889,6 +891,26 @@ class TransactionFlowCustomiserImpl(
             else -> {
                 throw IllegalStateException("Attempting to link from an unsupported action")
             }
+        }
+
+    override fun getBackNavigationAction(state: TransactionState): BackNavigationState =
+        when (state.currentStep) {
+            TransactionStep.ENTER_ADDRESS -> BackNavigationState.ClearTransactionTarget
+            TransactionStep.ENTER_AMOUNT -> BackNavigationState.ResetPendingTransaction
+            else -> BackNavigationState.NavigateToPreviousScreen
+        }
+
+    override fun getScreenTitle(state: TransactionState): String =
+        when (state.currentStep) {
+            TransactionStep.ENTER_PASSWORD -> resources.getString(R.string.transfer_second_pswd_title)
+            TransactionStep.SELECT_SOURCE -> selectSourceAccountTitle(state)
+            TransactionStep.ENTER_ADDRESS -> selectTargetAddressTitle(state)
+            TransactionStep.SELECT_TARGET_ACCOUNT -> selectTargetAccountTitle(state)
+            TransactionStep.ENTER_AMOUNT -> enterAmountTitle(state)
+            TransactionStep.CONFIRM_DETAIL -> confirmTitle(state)
+            TransactionStep.IN_PROGRESS,
+            TransactionStep.ZERO,
+            TransactionStep.CLOSED -> ""
         }
 
     companion object {

@@ -28,8 +28,6 @@ class SelectTargetAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     }
 
     override fun render(newState: TransactionState) {
-        activity.setToolbarTitle(customiser.selectTargetAccountTitle(newState))
-
         with(binding) {
             accountList.initialise(
                 source = Single.just(newState.availableTargets.map { it as SingleAccount }),

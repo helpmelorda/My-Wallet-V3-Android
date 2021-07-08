@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.viewbinding.ViewBinding
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
@@ -25,10 +24,6 @@ abstract class TransactionFlowFragment<T : ViewBinding> :
         savedInstanceState?.let {
             model.process(TransactionIntent.ResetFlow)
         }
-    }
-
-    fun BlockchainActivity.setToolbarTitle(title: String) {
-        this.supportActionBar?.title = title
     }
 
     protected fun showErrorToast(@StringRes msgId: Int) {

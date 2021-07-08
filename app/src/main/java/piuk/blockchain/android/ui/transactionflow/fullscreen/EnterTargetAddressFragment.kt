@@ -83,8 +83,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
     }
 
     override fun render(newState: TransactionState) {
-        Timber.d("!TRANSACTION!> Rendering! EnterTargetAddressSheet")
-        activity.setToolbarTitle(customiser.selectTargetAddressTitle(newState))
+        Timber.d("!TRANSACTION!> Rendering! EnterTargetAddressFragment")
 
         with(binding) {
             if (sourceSlot == null) {
