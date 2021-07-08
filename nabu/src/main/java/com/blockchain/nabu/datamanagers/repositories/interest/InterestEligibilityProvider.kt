@@ -29,7 +29,7 @@ class InterestEligibilityProviderImpl(
         authenticator.authenticate { token ->
             nabuService.getInterestEligibility(token.authHeader)
                 .map { response ->
-                    assetCatalogue.supportedCustodialAssets()
+                    assetCatalogue.supportedCustodialAssets
                         .map { asset ->
                             val eligible = response.getEligibleFor(asset.ticker)
                             AssetInterestEligibility(

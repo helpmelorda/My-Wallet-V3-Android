@@ -187,7 +187,7 @@ class AssetDetailsFlow(
                     }
                 )
             }
-            AssetAction.Summary -> assetFlowHost.goToSummary(
+            AssetAction.ViewStatement -> assetFlowHost.goToSummary(
                 newState.selectedAccount.selectFirstAccount(), newState.selectedAccount.selectFirstAccount().asset
             )
             AssetAction.InterestDeposit -> {

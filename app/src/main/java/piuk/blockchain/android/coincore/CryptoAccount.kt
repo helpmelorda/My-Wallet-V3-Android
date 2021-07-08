@@ -199,3 +199,22 @@ object NullFiatAccount : FiatAccount {
     ): Single<Money> =
         Single.just(FiatValue.zero(fiatCurrency))
 }
+
+class NullAccountGroup : AccountGroup {
+    override val accounts: SingleAccountList = emptyList()
+
+    override fun includes(account: BlockchainAccount): Boolean = false
+    override val label: String = ""
+    override val accountBalance: Single<Money> = Single.error(NotImplementedError())
+    override val actionableBalance: Single<Money> = Single.error(NotImplementedError())
+    override val pendingBalance: Single<Money> = Single.error(NotImplementedError())
+    override val activity: Single<ActivitySummaryList> = Single.just(emptyList())
+    override val actions: Single<AvailableActions> = Single.just(emptySet())
+    override val isFunded: Boolean = false
+    override val hasTransactions: Boolean = false
+
+    override fun fiatBalance(fiatCurrency: String, exchangeRates: ExchangeRates): Single<Money> =
+        Single.error(NotImplementedError())
+    override val receiveAddress: Single<ReceiveAddress> =
+        Single.error(NotImplementedError())
+}

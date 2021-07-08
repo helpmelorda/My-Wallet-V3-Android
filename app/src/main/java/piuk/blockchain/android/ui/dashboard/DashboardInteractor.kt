@@ -26,7 +26,6 @@ import io.reactivex.rxkotlin.subscribeBy
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.AssetOrdering
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.FiatAccount
@@ -56,8 +55,7 @@ class DashboardInteractor(
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val analytics: Analytics,
     private val crashLogger: CrashLogger,
-    private val linkedBanksFactory: LinkedBanksFactory,
-    private val assetOrdering: AssetOrdering
+    private val linkedBanksFactory: LinkedBanksFactory
 ) {
 
     // We have a problem here, in that pax init depends on ETH init
@@ -84,15 +82,13 @@ class DashboardInteractor(
     }
 
     fun getAvailableAssets(model: DashboardModel): Disposable =
-        assetOrdering.getAssetOrdering().subscribeBy(
-            onSuccess = { assetOrder ->
-                val assets = coincore.cryptoAssets.map { enabledAssets ->
-                    enabledAssets.asset
-                }
-
-                val sortedAssets = assets.sortedBy { assetOrder.indexOf(it) }
-
-                model.process(UpdateDashboardCurrencies(sortedAssets))
+        Single.fromCallable {
+            coincore.cryptoAssets.map { enabledAssets ->
+                enabledAssets.asset
+            }
+        }.subscribeBy(
+            onSuccess = { assets ->
+                model.process(UpdateDashboardCurrencies(assets))
                 model.process(RefreshAllIntent)
             },
             onError = {
@@ -216,7 +212,7 @@ class DashboardInteractor(
                 onError = { Timber.e(it) }
             )
 
-    fun checkForCustodialBalance(model: DashboardModel, crypto: AssetInfo): Disposable? {
+    fun checkForCustodialBalance(model: DashboardModel, crypto: AssetInfo): Disposable {
         return coincore[crypto].accountGroup(AssetFilter.Custodial)
             .flatMapSingle { it.accountBalance }
             .subscribeBy(

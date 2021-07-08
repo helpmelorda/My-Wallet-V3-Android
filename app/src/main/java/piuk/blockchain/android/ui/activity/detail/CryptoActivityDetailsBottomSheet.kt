@@ -413,10 +413,12 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
 
     private fun onActionItemClicked() {
         val explorerUri = assetResources.makeBlockExplorerUrl(asset, txId)
-        logAnalyticsForExplorer()
-        Intent(Intent.ACTION_VIEW).apply {
-            data = Uri.parse(explorerUri)
-            startActivity(this)
+        if (explorerUri.isNotEmpty()) {
+            logAnalyticsForExplorer()
+            Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse(explorerUri)
+                startActivity(this)
+            }
         }
     }
 

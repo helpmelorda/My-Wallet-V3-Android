@@ -12,6 +12,7 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -32,6 +33,7 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 private object DUMMY_ERC20_TOKEN : CryptoCurrency(
     ticker = "DUMMY",
     name = "Dummies",
+    categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 8,
     requiredConfirmations = 5,
     colour = "#123456"

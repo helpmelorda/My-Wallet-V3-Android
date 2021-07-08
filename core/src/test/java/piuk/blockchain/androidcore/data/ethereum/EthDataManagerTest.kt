@@ -51,6 +51,7 @@ import java.math.BigInteger
 private object DUMMY_ERC20 : CryptoCurrency(
     ticker = "DUMMY",
     name = "Dummies",
+    categories = emptySet(),
     precisionDp = 8,
     requiredConfirmations = 5,
     l2chain = ETHER,

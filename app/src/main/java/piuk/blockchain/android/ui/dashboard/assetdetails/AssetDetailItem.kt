@@ -5,8 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
+import info.blockchain.balance.isCustodialOnly
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -114,9 +114,11 @@ class AssetDetailViewHolder(private val binding: ViewAccountCryptoOverviewBindin
 class LabelViewHolder(private val binding: DialogDashboardAssetLabelItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(token: CryptoAsset) {
-        binding.assetLabelDescription.text = when (token.asset) {
-            CryptoCurrency.ALGO -> context.getString(R.string.algorand_asset_label)
-            CryptoCurrency.DOT -> context.getString(R.string.polkadot_asset_label)
+        binding.assetLabelDescription.text = when {
+            token.asset.isCustodialOnly -> context.getString(
+                R.string.custodial_only_asset_label,
+                token.asset.ticker
+            )
             else -> ""
         }
     }

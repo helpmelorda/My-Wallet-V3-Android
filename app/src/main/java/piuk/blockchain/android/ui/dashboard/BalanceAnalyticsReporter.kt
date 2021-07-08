@@ -5,6 +5,7 @@ import com.blockchain.notifications.analytics.UserProperty
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import piuk.blockchain.android.coincore.Coincore
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.math.BigDecimal
 
 class BalanceAnalyticsReporter(
@@ -12,7 +13,9 @@ class BalanceAnalyticsReporter(
     coincore: Coincore
 ) {
     private val collectedBalances = mutableMapOf<AssetInfo, Money>()
-    private val assetCount = coincore.activeCryptoAssets().size
+    private val assetCount by unsafeLazy {
+        coincore.activeCryptoAssets().size
+    }
 
     private var totalBalance: Money? = null
 

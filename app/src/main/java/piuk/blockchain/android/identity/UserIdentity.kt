@@ -9,9 +9,9 @@ interface UserIdentity {
 }
 
 sealed class Feature {
-    class TierLevel(val tier: Tier) : Feature()
+    data class TierLevel(val tier: Tier) : Feature()
     object SimplifiedDueDiligence : Feature()
-    class Interest(val currency: AssetInfo) : Feature()
+    data class Interest(val currency: AssetInfo) : Feature()
     object SimpleBuy : Feature()
 }
 

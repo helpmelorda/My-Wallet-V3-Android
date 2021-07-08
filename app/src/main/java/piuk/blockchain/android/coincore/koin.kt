@@ -5,10 +5,8 @@ import com.blockchain.koin.payloadScopeQualifier
 import info.blockchain.balance.AssetCatalogue
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import piuk.blockchain.android.coincore.alg.AlgoAsset
 import piuk.blockchain.android.coincore.bch.BchAsset
 import piuk.blockchain.android.coincore.btc.BtcAsset
-import piuk.blockchain.android.coincore.dot.PolkadotAsset
 import piuk.blockchain.android.coincore.eth.EthAsset
 import piuk.blockchain.android.coincore.fiat.FiatAsset
 import piuk.blockchain.android.coincore.fiat.LinkedBanksFactory
@@ -105,21 +103,6 @@ val coincoreModule = module {
         }.bind(CryptoAsset::class)
 
         scoped {
-            AlgoAsset(
-                payloadManager = get(),
-                exchangeRates = get(),
-                historicRates = get(),
-                currencyPrefs = get(),
-                custodialManager = get(),
-                pitLinking = get(),
-                crashLogger = get(),
-                labels = get(),
-                identity = get(),
-                features = get()
-            )
-        }.bind(CryptoAsset::class)
-
-        scoped {
             FiatAsset(
                 labels = get(),
                 custodialAssetWalletsBalancesRepository = get(),
@@ -128,21 +111,6 @@ val coincoreModule = module {
                 currencyPrefs = get()
             )
         }
-
-        scoped {
-            PolkadotAsset(
-                payloadManager = get(),
-                exchangeRates = get(),
-                historicRates = get(),
-                currencyPrefs = get(),
-                custodialManager = get(),
-                crashLogger = get(),
-                labels = get(),
-                pitLinking = get(),
-                identity = get(),
-                features = get()
-            )
-        }.bind(CryptoAsset::class)
 
         scoped {
             Coincore(
@@ -219,9 +187,18 @@ val coincoreModule = module {
                 custodialWalletManager = get()
             )
         }
+
+        factory {
+            SwapTrendingPairsProvider(
+                coincore = get(),
+                identity = get()
+            )
+        }.bind(TrendingPairsProvider::class)
     }
 
     single {
-        AssetCatalogueImpl()
+        AssetCatalogueImpl(
+            remoteConfig = get()
+        )
     }.bind(AssetCatalogue::class)
 }

@@ -10,6 +10,7 @@ import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.isCustodialOnly
 import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.Completable
 import io.reactivex.Maybe

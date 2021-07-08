@@ -8,6 +8,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.isCustodialOnly
 import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.Completable
 import io.reactivex.Maybe

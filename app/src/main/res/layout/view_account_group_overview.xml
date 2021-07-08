@@ -14,7 +14,7 @@
         android:layout_height="@dimen/asset_icon_size"
         android:layout_marginStart="@dimen/standard_margin"
         android:importantForAccessibility="no"
-        tools:srcCompat="@drawable/vector_bitcoin_colored"
+        tools:srcCompat="@drawable/ic_default_asset_logo"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

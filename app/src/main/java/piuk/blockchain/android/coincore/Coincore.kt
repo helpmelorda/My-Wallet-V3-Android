@@ -11,7 +11,6 @@ import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.zipWith
-import piuk.blockchain.android.coincore.alg.AlgoCryptoWalletAccount
 import piuk.blockchain.android.coincore.impl.AllWalletsAccount
 import piuk.blockchain.android.coincore.impl.AssetLoader
 import piuk.blockchain.android.coincore.impl.TxProcessorFactory
@@ -126,7 +125,10 @@ class Coincore internal constructor(
         }
     }
 
-    private fun getActionFilter(action: AssetAction, sourceAccount: CryptoAccount): (SingleAccount) -> Boolean =
+    private fun getActionFilter(
+        action: AssetAction,
+        sourceAccount: CryptoAccount
+    ): (SingleAccount) -> Boolean =
         when (action) {
             AssetAction.Sell -> {
                 {
@@ -140,8 +142,6 @@ class Coincore internal constructor(
                         it.asset != sourceAccount.asset &&
                         it !is FiatAccount &&
                         it !is InterestAccount &&
-                        // fixme special case we should remove once receive is implemented
-                        it !is AlgoCryptoWalletAccount &&
                         if (sourceAccount.isCustodial()) it.isCustodial() else true
                 }
             }
@@ -224,5 +224,5 @@ class Coincore internal constructor(
             .map { it.isEmpty() }
 
     // "Active" means funded, but this is not yet supported until erc20 scaling is complete TODO
-    fun activeCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets()
+    fun activeCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets
 }

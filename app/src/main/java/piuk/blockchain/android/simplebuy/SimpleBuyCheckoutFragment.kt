@@ -21,6 +21,7 @@ import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
 import info.blockchain.balance.AssetInfo
 import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.FiatValue
+import info.blockchain.balance.isCustodialOnly
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimplebuyCheckoutBinding
 import piuk.blockchain.android.ui.base.ErrorDialogData

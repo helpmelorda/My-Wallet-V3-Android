@@ -14,6 +14,7 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.DashboardPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -76,8 +77,6 @@ import timber.log.Timber
 
 class EmptyDashboardItem : DashboardItem
 
-private typealias RefreshFn = () -> Unit
-
 class DashboardFragment :
     HomeScreenMviFragment<DashboardModel, DashboardIntent, DashboardState, FragmentDashboardBinding>(),
     ForceBackupForSendSheet.Host,
@@ -92,6 +91,7 @@ class DashboardFragment :
     private val announcements: AnnouncementList by scopedInject()
     private val analyticsReporter: BalanceAnalyticsReporter by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
+    private val dashboardPrefs: DashboardPrefs by inject()
     private val coincore: Coincore by scopedInject()
     private val assetResources: AssetResources by inject()
     private val txLauncher: TransactionLauncher by inject()
@@ -142,16 +142,7 @@ class DashboardFragment :
     private fun doRender(newState: DashboardState) {
 
         binding.swipe.isRefreshing = false
-
-        if (newState.assets.isNotEmpty()) {
-            if (displayList.isEmpty()) {
-                createDisplayList(newState)
-            } else {
-                updateDisplayList(newState)
-            }
-        } else {
-            // TODO clear display list
-        }
+        updateDisplayList(newState)
 
         if (this.state?.dashboardNavigationAction != newState.dashboardNavigationAction) {
             handleStateNavigation(newState)
@@ -190,47 +181,33 @@ class DashboardFragment :
         this.state = newState
     }
 
-    private fun createDisplayList(newState: DashboardState) {
-        with(displayList) {
-            add(IDX_CARD_ANNOUNCE, EmptyDashboardItem()) // Placeholder for announcements
-            add(IDX_CARD_BALANCE, newState)
-            add(IDX_FUNDS_BALANCE, EmptyDashboardItem()) // Placeholder for funds
-            addAll(newState.assets.values)
-        }
-        theAdapter.notifyDataSetChanged()
-    }
-
     private fun updateDisplayList(newState: DashboardState) {
         with(displayList) {
-
-            val modList = mutableListOf<RefreshFn?>()
-            newState.assets.values.forEachIndexed { index, v ->
-                modList.add(handleUpdatedAssetState(IDX_ASSET_CARDS_START + index, v))
+            val newList = mutableListOf<DashboardItem>()
+            if (isEmpty()) {
+                newList.add(IDX_CARD_ANNOUNCE, EmptyDashboardItem())
+                newList.add(IDX_CARD_BALANCE, newState)
+                newList.add(IDX_FUNDS_BALANCE, EmptyDashboardItem()) // Placeholder for funds
+            } else {
+                newList.add(IDX_CARD_ANNOUNCE, get(IDX_CARD_ANNOUNCE))
+                newList.add(IDX_CARD_BALANCE, newState)
+                if (newState.fiatAssets?.fiatAccounts?.isNotEmpty() == true) {
+                    set(IDX_FUNDS_BALANCE, newState.fiatAssets)
+                } else {
+                    newList.add(IDX_FUNDS_BALANCE, get(IDX_FUNDS_BALANCE))
+                }
             }
+            // Add assets, sorted by fiat balance then alphabetically
+            val assets = newState.assets.values.sortedWith(
+                compareByDescending<CryptoAssetState> { it.fiatBalance?.toBigInteger() }
+                    .thenBy { it.currency.name }
+            )
 
-            modList.removeAll { it == null }
-
-            if (newState.fiatAssets?.fiatAccounts?.isNotEmpty() == true) {
-                set(IDX_FUNDS_BALANCE, newState.fiatAssets)
-                modList.add { theAdapter.notifyItemChanged(IDX_FUNDS_BALANCE) }
-            }
-
-            if (modList.isNotEmpty()) {
-                set(IDX_CARD_BALANCE, newState)
-                modList.add { theAdapter.notifyItemChanged(IDX_CARD_BALANCE) }
-            }
-
-            modList.forEach { it?.invoke() }
+            newList.addAll(assets)
+            clear()
+            addAll(newList)
         }
-    }
-
-    private fun handleUpdatedAssetState(index: Int, newState: CryptoAssetState): RefreshFn? {
-        if (displayList[index] != newState) {
-            displayList[index] = newState
-            return { theAdapter.notifyItemChanged(index) }
-        } else {
-            return null
-        }
+        theAdapter.notifyDataSetChanged()
     }
 
     private fun handleStateNavigation(state: DashboardState) {
@@ -457,6 +434,13 @@ class DashboardFragment :
     }
 
     override fun onPause() {
+        // Save the sort order for use elsewhere, so that other asset lists can have the same
+        // ordering. Storing this through prefs is a bit of a hack, um, "optimisation" - we don't
+        // want to be getting all the balances every time we want to display assets in balance order.
+        // TODO This UI is due for a re-write soon, at which point this ordering should be managed better
+        dashboardPrefs.dashboardAssetOrder = displayList.filterIsInstance<CryptoAssetState>()
+            .map { it.currency.ticker }
+
         compositeDisposable.clear()
         rxBus.unregister(ActionEvent::class.java, actionEvent)
         super.onPause()

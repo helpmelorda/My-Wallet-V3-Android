@@ -1578,8 +1578,7 @@
     <string name="withdrawal_success_message">Success! We’re are withdrawing the cash from your %1$s Wallet now. The funds should be in your bank in 1&#8211;3 business days.</string>
 
     <string name="dashboard_asset_item_label_title">Please note.</string>
-    <string name="algorand_asset_label">Functionality to withdraw ALGO from your trading wallet is currently unavailable, but coming soon.</string>
-    <string name="polkadot_asset_label">Functionality to withdraw DOT from your trading wallet is currently unavailable, but coming soon.</string>
+    <string name="custodial_only_asset_label">Functionality to withdraw %1$s from your trading account is currently unavailable, but coming soon.</string>
 
     <!-- Transaction flows -->
     <string name="send_enter_amount_from">From: %1$s</string>

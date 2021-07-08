@@ -65,7 +65,7 @@ class AirdropCentrePresenter(
     private fun transformAirdropStatus(item: AirdropStatus): Airdrop? {
         val name = item.campaignName
         val asset = when (name) {
-            blockstackCampaignName -> CryptoCurrency.STX
+            blockstackCampaignName -> AIRDROP_STX
             sunriverCampaignName -> CryptoCurrency.XLM
             else -> return null
         }
@@ -118,10 +118,11 @@ class AirdropCentrePresenter(
             return if (txResponseList.isNullOrEmpty()) {
                 when (campaignName) {
                     blockstackCampaignName ->
-                        if (userState == UserCampaignState.RewardReceived)
+                        if (userState == UserCampaignState.RewardReceived) {
                             updatedAt
-                        else
+                        } else {
                             campaignEndDate
+                        }
                     sunriverCampaignName -> campaignEndDate
                     else -> null
                 }
@@ -137,6 +138,19 @@ class AirdropCentrePresenter(
         Timber.d("Got status!")
         view?.renderList(statusList)
     }
+
+    // STUB Asset; only used in the airdrop screen
+    @Suppress("ClassName")
+    private object AIRDROP_STX : CryptoCurrency(
+        ticker = "STX",
+        name = "Stacks",
+        categories = emptySet(),
+        precisionDp = 6,
+        requiredConfirmations = 12,
+        startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
+        colour = "#211F6D",
+        logo = "file:///android_asset/logo/blockstack/logo.png"
+    )
 }
 
 enum class AirdropState {

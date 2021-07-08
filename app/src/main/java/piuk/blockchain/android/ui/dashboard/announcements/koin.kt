@@ -22,7 +22,6 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.RegisteredForAird
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SellIntroAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SendToDomainAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SimpleBuyFinishSignupAnnouncement
-import piuk.blockchain.android.ui.dashboard.announcements.rule.StxCompleteAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SwapAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.TransferCryptoAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.TwoFAAnnouncement
@@ -151,13 +150,6 @@ val dashboardAnnouncementsModule = module {
 
         factory {
             RegisteredForAirdropMiniAnnouncement(
-                dismissRecorder = get(),
-                queries = get()
-            )
-        }.bind(AnnouncementRule::class)
-
-        factory {
-            StxCompleteAnnouncement(
                 dismissRecorder = get(),
                 queries = get()
             )

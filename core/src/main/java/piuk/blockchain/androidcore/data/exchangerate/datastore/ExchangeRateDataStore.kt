@@ -25,7 +25,7 @@ class ExchangeRateDataStore(
     private val tickerCache: MutableMap<AssetInfo, Map<String, PriceDatum>> = HashMap()
 
     fun updateExchangeRates(): Completable = Single.merge(
-        assetCatalogue.supportedCryptoAssets()
+        assetCatalogue.supportedCryptoAssets
             .map { asset ->
                 exchangeRateService.getExchangeRateMap(asset)
                     .doOnSuccess { tickerCache.put(asset, it.toMap()) }

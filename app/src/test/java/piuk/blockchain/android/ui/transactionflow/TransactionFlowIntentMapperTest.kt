@@ -346,7 +346,7 @@ class TransactionFlowIntentMapperTest {
 
     @Test(expected = IllegalStateException::class)
     fun `test summary not allowed`() {
-        val assetAction = AssetAction.Summary
+        val assetAction = AssetAction.ViewStatement
         val passwordRequired = false
 
         val sourceAccount: FiatAccount = mock()

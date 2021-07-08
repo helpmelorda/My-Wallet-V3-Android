@@ -7,7 +7,6 @@ import com.blockchain.koin.gbp
 import com.blockchain.koin.interestAccountFeatureFlag
 import com.blockchain.koin.moshiExplorerRetrofit
 import com.blockchain.koin.mwaFeatureFlag
-import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.usd
 import com.blockchain.logging.DigitalTrust
@@ -27,7 +26,6 @@ import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.cards.CardModel
 import piuk.blockchain.android.cards.partners.EverypayCardActivator
-import piuk.blockchain.android.coincore.AssetOrdering
 import piuk.blockchain.android.data.api.bitpay.BitPayDataManager
 import piuk.blockchain.android.data.api.bitpay.BitPayService
 import piuk.blockchain.android.data.biometrics.BiometricAuth
@@ -43,7 +41,6 @@ import piuk.blockchain.android.identity.NabuUserIdentity
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
-import piuk.blockchain.android.remoteconfig.AssetOrderingRemoteConfig
 import piuk.blockchain.android.scan.QrCodeDataManager
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.EURPaymentAccountMapper
@@ -71,8 +68,6 @@ import piuk.blockchain.android.ui.backup.verify.BackupVerifyPresenter
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListPresenter
 import piuk.blockchain.android.ui.createwallet.CreateWalletPresenter
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
-import piuk.blockchain.android.ui.customviews.SwapTrendingPairsProvider
-import piuk.blockchain.android.ui.customviews.TrendingPairsProvider
 import piuk.blockchain.android.ui.customviews.dialogs.OverlayDetection
 import piuk.blockchain.android.ui.dashboard.BalanceAnalyticsReporter
 import piuk.blockchain.android.ui.dashboard.DashboardInteractor
@@ -111,7 +106,7 @@ import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
 import piuk.blockchain.android.ui.thepit.PitPermissionsPresenter
 import piuk.blockchain.android.ui.thepit.PitVerifyEmailPresenter
 import piuk.blockchain.android.ui.transfer.AccountsSorting
-import piuk.blockchain.android.ui.transfer.DefaultAccountsSorting
+import piuk.blockchain.android.ui.transfer.DashboardAccountsSorting
 import piuk.blockchain.android.ui.transfer.receive.ReceiveModel
 import piuk.blockchain.android.ui.transfer.receive.ReceiveState
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
@@ -462,7 +457,6 @@ val applicationModule = module {
                 simpleBuyPrefs = get(),
                 analytics = get(),
                 crashLogger = get(),
-                assetOrdering = get(),
                 linkedBanksFactory = get()
             )
         }
@@ -777,13 +771,6 @@ val applicationModule = module {
     }.bind(MobileNoticeRemoteConfig::class)
 
     factory {
-        SwapTrendingPairsProvider(
-            coincore = payloadScope.get(),
-            eligibilityProvider = payloadScope.get()
-        )
-    }.bind(TrendingPairsProvider::class)
-
-    factory {
         QrCodeDataManager()
     }
 
@@ -808,17 +795,19 @@ val applicationModule = module {
         )
     }
 
-    factory { ResourceDefaultLabels(get(), get()) }.bind(DefaultLabels::class)
-
-    factory { DefaultAccountsSorting(get()) }.bind(AccountsSorting::class)
+    factory {
+        ResourceDefaultLabels(
+            resources = get(),
+            assetResources = get()
+        )
+    }.bind(DefaultLabels::class)
 
     factory {
-        AssetOrderingRemoteConfig(
-            config = get(),
-            assetCatalogue = get(),
-            crashLogger = get()
+        DashboardAccountsSorting(
+            dashboardPrefs = get(),
+            assetCatalogue = get()
         )
-    }.bind(AssetOrdering::class)
+    }.bind(AccountsSorting::class)
 
     single {
         OverlayDetection(get())

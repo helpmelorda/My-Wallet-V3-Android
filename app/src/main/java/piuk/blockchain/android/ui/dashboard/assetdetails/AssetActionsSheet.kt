@@ -193,7 +193,7 @@ class AssetActionsSheet :
                 logActionEvent(AssetDetailsAnalytics.SWAP_CLICKED, asset)
                 processAction(AssetAction.Swap)
             }
-            AssetAction.Summary -> AssetActionItem(
+            AssetAction.ViewStatement -> AssetActionItem(
                 getString(R.string.dashboard_asset_actions_summary_title),
                 R.drawable.ic_tx_interest,
                 getString(R.string.dashboard_asset_actions_summary_dsc, asset.ticker),
@@ -256,7 +256,7 @@ class AssetActionsSheet :
 
     private fun goToSummary() {
         checkForKycStatus {
-            processAction(AssetAction.Summary)
+            processAction(AssetAction.ViewStatement)
         }
     }
 

@@ -9,6 +9,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
 import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.EthereumWallet
@@ -40,6 +41,7 @@ private const val DUMMY_ERC20_1_CONTRACT_ADDRESS = "0xF00F00F00F00F00F00FAB"
 private object DUMMY_ERC20_1 : CryptoCurrency(
     ticker = DUMMY_ERC20_1_TICKER,
     name = "Dummies",
+    categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
     requiredConfirmations = 5,
     l2chain = ETHER,
@@ -52,6 +54,7 @@ private const val DUMMY_ERC20_2_TICKER = "FAKE"
 private object DUMMY_ERC20_2 : CryptoCurrency(
     ticker = DUMMY_ERC20_2_TICKER,
     name = "Fakes",
+    categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
     requiredConfirmations = 5,
     l2chain = ETHER,

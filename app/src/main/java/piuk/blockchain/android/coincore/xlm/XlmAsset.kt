@@ -14,6 +14,7 @@ import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.isCustodialOnly
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single

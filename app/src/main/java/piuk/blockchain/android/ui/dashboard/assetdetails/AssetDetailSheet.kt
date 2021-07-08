@@ -26,6 +26,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
+import info.blockchain.balance.isCustodialOnly
 import info.blockchain.wallet.prices.data.PriceDatum
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R

@@ -118,7 +118,6 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
 
         dismissRecorder.undismissAll(announcementList)
 
-        prefs.resetTour()
         showToast("Announcement reset")
     }
 

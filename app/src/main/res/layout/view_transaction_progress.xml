@@ -14,7 +14,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tx_guideline"
-        app:srcCompat="@drawable/vector_bitcoin_colored" />
+        app:srcCompat="@drawable/ic_default_asset_logo" />
 
     <ProgressBar
         android:id="@+id/progress"

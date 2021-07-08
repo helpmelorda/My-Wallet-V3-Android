@@ -30,13 +30,13 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.Coincore
+import piuk.blockchain.android.coincore.TrendingPair
+import piuk.blockchain.android.coincore.TrendingPairsProvider
 import piuk.blockchain.android.databinding.FragmentSwapBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.TrendingPair
-import piuk.blockchain.android.ui.customviews.TrendingPairsProvider
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.resources.AssetResources

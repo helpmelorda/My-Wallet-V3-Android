@@ -149,7 +149,7 @@ internal class CryptoInterestAccount(
                     AssetAction.InterestWithdraw
                 } else {
                     null
-                }, AssetAction.Summary, AssetAction.ViewActivity
+                }, AssetAction.ViewStatement, AssetAction.ViewActivity
             )
         }
 

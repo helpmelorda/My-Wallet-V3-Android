@@ -103,17 +103,6 @@ class CryptoCurrencyFormatterTest {
     }
 
     @Test
-    fun `formatWithUnit STX`() {
-        CryptoValue.fromMinor(CryptoCurrency.STX,
-            1234567123.toBigDecimal()).formatWithUnit(locale) `should equal` "123.4567123 STX"
-    }
-
-    @Test
-    fun `formatWithUnit 0 STX`() {
-        CryptoValue.zero(CryptoCurrency.STX).formatWithUnit(locale) `should equal` "0 STX"
-    }
-
-    @Test
     fun `formatWithUnit ETH fractions too small to display`() {
         1L.formatWeiWithUnit() `should equal` "0 ETH"
         10L.formatWeiWithUnit() `should equal` "0 ETH"

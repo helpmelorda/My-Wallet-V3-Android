@@ -65,19 +65,18 @@ internal abstract class CryptoAssetBase(
         Completable.concat(
             list.map {
                 val cryptoNonCustodialAccount = it as? CryptoNonCustodialAccount
-                if (cryptoNonCustodialAccount?.labelNeedsUpdate() == true)
+                if (cryptoNonCustodialAccount?.labelNeedsUpdate() == true) {
                     cryptoNonCustodialAccount.updateLabel(
                         cryptoNonCustodialAccount.label.replace(
                             labels.getOldDefaultNonCustodialWalletLabel(asset),
                             labels.getDefaultNonCustodialWalletLabel()
                         )
-                    )
-                        .doOnError { error ->
-                            crashLogger.logException(error)
-                        }
-                        .onErrorComplete()
-                else
+                    ).doOnError { error ->
+                        crashLogger.logException(error)
+                    }.onErrorComplete()
+                } else {
                     Completable.complete()
+                }
             }
         )
 

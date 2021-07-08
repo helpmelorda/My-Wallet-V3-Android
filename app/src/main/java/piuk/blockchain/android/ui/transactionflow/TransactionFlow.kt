@@ -235,7 +235,7 @@ class TransactionFlowIntentMapper(
             }
             AssetAction.Receive,
             AssetAction.ViewActivity,
-            AssetAction.Summary,
+            AssetAction.ViewStatement,
             AssetAction.Buy -> throw IllegalStateException(
                 "Flows for Buy, Receive, ViewActivity and Summary not supported"
             )

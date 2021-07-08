@@ -657,7 +657,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Withdraw,
             AssetAction.FiatDeposit -> AccountInfoBank(ctx).also { frame.addView(it) }
             AssetAction.ViewActivity,
-            AssetAction.Summary,
+            AssetAction.ViewStatement,
             AssetAction.Buy -> throw IllegalStateException("${state.action} is not supported in enter amount")
         }
 
@@ -830,7 +830,7 @@ class TransactionFlowCustomiserImpl(
                 AssetAction.FiatDeposit -> R.string.common_deposit
                 AssetAction.ViewActivity -> R.string.common_activity
                 AssetAction.Receive -> R.string.common_receive
-                AssetAction.Summary -> R.string.common_summary
+                AssetAction.ViewStatement -> R.string.common_summary
                 AssetAction.Buy -> R.string.common_buy
             }
         )

@@ -91,6 +91,18 @@ class PrefsUtil(
         get() = getValue(KEY_REMAINING_SENDS_WITHOUT_BACKUP, MAX_ALLOWED_SENDS)
         set(remaining) = setValue(KEY_REMAINING_SENDS_WITHOUT_BACKUP, remaining)
 
+    override var dashboardAssetOrder: List<String>
+        get() = getValue(KEY_DASHBOARD_ORDER)?.let {
+            try {
+                Json.decodeFromString<List<String>>(it)
+            } catch (t: Throwable) {
+                emptyList()
+            }
+        } ?: emptyList()
+        set(value) {
+            setValue(KEY_DASHBOARD_ORDER, Json.encodeToString(value))
+        }
+
     override val isLoggedOut: Boolean
         get() = getValue(KEY_LOGGED_OUT, true)
 
@@ -117,16 +129,16 @@ class PrefsUtil(
     override var selectedFiatCurrency: String
         get() = getValue(KEY_SELECTED_FIAT, "")
         set(fiat) {
-            // We are seeing some crashes when this is read and is invalid when creating a FiatValue object.
-            // So we'll try and catch them when it's written and find the root cause on a future iteration
-            // Check the currency is supported and throw a meaningful exception message if it's not
-            try {
-                Currency.getInstance(fiat)
-                setValue(KEY_SELECTED_FIAT, fiat)
-            } catch (e: IllegalArgumentException) {
-                crashLogger.logAndRethrowException(IllegalArgumentException("Unknown currency id: $fiat"))
-            }
+        // We are seeing some crashes when this is read and is invalid when creating a FiatValue object.
+        // So we'll try and catch them when it's written and find the root cause on a future iteration
+        // Check the currency is supported and throw a meaningful exception message if it's not
+        try {
+            Currency.getInstance(fiat)
+            setValue(KEY_SELECTED_FIAT, fiat)
+        } catch (e: IllegalArgumentException) {
+            crashLogger.logAndRethrowException(IllegalArgumentException("Unknown currency id: $fiat"))
         }
+    }
 
     override val defaultFiatCurrency: String
         get() = try {
@@ -208,25 +220,6 @@ class PrefsUtil(
         get() = getValue(KEY_SWAP_INTRO_COMPLETED, false)
         set(v) = setValue(KEY_SWAP_INTRO_COMPLETED, v)
 
-    override val isTourComplete: Boolean
-        get() = getValue(KEY_INTRO_TOUR_COMPLETED, false)
-
-    override val tourStage: String
-        get() = getValue(KEY_INTRO_TOUR_CURRENT_STAGE, "")
-
-    override fun setTourComplete() {
-        setValue(KEY_INTRO_TOUR_COMPLETED, true)
-        removeValue(KEY_INTRO_TOUR_CURRENT_STAGE)
-    }
-
-    override fun setTourStage(stageName: String) =
-        setValue(KEY_INTRO_TOUR_CURRENT_STAGE, stageName)
-
-    override fun resetTour() {
-        removeValue(KEY_INTRO_TOUR_COMPLETED)
-        removeValue(KEY_INTRO_TOUR_CURRENT_STAGE)
-    }
-
     // Wallet Status
     override var lastBackupTime: Long
         get() = getValue(BACKUP_DATE_KEY, 0L)
@@ -292,31 +285,31 @@ class PrefsUtil(
         set(v) = setValue(KEY_FIREBASE_TOKEN, v)
 
     @SuppressLint("ApplySharedPref")
-    override fun backupCurrentPrefs(encryptionKey: String, aes: AESUtilWrapper) {
-        backupStore.edit()
-            .clear()
-            .putString(KEY_PIN_IDENTIFIER, getValue(KEY_PIN_IDENTIFIER, ""))
-            .putString(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, getValue(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, ""))
-            .putString(
-                KEY_ENCRYPTED_GUID,
-                aes.encrypt(
-                    getValue(KEY_WALLET_GUID, ""),
-                    encryptionKey,
-                    AESUtil.PIN_PBKDF2_ITERATIONS_GUID
+        override fun backupCurrentPrefs(encryptionKey: String, aes: AESUtilWrapper) {
+            backupStore.edit()
+                .clear()
+                .putString(KEY_PIN_IDENTIFIER, getValue(KEY_PIN_IDENTIFIER, ""))
+                .putString(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, getValue(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, ""))
+                .putString(
+                    KEY_ENCRYPTED_GUID,
+                    aes.encrypt(
+                        getValue(KEY_WALLET_GUID, ""),
+                        encryptionKey,
+                        AESUtil.PIN_PBKDF2_ITERATIONS_GUID
+                    )
                 )
-            )
-            .putString(
-                KEY_ENCRYPTED_SHARED_KEY,
-                aes.encrypt(
-                    getValue(KEY_SHARED_KEY, ""),
-                    encryptionKey,
-                    AESUtil.PIN_PBKDF2_ITERATIONS_SHAREDKEY
+                .putString(
+                    KEY_ENCRYPTED_SHARED_KEY,
+                    aes.encrypt(
+                        getValue(KEY_SHARED_KEY, ""),
+                        encryptionKey,
+                        AESUtil.PIN_PBKDF2_ITERATIONS_SHAREDKEY
+                    )
                 )
-            )
-            .commit()
+                .commit()
 
-        BackupManager.dataChanged(ctx.packageName)
-    }
+            BackupManager.dataChanged(ctx.packageName)
+        }
 
     override fun restoreFromBackup(decryptionKey: String, aes: AESUtilWrapper) {
         // Pull in the values from the backup, we don't have local state
@@ -419,9 +412,11 @@ class PrefsUtil(
         String(Base64.decode(data.toByteArray(charset("UTF-8")), Base64.DEFAULT))
 
     // internal feature flags
-    override fun isFeatureEnabled(gatedFeature: GatedFeature): Boolean = getValue(gatedFeature.name, false)
+    override fun isFeatureEnabled(gatedFeature: GatedFeature): Boolean =
+        getValue(gatedFeature.name, false)
 
-    override fun enableFeature(gatedFeature: GatedFeature) = setValue(gatedFeature.name, true)
+    override fun enableFeature(gatedFeature: GatedFeature) =
+        setValue(gatedFeature.name, true)
 
     override fun disableFeature(gatedFeature: GatedFeature) = setValue(gatedFeature.name, false)
 
@@ -495,7 +490,7 @@ class PrefsUtil(
 
     private fun getBrowserIdentityMapping() =
         Json.decodeFromString<BrowserIdentityMapping>(
-            getValue(KEY_SECURE_CHANNEL_BROWSER_MAPPINGS, """{ "mapping": {} }""")
+                getValue(KEY_SECURE_CHANNEL_BROWSER_MAPPINGS, """{ "mapping": {} }""")
         )
 
     private fun setBrowserIdentityMapping(browserIdentity: BrowserIdentityMapping) =
@@ -591,8 +586,6 @@ class PrefsUtil(
         private const val KEY_ONE_TIME_TOKEN_PATH = "KEY_ONE_TIME_TOKEN_PATH"
 
         private const val KEY_SWAP_INTRO_COMPLETED = "key_swap_intro_completed"
-        private const val KEY_INTRO_TOUR_COMPLETED = "key_intro_tour_complete"
-        private const val KEY_INTRO_TOUR_CURRENT_STAGE = "key_intro_tour_current_stage"
         private const val KEY_CUSTODIAL_INTRO_SEEN = "key_custodial_balance_intro_seen"
         private const val KEY_REMAINING_SENDS_WITHOUT_BACKUP = "key_remaining_sends_without_backup"
         private const val MAX_ALLOWED_SENDS = 5
@@ -637,6 +630,8 @@ class PrefsUtil(
         private const val KEY_ENCRYPTED_PASSWORD = "encrypted_password"
         const val KEY_PIN_FAILS = "pin_fails"
         const val SESSION_ID = "session_id"
+
+        private const val KEY_DASHBOARD_ORDER = "dashboard_asset_order"
     }
 }
 

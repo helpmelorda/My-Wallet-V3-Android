@@ -50,7 +50,6 @@ class DashboardInteractorTest {
             currencyPrefs = mock(),
             custodialWalletManager = custodialWalletManager,
             linkedBanksFactory = linkedBanksFactory,
-            assetOrdering = mock(),
             crashLogger = mock(),
             analytics = mock(),
             simpleBuyPrefs = mock()
