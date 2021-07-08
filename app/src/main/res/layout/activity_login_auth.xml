@@ -32,6 +32,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/auth_scroll_view"
         android:layout_margin="@dimen/standard_margin"
+        app:layout_constraintVertical_bias="0"
         style="@style/Text.Semibold.20"
         android:text="@string/login_title"
         app:layout_constraintVertical_chainStyle="spread_inside"
@@ -175,6 +176,20 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="@dimen/standard_margin"
         android:text="@string/common_continue" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/manual_pairing_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/CtaButton.White"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/auth_scroll_view"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="@dimen/standard_margin"
+        android:text="@string/btn_manual_pairing"
+        android:enabled="false"
+        android:visibility="gone" />
 
     <ProgressBar
         android:id="@+id/progress_bar"

@@ -114,6 +114,13 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
             )
     }
 
+    object ShowManualPairing : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState =
+            oldState.copy(
+                authStatus = AuthStatus.ShowManualPairing
+            )
+    }
+
     companion object {
         const val AUTH_TYPE = "auth_type"
         const val PAYLOAD = "payload"

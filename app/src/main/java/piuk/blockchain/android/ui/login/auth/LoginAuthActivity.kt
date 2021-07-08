@@ -17,8 +17,6 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
 import com.blockchain.logging.CrashLogger
 import com.blockchain.remoteconfig.FeatureFlag
-import piuk.blockchain.android.urllinks.RESET_2FA
-import piuk.blockchain.android.urllinks.SECOND_PASSWORD_EXPLANATION
 import com.google.android.material.textfield.TextInputLayout
 import io.reactivex.rxkotlin.subscribeBy
 import org.json.JSONObject
@@ -31,6 +29,9 @@ import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
+import piuk.blockchain.android.ui.start.ManualPairingActivity
+import piuk.blockchain.android.urllinks.RESET_2FA
+import piuk.blockchain.android.urllinks.SECOND_PASSWORD_EXPLANATION
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
@@ -65,7 +66,11 @@ class LoginAuthActivity :
             },
             onError = { isAccountRecoveryEnabled = false }
         )
+        initControls()
+    }
 
+    override fun onStart() {
+        super.onStart()
         processIntentData()
     }
 
@@ -76,7 +81,8 @@ class LoginAuthActivity :
                     val json = decodeJson(fragment)
                     val guid = json.getString(GUID)
 
-                    initControls(json.getString(EMAIL), guid)
+                    binding.loginEmailText.setText(json.getString(EMAIL))
+                    binding.loginWalletLabel.text = getString(R.string.login_wallet_id_text, guid)
                     if (json.has(EMAIL_CODE)) {
                         val authToken = json.getString(EMAIL_CODE)
                         model.process(LoginAuthIntents.GetSessionId(guid, authToken))
@@ -86,7 +92,8 @@ class LoginAuthActivity :
                 } catch (ex: Exception) {
                     Timber.e(ex)
                     crashLogger.logException(ex)
-                    model.process(LoginAuthIntents.ShowError(ex))
+                    // Fall back to legacy manual pairing
+                    model.process(LoginAuthIntents.ShowManualPairing)
                 }
             } ?: kotlin.run {
                 Timber.v("The URI fragment from the Intent is empty!")
@@ -98,11 +105,9 @@ class LoginAuthActivity :
         }
     }
 
-    private fun initControls(email: String, guid: String) {
+    private fun initControls() {
         with(binding) {
             backButton.setOnClickListener { finish() }
-            loginEmailText.setText(email)
-            loginWalletLabel.text = getString(R.string.login_wallet_id_text, guid)
             passwordText.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable) {
                     passwordTextLayout.clearErrorState()
@@ -130,6 +135,7 @@ class LoginAuthActivity :
                     model.process(LoginAuthIntents.VerifyPassword(passwordText.text.toString()))
                 }
             }
+            manualPairingButton.setOnClickListener { start<ManualPairingActivity>(this@LoginAuthActivity) }
         }
     }
 
@@ -157,6 +163,13 @@ class LoginAuthActivity :
             AuthStatus.Invalid2FACode -> {
                 binding.progressBar.gone()
                 binding.codeTextLayout.setErrorState(getString(R.string.invalid_two_fa_code))
+            }
+            AuthStatus.ShowManualPairing -> {
+                binding.authScrollView.gone()
+                binding.progressBar.gone()
+                binding.continueButton.gone()
+                binding.manualPairingButton.isEnabled = true
+                binding.manualPairingButton.visible()
             }
         }.exhaustive
         update2FALayout(newState.authMethod)
@@ -238,8 +251,25 @@ class LoginAuthActivity :
 
     private fun decodeJson(fragment: String): JSONObject {
         val encodedData = fragment.substringAfterLast(LINK_DELIMITER)
-        val data = Base64.decode(encodedData.toByteArray(Charsets.UTF_8), Base64.URL_SAFE)
+        logInvalidCharacters(encodedData)
+        val urlSafeEncodedData = encodedData.apply {
+            unEscapedCharactersMap.map { entry ->
+                replace(entry.key, entry.value)
+            }
+        }
+        val data = Base64.decode(
+            urlSafeEncodedData.toByteArray(Charsets.UTF_8),
+            Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING
+        )
         return JSONObject(String(data))
+    }
+
+    private fun logInvalidCharacters(encodedData: String) {
+        encodedData.map { chr ->
+            if (!alphaNumericRegex.matches(chr.toString())) {
+                crashLogger.logState(INVALID_PAYLOAD_CHARACTER, chr.toString())
+            }
+        }
     }
 
     companion object {
@@ -250,6 +280,12 @@ class LoginAuthActivity :
         private const val DIGITS = "1234567890"
         private const val SECOND_PASSWORD_LINK_ANNOTATION = "learn_more"
         private const val RESET_2FA_LINK_ANNOTATION = "reset_2fa"
+        private const val INVALID_PAYLOAD_CHARACTER = "invalid_payload_character"
+        private val alphaNumericRegex = Regex("[a-zA-Z0-9]")
+        private val unEscapedCharactersMap = mapOf(
+            "%2B" to "+",
+            "%2F" to "/"
+        )
     }
 
     private fun TextInputLayout.setErrorState(errorMessage: String) {
