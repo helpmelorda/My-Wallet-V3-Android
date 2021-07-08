@@ -112,6 +112,7 @@ class LoginAuthActivity :
                 override fun afterTextChanged(s: Editable) {
                     passwordTextLayout.clearErrorState()
                 }
+
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             })
@@ -119,6 +120,7 @@ class LoginAuthActivity :
                 override fun afterTextChanged(s: Editable) {
                     codeTextLayout.clearErrorState()
                 }
+
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             })
@@ -265,9 +267,16 @@ class LoginAuthActivity :
     }
 
     private fun logInvalidCharacters(encodedData: String) {
-        encodedData.map { chr ->
+        encodedData.mapIndexed { index, chr ->
             if (!alphaNumericRegex.matches(chr.toString())) {
-                crashLogger.logState(INVALID_PAYLOAD_CHARACTER, chr.toString())
+                crashLogger.logState(
+                    INVALID_PAYLOAD_CHARACTER, "" +
+                        "$chr at index $index part ${
+                            encodedData.safeSubstring(
+                                startIndex = index, endIndex = index + 3
+                            )
+                        }"
+                )
             }
         }
     }
@@ -284,7 +293,9 @@ class LoginAuthActivity :
         private val alphaNumericRegex = Regex("[a-zA-Z0-9]")
         private val unEscapedCharactersMap = mapOf(
             "%2B" to "+",
-            "%2F" to "/"
+            "%2F" to "/",
+            "%2b" to "+",
+            "%2f" to "/"
         )
     }
 
@@ -296,5 +307,13 @@ class LoginAuthActivity :
     private fun TextInputLayout.clearErrorState() {
         error = ""
         isErrorEnabled = false
+    }
+}
+
+private fun String.safeSubstring(startIndex: Int, endIndex: Int): String {
+    return try {
+        substring(startIndex = startIndex, endIndex = endIndex)
+    } catch (e: StringIndexOutOfBoundsException) {
+        ""
     }
 }
