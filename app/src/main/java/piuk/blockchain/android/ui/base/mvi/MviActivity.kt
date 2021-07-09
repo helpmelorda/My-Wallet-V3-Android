@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.base.mvi
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
 import io.reactivex.disposables.Disposable
@@ -26,19 +27,23 @@ abstract class MviActivity<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E
         setContentView(binding.root)
     }
 
+    @UiThread
     override fun onResume() {
         super.onResume()
         subscription?.dispose()
-        subscription = model.state.subscribeBy(
-            onNext = { render(it) },
-            onError = {
-                if (BuildConfig.DEBUG) {
-                    throw it
-                }
-                Timber.e(it)
-            },
-            onComplete = { Timber.d("***> State on complete!!") }
-        )
+        subscription = model.state
+            .subscribeBy(
+                onNext = {
+                    render(it)
+                },
+                onError = {
+                    if (BuildConfig.DEBUG) {
+                        throw it
+                    }
+                    Timber.e(it)
+                },
+                onComplete = { Timber.d("***> State on complete!!") }
+            )
     }
 
     override fun onPause() {

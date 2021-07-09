@@ -157,11 +157,12 @@ class DashboardFragment :
             newState.activeFlow?.let {
                 if (it is TransactionFlow) {
                     txLauncher.startFlow(
-                        sourceAccount = it.txSource,
-                        target = it.txTarget,
-                        action = it.txAction,
+                        activity = requireActivity(),
                         fragmentManager = childFragmentManager,
-                        flowHost = this@DashboardFragment
+                        action = it.txAction,
+                        flowHost = this@DashboardFragment,
+                        sourceAccount = it.txSource,
+                        target = it.txTarget
                     )
                 } else {
                     it.startFlow(childFragmentManager, this)
@@ -654,6 +655,7 @@ class DashboardFragment :
 
     override fun goToSellFrom(account: CryptoAccount) {
         txLauncher.startFlow(
+            activity = requireActivity(),
             sourceAccount = account,
             action = AssetAction.Sell,
             fragmentManager = childFragmentManager,

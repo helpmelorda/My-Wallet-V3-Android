@@ -78,6 +78,7 @@ class TransferSendFragment : AccountSelectorFragment(), DialogFlow.FlowHost {
 
     private fun startTransactionFlow(fromAccount: CryptoAccount) {
         txLauncher.startFlow(
+            activity = requireActivity(),
             sourceAccount = fromAccount,
             action = AssetAction.Send,
             fragmentManager = childFragmentManager,

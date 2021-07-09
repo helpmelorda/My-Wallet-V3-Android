@@ -295,6 +295,7 @@ class KycTierSplashFragment : BaseFragment<KycTierSplashView, KycTierSplashPrese
 
     private fun startSwap() {
         txLauncher.startFlow(
+            activity = requireActivity(),
             action = AssetAction.Swap,
             fragmentManager = childFragmentManager,
             flowHost = this@KycTierSplashFragment

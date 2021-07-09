@@ -238,10 +238,11 @@ class AccountActivity : MvpActivity<AccountView, AccountPresenter>(),
 
     private fun launchFlow(sourceAccount: CryptoAccount) {
         txLauncher.startFlow(
-            sourceAccount = sourceAccount,
-            action = AssetAction.Send,
+            activity = this,
             fragmentManager = supportFragmentManager,
-            flowHost = this@AccountActivity
+            action = AssetAction.Send,
+            flowHost = this@AccountActivity,
+            sourceAccount = sourceAccount
         )
     }
 

@@ -186,6 +186,7 @@ class VeriffSplashFragment : BaseFragment<VeriffSplashView, VeriffSplashPresente
 
     override fun continueToSwap() {
         txLauncher.startFlow(
+            activity = requireActivity(),
             action = AssetAction.Swap,
             fragmentManager = childFragmentManager,
             flowHost = this@VeriffSplashFragment

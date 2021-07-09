@@ -110,6 +110,7 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
 
     private fun startSwap() {
         txLauncher.startFlow(
+            activity = requireActivity(),
             action = AssetAction.Swap,
             fragmentManager = childFragmentManager,
             flowHost = this@SwapFragment
@@ -229,6 +230,7 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
     private fun onTrendingPairClicked(): (TrendingPair) -> Unit = { pair ->
         analytics.logEvent(SwapAnalyticsEvents.TrendingPairClicked)
         txLauncher.startFlow(
+            activity = requireActivity(),
             sourceAccount = pair.sourceAccount,
             target = pair.destinationAccount,
             action = AssetAction.Swap,

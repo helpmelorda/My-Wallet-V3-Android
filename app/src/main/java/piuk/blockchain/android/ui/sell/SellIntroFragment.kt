@@ -270,6 +270,7 @@ class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
 
     private fun startSellFlow(it: CryptoAccount) {
         txLauncher.startFlow(
+            activity = requireActivity(),
             sourceAccount = it,
             action = AssetAction.Sell,
             fragmentManager = fragmentManager ?: return,

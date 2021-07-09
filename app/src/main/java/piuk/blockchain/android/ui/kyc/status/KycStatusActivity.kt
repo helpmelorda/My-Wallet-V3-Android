@@ -67,6 +67,7 @@ class KycStatusActivity : BaseMvpActivity<KycStatusView, KycStatusPresenter>(),
 
     private fun startSwapFlow() {
         txLauncher.startFlow(
+            activity = this,
             action = AssetAction.Swap,
             fragmentManager = supportFragmentManager,
             flowHost = this@KycStatusActivity

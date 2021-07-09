@@ -30,9 +30,10 @@ abstract class MviModel<S : MviState, I : MviIntent<S>>(
 ) {
 
     private val _state: BehaviorRelay<S> = BehaviorRelay.createDefault(initialState)
-    val state: Observable<S> = _state.distinctUntilChanged().doOnNext {
-        onStateUpdate(it)
-    }.observeOn(observeScheduler)
+    val state: Observable<S> = _state.distinctUntilChanged()
+        .doOnNext {
+            onStateUpdate(it)
+        }.observeOn(observeScheduler)
 
     protected val disposables = CompositeDisposable()
     private val intents = ReplaySubject.create<I>()

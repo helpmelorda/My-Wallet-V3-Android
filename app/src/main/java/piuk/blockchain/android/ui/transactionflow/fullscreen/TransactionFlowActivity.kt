@@ -7,7 +7,6 @@ import android.view.MenuItem
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AssetAction
@@ -40,6 +39,10 @@ import timber.log.Timber
 class TransactionFlowActivity :
     MviActivity<TransactionModel, TransactionIntent, TransactionState, ActivityTransactionFlowBinding>() {
 
+    init {
+        openScope()
+    }
+
     override val model: TransactionModel by transactionInject()
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -66,15 +69,22 @@ class TransactionFlowActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        setSupportActionBar(binding.toolbarGeneral.toolbarGeneral)
 
-        with(binding.toolbarGeneral.toolbarGeneral) {
-            setSupportActionBar(this)
+        supportActionBar?.run {
             title = ""
+            setDisplayHomeAsUpEnabled(true)
         }
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         binding.txProgress.visible()
 
+        startModel()
+    }
+
+    override fun initBinding(): ActivityTransactionFlowBinding =
+        ActivityTransactionFlowBinding.inflate(layoutInflater)
+
+    private fun startModel() {
         val intentMapper = TransactionFlowIntentMapper(
             sourceAccount = sourceAccount,
             target = transactionTarget,
@@ -83,7 +93,6 @@ class TransactionFlowActivity :
 
         compositeDisposable += sourceAccount.requireSecondPassword()
             .map { intentMapper.map(it) }
-            .observeOn(Schedulers.io())
             .subscribeBy(
                 onSuccess = { transactionIntent ->
                     model.process(transactionIntent)
@@ -92,10 +101,9 @@ class TransactionFlowActivity :
                     Timber.e("Unable to configure transaction flow, aborting. e == $it")
                     toast(R.string.common_error, ToastCustom.TYPE_ERROR)
                     finish()
-                })
+                }
+            )
     }
-
-    override fun initBinding(): ActivityTransactionFlowBinding = ActivityTransactionFlowBinding.inflate(layoutInflater)
 
     override fun render(newState: TransactionState) {
         handleStateChange(newState)
@@ -103,13 +111,13 @@ class TransactionFlowActivity :
     }
 
     private fun handleStateChange(state: TransactionState) {
-        if (currentStep == state.currentStep)
+        if (currentStep == state.currentStep) {
             return
+        }
 
         when (state.currentStep) {
-            TransactionStep.ZERO -> kotlin.run {
-                model.process(TransactionIntent.ResetFlow)
-                finish()
+            TransactionStep.ZERO -> {
+                // do nothing
             }
             TransactionStep.CLOSED -> kotlin.run {
                 compositeDisposable.clear()
@@ -122,7 +130,7 @@ class TransactionFlowActivity :
         }
 
         state.currentStep.takeIf { it != TransactionStep.ZERO }?.let { step ->
-            showFlowStep(step, state)
+            showFlowStep(step)
             customiser.getScreenTitle(state).takeIf { it.isNotEmpty() }?.let {
                 supportActionBar?.title = it
             } ?: supportActionBar?.hide()
@@ -164,7 +172,7 @@ class TransactionFlowActivity :
         }
     }
 
-    private fun showFlowStep(step: TransactionStep, state: TransactionState) =
+    private fun showFlowStep(step: TransactionStep) {
         when (step) {
             TransactionStep.ZERO,
             TransactionStep.CLOSED -> null
@@ -193,6 +201,7 @@ class TransactionFlowActivity :
 
             transaction.commit()
         }
+    }
 
     override fun onDestroy() {
         compositeDisposable.clear()
@@ -217,8 +226,6 @@ class TransactionFlowActivity :
                 putTarget(TARGET, target)
                 putSerializable(ACTION, action)
             }
-
-            openScope()
 
             return Intent(context, TransactionFlowActivity::class.java).apply {
                 putExtras(bundle)

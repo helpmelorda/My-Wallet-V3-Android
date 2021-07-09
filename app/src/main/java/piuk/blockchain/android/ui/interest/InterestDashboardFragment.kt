@@ -168,6 +168,7 @@ class InterestDashboardFragment : Fragment() {
                 host.showInterestSummarySheet(interestAccount, cryptoCurrency)
             } else {
                 txLauncher.startFlow(
+                    activity = requireActivity(),
                     target = it.accounts.first(),
                     action = AssetAction.InterestDeposit,
                     fragmentManager = parentFragmentManager,

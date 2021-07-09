@@ -308,6 +308,7 @@ class TransactionModel(
 
     override fun onScanLoopError(t: Throwable) {
         super.onScanLoopError(TxFlowLogError.LoopFail(t))
+        Timber.v("!TRANSACTION!> Transaction Model: state error -> $t")
         throw t
     }
 

@@ -55,8 +55,7 @@ val transactionModule = module {
 
     factory {
         TransactionLauncher(
-            flags = get(),
-            context = get()
+            flags = get()
         )
     }
 

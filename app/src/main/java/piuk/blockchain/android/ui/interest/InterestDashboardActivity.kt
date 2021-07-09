@@ -69,6 +69,7 @@ class InterestDashboardActivity : BlockchainActivity(),
         clearBottomSheet()
         require(toAccount is CryptoAccount)
         txLauncher.startFlow(
+            activity = this,
             target = toAccount,
             action = AssetAction.InterestDeposit,
             fragmentManager = supportFragmentManager,
@@ -80,6 +81,7 @@ class InterestDashboardActivity : BlockchainActivity(),
         clearBottomSheet()
         require(fromAccount is CryptoAccount)
         txLauncher.startFlow(
+            activity = this,
             sourceAccount = fromAccount,
             action = AssetAction.InterestWithdraw,
             fragmentManager = supportFragmentManager,
@@ -128,6 +130,7 @@ class InterestDashboardActivity : BlockchainActivity(),
         toAccount: SingleAccount
     ) {
         txLauncher.startFlow(
+            activity = this,
             sourceAccount = fromAccount as CryptoAccount,
             target = toAccount,
             action = AssetAction.InterestDeposit,
