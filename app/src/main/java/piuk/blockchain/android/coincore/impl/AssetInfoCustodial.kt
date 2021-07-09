@@ -67,7 +67,7 @@ internal object ETC : CryptoCurrency(
     precisionDp = 8,
     requiredConfirmations = 18, // Temp - TODO Get real value. Not needed for custodial-only
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
-    colour = "#000000", // TODO Update
+    colour = "#33FF99",
     logo = "file:///android_asset/logo/ethereum_classic/logo.png"
 )
 
@@ -78,8 +78,8 @@ internal object ZEN : CryptoCurrency(
     precisionDp = 8, // TODO: This is unknown ATM - get the real value
     requiredConfirmations = 12, // Temp - TODO Get real value
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
-    colour = "#000000" // TODO Update
-    // logo = TODO NEED ASSET
+    colour = "#041742",
+    logo = "file:///android_asset/logo/horizen/logo.png"
 )
 
 internal object XTZ : CryptoCurrency(
@@ -133,8 +133,8 @@ internal object NEAR : CryptoCurrency(
     precisionDp = 24,
     requiredConfirmations = 12, // Temp - TODO Get real value. Not needed for custodial-only
     startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
-    colour = "#000000" // TODO Update
-    // logo = TODO NEED ASSET
+    colour = "#000000",
+    logo = "file:///android_asset/logo/near_protocol/logo.png"
 )
 
 internal object EOS : CryptoCurrency(
