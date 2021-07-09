@@ -41,7 +41,6 @@
         style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/medium_margin"
         android:contentDescription="@string/next"
         android:minHeight="32dp"
         android:text="@string/next"

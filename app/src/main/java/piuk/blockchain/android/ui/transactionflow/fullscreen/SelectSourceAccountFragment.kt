@@ -90,9 +90,14 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
                 source = Single.just(newState.availableSources.map { it }),
                 status = customiser.sourceAccountSelectionStatusDecorator(newState)
             )
-            accountListSubtitle.text = customiser.selectSourceAccountSubtitle(newState)
-            accountListSubtitle.visible()
-            // accountListBack.visibleIf { newState.canGoBack }
+            if (customiser.selectSourceShouldShowSubtitle(newState)) {
+                accountListSubtitle.text = customiser.selectSourceAccountSubtitle(newState)
+                accountListSubtitle.visible()
+            } else {
+                accountListSubtitle.gone()
+                accountListSeparator.gone()
+            }
+
             addMethod.visibleIf { customiser.selectSourceShouldShowAddNew(newState) }
         }
     }

@@ -65,8 +65,6 @@ class BalanceAndFeeView @JvmOverloads constructor(
         binding.root.setOnClickListener {
             toggleDropdown()
         }
-
-        binding.toggleIndicator.rotation += 180f
     }
 
     override fun update(state: TransactionState) {

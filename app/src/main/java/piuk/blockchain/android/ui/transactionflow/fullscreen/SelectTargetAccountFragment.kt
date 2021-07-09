@@ -33,8 +33,13 @@ class SelectTargetAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
                 source = Single.just(newState.availableTargets.map { it as SingleAccount }),
                 status = customiser.selectTargetStatusDecorator(newState)
             )
-            accountListSubtitle.text = customiser.selectTargetAccountDescription(newState)
-            accountListSubtitle.visible()
+            if (customiser.selectTargetShouldShowSubtitle(newState)) {
+                accountListSubtitle.text = customiser.selectTargetAccountDescription(newState)
+                accountListSubtitle.visible()
+            } else {
+                accountListSubtitle.gone()
+                accountListSeparator.gone()
+            }
             accountList.onAccountSelected = { account: BlockchainAccount -> doOnAccountSelected(account, newState) }
         }
     }

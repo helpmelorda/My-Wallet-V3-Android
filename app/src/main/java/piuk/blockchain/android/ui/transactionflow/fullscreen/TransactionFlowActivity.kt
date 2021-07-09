@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.transactionflow.fullscreen
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -63,7 +62,6 @@ class TransactionFlowActivity :
     private val compositeDisposable = CompositeDisposable()
     private var currentStep: TransactionStep = TransactionStep.ZERO
     private lateinit var state: TransactionState
-    private var fragmentStackCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,7 +71,7 @@ class TransactionFlowActivity :
             setSupportActionBar(this)
             title = ""
         }
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         binding.txProgress.visible()
 
@@ -122,6 +120,7 @@ class TransactionFlowActivity :
                 analyticsHooks.onStepChanged(state)
             }
         }
+
         state.currentStep.takeIf { it != TransactionStep.ZERO }?.let { step ->
             showFlowStep(step, state)
             customiser.getScreenTitle(state).takeIf { it.isNotEmpty() }?.let {
@@ -129,19 +128,7 @@ class TransactionFlowActivity :
             } ?: supportActionBar?.hide()
 
             currentStep = step
-            updateNavigationUI()
         }
-    }
-
-    private fun updateNavigationUI() {
-        supportActionBar?.setDisplayHomeAsUpEnabled(fragmentStackCount > 1)
-        invalidateOptionsMenu()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_tx_flow, menu)
-        menu.findItem(R.id.tx_flow_close).isVisible = fragmentStackCount == 1
-        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -152,10 +139,6 @@ class TransactionFlowActivity :
                 }
                 true
             }
-            R.id.tx_flow_close -> {
-                finish()
-                true
-            }
             else -> {
                 super.onOptionsItemSelected(item)
             }
@@ -163,7 +146,7 @@ class TransactionFlowActivity :
     }
 
     override fun onBackPressed() {
-        navigateOnBackPressed { finish() }
+        finish()
     }
 
     private fun navigateOnBackPressed(finalAction: () -> Unit) {
@@ -176,7 +159,6 @@ class TransactionFlowActivity :
                 BackNavigationState.ResetPendingTransaction -> model.process(TransactionIntent.InvalidateTransaction)
                 BackNavigationState.NavigateToPreviousScreen -> model.process(TransactionIntent.ReturnToPreviousStep)
             }
-            fragmentStackCount--
         } else {
             finalAction()
         }
@@ -207,7 +189,6 @@ class TransactionFlowActivity :
 
             if (!supportFragmentManager.fragments.contains(it)) {
                 transaction.addToBackStack(it.toString())
-                fragmentStackCount++
             }
 
             transaction.commit()

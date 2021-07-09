@@ -174,7 +174,6 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 }
                 IssueType.INFO -> {
                     amountSheetInput.showInfo(it) {
-                        // dismiss()
                         KycNavHostActivity.start(requireActivity(), CampaignType.Swap, true)
                     }
                 }
@@ -191,7 +190,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 errorMessage = feesTooHighMsg
             )
         } else {
-            binding.amountSheetInput.hideLabels()
+            amountSheetInput.hideLabels()
         }
     }
 
@@ -215,7 +214,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
     private fun configureCtaButton() {
         val layoutParams: ViewGroup.MarginLayoutParams =
             binding.amountSheetCtaButton.layoutParams as ViewGroup.MarginLayoutParams
-        layoutParams.bottomMargin = resources.getDimension(R.dimen.medium_margin).toInt()
+        layoutParams.bottomMargin = resources.getDimension(R.dimen.standard_margin).toInt()
         binding.amountSheetCtaButton.layoutParams = layoutParams
     }
 

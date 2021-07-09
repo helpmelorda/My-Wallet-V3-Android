@@ -500,21 +500,25 @@ class TransactionFlowCustomiserImpl(
         }
     }
 
-    override fun selectSourceAccountTitle(state: TransactionState): String {
-        return when (state.action) {
+    override fun selectSourceAccountTitle(state: TransactionState): String =
+        when (state.action) {
             AssetAction.Swap -> resources.getString(R.string.swap_select_target_title)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_source_select_title)
             AssetAction.InterestDeposit -> resources.getString(R.string.select_deposit_source_title)
             else -> resources.getString(R.string.select_a_wallet)
-        }
     }
 
-    override fun selectSourceAccountSubtitle(state: TransactionState): String {
-        return when (state.action) {
+    override fun selectSourceAccountSubtitle(state: TransactionState): String =
+        when (state.action) {
             AssetAction.Swap -> resources.getString(R.string.swap_account_select_subtitle)
             else -> ""
         }
-    }
+
+    override fun selectSourceShouldShowSubtitle(state: TransactionState): Boolean =
+        when (state.action) {
+            AssetAction.Swap -> true
+            else -> false
+        }
 
     override fun selectSourceShouldShowAddNew(state: TransactionState): Boolean =
         when (state.action) {
