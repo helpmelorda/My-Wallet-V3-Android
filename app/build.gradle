@@ -124,6 +124,8 @@ android {
             buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['prodSiftAccount']
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['prodSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
+            buildConfigString "LOGIN_HOST_LINK_1", buildProperties.secrets['prodLoginLink']
+            buildConfigString "LOGIN_HOST_LINK_2", buildProperties.secrets['prodLoginLink2']
         }
 
         envInternalProd {
@@ -153,6 +155,8 @@ android {
             buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['prodSiftAccount']
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['prodSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
+            buildConfigString "LOGIN_HOST_LINK_1", buildProperties.secrets['prodLoginLink']
+            buildConfigString "LOGIN_HOST_LINK_2", buildProperties.secrets['prodLoginLink2']
 
             applicationId "com.blockchain.wallet.internal"
 
@@ -195,6 +199,8 @@ android {
             buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['devSiftAccount']
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['devSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaDevSiteKey']
+            buildConfigString "LOGIN_HOST_LINK_1", buildProperties.secrets['devLoginLink']
+            buildConfigString "LOGIN_HOST_LINK_2", buildProperties.secrets['devLoginLink2']
 
             versionNameSuffix '-dev'
             applicationId "piuk.blockchain.android.dev"
@@ -227,6 +233,8 @@ android {
             buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['stagingSiftAccount']
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['stagingSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaStagingSiteKey']
+            buildConfigString "LOGIN_HOST_LINK_1", buildProperties.secrets['stagingLoginLink']
+            buildConfigString "LOGIN_HOST_LINK_2", buildProperties.secrets['stagingLoginLink2']
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"
