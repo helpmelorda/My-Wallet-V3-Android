@@ -57,11 +57,6 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
             )
             adapter = listAdapter
         }
-        //
-        //        binding.confirmSheetBack.setOnClickListener {
-        //            analyticsHooks.onStepBackClicked(state)
-        //            model.process(TransactionIntent.ReturnToPreviousStep)
-        //        }
 
         model.process(TransactionIntent.ValidateTransaction)
     }

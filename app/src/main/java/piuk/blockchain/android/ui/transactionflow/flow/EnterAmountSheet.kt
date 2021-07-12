@@ -183,7 +183,6 @@ class EnterAmountSheet : TransactionFlowSheet<DialogTxFlowEnterAmountBinding>() 
                 onCtaClick()
             }
             amountSheetBack.setOnClickListener {
-                analyticsHooks.onStepBackClicked(state)
                 model.process(TransactionIntent.NavigateBackFromEnterAmount)
             }
         }

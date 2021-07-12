@@ -64,11 +64,6 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //              amountSheetBack.setOnClickListener {
-        //                analyticsHooks.onStepBackClicked(state)
-        //                model.process(TransactionIntent.NavigateBackFromEnterAmount)
-        //            }
-
         compositeDisposable += binding.amountSheetInput.amount
             .debounce(AMOUNT_DEBOUNCE_TIME_MS, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())

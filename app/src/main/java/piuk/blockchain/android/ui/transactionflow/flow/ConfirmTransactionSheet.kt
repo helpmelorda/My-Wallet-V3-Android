@@ -102,7 +102,6 @@ class ConfirmTransactionSheet : TransactionFlowSheet<DialogTxFlowConfirmBinding>
         }
 
         binding.confirmSheetBack.setOnClickListener {
-            analyticsHooks.onStepBackClicked(state)
             model.process(TransactionIntent.ReturnToPreviousStep)
         }
 

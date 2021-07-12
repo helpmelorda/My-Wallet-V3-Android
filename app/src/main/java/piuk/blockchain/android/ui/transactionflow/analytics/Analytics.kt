@@ -3,10 +3,10 @@ package piuk.blockchain.android.ui.transactionflow.analytics
 import com.blockchain.extensions.withoutNullValues
 import com.blockchain.logging.CrashLogger
 import com.blockchain.notifications.analytics.Analytics
-import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import piuk.blockchain.android.coincore.AssetAction
@@ -193,8 +193,6 @@ class TxFlowAnalytics(
             }
         }
     }
-
-    fun onStepBackClicked(state: TransactionState) {}
 
     // Enter address sheet
     fun onManualAddressEntered(state: TransactionState) {}
