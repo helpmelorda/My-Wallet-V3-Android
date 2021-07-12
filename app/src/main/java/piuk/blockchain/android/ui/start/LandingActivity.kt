@@ -21,7 +21,6 @@ import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
 import piuk.blockchain.android.util.copyHashOnLongClick
 import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.android.ui.login.LoginFragment
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.visible
 
@@ -52,10 +51,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
             btnCreate.setOnClickListener { launchCreateWalletActivity() }
             btnLogin.setOnClickListener {
                 if (isSSOLoginEnabled) {
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.content_frame, LoginFragment(), LoginFragment::class.simpleName)
-                        .addToBackStack(LoginFragment::class.simpleName)
-                        .commitAllowingStateLoss()
+                    launchSSOLoginActivity()
                 } else {
                     launchLoginActivity()
                 }
@@ -79,6 +75,9 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
 
     private fun launchLoginActivity() =
         startActivity(Intent(this, LoginActivity::class.java))
+
+    private fun launchSSOLoginActivity() =
+        startActivity(Intent(this, piuk.blockchain.android.ui.login.LoginActivity::class.java))
 
     private fun startRecoverFundsActivity() = RecoverFundsActivity.start(this)
 

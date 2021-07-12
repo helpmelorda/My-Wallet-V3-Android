@@ -105,7 +105,6 @@ android {
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['prodDynamicLink'].string,
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['prodDynamicLink2'].string,
                     LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].string,
-                    LOGIN_LINK_HOST_2  : buildProperties.secrets['prodLoginLink2'].string
             ]
             buildConfigString "EXPLORER_URL", buildProperties.secrets['prodExplorer']
             buildConfigString "API_URL", buildProperties.secrets['prodApiServer']
@@ -124,8 +123,7 @@ android {
             buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['prodSiftAccount']
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['prodSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
-            buildConfigString "LOGIN_HOST_LINK_1", buildProperties.secrets['prodLoginLink']
-            buildConfigString "LOGIN_HOST_LINK_2", buildProperties.secrets['prodLoginLink2']
+            buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['prodLoginLink']
         }
 
         envInternalProd {
@@ -136,7 +134,6 @@ android {
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['prodDynamicLink'].string,
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['prodDynamicLink2'].string,
                     LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].string,
-                    LOGIN_LINK_HOST_2  : buildProperties.secrets['prodLoginLink2'].string
             ]
             buildConfigString "EXPLORER_URL", buildProperties.secrets['prodExplorer']
             buildConfigString "API_URL", buildProperties.secrets['prodApiServer']
@@ -155,8 +152,7 @@ android {
             buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['prodSiftAccount']
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['prodSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
-            buildConfigString "LOGIN_HOST_LINK_1", buildProperties.secrets['prodLoginLink']
-            buildConfigString "LOGIN_HOST_LINK_2", buildProperties.secrets['prodLoginLink2']
+            buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['prodLoginLink']
 
             applicationId "com.blockchain.wallet.internal"
 
@@ -180,7 +176,6 @@ android {
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['devDynamicLink'].string,
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['devDynamicLink2'].string,
                     LOGIN_LINK_HOST    : buildProperties.secrets['devLoginLink'].string,
-                    LOGIN_LINK_HOST_2  : buildProperties.secrets['devLoginLink2'].string
             ]
             buildConfigString "EXPLORER_URL", buildProperties.secrets['devExplorer']
             buildConfigString "API_URL", buildProperties.secrets['devApiServer']
@@ -199,8 +194,7 @@ android {
             buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['devSiftAccount']
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['devSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaDevSiteKey']
-            buildConfigString "LOGIN_HOST_LINK_1", buildProperties.secrets['devLoginLink']
-            buildConfigString "LOGIN_HOST_LINK_2", buildProperties.secrets['devLoginLink2']
+            buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['devLoginLink']
 
             versionNameSuffix '-dev'
             applicationId "piuk.blockchain.android.dev"
@@ -214,7 +208,6 @@ android {
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['stagingDynamicLink'].string,
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['stagingDynamicLink2'].string,
                     LOGIN_LINK_HOST    : buildProperties.secrets['stagingLoginLink'].string,
-                    LOGIN_LINK_HOST_2  : buildProperties.secrets['stagingLoginLink2'].string
             ]
             buildConfigString "EXPLORER_URL", buildProperties.secrets['stagingExplorer']
             buildConfigString "API_URL", buildProperties.secrets['stagingApiServer']
@@ -233,8 +226,7 @@ android {
             buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['stagingSiftAccount']
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['stagingSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaStagingSiteKey']
-            buildConfigString "LOGIN_HOST_LINK_1", buildProperties.secrets['stagingLoginLink']
-            buildConfigString "LOGIN_HOST_LINK_2", buildProperties.secrets['stagingLoginLink2']
+            buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['stagingLoginLink']
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"

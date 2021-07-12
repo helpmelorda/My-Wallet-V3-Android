@@ -5,9 +5,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.koin.scopedInject
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -16,12 +13,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.FragmentLoginBinding
+import piuk.blockchain.android.databinding.ActivityLoginNewBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
-import piuk.blockchain.android.ui.base.mvi.MviFragment
+import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
@@ -31,31 +29,34 @@ import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
 
-class LoginFragment : MviFragment<LoginModel, LoginIntents, LoginState, FragmentLoginBinding>() {
+class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, ActivityLoginNewBinding>() {
 
     override val model: LoginModel by scopedInject()
+
+    override val alwaysDisableScreenshots: Boolean = true
 
     private val environmentConfig: EnvironmentConfig by inject()
 
     private val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build()
 
     private val googleSignInClient: GoogleSignInClient by lazy {
-        GoogleSignIn.getClient(requireContext(), gso)
+        GoogleSignIn.getClient(this, gso)
     }
 
     private val recaptchaClient: GoogleReCaptchaClient by lazy {
-        GoogleReCaptchaClient(requireActivity())
+        GoogleReCaptchaClient(this)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         recaptchaClient.initReCaptcha()
+    }
+
+    override fun onStart() {
+        super.onStart()
 
         with(binding) {
-            backButton.setOnClickListener {
-                parentFragmentManager.popBackStack()
-            }
+            backButton.setOnClickListener { finish() }
             loginEmailText.apply {
                 inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
 
@@ -77,7 +78,7 @@ class LoginFragment : MviFragment<LoginModel, LoginIntents, LoginState, Fragment
                 }
             }
             scanPairingButton.setOnClickListener {
-                QrScanActivity.start(this@LoginFragment, QrExpected.MAIN_ACTIVITY_QR)
+                QrScanActivity.start(this@LoginActivity, QrExpected.MAIN_ACTIVITY_QR)
             }
             continueWithGoogleButton.setOnClickListener {
                 startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
@@ -92,15 +93,22 @@ class LoginFragment : MviFragment<LoginModel, LoginIntents, LoginState, Fragment
                 }
             }
         }
+        intent.data?.let { uri ->
+            uri.fragment?.let { fragment ->
+                if (fragment.split(LoginAuthActivity.LINK_DELIMITER).size > 1) {
+                    // Navigate to the LoginAuthActivity when there's encoded data in the URI.
+                    startActivity(Intent(intent.action, uri, this, LoginAuthActivity::class.java))
+                }
+            }
+        }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onDestroy() {
         recaptchaClient.close()
+        super.onDestroy()
     }
 
-    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentLoginBinding =
-        FragmentLoginBinding.inflate(inflater, container, false)
+    override fun initBinding(): ActivityLoginNewBinding = ActivityLoginNewBinding.inflate(layoutInflater)
 
     override fun render(newState: LoginState) {
         updateUI(newState)
@@ -109,7 +117,7 @@ class LoginFragment : MviFragment<LoginModel, LoginIntents, LoginState, Fragment
                 toast(R.string.pairing_failed, ToastCustom.TYPE_ERROR)
                 if (newState.shouldRestartApp) {
                     startActivity(
-                        Intent(requireContext(), LauncherActivity::class.java).apply {
+                        Intent(this, LauncherActivity::class.java).apply {
                             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                         }
                     )
@@ -117,7 +125,7 @@ class LoginFragment : MviFragment<LoginModel, LoginIntents, LoginState, Fragment
             }
             LoginStep.ENTER_PIN -> {
                 startActivity(
-                    Intent(requireContext(), PinEntryActivity::class.java).apply {
+                    Intent(this, PinEntryActivity::class.java).apply {
                         addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                     }
                 )
@@ -163,7 +171,7 @@ class LoginFragment : MviFragment<LoginModel, LoginIntents, LoginState, Fragment
     }
 
     private fun navigateToVerifyDevice() {
-        parentFragmentManager.run {
+        supportFragmentManager.run {
             beginTransaction()
                 .replace(
                     R.id.content_frame,

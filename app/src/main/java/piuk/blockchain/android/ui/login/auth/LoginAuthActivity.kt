@@ -271,16 +271,10 @@ class LoginAuthActivity :
     private fun validateAndLogDeeplinkHost(host: String?) {
         host?.let {
             when (host) {
-                BuildConfig.LOGIN_HOST_LINK_1 -> {
+                BuildConfig.LOGIN_HOST_LINK -> {
                     crashLogger.logState(
                         VALID_DEEPLINK_HOST,
-                        BuildConfig.LOGIN_HOST_LINK_1
-                    )
-                }
-                BuildConfig.LOGIN_HOST_LINK_2 -> {
-                    crashLogger.logState(
-                        VALID_DEEPLINK_HOST,
-                        BuildConfig.LOGIN_HOST_LINK_2
+                        BuildConfig.LOGIN_HOST_LINK
                     )
                 }
                 else -> {
@@ -314,7 +308,7 @@ class LoginAuthActivity :
     }
 
     companion object {
-        private const val LINK_DELIMITER = "/login/"
+        const val LINK_DELIMITER = "/login/"
         private const val GUID = "guid"
         private const val EMAIL = "email"
         private const val EMAIL_CODE = "email_code"
