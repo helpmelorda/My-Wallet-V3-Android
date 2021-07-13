@@ -4,19 +4,19 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.notifications.analytics.AddressAnalytics
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.WalletAnalytics
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.util.PrivateKeyFactory
-import io.reactivex.Completable
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
-import org.amshove.kluent.mock
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -44,8 +44,8 @@ class AccountPresenterTest {
     private val btcAsset: BtcAsset = mock()
     private val bchAsset: BchAsset = mock()
     private val coincore: Coincore = mock {
-        on { get(CryptoCurrency.BTC) } itReturns btcAsset
-        on { get(CryptoCurrency.BCH) } itReturns bchAsset
+        on { get(CryptoCurrency.BTC) }.thenReturn(btcAsset)
+        on { get(CryptoCurrency.BCH) }.thenReturn(bchAsset)
     }
 
     private val analytics: Analytics = mock()
@@ -80,7 +80,7 @@ class AccountPresenterTest {
     fun createNewAccountSuccessful() {
         // Arrange
         val newAccount: BtcCryptoWalletAccount = mock {
-            on { xpubAddress } itReturns VALID_XPUB
+            on { xpubAddress }.thenReturn(VALID_XPUB)
         }
         whenever(btcAsset.createAccount(NEW_BTC_LABEL, null)).thenReturn(Single.just(newAccount))
         whenever(bchAsset.createAccount(VALID_XPUB)).thenReturn(Completable.complete())
@@ -139,8 +139,8 @@ class AccountPresenterTest {
         // Arrange
         val cryptoValue: Money = CryptoValue.fromMinor(CryptoCurrency.BCH, 1.toBigInteger())
         val importedAccount: BtcCryptoWalletAccount = mock {
-            on { updateLabel(UPDATED_BTC_LABEL) } itReturns Completable.complete()
-            on { actionableBalance } itReturns Single.just(cryptoValue)
+            on { updateLabel(UPDATED_BTC_LABEL) }.thenReturn(Completable.complete())
+            on { actionableBalance }.thenReturn(Single.just(cryptoValue))
         }
 
         // Act
@@ -156,7 +156,7 @@ class AccountPresenterTest {
     fun updateImportedAddressLabelFailed() {
         // Arrange
         val importedAccount: BtcCryptoWalletAccount = mock {
-            on { updateLabel(UPDATED_BTC_LABEL) } itReturns Completable.error(RuntimeException())
+            on { updateLabel(UPDATED_BTC_LABEL) }.thenReturn(Completable.error(RuntimeException()))
         }
 
         // Act

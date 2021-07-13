@@ -1,8 +1,8 @@
 package com.blockchain.testutils
 
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockitokotlin2.verify
 import okhttp3.mockwebserver.MockWebServer
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 
 class MockWebServerTestRuleTest {

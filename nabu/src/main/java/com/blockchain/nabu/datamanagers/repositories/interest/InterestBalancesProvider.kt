@@ -8,7 +8,7 @@ import com.blockchain.rx.ParameteredMappedSinglesTimedRequests
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 interface InterestBalancesProvider {
     fun getBalanceForAsset(asset: AssetInfo): Single<InterestAccountDetails>
@@ -38,17 +38,24 @@ class InterestBalancesProviderImpl(
 
     private val refresh: (AssetInfo) -> Single<InterestAccountDetails> = { currency ->
         authenticator.authenticate {
-            nabuService.getInterestAccountBalance(it, currency.ticker).map { details ->
-                details.toInterestAccountDetails(currency)
-            }.toSingle(
-                InterestAccountDetails(
-                    balance = CryptoValue.zero(currency),
-                    pendingInterest = CryptoValue.zero(currency),
-                    pendingDeposit = CryptoValue.zero(currency),
-                    totalInterest = CryptoValue.zero(currency),
-                    lockedBalance = CryptoValue.zero(currency)
+            nabuService.getInterestAccountBalance(it, currency.ticker)
+                .map { details ->
+                    details?.toInterestAccountDetails(currency) ?: InterestAccountDetails(
+                        balance = CryptoValue.zero(currency),
+                        pendingInterest = CryptoValue.zero(currency),
+                        pendingDeposit = CryptoValue.zero(currency),
+                        totalInterest = CryptoValue.zero(currency),
+                        lockedBalance = CryptoValue.zero(currency)
+                    )
+                }.defaultIfEmpty(
+                    InterestAccountDetails(
+                        balance = CryptoValue.zero(currency),
+                        pendingInterest = CryptoValue.zero(currency),
+                        pendingDeposit = CryptoValue.zero(currency),
+                        totalInterest = CryptoValue.zero(currency),
+                        lockedBalance = CryptoValue.zero(currency)
+                    )
                 )
-            )
         }
     }
 

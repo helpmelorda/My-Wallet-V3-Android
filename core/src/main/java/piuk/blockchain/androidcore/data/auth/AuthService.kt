@@ -5,9 +5,9 @@ import info.blockchain.wallet.api.WalletApi
 import info.blockchain.wallet.api.data.Status
 import info.blockchain.wallet.api.data.WalletOptions
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.data.rxjava.RxPinning

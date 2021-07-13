@@ -6,8 +6,8 @@ import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthPushTxRequest
 import info.blockchain.wallet.ethereum.data.EthTransaction
 import info.blockchain.wallet.ethereum.data.EthTransactionsResponse
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers

@@ -1,22 +1,22 @@
 package piuk.blockchain.androidcore.data.payload
 
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.isNull
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.isNull
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.ImportedAddress
 import info.blockchain.wallet.payload.data.Wallet
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import info.blockchain.wallet.util.PrivateKeyFactory
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.schedulers.TestScheduler
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.mock
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.TestScheduler
+import org.amshove.kluent.`should be equal to`
+import com.nhaarman.mockitokotlin2.mock
 import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Rule
@@ -32,8 +32,8 @@ import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Balance
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Single
+
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import java.math.BigInteger
 import kotlin.test.assertEquals
@@ -353,7 +353,7 @@ class PayloadDataManagerTest {
         val xpub = XPub("ADDRESS", XPub.Format.LEGACY)
         val xpubs = XPubs(xpub)
 
-        val hashMap = mapOf(Pair(xpub.address, mock(Balance::class)))
+        val hashMap = mapOf(Pair(xpub.address, mock<Balance>()))
         whenever(payloadService.getBalanceOfBchAccounts(listOf(xpubs)))
             .thenReturn(Observable.just(hashMap))
 
@@ -562,7 +562,7 @@ class PayloadDataManagerTest {
     fun `getImportedAddresses returns list of imported addresses`() {
         // Arrange
         val mockImportedAddress: ImportedAddress = mock {
-            on { privateKey } itReturns("SomeRandomKeyString")
+            on { privateKey }.thenReturn("SomeRandomKeyString")
         }
         val addresses = listOf(mockImportedAddress)
         whenever(payloadManager.payload?.importedAddressList).thenReturn(addresses)
@@ -577,10 +577,10 @@ class PayloadDataManagerTest {
     fun `getImportedAddresses returns list of imported addresses with filters out watch only`() {
         // Arrange
         val mockImportedAddress1: ImportedAddress = mock {
-            on { privateKey } itReturns(null)
+            on { privateKey }.thenReturn(null)
         }
         val mockImportedAddress2: ImportedAddress = mock {
-            on { privateKey } itReturns("SomeRandomKeyString")
+            on { privateKey }.thenReturn("SomeRandomKeyString")
         }
         val addresses = listOf(mockImportedAddress1, mockImportedAddress2)
         whenever(payloadManager.payload?.importedAddressList).thenReturn(addresses)
@@ -777,7 +777,7 @@ class PayloadDataManagerTest {
         val result = subject.getTransactionNotes(txHash)
         // Assert
         verify(payloadManager, atLeastOnce()).payload
-        result `should equal` note
+        result `should be equal to` note
     }
 
     @Test

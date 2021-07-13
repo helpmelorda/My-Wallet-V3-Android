@@ -4,8 +4,8 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.BankPartner.Companion.YAPILY_DEEPLINK_PAYMENT_APPROVAL_URL
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BankAccount
 import piuk.blockchain.android.coincore.FeeLevel

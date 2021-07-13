@@ -6,11 +6,11 @@ import info.blockchain.wallet.bip44.HDWalletFactory
 import info.blockchain.wallet.metadata.Metadata
 import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.metadata.MetadataInteractor
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.bitcoinj.crypto.MnemonicCode
 import org.bitcoinj.crypto.MnemonicException
 import java.util.Locale

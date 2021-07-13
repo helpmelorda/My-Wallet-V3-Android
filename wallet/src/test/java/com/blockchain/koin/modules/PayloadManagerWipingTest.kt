@@ -2,7 +2,7 @@ package com.blockchain.koin.modules
 
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.walletModule
-import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockitokotlin2.mock
 import com.blockchain.api.NonCustodialBitcoinService
 import info.blockchain.wallet.api.WalletApi
 import info.blockchain.wallet.payload.PayloadManager

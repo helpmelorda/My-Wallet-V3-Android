@@ -2,7 +2,7 @@ package info.blockchain.wallet.prices
 
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import java.util.concurrent.TimeUnit
 
 internal fun CurrentPriceApi.toIndicativeFiatPriceService(): IndicativeFiatPriceService {

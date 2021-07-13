@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.swap
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import io.reactivex.Maybe
+import io.reactivex.rxjava3.core.Maybe
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.TradingAccount

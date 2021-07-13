@@ -10,19 +10,19 @@ import piuk.blockchain.android.ui.validOfflineToken
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`should equal to`
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.itReturns
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be equal to`
+
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -38,7 +38,7 @@ class KycHomeAddressPresenterTest {
     private val custodialWalletManager: CustodialWalletManager = mock()
 
     private val kycNextStepDecision: KycNextStepDecision = mock {
-        on { nextStep() } `it returns` Single.just(KycNextStepDecision.NextStep.Tier2Continue)
+        on { nextStep() }.thenReturn(Single.just(KycNextStepDecision.NextStep.Tier2Continue))
     }
 
     @Suppress("unused")
@@ -316,7 +316,7 @@ class KycHomeAddressPresenterTest {
 
     @Test
     fun `on continue clicked and tier2 decision reports to not continue, tier1 is complete`() {
-        whenever(kycNextStepDecision.nextStep()).itReturns(Single.just(KycNextStepDecision.NextStep.Tier1Complete))
+        whenever(kycNextStepDecision.nextStep()).thenReturn(Single.just(KycNextStepDecision.NextStep.Tier1Complete))
         // Arrange
         val firstLine = "1"
         val city = "2"
@@ -352,7 +352,7 @@ class KycHomeAddressPresenterTest {
     fun `on continue clicked and tier2 decision reports to get more info, tier2 continues`() {
         whenever(
             kycNextStepDecision.nextStep()
-        ).itReturns(Single.just(KycNextStepDecision.NextStep.Tier2ContinueTier1NeedsMoreInfo))
+        ).thenReturn(Single.just(KycNextStepDecision.NextStep.Tier2ContinueTier1NeedsMoreInfo))
         // Arrange
         val firstLine = "1"
         val city = "2"
@@ -404,13 +404,13 @@ class KycHomeAddressPresenterTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         val sortedMap = testObserver.values().first()
-        sortedMap.size `should equal to` 3
+        sortedMap.size `should be equal to` 3
         val expectedMap = sortedMapOf(
             "France" to "FR",
             "Germany" to "DE",
             "United Kingdom" to "UK"
         )
-        sortedMap `should equal` expectedMap
+        sortedMap `should be equal to` expectedMap
     }
 
     @Test

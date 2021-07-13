@@ -1,8 +1,8 @@
 package piuk.blockchain.androidcore.data.settings.datastore
 
 import info.blockchain.wallet.api.data.Settings
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.mock
+import org.amshove.kluent.`should be equal to`
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.testutils.RxTest
@@ -46,7 +46,7 @@ class SettingsMemoryStoreTest : RxTest() {
         val testObserver = subject.getSettings().test()
         // Assert
         testObserver.assertValueAt(0) { it is Optional.Some<Settings> }
-        (testObserver.values()[0] as Optional.Some<Settings>).element `should equal` mockSettings
+        (testObserver.values()[0] as Optional.Some<Settings>).element `should be equal to` mockSettings
     }
 
     @Test

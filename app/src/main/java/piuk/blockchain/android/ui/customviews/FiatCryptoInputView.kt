@@ -15,10 +15,10 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.hasOppositeSourceAndTarget
 import info.blockchain.balance.hasSameSourceAndTarget
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import piuk.blockchain.android.R

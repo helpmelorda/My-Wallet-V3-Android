@@ -3,7 +3,7 @@ package piuk.blockchain.androidcore.data.payload
 import com.blockchain.wallet.Seed
 import com.blockchain.wallet.SeedAccessWithoutPrompt
 import info.blockchain.wallet.exceptions.HDWalletException
-import io.reactivex.Maybe
+import io.reactivex.rxjava3.core.Maybe
 
 internal class PayloadDataManagerSeedAccessAdapter(
     private val payloadDataManager: PayloadDataManager

@@ -9,10 +9,10 @@ import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.wallet.prices.TimeInterval
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Singles
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AssetFilter
@@ -165,7 +165,7 @@ internal abstract class CryptoAssetBase(
     private fun getNonCustodialAccountList(): Single<SingleAccountList> =
         accountGroup(filter = AssetFilter.NonCustodial)
             .map { group -> group.accounts }
-            .toSingle(emptyList())
+            .defaultIfEmpty(emptyList())
 
     final override fun exchangeRate(): Single<ExchangeRate> =
         exchangeRates.fetchExchangeRate(asset, currencyPrefs.selectedFiatCurrency)

@@ -7,8 +7,8 @@ import com.blockchain.sunriver.derivation.deriveXlmAccountKeyPair
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.wallet.Seed
 import com.blockchain.wallet.SeedAccess
-import io.reactivex.Completable
-import io.reactivex.Maybe
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
 
 internal class XlmMetaDataInitializer(
     private val defaultLabels: DefaultLabels,

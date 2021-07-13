@@ -5,10 +5,10 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.CustodialAssetWalletsBalancesRepository
 import com.blockchain.wallet.DefaultLabels
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Single
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Single
 import org.junit.Test
 import org.junit.Rule
 import piuk.blockchain.android.coincore.impl.CryptoInterestAccount

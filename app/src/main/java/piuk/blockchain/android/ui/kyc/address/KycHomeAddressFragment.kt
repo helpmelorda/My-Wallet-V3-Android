@@ -27,14 +27,14 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.gms.common.GooglePlayServicesRepairableException
 import com.google.android.gms.location.places.AutocompleteFilter
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
-import com.jakewharton.rx.replayingShare
-import com.jakewharton.rxbinding2.widget.afterTextChangeEvents
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.subjects.PublishSubject
+import com.jakewharton.rx3.replayingShare
+import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
@@ -368,7 +368,7 @@ class KycHomeAddressFragment : BaseMvpFragment<KycHomeAddressView, KycHomeAddres
     private fun TextView.onDelayedChange(kycStep: KycStep): Observable<String> =
         this.afterTextChangeEvents()
             .debounce(300, TimeUnit.MILLISECONDS)
-            .map { it.editable()?.toString() ?: "" }
+            .map { it.editable.toString() }
             .skipFirstUnless { !it.isEmpty() }
             .observeOn(AndroidSchedulers.mainThread())
             .distinctUntilChanged()

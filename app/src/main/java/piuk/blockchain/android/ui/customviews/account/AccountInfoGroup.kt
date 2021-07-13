@@ -7,10 +7,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.ExchangeRates
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.core.KoinComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AccountGroup

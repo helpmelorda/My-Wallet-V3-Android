@@ -8,7 +8,7 @@ import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
 import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.AvailableActions
 import piuk.blockchain.android.coincore.BankAccount

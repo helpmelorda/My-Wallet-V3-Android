@@ -3,7 +3,7 @@ package com.blockchain.nabu.datamanagers.repositories
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.rx.ParameteredSingleTimedCacheRequest
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
 import java.math.BigInteger
 

@@ -1,8 +1,8 @@
 package com.blockchain.nabu.util
 
 import com.blockchain.testutils.date
-import org.amshove.kluent.`should equal to`
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 import java.util.Locale
 
@@ -11,13 +11,13 @@ class CalendarExtensionsKtTest {
     @Test
     fun `calendar should be formatted as 8601 date`() {
         date(Locale.UK, 2000, 8, 12)
-            .toISO8601DateString() `should equal to` "2000-08-12"
+            .toISO8601DateString() `should be equal to` "2000-08-12"
     }
 
     @Test
     fun `calendar should be formatted as 8601 date with single digit date`() {
         date(Locale.UK, 1337, 12, 1)
-            .toISO8601DateString() `should equal to` "1337-12-01"
+            .toISO8601DateString() `should be equal to` "1337-12-01"
     }
 
     @Test
@@ -28,6 +28,6 @@ class CalendarExtensionsKtTest {
                 list.add(it)
             }
         }
-        list `should equal` emptyList()
+        list `should be equal to` emptyList()
     }
 }

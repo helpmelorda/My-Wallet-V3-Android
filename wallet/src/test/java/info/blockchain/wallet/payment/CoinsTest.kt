@@ -1,11 +1,11 @@
 package info.blockchain.wallet.payment
 
 import com.blockchain.testutils.satoshi
+import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.payload.model.Utxo
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.mock
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 private const val useReplayProtection = false
@@ -16,8 +16,8 @@ class CoinsTest {
     fun `max spendable 1`() {
         maximumSpendable(unspentOutputs(10000.satoshi()), 100)
             .also { (balance: CryptoValue, fee: CryptoValue) ->
-                balance `should equal` 9807.satoshi()
-                fee `should equal` 193.satoshi()
+                balance `should be equal to` 9807.satoshi()
+                fee `should be equal to` 193.satoshi()
             }
     }
 
@@ -25,8 +25,8 @@ class CoinsTest {
     fun `max spendable 2`() {
         maximumSpendable(unspentOutputs(10000.satoshi(), 1000.satoshi()), 100)
             .also { (balance: CryptoValue, fee: CryptoValue) ->
-                balance `should equal` 10658.satoshi()
-                fee `should equal` 342.satoshi()
+                balance `should be equal to` 10658.satoshi()
+                fee `should be equal to` 342.satoshi()
             }
     }
 
@@ -54,21 +54,21 @@ class CoinsTest {
         val unspentOutputs = unspentOutputs(10000.satoshi(), 1000.satoshi())
         maximumSpendable(unspentOutputs, 6756)
             .also { (balance: CryptoValue, fee: CryptoValue) ->
-                balance `should equal` 8649.satoshi()
-                fee `should equal` 1351.satoshi()
+                balance `should be equal to` 8649.satoshi()
+                fee `should be equal to` 1351.satoshi()
             }
         maximumSpendable(unspentOutputs, 6757)
             .also { (balance: CryptoValue, fee: CryptoValue) ->
-                balance `should equal` 8649.satoshi()
-                fee `should equal` 1351.satoshi()
+                balance `should be equal to` 8649.satoshi()
+                fee `should be equal to` 1351.satoshi()
             }
         minimumCoinsForPayment(8702.satoshi(), unspentOutputs, 6756).apply {
-            coinCount `should equal` 0
-            coinValue `should equal` 0.satoshi()
+            coinCount `should be equal to` 0
+            coinValue `should be equal to` 0.satoshi()
         }
         minimumCoinsForPayment(8702.satoshi(), unspentOutputs, 6757).apply {
-            coinCount `should equal` 0
-            coinValue `should equal` 0.satoshi()
+            coinCount `should be equal to` 0
+            coinValue `should be equal to` 0.satoshi()
         }
     }
 }

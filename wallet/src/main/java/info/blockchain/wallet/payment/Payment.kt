@@ -9,8 +9,8 @@ import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Utxo
 import info.blockchain.wallet.payload.model.toBchUtxo
 import info.blockchain.wallet.payload.model.toBtcUtxo
-import io.reactivex.Single
-import io.reactivex.annotations.NonNull
+import io.reactivex.rxjava3.annotations.NonNull
+import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
 import org.bitcoinj.core.Coin
 import org.bitcoinj.core.Transaction

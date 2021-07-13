@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import android.text.Html
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
@@ -52,9 +53,7 @@ import com.google.android.play.core.review.ReviewManagerFactory
 import com.mukesh.countrypicker.CountryPicker
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.util.PasswordUtil
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
@@ -113,6 +112,7 @@ import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Locale

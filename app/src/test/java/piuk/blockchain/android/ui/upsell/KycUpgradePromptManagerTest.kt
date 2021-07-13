@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.upsell
 
 import com.blockchain.android.testutils.rxInit
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
-import com.nhaarman.mockito_kotlin.any
-import io.reactivex.Single
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.any
+import io.reactivex.rxjava3.core.Single
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.coincore.AssetAction

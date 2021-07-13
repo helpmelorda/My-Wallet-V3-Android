@@ -5,11 +5,11 @@ import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
 import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
 import com.blockchain.nabu.models.responses.nabu.Scope
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Single
-import org.amshove.kluent.any
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -39,13 +39,13 @@ class KycCountrySelectionPresenterTest {
     fun `onViewReady error loading countries`() {
         // Arrange
         whenever(view.regionType).thenReturn(RegionType.Country)
-        whenever(nabuDataManager.getCountriesList(Scope.None)).thenReturn(Single.error { Throwable() })
+        whenever(nabuDataManager.getCountriesList(Scope.None)).thenReturn(Single.error(Throwable()))
         // Act
         subject.onViewReady()
         // Assert
         verify(nabuDataManager).getCountriesList(Scope.None)
-        verify(view).renderUiState(any(CountrySelectionState.Loading::class))
-        verify(view).renderUiState(any(CountrySelectionState.Error::class))
+        verify(view).renderUiState(CountrySelectionState.Loading)
+        verify(view).renderUiState(any<CountrySelectionState.Error>())
     }
 
     @Test
@@ -58,8 +58,8 @@ class KycCountrySelectionPresenterTest {
         subject.onViewReady()
         // Assert
         verify(nabuDataManager).getCountriesList(Scope.None)
-        verify(view).renderUiState(any(CountrySelectionState.Loading::class))
-        verify(view).renderUiState(any(CountrySelectionState.Data::class))
+        verify(view).renderUiState(CountrySelectionState.Loading)
+        verify(view).renderUiState(CountrySelectionState.Data(emptyList()))
     }
 
     @Test
@@ -72,8 +72,8 @@ class KycCountrySelectionPresenterTest {
         subject.onViewReady()
         // Assert
         verify(nabuDataManager).getStatesList("US", Scope.None)
-        verify(view).renderUiState(any(CountrySelectionState.Loading::class))
-        verify(view).renderUiState(any(CountrySelectionState.Data::class))
+        verify(view).renderUiState(CountrySelectionState.Loading)
+        verify(view).renderUiState(CountrySelectionState.Data(emptyList()))
     }
 
     @Test

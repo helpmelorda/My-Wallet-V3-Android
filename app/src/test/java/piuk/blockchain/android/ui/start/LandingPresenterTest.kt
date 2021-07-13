@@ -1,14 +1,14 @@
 package piuk.blockchain.android.ui.start
 
 import com.blockchain.nabu.datamanagers.ApiStatus
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.verifyZeroInteractions
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Single
+
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
@@ -21,7 +21,7 @@ class LandingPresenterTest {
     private lateinit var subject: LandingPresenter
     private val view: LandingView = mock()
     private val apiStatus: ApiStatus = mock {
-        on { isHealthy() } itReturns Single.just(true)
+        on { isHealthy() }.thenReturn(Single.just(true))
     }
     private val environmentSettings: EnvironmentConfig =
         mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)

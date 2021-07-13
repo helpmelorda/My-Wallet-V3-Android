@@ -2,8 +2,8 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.nabu.api.status.ApiStatusService
 import com.blockchain.nabu.models.responses.status.Component
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 interface ApiStatus {
     fun isHealthy(): Single<Boolean>

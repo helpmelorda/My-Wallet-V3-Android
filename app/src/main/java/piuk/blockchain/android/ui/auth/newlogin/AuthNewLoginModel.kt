@@ -5,9 +5,9 @@ import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.SecureChannelPrefs
 import info.blockchain.wallet.api.WalletApi
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.serialization.decodeFromString
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig

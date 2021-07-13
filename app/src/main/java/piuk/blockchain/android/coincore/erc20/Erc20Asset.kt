@@ -10,9 +10,9 @@ import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isCustodialOnly
 import info.blockchain.wallet.util.FormatsUtil
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AddressParseError
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.SingleAccountList

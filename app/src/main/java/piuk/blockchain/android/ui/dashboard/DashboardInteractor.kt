@@ -16,13 +16,13 @@ import info.blockchain.balance.isErc20
 import info.blockchain.wallet.prices.TimeAgo
 import info.blockchain.wallet.prices.TimeInterval
 import info.blockchain.wallet.prices.data.PriceDatum
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.Singles
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AssetFilter
@@ -115,7 +115,7 @@ class DashboardInteractor(
             .doOnSuccess { v ->
                 Timber.d("Got balance for ${asset.ticker}")
                 model.process(BalanceUpdate(asset, v))
-            }
+            }.defaultIfEmpty(CryptoValue.zero(asset))
             .retryOnError()
 
     private fun <T> Single<T>.retryOnError() =
@@ -190,7 +190,7 @@ class DashboardInteractor(
 
     fun refreshPrices(model: DashboardModel, crypto: AssetInfo): Disposable {
 
-        return Singles.zip(
+        return Single.zip(
             coincore[crypto].exchangeRate(),
             coincore[crypto].historicRate(TimeAgo.ONE_DAY.epoch)
         ) { rate, day -> PriceUpdate(crypto, rate, day) }

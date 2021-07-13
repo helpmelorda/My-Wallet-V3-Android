@@ -3,7 +3,7 @@ package piuk.blockchain.android.coincore.fiat
 import com.blockchain.nabu.datamanagers.BankState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 class LinkedBanksFactory(
     val custodialWalletManager: CustodialWalletManager

@@ -2,9 +2,9 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import com.blockchain.nabu.datamanagers.featureflags.Feature
 import com.blockchain.nabu.datamanagers.featureflags.KycFeatureEligibility
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Single
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder

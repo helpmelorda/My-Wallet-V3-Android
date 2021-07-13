@@ -9,15 +9,15 @@ import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.remoteconfig.FeatureFlag
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.payload.data.Wallet
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,8 +53,8 @@ class LauncherPresenterTest {
     private val featureFlag: FeatureFlag = mock()
     private val userIdentity: UserIdentity = mock()
     private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency } itReturns SELECTED_FIAT
-        on { defaultFiatCurrency } itReturns DEFAULT_FIAT
+        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
+        on { defaultFiatCurrency }.thenReturn(DEFAULT_FIAT)
     }
     private val analytics: Analytics = mock()
     private val crashLogger: CrashLogger = mock()

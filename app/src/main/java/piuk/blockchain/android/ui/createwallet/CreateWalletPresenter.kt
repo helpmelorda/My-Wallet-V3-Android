@@ -6,8 +6,8 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.wallet.util.PasswordUtil
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.base.View

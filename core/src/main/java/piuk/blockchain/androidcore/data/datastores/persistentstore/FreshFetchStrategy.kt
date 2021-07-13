@@ -1,7 +1,7 @@
 package piuk.blockchain.androidcore.data.datastores.persistentstore
 
 import com.blockchain.data.datastores.PersistentStore
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 
 /**
  * Fetches data from the web and then stores it in memory

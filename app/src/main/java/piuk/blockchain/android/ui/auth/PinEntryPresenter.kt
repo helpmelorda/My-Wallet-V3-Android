@@ -17,12 +17,12 @@ import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import info.blockchain.wallet.exceptions.ServerConnectionException
 import info.blockchain.wallet.exceptions.UnsupportedVersionException
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.spongycastle.crypto.InvalidCipherTextException
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -201,7 +201,7 @@ class PinEntryPresenter(
                     }
                 )
 
-            // If user is changing their PIN and it matches their old one, disallow it
+                // If user is changing their PIN and it matches their old one, disallow it
             } else if (isChangingPin && userEnteredConfirmationPin == null && accessState.pin == userEnteredPin) {
                 showErrorToast(R.string.change_pin_new_matches_current)
                 clearPinViewAndReset()
@@ -264,7 +264,8 @@ class PinEntryPresenter(
             .subscribeBy(
                 onComplete = {
                     canShowFingerprintDialog = true
-                    handlePayloadUpdateComplete(isFromPinCreation) },
+                    handlePayloadUpdateComplete(isFromPinCreation)
+                },
                 onError = { handlePayloadUpdateError(it) }
             )
     }
@@ -291,20 +292,20 @@ class PinEntryPresenter(
             secondPassword,
             defaultLabels.getDefaultNonCustodialWalletLabel()
         )
-        .subscribeOn(Schedulers.computation())
-        .observeOn(AndroidSchedulers.mainThread())
-        .handleProgress(R.string.upgrading)
-        .subscribeBy(
-            onComplete = {
-                view.dismissProgressDialog()
-                onUpdateFinished(false)
-                Logging.logEvent(walletUpgradeEvent((true)))
-            },
-            onError = { throwable ->
-                Logging.logEvent(walletUpgradeEvent((false)))
-                crashLogger.logException(throwable)
-                view.onWalletUpgradeFailed()
-            })
+            .subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .handleProgress(R.string.upgrading)
+            .subscribeBy(
+                onComplete = {
+                    view.dismissProgressDialog()
+                    onUpdateFinished(false)
+                    Logging.logEvent(walletUpgradeEvent((true)))
+                },
+                onError = { throwable ->
+                    Logging.logEvent(walletUpgradeEvent((false)))
+                    crashLogger.logException(throwable)
+                    view.onWalletUpgradeFailed()
+                })
     }
 
     private fun onUpdateFinished(isFromPinCreation: Boolean) {
@@ -356,11 +357,11 @@ class PinEntryPresenter(
             prefs.walletGuid,
             password
         )
-        .handleProgress(R.string.validating_password)
-        .subscribeBy(
-            onComplete = { handlePasswordValidated() },
-            onError = { throwable -> handlePasswordValidatedError(throwable) }
-        )
+            .handleProgress(R.string.validating_password)
+            .subscribeBy(
+                onComplete = { handlePasswordValidated() },
+                onError = { throwable -> handlePasswordValidatedError(throwable) }
+            )
     }
 
     private fun handlePasswordValidated() {

@@ -2,11 +2,11 @@
 
 package piuk.blockchain.androidcore.utils.extensions
 
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
 
 inline fun <reified T> printEvent(tag: String, success: T?, error: Throwable?) =

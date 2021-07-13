@@ -6,10 +6,10 @@ import info.blockchain.wallet.api.data.WalletOptions
 import info.blockchain.wallet.crypto.AESUtil
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import info.blockchain.wallet.exceptions.ServerConnectionException
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.exceptions.Exceptions
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.exceptions.Exceptions
 import okhttp3.ResponseBody
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.access.AccessState

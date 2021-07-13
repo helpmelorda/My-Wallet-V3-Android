@@ -1,20 +1,19 @@
 package piuk.blockchain.androidcore.data.exchangerate
 
 import com.blockchain.android.testutils.rxInit
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.prices.PriceApi
 import info.blockchain.wallet.prices.TimeInterval
 import info.blockchain.wallet.prices.data.PriceDatum
-import io.reactivex.Single
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`should equal`
+import io.reactivex.rxjava3.core.Single
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should have key`
-import org.amshove.kluent.any
+import com.nhaarman.mockitokotlin2.any
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -24,7 +23,7 @@ class ExchangeRateServiceTest {
 
     private lateinit var subject: ExchangeRateService
 
-    private val historicPriceApi: PriceApi = org.amshove.kluent.mock()
+    private val historicPriceApi: PriceApi = mock()
     private val rxBus = RxBus()
 
     @get:Rule
@@ -215,7 +214,7 @@ class ExchangeRateServiceTest {
     @Test
     fun getExchangeRateMap() {
         val mockApi = mock<PriceApi> {
-            on { getPriceIndexes("BTC") } `it returns` Single.just(mapOf("USD" to mock()))
+            on { getPriceIndexes("BTC") }.thenReturn(Single.just(mapOf("USD" to mock())))
         }
         mockApi.getPriceIndexes("BTC").test()
             .values()
@@ -228,13 +227,13 @@ class ExchangeRateServiceTest {
     @Test
     fun getHistoricPrice() {
         val mockApi = mock<PriceApi> {
-            on { getHistoricPrice("ETH", "GBP", 100L) } `it returns` Single.just(500.0)
+            on { getHistoricPrice("ETH", "GBP", 100L) }.thenReturn(Single.just(500.0))
         }
         mockApi.getHistoricPrice("ETH", "GBP", 100).test()
             .values()
             .first()
             .apply {
-                this `should equal` 500.0
+                this `should be equal to` 500.0
             }
     }
 }

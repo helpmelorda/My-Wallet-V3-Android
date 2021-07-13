@@ -23,9 +23,9 @@ import com.blockchain.notifications.analytics.LaunchOrigin
 import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.wallet.multiaddress.TransactionSummary
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.resources.AssetResources

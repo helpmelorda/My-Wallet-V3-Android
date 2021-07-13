@@ -5,7 +5,7 @@ import com.blockchain.sunriver.Memo
 import com.blockchain.testutils.lumens
 import com.blockchain.testutils.stroops
 import info.blockchain.balance.CryptoValue
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class XlmTransactionTest {
@@ -13,13 +13,13 @@ class XlmTransactionTest {
     @Test
     fun `account delta on a positive value does not include fee`() {
         givenTransaction(value = 100.lumens(), fee = 99.stroops())
-            .accountDelta `should equal` 100.lumens()
+            .accountDelta `should be equal to` 100.lumens()
     }
 
     @Test
     fun `account delta on a negative value includes fee`() {
         givenTransaction(value = (-100).lumens(), fee = 99.stroops())
-            .accountDelta `should equal` (-100.0000099).lumens()
+            .accountDelta `should be equal to` (-100.0000099).lumens()
     }
 
     private fun givenTransaction(

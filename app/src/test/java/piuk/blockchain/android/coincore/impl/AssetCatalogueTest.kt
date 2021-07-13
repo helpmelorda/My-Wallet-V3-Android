@@ -2,11 +2,10 @@ package piuk.blockchain.android.coincore.impl
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.remoteconfig.RemoteConfig
-import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.itReturns
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -22,7 +21,7 @@ class AssetCatalogueTest {
     }
 
     private val remoteConfig: RemoteConfig = mock {
-        on { getRawJson(AssetCatalogueImpl.CUSTODIAL_ONLY_TOKENS) } itReturns Single.just(DYNAMIC_ENABLED_JSON)
+        on { getRawJson(AssetCatalogueImpl.CUSTODIAL_ONLY_TOKENS) }.thenReturn(Single.just(DYNAMIC_ENABLED_JSON))
     }
 
     private val subject = AssetCatalogueImpl(remoteConfig)

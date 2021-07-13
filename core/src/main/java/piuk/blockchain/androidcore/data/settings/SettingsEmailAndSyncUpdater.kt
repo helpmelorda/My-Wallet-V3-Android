@@ -2,8 +2,8 @@ package piuk.blockchain.androidcore.data.settings
 
 import com.blockchain.nabu.NabuUserSync
 import info.blockchain.wallet.api.data.Settings
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 
 internal class SettingsEmailAndSyncUpdater(
     private val settingsDataManager: SettingsDataManager,

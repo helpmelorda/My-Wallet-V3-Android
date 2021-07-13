@@ -1,11 +1,11 @@
 package piuk.blockchain.androidcore.data.settings
 
 import com.blockchain.preferences.CurrencyPrefs
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import okhttp3.ResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Before

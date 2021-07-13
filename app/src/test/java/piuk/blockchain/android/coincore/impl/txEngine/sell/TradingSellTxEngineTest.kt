@@ -13,18 +13,18 @@ import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.bitcoin
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Observable
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+
 import org.amshove.kluent.shouldEqual
 import org.junit.After
 import org.junit.Before
@@ -62,11 +62,11 @@ class TradingSellTxEngineTest {
     private val environmentConfig: EnvironmentConfig = mock()
 
     private val exchangeRates: ExchangeRateDataManager = mock {
-        on { getLastPrice(SRC_ASSET, TGT_ASSET) } itReturns EXCHANGE_RATE
+        on { getLastPrice(SRC_ASSET, TGT_ASSET) }.thenReturn(EXCHANGE_RATE)
     }
 
     private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency } itReturns SELECTED_FIAT
+        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
     }
 
     private val subject = TradingSellTxEngine(
@@ -96,10 +96,10 @@ class TradingSellTxEngineTest {
     @Test
     fun `inputs validate when correct`() {
         val sourceAccount: CustodialTradingAccount = mock {
-            on { asset } itReturns SRC_ASSET
+            on { asset }.thenReturn(SRC_ASSET)
         }
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         // Act
@@ -125,11 +125,11 @@ class TradingSellTxEngineTest {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source Account incorrect`() {
         val sourceAccount: BtcCryptoWalletAccount = mock {
-            on { asset } itReturns SRC_ASSET
+            on { asset }.thenReturn(SRC_ASSET)
         }
 
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         // Act
@@ -145,11 +145,11 @@ class TradingSellTxEngineTest {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when target account incorrect`() {
         val sourceAccount: CustodialTradingAccount = mock {
-            on { asset } itReturns SRC_ASSET
+            on { asset }.thenReturn(SRC_ASSET)
         }
 
         val txTarget: CryptoAccount = mock {
-            on { asset } itReturns SRC_ASSET
+            on { asset }.thenReturn(SRC_ASSET)
         }
 
         // Act
@@ -166,10 +166,10 @@ class TradingSellTxEngineTest {
     fun `asset is returned correctly`() {
         // Arrange
         val sourceAccount: CustodialTradingAccount = mock {
-            on { asset } itReturns SRC_ASSET
+            on { asset }.thenReturn(SRC_ASSET)
         }
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         // Act
@@ -201,7 +201,7 @@ class TradingSellTxEngineTest {
 
         val sourceAccount = fundedSourceAccount(totalBalance, actionableBalance)
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         val pricedQuote: PricedQuote = mock()
@@ -251,11 +251,11 @@ class TradingSellTxEngineTest {
 
         val sourceAccount = fundedSourceAccount(totalBalance, actionableBalance)
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         val error: NabuApiException = mock {
-            on { getErrorCode() } itReturns NabuErrorCodes.PendingOrdersLimitReached
+            on { getErrorCode() }.thenReturn(NabuErrorCodes.PendingOrdersLimitReached)
         }
 
         whenever(quotesEngine.pricedQuote).thenReturn(Observable.error(error))
@@ -303,7 +303,7 @@ class TradingSellTxEngineTest {
 
         val sourceAccount = fundedSourceAccount(totalBalance, actionableBalance)
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -359,7 +359,7 @@ class TradingSellTxEngineTest {
 
         val sourceAccount = fundedSourceAccount(totalBalance, actionableBalance)
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -396,7 +396,7 @@ class TradingSellTxEngineTest {
 
         val sourceAccount = fundedSourceAccount(totalBalance, actionableBalance)
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -433,7 +433,7 @@ class TradingSellTxEngineTest {
 
         val sourceAccount = fundedSourceAccount(totalBalance, actionableBalance)
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -470,7 +470,7 @@ class TradingSellTxEngineTest {
 
         val sourceAccount = fundedSourceAccount(totalBalance, actionableBalance)
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -514,9 +514,9 @@ class TradingSellTxEngineTest {
 
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<CustodialTradingAccount> {
-            on { asset } itReturns SRC_ASSET
-            on { accountBalance } itReturns Single.just(totalBalance)
-            on { actionableBalance } itReturns Single.just(availableBalance)
+            on { asset }.thenReturn(SRC_ASSET)
+            on { accountBalance }.thenReturn(Single.just(totalBalance))
+            on { actionableBalance }.thenReturn(Single.just(availableBalance))
         }
 
     private fun whenUserIsGold() {
@@ -524,7 +524,7 @@ class TradingSellTxEngineTest {
         whenever(kycTierService.tiers()).thenReturn(Single.just(kycTiers))
 
         whenever(walletManager.getProductTransferLimits(TGT_ASSET, Product.SELL, TransferDirection.INTERNAL))
-            .itReturns(
+            .thenReturn(
                 Single.just(
                     TransferLimits(
                         minLimit = MIN_GOLD_LIMIT,

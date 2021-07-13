@@ -8,17 +8,17 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.nhaarman.mockito_kotlin.argumentCaptor
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -52,7 +52,7 @@ class SimpleBuySyncFactoryTest {
         subject.performSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalState(null)
     }
@@ -78,7 +78,7 @@ class SimpleBuySyncFactoryTest {
         subject.performSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalState(expectedResult)
     }
@@ -90,7 +90,7 @@ class SimpleBuySyncFactoryTest {
         subject.performSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         // Local state is cleared
         verify(serializer, atLeastOnce()).clear()
@@ -128,7 +128,7 @@ class SimpleBuySyncFactoryTest {
         subject.performSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalState(expectedResult)
     }
@@ -161,7 +161,7 @@ class SimpleBuySyncFactoryTest {
         subject.performSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalState(expectedResult)
     }
@@ -227,7 +227,7 @@ class SimpleBuySyncFactoryTest {
         subject.performSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalState(expectedResult)
     }
@@ -306,7 +306,7 @@ class SimpleBuySyncFactoryTest {
         subject.performSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalState(expectedResult)
     }
@@ -384,7 +384,7 @@ class SimpleBuySyncFactoryTest {
         subject.performSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalState(expectedResult)
     }
@@ -433,7 +433,7 @@ class SimpleBuySyncFactoryTest {
         subject.performSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalState(expectedResult)
     }
@@ -482,7 +482,7 @@ class SimpleBuySyncFactoryTest {
         subject.performSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalState(expectedResult)
     }
@@ -531,7 +531,7 @@ class SimpleBuySyncFactoryTest {
         subject.performSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalState(expectedResult)
     }
@@ -579,7 +579,7 @@ class SimpleBuySyncFactoryTest {
         subject.performSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         verify(remoteState, never()).getBuyOrder(EXPECTED_ORDER_ID)
         validateFinalState(expectedResult)
@@ -596,7 +596,7 @@ class SimpleBuySyncFactoryTest {
         subject.lightweightSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalStateLightweight(expectedResult)
     }
@@ -622,7 +622,7 @@ class SimpleBuySyncFactoryTest {
         subject.lightweightSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalStateLightweight(expectedResult)
     }
@@ -665,7 +665,7 @@ class SimpleBuySyncFactoryTest {
         subject.lightweightSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalState(expectedResult)
     }
@@ -705,7 +705,7 @@ class SimpleBuySyncFactoryTest {
         subject.lightweightSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalState(expectedResult)
     }
@@ -745,7 +745,7 @@ class SimpleBuySyncFactoryTest {
         subject.lightweightSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalStateLightweight(expectedResult)
     }
@@ -785,7 +785,7 @@ class SimpleBuySyncFactoryTest {
         subject.lightweightSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalStateLightweight(expectedResult)
     }
@@ -825,7 +825,7 @@ class SimpleBuySyncFactoryTest {
         subject.lightweightSync()
             .test()
             .assertComplete()
-            .awaitTerminalEvent()
+            .await()
 
         validateFinalStateLightweight(expectedResult)
     }

@@ -1,10 +1,9 @@
 package com.blockchain.nabu.extensions
 
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.functions.Function
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import om.blockchain.swap.nabu.BuildConfig
 import retrofit2.HttpException
 import timber.log.Timber
@@ -30,7 +29,7 @@ internal fun Completable.wrapErrorMessage(): Completable = this.onErrorResumeNex
     }
 }
 
-internal fun <T> Maybe<T>.wrapErrorMessage(): Maybe<T> = this.onErrorResumeNext(Function {
+internal fun <T> Maybe<T>.wrapErrorMessage(): Maybe<T> = this.onErrorResumeNext {
     if (BuildConfig.DEBUG) {
         Timber.e("RX Wrapped Error: {${it.message}")
     }
@@ -39,4 +38,4 @@ internal fun <T> Maybe<T>.wrapErrorMessage(): Maybe<T> = this.onErrorResumeNext(
         is HttpException -> Maybe.error(NabuApiException.fromResponseBody(it))
         else -> Maybe.error(it)
     }
-})
+}

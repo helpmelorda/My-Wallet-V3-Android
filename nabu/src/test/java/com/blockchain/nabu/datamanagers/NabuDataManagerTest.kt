@@ -14,16 +14,16 @@ import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import com.blockchain.utils.Optional
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import com.blockchain.api.ApiException
 import info.blockchain.wallet.api.data.Settings
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.mock
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -229,7 +229,7 @@ class NabuDataManagerTest {
     fun `get users tags with values`() {
         // Arrange
         val userObject: NabuUser = mock {
-            on { tags } `it returns` mapOf("campaign" to mapOf("some tag" to "some data"))
+            on { tags }.thenReturn(mapOf("campaign" to mapOf("some tag" to "some data")))
         }
         val offlineToken = NabuOfflineTokenResponse("", "")
         val sessionToken = getEmptySessionToken()

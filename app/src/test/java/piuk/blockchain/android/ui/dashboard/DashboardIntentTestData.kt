@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.dashboard
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.mock
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
 

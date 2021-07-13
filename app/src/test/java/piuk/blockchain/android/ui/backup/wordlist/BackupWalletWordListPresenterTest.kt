@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.backup.wordlist
 
 import android.os.Bundle
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
-import org.amshove.kluent.`should equal to`
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
+import org.amshove.kluent.`should be equal to`
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListFragment.Companion.ARGUMENT_SECOND_PASSWORD
@@ -76,7 +76,7 @@ class BackupWalletWordListPresenterTest {
         verifyNoMoreInteractions(view)
         verify(backupWalletUtil).getMnemonic(password)
         verifyNoMoreInteractions(backupWalletUtil)
-        result `should equal to` "three"
+        result `should be equal to` "three"
     }
 
     @Test
@@ -96,6 +96,6 @@ class BackupWalletWordListPresenterTest {
         verifyNoMoreInteractions(view)
         verify(backupWalletUtil).getMnemonic(password)
         verifyNoMoreInteractions(backupWalletUtil)
-        result `should equal to` 4
+        result `should be equal to` 4
     }
 }

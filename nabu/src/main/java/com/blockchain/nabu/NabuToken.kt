@@ -1,7 +1,7 @@
 package com.blockchain.nabu
 
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 interface NabuToken {
 

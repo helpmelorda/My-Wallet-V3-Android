@@ -10,7 +10,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import com.blockchain.utils.toFormattedDate
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.CustodialTradingActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding

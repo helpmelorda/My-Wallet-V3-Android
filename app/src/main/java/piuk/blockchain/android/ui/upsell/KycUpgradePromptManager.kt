@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.upsell
 
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount

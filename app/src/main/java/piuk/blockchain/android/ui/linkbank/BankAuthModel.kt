@@ -6,10 +6,10 @@ import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.LinkedBankErrorState
 import com.blockchain.nabu.models.data.LinkedBankState
-import io.reactivex.Completable
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.simplebuy.ErrorState
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
 import piuk.blockchain.android.ui.base.mvi.MviModel

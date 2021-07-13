@@ -5,17 +5,16 @@ import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
-import org.amshove.kluent.`it returns`
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -65,7 +64,7 @@ class ActivityDetailsModelTest {
     )
 
     private val environmentConfig: EnvironmentConfig = mock {
-        on { isRunningInDebugMode() } `it returns` false
+        on { isRunningInDebugMode() }.thenReturn(false)
     }
 
     private val custodialInterestItem = CustodialInterestActivitySummaryItem(

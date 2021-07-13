@@ -3,7 +3,7 @@ package info.blockchain.wallet.api
 import info.blockchain.wallet.api.FeeApi.Companion.cacheTime
 import info.blockchain.wallet.api.FeeApi.Companion.feeCache
 import info.blockchain.wallet.api.data.FeeOptions
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import java.util.concurrent.TimeUnit
 
 data class FeeApi(private val feeEndpoints: FeeEndpoints) {

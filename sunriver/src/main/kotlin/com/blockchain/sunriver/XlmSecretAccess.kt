@@ -2,9 +2,9 @@ package com.blockchain.sunriver
 
 import com.blockchain.sunriver.derivation.deriveXlmAccountKeyPair
 import com.blockchain.wallet.SeedAccess
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 internal class XlmSecretAccess(private val seedAccess: SeedAccess) {
 
@@ -25,6 +25,6 @@ internal class XlmSecretAccess(private val seedAccess: SeedAccess) {
                         return@flatMap Maybe.just(keyPair)
                     }
                 }
-                Maybe.empty<HorizonKeyPair.Private>()
+                Maybe.empty()
             }.toSingle()
 }

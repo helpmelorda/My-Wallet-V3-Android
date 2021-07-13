@@ -7,7 +7,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.CryptoAsset
 import piuk.blockchain.android.coincore.custodialonly.DynamicOnlyTradingAsset

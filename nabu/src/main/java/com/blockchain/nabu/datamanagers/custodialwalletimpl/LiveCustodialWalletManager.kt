@@ -109,12 +109,11 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Singles
-import io.reactivex.rxkotlin.flatMapIterable
-import io.reactivex.rxkotlin.zipWith
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.flatMapIterable
+import io.reactivex.rxjava3.kotlin.zipWith
 import okhttp3.internal.toLongOrDefault
 import java.math.BigInteger
 import java.util.Calendar
@@ -593,10 +592,10 @@ class LiveCustodialWalletManager(
 
     private fun paymentMethods(fiatCurrency: String, onlyEligible: Boolean, fetchSdddLimits: Boolean = false) =
         authenticator.authenticate {
-            Singles.zip(
+            Single.zip(
                 assetBalancesRepository.getFiatTotalBalanceForAsset(fiatCurrency)
                     .map { balance -> CustodialFiatBalance(fiatCurrency, true, balance) }
-                    .toSingle(CustodialFiatBalance(fiatCurrency, false, null)),
+                    .defaultIfEmpty(CustodialFiatBalance(fiatCurrency, false, null)),
                 nabuService.getCards(it).onErrorReturn { emptyList() },
                 getBanks().map { banks -> banks.filter { it.paymentMethodType == PaymentMethodType.BANK_TRANSFER } }
                     .onErrorReturn { emptyList() },
@@ -857,9 +856,9 @@ class LiveCustodialWalletManager(
     override fun getInterestAccountRates(asset: AssetInfo): Single<Double> =
         authenticator.authenticate { sessionToken ->
             nabuService.getInterestRates(sessionToken, asset.ticker)
-                .toSingle(InterestRateResponse(0.0))
+                .defaultIfEmpty(InterestRateResponse(0.0))
                 .flatMap {
-                    Single.just(it.rate)
+                    it?.let { Single.just(it.rate) } ?: Single.just(0.0)
                 }
         }
 

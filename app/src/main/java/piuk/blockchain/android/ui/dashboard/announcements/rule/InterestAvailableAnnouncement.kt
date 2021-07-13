@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.notifications.analytics.Analytics
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import piuk.blockchain.android.R

@@ -1,6 +1,6 @@
 package piuk.blockchain.android.data.api.bitpay.models.exceptions
 
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
 
 internal fun <T> Single<T>.wrapErrorMessage(): Single<T> = this.onErrorResumeNext {

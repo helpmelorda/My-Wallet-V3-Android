@@ -2,13 +2,13 @@ package piuk.blockchain.androidcore.data.ethereum
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.logging.LastTxUpdater
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.verifyZeroInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.ethereum.Erc20TokenData
@@ -21,16 +21,16 @@ import info.blockchain.wallet.ethereum.data.EthAddressResponseMap
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthTransaction
 import info.blockchain.wallet.keys.MasterKey
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.`should contain`
-import org.amshove.kluent.`should equal to`
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.any
-import org.amshove.kluent.itReturns
-import org.amshove.kluent.mock
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be equal to`
+import com.nhaarman.mockitokotlin2.any
+
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -40,7 +40,6 @@ import piuk.blockchain.androidcore.data.erc20.Erc20DataModel
 import piuk.blockchain.androidcore.data.erc20.Erc20Transfer
 import piuk.blockchain.androidcore.data.erc20.datastores.Erc20DataStore
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
-import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.rxjava.RxBus
@@ -117,7 +116,7 @@ class EthDataManagerTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         verify(ethDataStore, atLeastOnce()).ethWallet
-        verify(ethDataStore).ethAddressResponse = any(CombinedEthModel::class)
+        verify(ethDataStore).ethAddressResponse = any()
         verifyZeroInteractions(ethDataStore)
         verify(ethAccountApi).getEthAddress(listOf(ethAddress))
         verifyNoMoreInteractions(ethAccountApi)
@@ -196,7 +195,7 @@ class EthDataManagerTest {
         val values = testObserver.values()
         values[0] `should contain` ethTransaction
 
-        values.size `should equal to` 1
+        values.size `should be equal to` 1
     }
 
     @Test
@@ -298,7 +297,7 @@ class EthDataManagerTest {
         // Assert
         verify(ethDataStore, atLeastOnce()).ethWallet
         verifyNoMoreInteractions(ethDataStore)
-        result `should equal` notes
+        result `should be equal to` notes
     }
 
     @Test
@@ -311,7 +310,7 @@ class EthDataManagerTest {
         // Assert
         verify(ethDataStore, atLeastOnce()).ethWallet
         verifyNoMoreInteractions(ethDataStore)
-        result `should equal` null
+        result `should be equal to` null
     }
 
     @Test
@@ -378,7 +377,7 @@ class EthDataManagerTest {
         // Arrange
         val byteArray = ByteArray(32)
         val hash = "HASH"
-        whenever(ethAccountApi.pushTx(any(String::class))).thenReturn(Observable.just(hash))
+        whenever(ethAccountApi.pushTx(any())).thenReturn(Observable.just(hash))
         whenever(lastTxUpdater.updateLastTxTime()).thenReturn(Completable.complete())
         // Act
         val testObserver = subject.pushEthTx(byteArray).test()
@@ -386,7 +385,7 @@ class EthDataManagerTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         testObserver.assertValue(hash)
-        verify(ethAccountApi).pushTx(any(String::class))
+        verify(ethAccountApi).pushTx(any())
         verifyNoMoreInteractions(ethAccountApi)
     }
 
@@ -395,7 +394,7 @@ class EthDataManagerTest {
         // Arrange
         val byteArray = ByteArray(32)
         val hash = "HASH"
-        whenever(ethAccountApi.pushTx(any(String::class))).thenReturn(Observable.just(hash))
+        whenever(ethAccountApi.pushTx(any())).thenReturn(Observable.just(hash))
         whenever(lastTxUpdater.updateLastTxTime()).thenReturn(Completable.error(Exception()))
         // Act
         val testObserver = subject.pushEthTx(byteArray).test()
@@ -403,7 +402,7 @@ class EthDataManagerTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         testObserver.assertValue(hash)
-        verify(ethAccountApi).pushTx(any(String::class))
+        verify(ethAccountApi).pushTx(any())
         verifyNoMoreInteractions(ethAccountApi)
     }
 
@@ -444,7 +443,7 @@ class EthDataManagerTest {
         // Arrange
         val ethAddress = "ADDRESS"
         val tokenData: Erc20TokenData = mock {
-            on { contractAddress } itReturns "CONTRACT_ADDRESS"
+            on { contractAddress }.thenReturn("CONTRACT_ADDRESS")
         }
         whenever(ethDataStore.ethWallet!!.account.address).thenReturn(ethAddress)
         whenever(ethDataStore.ethWallet!!.getErc20TokenData(any()))

@@ -2,7 +2,7 @@ package com.blockchain.api
 
 import com.blockchain.api.custodial.CustodialBalanceApiInterface
 import com.blockchain.api.custodial.data.TradingBalanceResponseDto
-import io.reactivex.Maybe
+import io.reactivex.rxjava3.core.Maybe
 import retrofit2.HttpException
 
 data class TradingBalance(

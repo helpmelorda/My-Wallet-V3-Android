@@ -5,7 +5,7 @@ import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.util.FormatsUtil
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.CryptoTarget
 import piuk.blockchain.android.coincore.InvoiceTarget

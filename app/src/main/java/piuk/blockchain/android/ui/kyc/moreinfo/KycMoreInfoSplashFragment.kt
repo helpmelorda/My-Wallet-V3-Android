@@ -10,9 +10,9 @@ import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import piuk.blockchain.android.util.throttledClicks
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.util.inflate

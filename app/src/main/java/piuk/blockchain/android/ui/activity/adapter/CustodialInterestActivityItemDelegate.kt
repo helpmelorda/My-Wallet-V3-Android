@@ -11,7 +11,7 @@ import info.blockchain.balance.AssetInfo
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.wallet.multiaddress.TransactionSummary
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.CustodialInterestActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding

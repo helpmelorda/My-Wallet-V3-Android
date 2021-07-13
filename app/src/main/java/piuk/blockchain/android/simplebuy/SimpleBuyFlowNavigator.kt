@@ -6,8 +6,8 @@ import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 
 class SimpleBuyFlowNavigator(
     private val simpleBuyModel: SimpleBuyModel,

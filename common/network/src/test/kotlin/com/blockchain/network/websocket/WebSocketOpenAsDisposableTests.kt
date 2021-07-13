@@ -1,10 +1,10 @@
 package com.blockchain.network.websocket
 
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import io.reactivex.disposables.Disposable
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import io.reactivex.rxjava3.disposables.Disposable
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 
 class WebSocketOpenAsDisposableTests {

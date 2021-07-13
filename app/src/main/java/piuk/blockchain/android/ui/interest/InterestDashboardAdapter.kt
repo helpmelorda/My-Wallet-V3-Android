@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.interest
 
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.AssetInfo
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.resources.AssetResources

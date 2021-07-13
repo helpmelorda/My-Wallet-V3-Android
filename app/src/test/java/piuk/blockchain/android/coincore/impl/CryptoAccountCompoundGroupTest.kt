@@ -2,11 +2,11 @@ package piuk.blockchain.android.coincore.impl
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.testutils.bitcoin
-import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Single
+
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.coincore.AssetAction
@@ -25,7 +25,7 @@ class CryptoAccountCompoundGroupTest {
     fun `group with single account returns single account balance`() {
         // Arrange
         val account: CryptoAccount = mock {
-            on { accountBalance } itReturns Single.just(100.bitcoin() as Money)
+            on { accountBalance }.thenReturn(Single.just(100.bitcoin() as Money))
         }
 
         val subject = CryptoAccountNonCustodialGroup(
@@ -44,11 +44,11 @@ class CryptoAccountCompoundGroupTest {
     fun `group with two accounts returns the sum of the account balance`() {
         // Arrange
         val account1: CryptoAccount = mock {
-            on { accountBalance } itReturns Single.just(100.bitcoin() as Money)
+            on { accountBalance }.thenReturn(Single.just(100.bitcoin() as Money))
         }
 
         val account2: CryptoAccount = mock {
-            on { accountBalance } itReturns Single.just(150.bitcoin() as Money)
+            on { accountBalance }.thenReturn(Single.just(150.bitcoin() as Money))
         }
 
         val subject = CryptoAccountNonCustodialGroup(
@@ -69,7 +69,7 @@ class CryptoAccountCompoundGroupTest {
         val accountActions = setOf(AssetAction.Send, AssetAction.Receive)
 
         val account: CryptoAccount = mock {
-            on { actions } itReturns Single.just(accountActions)
+            on { actions }.thenReturn(Single.just(accountActions))
         }
 
         val subject = CryptoAccountNonCustodialGroup(
@@ -110,15 +110,15 @@ class CryptoAccountCompoundGroupTest {
         )
 
         val account1: CryptoAccount = mock {
-            on { actions } itReturns accountActions1
+            on { actions }.thenReturn(accountActions1)
         }
 
         val account2: CryptoAccount = mock {
-            on { actions } itReturns accountActions2
+            on { actions }.thenReturn(accountActions2)
         }
 
         val account3: CryptoAccount = mock {
-            on { actions } itReturns accountActions3
+            on { actions }.thenReturn(accountActions3)
         }
 
         val subject = CryptoAccountNonCustodialGroup(

@@ -3,10 +3,10 @@ package piuk.blockchain.android.ui.activity.adapter
 import android.widget.TextView
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.CryptoActivitySummaryItem
 import piuk.blockchain.android.ui.activity.CryptoActivityType

@@ -10,6 +10,7 @@ java {
 
 dependencies {
     implementation project(':common:network')
+
     implementation Libraries.kotlin
     implementation Libraries.retrofit
     implementation Libraries.okHttpInterceptor
@@ -20,6 +21,7 @@ dependencies {
 
     implementation Libraries.koin
 
+    testImplementation project(':testutils')
     testImplementation Libraries.junit
     testImplementation Libraries.mockito
     testImplementation Libraries.hamcrestJunit

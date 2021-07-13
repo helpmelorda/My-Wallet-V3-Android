@@ -1,6 +1,6 @@
 package info.blockchain.balance
 
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 import java.util.Locale
 
@@ -11,9 +11,9 @@ class MoneyFormattingTests {
         Locale.setDefault(Locale.CANADA)
 
         val money: Money = 1.cad()
-        money.symbol `should equal` "$"
-        money.toStringWithSymbol() `should equal` "$1.00"
-        money.toStringWithoutSymbol() `should equal` "1.00"
+        money.symbol `should be equal to` "$"
+        money.toStringWithSymbol() `should be equal to` "$1.00"
+        money.toStringWithoutSymbol() `should be equal to` "1.00"
     }
 
     @Test
@@ -21,8 +21,8 @@ class MoneyFormattingTests {
         Locale.setDefault(Locale.CANADA)
         val money: Money = 1.695.cad()
 
-        money.toStringWithSymbol() `should equal` "$1.69"
-        money.toStringWithoutSymbol() `should equal` "1.69"
+        money.toStringWithSymbol() `should be equal to` "$1.69"
+        money.toStringWithoutSymbol() `should be equal to` "1.69"
     }
 
     @Test
@@ -30,9 +30,9 @@ class MoneyFormattingTests {
         Locale.setDefault(Locale.US)
 
         val money: Money = 123.jpy()
-        money.symbol `should equal` "JPY"
-        money.toStringWithSymbol() `should equal` "JPY123"
-        money.toStringWithoutSymbol() `should equal` "123"
+        money.symbol `should be equal to` "JPY"
+        money.toStringWithSymbol() `should be equal to` "JPY123"
+        money.toStringWithoutSymbol() `should be equal to` "123"
     }
 
     @Test
@@ -40,9 +40,9 @@ class MoneyFormattingTests {
         Locale.setDefault(Locale.US)
 
         val money: Money = 1.23.bitcoin()
-        money.symbol `should equal` "BTC"
-        money.toStringWithSymbol() `should equal` "1.23 BTC"
-        money.toStringWithoutSymbol() `should equal` "1.23"
+        money.symbol `should be equal to` "BTC"
+        money.toStringWithSymbol() `should be equal to` "1.23 BTC"
+        money.toStringWithoutSymbol() `should be equal to` "1.23"
     }
 
     @Test
@@ -50,8 +50,8 @@ class MoneyFormattingTests {
         Locale.setDefault(Locale.FRANCE)
 
         val money: Money = 1.23.ether()
-        money.symbol `should equal` "ETH"
-        money.toStringWithSymbol() `should equal` "1,23 ETH"
-        money.toStringWithoutSymbol() `should equal` "1,23"
+        money.symbol `should be equal to` "ETH"
+        money.toStringWithSymbol() `should be equal to` "1,23 ETH"
+        money.toStringWithoutSymbol() `should be equal to` "1,23"
     }
 }

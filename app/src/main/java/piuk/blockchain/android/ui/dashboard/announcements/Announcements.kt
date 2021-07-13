@@ -2,13 +2,13 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import androidx.annotation.VisibleForTesting
 import info.blockchain.balance.AssetInfo
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Scheduler
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.campaign.CampaignType
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean

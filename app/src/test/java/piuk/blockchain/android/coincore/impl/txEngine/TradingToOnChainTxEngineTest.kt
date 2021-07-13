@@ -7,16 +7,16 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.models.data.CryptoWithdrawalFeeAndLimit
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.lumens
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Single
+
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -50,7 +50,7 @@ class TradingToOnChainTxEngineTest {
     private val exchangeRates: ExchangeRateDataManager = mock()
 
     private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency } itReturns SELECTED_FIAT
+        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
     }
 
     private val subject = TradingToOnChainTxEngine(
@@ -80,7 +80,7 @@ class TradingToOnChainTxEngineTest {
     fun `inputs validate when correct`() {
         val sourceAccount = mockSourceAccount()
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         // Act
@@ -102,11 +102,11 @@ class TradingToOnChainTxEngineTest {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source Asset incorrect`() {
         val sourceAccount = mock<Erc20NonCustodialAccount> {
-            on { asset } itReturns WRONG_ASSET
+            on { asset }.thenReturn(WRONG_ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         // Act
@@ -130,7 +130,7 @@ class TradingToOnChainTxEngineTest {
         // Arrange
         val sourceAccount = mockSourceAccount()
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         // Act
@@ -154,7 +154,7 @@ class TradingToOnChainTxEngineTest {
         // Arrange
         val sourceAccount = mockSourceAccount()
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         val feesAndLimits = CryptoWithdrawalFeeAndLimit(minLimit = 5000.toBigInteger(), fee = BigInteger.ONE)
@@ -201,7 +201,7 @@ class TradingToOnChainTxEngineTest {
         val actionableBalance = 20.lumens()
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         subject.start(
@@ -254,7 +254,7 @@ class TradingToOnChainTxEngineTest {
 
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         subject.start(
@@ -290,7 +290,7 @@ class TradingToOnChainTxEngineTest {
 
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         subject.start(
@@ -326,7 +326,7 @@ class TradingToOnChainTxEngineTest {
 
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         subject.start(
@@ -362,7 +362,7 @@ class TradingToOnChainTxEngineTest {
 
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         subject.start(
@@ -404,9 +404,9 @@ class TradingToOnChainTxEngineTest {
         totalBalance: Money = CryptoValue.zero(ASSET),
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<Erc20NonCustodialAccount> {
-        on { asset } itReturns ASSET
-        on { accountBalance } itReturns Single.just(totalBalance)
-        on { actionableBalance } itReturns Single.just(availableBalance)
+        on { asset }.thenReturn(ASSET)
+        on { accountBalance }.thenReturn(Single.just(totalBalance))
+        on { actionableBalance }.thenReturn(Single.just(availableBalance))
     }
 
     private fun verifyFeeLevels(feeSelection: FeeSelection) =

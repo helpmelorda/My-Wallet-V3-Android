@@ -8,8 +8,8 @@ import androidx.fragment.app.FragmentActivity
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.android.urllinks.URL_THE_PIT_LAUNCH_SUPPORT
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.PitLaunchBottomDialogBinding

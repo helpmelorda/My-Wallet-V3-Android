@@ -3,8 +3,8 @@ package piuk.blockchain.androidcore.utils.extensions
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.apiError
 import com.blockchain.notifications.analytics.networkError
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.SocketTimeoutException

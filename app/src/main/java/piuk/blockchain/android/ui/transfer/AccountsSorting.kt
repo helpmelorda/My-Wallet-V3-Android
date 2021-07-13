@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.transfer
 
+import io.reactivex.rxjava3.core.Single
 import com.blockchain.preferences.DashboardPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import io.reactivex.Single
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.NonCustodialAccount
 import piuk.blockchain.android.coincore.SingleAccount

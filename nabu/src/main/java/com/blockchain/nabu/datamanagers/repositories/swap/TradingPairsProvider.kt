@@ -4,7 +4,7 @@ import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.service.NabuService
 import info.blockchain.balance.AssetCatalogue
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 interface TradingPairsProvider {
     fun getAvailablePairs(): Single<List<CurrencyPair>>

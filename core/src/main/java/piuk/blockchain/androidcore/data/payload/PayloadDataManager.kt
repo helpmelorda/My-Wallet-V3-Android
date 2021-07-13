@@ -21,11 +21,11 @@ import info.blockchain.wallet.payload.model.Balance
 import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import info.blockchain.wallet.util.PrivateKeyFactory
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.bitcoinj.core.AddressFormatException
 import org.bitcoinj.core.LegacyAddress
 import org.bitcoinj.core.NetworkParameters

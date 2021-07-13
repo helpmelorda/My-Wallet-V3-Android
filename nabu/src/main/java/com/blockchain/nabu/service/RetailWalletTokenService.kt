@@ -3,7 +3,7 @@ package com.blockchain.nabu.service
 import com.blockchain.nabu.api.wallet.RETAIL_JWT_TOKEN
 import com.blockchain.nabu.api.wallet.RetailWallet
 import com.blockchain.nabu.models.responses.wallet.RetailJwtResponse
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import retrofit2.Retrofit
 
 class RetailWalletTokenService(

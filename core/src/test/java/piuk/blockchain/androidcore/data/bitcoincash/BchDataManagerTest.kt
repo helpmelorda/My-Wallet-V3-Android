@@ -5,13 +5,13 @@ package piuk.blockchain.androidcore.data.bitcoincash
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.logging.CrashLogger
 import com.blockchain.wallet.DefaultLabels
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.times
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import com.blockchain.api.NonCustodialBitcoinService
 import info.blockchain.wallet.coin.GenericMetadataAccount
 import info.blockchain.wallet.coin.GenericMetadataWallet
@@ -22,12 +22,11 @@ import info.blockchain.wallet.payload.data.Wallet
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Balance
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
 import junit.framework.Assert
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.itReturns
+
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -377,8 +376,8 @@ class BchDataManagerTest {
         val mockCallCount = 1
         val xpub = XPub(address = "xpub 2", XPub.Format.LEGACY)
         val btcAccount: Account = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS) {
-            on { xpubs } itReturns XPubs(listOf(xpub))
-            on { xpubForDerivation(Derivation.LEGACY_TYPE) } itReturns xpub.address
+            on { xpubs }.thenReturn(XPubs(listOf(xpub)))
+            on { xpubForDerivation(Derivation.LEGACY_TYPE) }.thenReturn(xpub.address)
         }
 
         val btcAccounts = mutableListOf(btcAccount)
@@ -390,7 +389,7 @@ class BchDataManagerTest {
 
         val mockWallet: Wallet = mock()
         val mockWalletBody: WalletBody = mock {
-            on { addAccount(anyString()) } itReturns btcAccount
+            on { addAccount(anyString()) }.thenReturn(btcAccount)
         }
         whenever(mockWallet.walletBody).thenReturn(mockWalletBody)
         whenever(payloadDataManager.wallet).thenReturn(mockWallet)
@@ -420,8 +419,8 @@ class BchDataManagerTest {
         val mockCallCount = 1
         val xpub = XPub(address = "xpub 2", XPub.Format.LEGACY)
         val btcAccount: Account = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS) {
-            on { xpubs } itReturns XPubs(listOf(XPub(address = "xpub 2", XPub.Format.LEGACY)))
-            on { xpubForDerivation(Derivation.LEGACY_TYPE) } itReturns xpub.address
+            on { xpubs }.thenReturn(XPubs(listOf(XPub(address = "xpub 2", XPub.Format.LEGACY))))
+            on { xpubForDerivation(Derivation.LEGACY_TYPE) }.thenReturn(xpub.address)
         }
         val btcAccounts = mutableListOf(btcAccount)
         whenever(payloadDataManager.accounts).thenReturn(btcAccounts)
@@ -474,7 +473,7 @@ class BchDataManagerTest {
 
         BchDataManager(
             payloadDataManager = mock {
-                on { getBalanceOfBchAccounts(listOf(xpubs)) } `it returns` Observable.just(map)
+                on { getBalanceOfBchAccounts(listOf(xpubs)) }.thenReturn(Observable.just(map))
             },
             bchDataStore = mock(),
             bitcoinApi = mock(),
@@ -494,7 +493,7 @@ class BchDataManagerTest {
         val xpubs = XPubs(xpub)
         BchDataManager(
             payloadDataManager = mock {
-                on { getBalanceOfBchAccounts(listOf(xpubs)) } `it returns` Observable.error(Exception())
+                on { getBalanceOfBchAccounts(listOf(xpubs)) }.thenReturn(Observable.error(Exception()))
             },
             bchDataStore = mock(),
             bitcoinApi = mock(),

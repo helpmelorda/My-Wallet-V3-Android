@@ -7,9 +7,9 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import info.blockchain.balance.CryptoValue
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.androidcore.utils.extensions.flatMapBy
 import timber.log.Timber
 
@@ -164,7 +164,7 @@ class SimpleBuySyncFactory(
                     localState
                 }
             }
-            .flatMap { state ->
+            .flatMapMaybe { state ->
                 when (state.orderState) {
                     OrderState.UNINITIALISED,
                     OrderState.INITIALISED,
@@ -183,7 +183,7 @@ class SimpleBuySyncFactory(
             custodialWallet.getBuyOrder(it)
                 .map { order -> order.toSimpleBuyState() }
                 .toMaybe()
-                .onErrorResumeNext(Maybe.empty())
+                .onErrorResumeNext { Maybe.empty() }
         } ?: Maybe.empty()
 
     private fun maybeInflateLocalState(): Maybe<SimpleBuyState> =

@@ -18,7 +18,7 @@ import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
 import com.blockchain.logging.CrashLogger
 import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.material.textfield.TextInputLayout
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig

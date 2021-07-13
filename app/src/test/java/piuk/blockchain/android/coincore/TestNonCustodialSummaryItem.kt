@@ -4,8 +4,8 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
-import io.reactivex.Observable
-import org.amshove.kluent.mock
+import io.reactivex.rxjava3.core.Observable
+import com.nhaarman.mockitokotlin2.mock
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 
 internal class TestNonCustodialSummaryItem(

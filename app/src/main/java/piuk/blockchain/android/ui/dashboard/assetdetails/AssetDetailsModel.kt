@@ -5,9 +5,9 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import info.blockchain.balance.Money
 import info.blockchain.wallet.prices.data.PriceDatum
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AvailableActions
 import piuk.blockchain.android.coincore.BlockchainAccount

@@ -5,9 +5,9 @@ import info.blockchain.balance.AssetInfo
 import com.blockchain.api.AddressMappingService
 import com.blockchain.api.DomainAddressNotFound
 import info.blockchain.balance.CryptoValue
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
 import java.lang.IllegalStateException
 

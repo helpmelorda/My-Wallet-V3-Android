@@ -2,9 +2,9 @@ package piuk.blockchain.android.ui.recover
 
 import com.blockchain.logging.CrashLogger
 import info.blockchain.wallet.bip44.HDWalletFactory
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.bitcoinj.crypto.MnemonicCode
 import org.bitcoinj.crypto.MnemonicException
 import piuk.blockchain.android.ui.base.mvi.MviModel

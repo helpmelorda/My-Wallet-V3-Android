@@ -1,16 +1,14 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyZeroInteractions
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Scheduler
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.schedulers.TestScheduler
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`it throws`
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.TestScheduler
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -212,22 +210,22 @@ class AnnouncementListTest {
 
     private fun announcement(announcementName: String): AnnouncementRule =
         mock {
-            on { shouldShow() } `it returns` Single.just(true)
-            on { name } `it returns` announcementName
+            on { shouldShow() }.thenReturn(Single.just(true))
+            on { name }.thenReturn(announcementName)
         }
 
     private fun dontShowAnnouncement(announcementName: String): AnnouncementRule =
         mock {
-            on { shouldShow() } `it returns` Single.just(false)
-            on { show(host) } `it throws` RuntimeException("Not expected")
-            on { name } `it returns` announcementName
+            on { shouldShow() }.thenReturn(Single.just(false))
+            on { show(host) }.thenThrow(RuntimeException("Not expected"))
+            on { name }.thenReturn(announcementName)
         }
 
     private fun dontCheckAnnouncement(announcementName: String): AnnouncementRule =
         mock {
-            on { shouldShow() } `it throws` RuntimeException("Not expected")
-            on { show(host) } `it throws` RuntimeException("Not expected")
-            on { name } `it returns` announcementName
+            on { shouldShow() }.thenThrow(RuntimeException("Not expected"))
+            on { show(host) }.thenThrow(RuntimeException("Not expected"))
+            on { name }.thenReturn(announcementName)
         }
 
     companion object {

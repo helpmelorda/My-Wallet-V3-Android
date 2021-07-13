@@ -3,7 +3,7 @@ package info.blockchain.wallet.api;
 import info.blockchain.wallet.WalletApiMockedResponseTest;
 import info.blockchain.wallet.api.data.WalletOptions;
 import info.blockchain.wallet.payload.data.WalletBase;
-import io.reactivex.observers.TestObserver;
+import io.reactivex.rxjava3.observers.TestObserver;
 import okhttp3.ResponseBody;
 import org.junit.Before;
 import org.junit.Test;

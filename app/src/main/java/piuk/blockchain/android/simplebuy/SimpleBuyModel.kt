@@ -17,11 +17,11 @@ import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttri
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.FiatValue
-import io.reactivex.Completable
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.EverypayCardActivator
 import piuk.blockchain.android.networking.PollResult

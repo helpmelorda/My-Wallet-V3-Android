@@ -2,7 +2,7 @@ package com.blockchain.api
 
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.addressmapping.data.AddressMapRequest
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
 import java.util.Locale
 

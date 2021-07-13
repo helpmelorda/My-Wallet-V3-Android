@@ -5,20 +5,21 @@ import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.Singles
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.BehaviorSubject
+import io.reactivex.rxjava3.subjects.PublishSubject
 import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import timber.log.Timber
+import java.lang.IllegalStateException
 
 interface PitLinking {
 
@@ -119,7 +120,7 @@ class PitLinkingImpl(
                 1
             )
         }
-            .map { Pair(CryptoCurrency.BTC.ticker, it) }
+            .map { Pair(CryptoCurrency.BTC.ticker, it ?: throw IllegalStateException("address is null")) }
             .onErrorReturn { Pair("", "") }
     }
 
@@ -133,7 +134,7 @@ class PitLinkingImpl(
 
     private fun getEthReceiveAddress(): Single<Pair<String, String>> =
         ethDataManager.getDefaultEthAddress()
-            .map { Pair(CryptoCurrency.ETHER.ticker, it) }
+            .map { Pair(CryptoCurrency.ETHER.ticker, it.orEmpty()) }
             .onErrorReturn { Pair("", "") }
 
     private fun getXlmReceiveAddress(): Single<Pair<String, String>> =

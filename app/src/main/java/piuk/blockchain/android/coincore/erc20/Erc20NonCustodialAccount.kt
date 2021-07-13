@@ -5,9 +5,9 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Singles
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.ReceiveAddress

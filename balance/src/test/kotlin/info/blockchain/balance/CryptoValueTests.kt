@@ -1,7 +1,7 @@
 package info.blockchain.balance
 
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -10,24 +10,24 @@ class CryptoValueTests {
 
     @Test
     fun `zero btc`() {
-        CryptoValue.zero(CryptoCurrency.BTC) `should equal` CryptoValue(CryptoCurrency.BTC, BigInteger.ZERO)
+        CryptoValue.zero(CryptoCurrency.BTC) `should be equal to` CryptoValue(CryptoCurrency.BTC, BigInteger.ZERO)
     }
 
     @Test
     fun `zero bch`() {
-        CryptoValue.zero(CryptoCurrency.BCH) `should equal` CryptoValue(CryptoCurrency.BCH, BigInteger.ZERO)
+        CryptoValue.zero(CryptoCurrency.BCH) `should be equal to` CryptoValue(CryptoCurrency.BCH, BigInteger.ZERO)
     }
 
     @Test
     fun `zero eth`() {
-        CryptoValue.zero(CryptoCurrency.ETHER) `should equal` CryptoValue(CryptoCurrency.ETHER, BigInteger.ZERO)
+        CryptoValue.zero(CryptoCurrency.ETHER) `should be equal to` CryptoValue(CryptoCurrency.ETHER, BigInteger.ZERO)
     }
 
     @Test
     fun `toBigDecimal BTC`() {
         CryptoValue.fromMinor(
             CryptoCurrency.BTC, 12345678901.toBigInteger()
-        ).toBigDecimal() `should equal` BigDecimal("123.45678901")
+        ).toBigDecimal() `should be equal to` BigDecimal("123.45678901")
     }
 
     @Test
@@ -35,7 +35,7 @@ class CryptoValueTests {
         CryptoValue.fromMinor(
             CryptoCurrency.BCH,
             234.toBigInteger()
-        ).toBigDecimal() `should equal` BigDecimal("0.00000234")
+        ).toBigDecimal() `should be equal to` BigDecimal("0.00000234")
     }
 
     @Test
@@ -43,7 +43,7 @@ class CryptoValueTests {
         CryptoValue(
             CryptoCurrency.ETHER,
             234L.toBigInteger()
-        ).toBigDecimal() `should equal` BigDecimal("0.000000000000000234")
+        ).toBigDecimal() `should be equal to` BigDecimal("0.000000000000000234")
     }
 
     @Test
@@ -51,12 +51,13 @@ class CryptoValueTests {
         CryptoValue(
             CryptoCurrency.BTC,
             10000000000L.toBigInteger()
-        ).toBigDecimal() `should equal` BigDecimal("100.00000000")
+        ).toBigDecimal() `should be equal to` BigDecimal("100.00000000")
     }
 
     @Test
     fun `toMajorUnit Double`() {
-        CryptoValue(CryptoCurrency.BTC, 12300001234L.toBigInteger()).toMajorUnitDouble() `should equal` 123.00001234
+        CryptoValue(CryptoCurrency.BTC, 12300001234L.toBigInteger())
+            .toMajorUnitDouble() `should be equal to` 123.00001234
     }
 
     @Test
@@ -101,36 +102,36 @@ class CryptoValueTests {
 
     @Test
     fun `amount is the minor part of the currency`() {
-        CryptoValue(CryptoCurrency.BTC, 1234.toBigInteger()).toBigInteger() `should equal` 1234L.toBigInteger()
+        CryptoValue(CryptoCurrency.BTC, 1234.toBigInteger()).toBigInteger() `should be equal to` 1234L.toBigInteger()
     }
 
     @Test
     fun `amount is the total minor part of the currency`() {
         CryptoValue.fromMajor(CryptoCurrency.ETHER, 2L.toBigDecimal())
-            .toBigInteger() `should equal` 2e18.toBigDecimal().toBigIntegerExact()
+            .toBigInteger() `should be equal to` 2e18.toBigDecimal().toBigIntegerExact()
     }
 
     @Test
     fun `amount when created from satoshis`() {
         CryptoValue.fromMinor(CryptoCurrency.BTC, 4567L.toBigInteger()).apply {
-            currency `should equal` CryptoCurrency.BTC
-            toBigInteger() `should equal` 4567.toBigInteger()
+            currency `should be equal to` CryptoCurrency.BTC
+            toBigInteger() `should be equal to` 4567.toBigInteger()
         }
     }
 
     @Test
     fun `amount when created from satoshis big integer`() {
         CryptoValue.fromMinor(CryptoCurrency.BTC, 4567.toBigInteger()).apply {
-            currency `should equal` CryptoCurrency.BTC
-            toBigInteger() `should equal` 4567.toBigInteger()
+            currency `should be equal to` CryptoCurrency.BTC
+            toBigInteger() `should be equal to` 4567.toBigInteger()
         }
     }
 
     @Test
     fun `amount of Cash when created from satoshis`() {
         CryptoValue.fromMinor(CryptoCurrency.BCH, 45678.toBigInteger()).apply {
-            currency `should equal` CryptoCurrency.BCH
-            toBigInteger() `should equal` 45678.toBigInteger()
+            currency `should be equal to` CryptoCurrency.BCH
+            toBigInteger() `should be equal to` 45678.toBigInteger()
         }
     }
 }

@@ -9,14 +9,14 @@ import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
 import com.blockchain.nabu.service.TierUpdater
 import com.blockchain.testutils.usd
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.verify
 import info.blockchain.balance.FiatValue
-import io.reactivex.Completable
-import io.reactivex.Single
-import org.amshove.kluent.`it returns`
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.KycNavXmlDirections
@@ -132,21 +132,23 @@ class KycTierSplashPresenterTest {
 
     private fun givenTierUpdater(): TierUpdater =
         mock {
-            on { setUserTier(any()) } `it returns` Completable.complete()
+            on { setUserTier(any()) }.thenReturn(Completable.complete())
         }
 
     private fun givenUnableToSetTier(): TierUpdater =
         mock {
-            on { setUserTier(any()) } `it returns` Completable.error(Throwable())
+            on { setUserTier(any()) }.thenReturn(Completable.error(Throwable()))
         }
 }
 
 private fun givenTiers(tiers: KycTiers? = null): TierService =
     mock {
-        on { tiers() } `it returns` Single.just(
-            tiers ?: tiers(
-                KycTierState.None to 1000.usd(),
-                KycTierState.None to 25000.usd()
+        on { tiers() }.thenReturn(
+            Single.just(
+                tiers ?: tiers(
+                    KycTierState.None to 1000.usd(),
+                    KycTierState.None to 25000.usd()
+                )
             )
         )
     }
@@ -195,5 +197,5 @@ private fun givenRedirect(email: NavDirections): KycNavigator =
     mock {
         on {
             findNextStep()
-        } `it returns` Single.just(email)
+        }.thenReturn(Single.just(email))
     }

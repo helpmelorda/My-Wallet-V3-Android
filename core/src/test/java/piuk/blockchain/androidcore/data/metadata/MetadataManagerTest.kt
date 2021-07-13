@@ -1,18 +1,18 @@
 package piuk.blockchain.androidcore.data.metadata
 
 import com.blockchain.android.testutils.rxInit
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import info.blockchain.wallet.keys.MasterKey
 import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.metadata.MetadataInteractor
 import info.blockchain.wallet.metadata.data.RemoteMetadataNodes
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+
 import org.bitcoinj.crypto.HDKeyDerivation
 import org.junit.Before
 import org.junit.Rule
@@ -32,7 +32,7 @@ class MetadataManagerTest {
 
     private val seed = "15e23aa73d25994f1921a1256f93f72c"
     private val mockMasterKey: MasterKey = mock {
-        on { toDeterministicKey() } itReturns HDKeyDerivation.createMasterPrivateKey(seed.toByteArray())
+        on { toDeterministicKey() }.thenReturn(HDKeyDerivation.createMasterPrivateKey(seed.toByteArray()))
     }
 
     private val fakeRemoteMetadata = RemoteMetadataNodes().apply {

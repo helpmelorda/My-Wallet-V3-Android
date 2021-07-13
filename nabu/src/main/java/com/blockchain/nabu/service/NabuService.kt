@@ -54,9 +54,9 @@ import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenReques
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 import com.blockchain.veriff.VeriffApplicantAndToken
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
 import retrofit2.Retrofit
 

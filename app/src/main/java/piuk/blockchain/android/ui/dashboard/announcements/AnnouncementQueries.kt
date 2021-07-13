@@ -8,9 +8,9 @@ import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.UserCampaignState
 import com.blockchain.nabu.service.TierService
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Singles
-import io.reactivex.rxkotlin.zipWith
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.identity.Feature
 import piuk.blockchain.android.identity.UserIdentity

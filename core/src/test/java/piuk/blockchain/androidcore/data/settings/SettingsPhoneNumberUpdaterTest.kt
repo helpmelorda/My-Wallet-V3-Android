@@ -1,13 +1,13 @@
 package piuk.blockchain.androidcore.data.settings
 
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import info.blockchain.wallet.api.data.Settings
-import io.reactivex.Observable
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.any
+import io.reactivex.rxjava3.core.Observable
+
+import org.amshove.kluent.`should be equal to`
+import com.nhaarman.mockitokotlin2.any
 import org.junit.Test
 
 class SettingsPhoneNumberUpdaterTest {
@@ -15,46 +15,46 @@ class SettingsPhoneNumberUpdaterTest {
     @Test
     fun `can get number from settings`() {
         val settings: Settings = mock {
-            on { smsNumber } `it returns` "+123456"
+            on { smsNumber }.thenReturn("+123456")
         }
         val settingsDataManager: SettingsDataManager = mock {
-            on { fetchSettings() } `it returns` Observable.just(settings)
+            on { fetchSettings() }.thenReturn(Observable.just(settings))
         }
         SettingsPhoneNumberUpdater(settingsDataManager)
             .smsNumber()
             .test()
             .assertComplete()
             .values()
-            .single() `should equal` "+123456"
+            .single() `should be equal to` "+123456"
     }
 
     @Test
     fun `missing settings returns empty number`() {
         val settingsDataManager: SettingsDataManager = mock {
-            on { fetchSettings() } `it returns` Observable.empty()
+            on { fetchSettings() }.thenReturn(Observable.empty())
         }
         SettingsPhoneNumberUpdater(settingsDataManager)
             .smsNumber()
             .test()
             .assertComplete()
             .values()
-            .single() `should equal` ""
+            .single() `should be equal to` ""
     }
 
     @Test
     fun `can update number in settings with sanitised input`() {
         val settings: Settings = mock {
-            on { smsNumber } `it returns` "+123456"
+            on { smsNumber }.thenReturn("+123456")
         }
         val settingsDataManager: SettingsDataManager = mock {
-            on { updateSms(any()) } `it returns` Observable.just(settings)
+            on { updateSms(any()) }.thenReturn(Observable.just(settings))
         }
         SettingsPhoneNumberUpdater(settingsDataManager)
             .updateSms(PhoneNumber("+(123)-456-789"))
             .test()
             .assertComplete()
             .values()
-            .single() `should equal` "+123456"
+            .single() `should be equal to` "+123456"
         verify(settingsDataManager).updateSms("+123456789")
         verifyNoMoreInteractions(settingsDataManager)
     }
@@ -62,17 +62,17 @@ class SettingsPhoneNumberUpdaterTest {
     @Test
     fun `can verify code in settings`() {
         val settings: Settings = mock {
-            on { smsNumber } `it returns` "+123456"
+            on { smsNumber }.thenReturn("+123456")
         }
         val settingsDataManager: SettingsDataManager = mock {
-            on { verifySms(any()) } `it returns` Observable.just(settings)
+            on { verifySms(any()) }.thenReturn(Observable.just(settings))
         }
         SettingsPhoneNumberUpdater(settingsDataManager)
             .verifySms("ABC345")
             .test()
             .assertComplete()
             .values()
-            .single() `should equal` "+123456"
+            .single() `should be equal to` "+123456"
         verify(settingsDataManager).verifySms("ABC345")
         verifyNoMoreInteractions(settingsDataManager)
     }

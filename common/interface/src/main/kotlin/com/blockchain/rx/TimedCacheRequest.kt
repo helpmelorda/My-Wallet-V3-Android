@@ -1,7 +1,7 @@
 package com.blockchain.rx
 
-import io.reactivex.Single
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 

@@ -6,7 +6,7 @@ import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import java.lang.IllegalArgumentException
 
 class NabuUserIdentity(

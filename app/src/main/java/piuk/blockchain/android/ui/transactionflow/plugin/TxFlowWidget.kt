@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.transactionflow.plugin
 
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState

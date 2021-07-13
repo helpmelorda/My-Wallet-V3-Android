@@ -1,7 +1,7 @@
 package info.blockchain.wallet.api;
 
 import info.blockchain.wallet.api.data.FeeOptions;
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;

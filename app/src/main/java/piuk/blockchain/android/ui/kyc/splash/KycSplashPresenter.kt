@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.kyc.splash
 import piuk.blockchain.android.ui.kyc.BaseKycPresenter
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
 import com.blockchain.nabu.NabuToken
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import timber.log.Timber
 
 class KycSplashPresenter(

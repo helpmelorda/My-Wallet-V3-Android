@@ -2,7 +2,7 @@ package piuk.blockchain.android.coincore
 
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.impl.PAX
 import piuk.blockchain.android.identity.Feature
 import piuk.blockchain.android.identity.UserIdentity

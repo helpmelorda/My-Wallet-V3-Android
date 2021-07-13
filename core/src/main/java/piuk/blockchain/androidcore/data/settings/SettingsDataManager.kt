@@ -3,7 +3,7 @@ package piuk.blockchain.androidcore.data.settings
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import okhttp3.ResponseBody
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.data.rxjava.RxPinning

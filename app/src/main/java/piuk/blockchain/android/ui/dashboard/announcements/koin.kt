@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
-import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.dashboard.announcements.rule.AaveYfiDotAvailableAnnouncement

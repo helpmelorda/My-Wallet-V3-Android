@@ -1,7 +1,7 @@
 package piuk.blockchain.androidcore.data.auth.metadata
 
 import com.blockchain.metadata.MetadataRepository
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class WalletCredentialsMetadataUpdater(

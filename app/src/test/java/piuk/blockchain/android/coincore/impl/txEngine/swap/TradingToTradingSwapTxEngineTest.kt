@@ -15,18 +15,18 @@ import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.bitcoin
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Observable
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -64,11 +64,11 @@ class TradingToTradingSwapTxEngineTest {
     private val internalFeatureFlagApi: InternalFeatureFlagApi = mock()
 
     private val exchangeRates: ExchangeRateDataManager = mock {
-        on { getLastPrice(SRC_ASSET, SELECTED_FIAT) } itReturns EXCHANGE_RATE
+        on { getLastPrice(SRC_ASSET, SELECTED_FIAT) }.thenReturn(EXCHANGE_RATE)
     }
 
     private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency } itReturns SELECTED_FIAT
+        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
     }
 
     private val subject = TradingToTradingSwapTxEngine(
@@ -98,11 +98,11 @@ class TradingToTradingSwapTxEngineTest {
     @Test
     fun `inputs validate when correct`() {
         val sourceAccount: CustodialTradingAccount = mock {
-            on { asset } itReturns SRC_ASSET
+            on { asset }.thenReturn(SRC_ASSET)
         }
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset } itReturns TGT_ASSET
+            on { asset }.thenReturn(TGT_ASSET)
         }
 
         // Act
@@ -125,11 +125,11 @@ class TradingToTradingSwapTxEngineTest {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source Account incorrect`() {
         val sourceAccount: BtcCryptoWalletAccount = mock {
-            on { asset } itReturns SRC_ASSET
+            on { asset }.thenReturn(SRC_ASSET)
         }
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset } itReturns TGT_ASSET
+            on { asset }.thenReturn(TGT_ASSET)
         }
 
         // Act
@@ -145,11 +145,11 @@ class TradingToTradingSwapTxEngineTest {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when assets match`() {
         val sourceAccount: CustodialTradingAccount = mock {
-            on { asset } itReturns SRC_ASSET
+            on { asset }.thenReturn(SRC_ASSET)
         }
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset } itReturns SRC_ASSET
+            on { asset }.thenReturn(SRC_ASSET)
         }
 
         // Act
@@ -165,11 +165,11 @@ class TradingToTradingSwapTxEngineTest {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when target incorrect`() {
         val sourceAccount: CustodialTradingAccount = mock {
-            on { asset } itReturns SRC_ASSET
+            on { asset }.thenReturn(SRC_ASSET)
         }
 
         val txTarget: XlmCryptoWalletAccount = mock {
-            on { asset } itReturns TGT_ASSET
+            on { asset }.thenReturn(TGT_ASSET)
         }
 
         // Act
@@ -186,11 +186,11 @@ class TradingToTradingSwapTxEngineTest {
     fun `asset is returned correctly`() {
         // Arrange
         val sourceAccount: CustodialTradingAccount = mock {
-            on { asset } itReturns SRC_ASSET
+            on { asset }.thenReturn(SRC_ASSET)
         }
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset } itReturns TGT_ASSET
+            on { asset }.thenReturn(TGT_ASSET)
         }
 
         // Act
@@ -223,17 +223,17 @@ class TradingToTradingSwapTxEngineTest {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset } itReturns TGT_ASSET
+            on { asset }.thenReturn(TGT_ASSET)
         }
 
         val txQuote: TransferQuote = mock {
-            on { sampleDepositAddress } itReturns SAMPLE_DEPOSIT_ADDRESS
-            on { networkFee } itReturns NETWORK_FEE
+            on { sampleDepositAddress }.thenReturn(SAMPLE_DEPOSIT_ADDRESS)
+            on { networkFee }.thenReturn(NETWORK_FEE)
         }
 
         val pricedQuote: PricedQuote = mock {
-            on { transferQuote } itReturns txQuote
-            on { price } itReturns INITIAL_QUOTE_PRICE
+            on { transferQuote }.thenReturn(txQuote)
+            on { price }.thenReturn(INITIAL_QUOTE_PRICE)
         }
 
         whenever(quotesEngine.pricedQuote).thenReturn(Observable.just(pricedQuote))
@@ -288,11 +288,11 @@ class TradingToTradingSwapTxEngineTest {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset } itReturns TGT_ASSET
+            on { asset }.thenReturn(TGT_ASSET)
         }
 
         val error: NabuApiException = mock {
-            on { getErrorCode() } itReturns NabuErrorCodes.PendingOrdersLimitReached
+            on { getErrorCode() }.thenReturn(NabuErrorCodes.PendingOrdersLimitReached)
         }
 
         whenever(quotesEngine.pricedQuote).thenReturn(Observable.error(error))
@@ -341,7 +341,7 @@ class TradingToTradingSwapTxEngineTest {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset } itReturns TGT_ASSET
+            on { asset }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -398,7 +398,7 @@ class TradingToTradingSwapTxEngineTest {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset } itReturns TGT_ASSET
+            on { asset }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -436,7 +436,7 @@ class TradingToTradingSwapTxEngineTest {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset } itReturns TGT_ASSET
+            on { asset }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -474,7 +474,7 @@ class TradingToTradingSwapTxEngineTest {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset } itReturns TGT_ASSET
+            on { asset }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -512,7 +512,7 @@ class TradingToTradingSwapTxEngineTest {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset } itReturns TGT_ASSET
+            on { asset }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -556,9 +556,9 @@ class TradingToTradingSwapTxEngineTest {
 
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<CustodialTradingAccount> {
-            on { asset } itReturns SRC_ASSET
-            on { accountBalance } itReturns Single.just(totalBalance)
-            on { actionableBalance } itReturns Single.just(availableBalance)
+            on { asset }.thenReturn(SRC_ASSET)
+            on { accountBalance }.thenReturn(Single.just(totalBalance))
+            on { actionableBalance }.thenReturn(Single.just(availableBalance))
         }
 
     private fun whenUserIsGold() {
@@ -566,7 +566,7 @@ class TradingToTradingSwapTxEngineTest {
         whenever(kycTierService.tiers()).thenReturn(Single.just(kycTiers))
 
         whenever(walletManager.getProductTransferLimits(SELECTED_FIAT, Product.TRADE, TransferDirection.INTERNAL))
-            .itReturns(
+            .thenReturn(
                 Single.just(
                     TransferLimits(
                         minLimit = MIN_GOLD_LIMIT,

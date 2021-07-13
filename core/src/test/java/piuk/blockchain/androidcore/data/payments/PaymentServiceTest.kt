@@ -2,12 +2,12 @@ package piuk.blockchain.androidcore.data.payments
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.testutils.`should be assignable from`
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import com.blockchain.api.ApiException
 import info.blockchain.wallet.api.dust.DustService
 import info.blockchain.wallet.api.dust.data.DustInput
@@ -18,12 +18,12 @@ import info.blockchain.wallet.payload.model.Utxo
 import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.Payment
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import org.amshove.kluent.`should be instance of`
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.itReturns
+import org.amshove.kluent.`should be equal to`
+
 import org.bitcoinj.core.Sha256Hash
 import org.bitcoinj.core.Transaction
 import org.junit.Assert.assertEquals
@@ -79,7 +79,7 @@ class PaymentServiceTest {
 
         val response = Response.success(mock<ResponseBody>())
         val mockCall = mock<Call<ResponseBody>> {
-            on { execute() } itReturns response
+            on { execute() }.thenReturn(response)
         }
         whenever(payment.publishBtcSimpleTransaction(mockTx)).thenReturn(mockCall)
 
@@ -126,13 +126,12 @@ class PaymentServiceTest {
 
         // Assert
         testObserver.assertNotComplete()
-        testObserver.assertTerminated()
         testObserver.assertNoValues()
         testObserver.assertError {
             it `should be instance of` TransactionHashApiException::class
             if (it is TransactionHashApiException) {
-                it.message `should equal` "500: {}"
-                it.hashString `should equal` "TX_HASH"
+                it.message `should be equal to` "500: {}"
+                it.hashString `should be equal to` "TX_HASH"
             }
             true
         }
@@ -148,15 +147,15 @@ class PaymentServiceTest {
         val mockFee = mock<BigInteger>()
 
         val mockDust: DustInput = mock {
-            on { lockSecret } itReturns "SECRET"
+            on { lockSecret }.thenReturn("SECRET")
         }
 
         val mockHash: Sha256Hash = mock {
-            on { toString() } itReturns txHash
+            on { toString() }.thenReturn(txHash)
         }
 
         val mockTx: Transaction = mock {
-            on { txId } itReturns mockHash
+            on { txId }.thenReturn(mockHash)
         }
 
         whenever(
@@ -202,15 +201,15 @@ class PaymentServiceTest {
         val mockFee = mock<BigInteger>()
 
         val mockHash: Sha256Hash = mock {
-            on { toString() } itReturns txHash
+            on { toString() }.thenReturn(txHash)
         }
 
         val mockTx: Transaction = mock {
-            on { txId } itReturns mockHash
+            on { txId }.thenReturn(mockHash)
         }
 
         val mockDust: DustInput = mock {
-            on { lockSecret } itReturns "SECRET"
+            on { lockSecret }.thenReturn("SECRET")
         }
 
         whenever(
@@ -238,13 +237,12 @@ class PaymentServiceTest {
         ).test()
         // Assert
         testObserver.assertNotComplete()
-        testObserver.assertTerminated()
         testObserver.assertNoValues()
         testObserver.assertError {
             it `should be instance of` TransactionHashApiException::class
             if (it is TransactionHashApiException) {
-                it.message `should equal` "500: {}"
-                it.hashString `should equal` "TX_HASH"
+                it.message `should be equal to` "500: {}"
+                it.hashString `should be equal to` "TX_HASH"
             }
             true
         }

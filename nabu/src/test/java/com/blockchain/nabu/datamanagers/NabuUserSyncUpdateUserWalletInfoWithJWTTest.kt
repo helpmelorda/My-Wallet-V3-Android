@@ -5,12 +5,12 @@ import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.getBlankNabuUser
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.verifyZeroInteractions
-import io.reactivex.Single
-import org.amshove.kluent.`it returns`
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
+import io.reactivex.rxjava3.core.Single
+
 import org.junit.Rule
 import org.junit.Test
 
@@ -37,11 +37,11 @@ class NabuUserSyncUpdateUserWalletInfoWithJWTTest {
         val jwt = "JWT"
         val offlineToken = NabuOfflineTokenResponse("", "")
         val nabuToken: NabuToken = mock {
-            on { fetchNabuToken() } `it returns` Single.just(offlineToken)
+            on { fetchNabuToken() }.thenReturn(Single.just(offlineToken))
         }
         val nabuDataManager: NabuDataManager = mock {
-            on { requestJwt() } `it returns` Single.just(jwt)
-            on { updateUserWalletInfo(offlineToken, jwt) } `it returns` Single.just(getBlankNabuUser())
+            on { requestJwt() }.thenReturn(Single.just(jwt))
+                on { updateUserWalletInfo(offlineToken, jwt) }.thenReturn(Single.just(getBlankNabuUser()))
         }
 
         val nabuUserSync = givenSyncInstance(nabuDataManager, nabuToken)

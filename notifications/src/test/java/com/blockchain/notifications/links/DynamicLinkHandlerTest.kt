@@ -7,11 +7,11 @@ import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData
-import com.nhaarman.mockito_kotlin.argumentCaptor
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.any
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+
+import com.nhaarman.mockitokotlin2.any
 import org.junit.Test
 
 class DynamicLinkHandlerTest {
@@ -23,14 +23,14 @@ class DynamicLinkHandlerTest {
     fun `returns uri if present`() {
         val uri: Uri = mock()
         val data = mock<PendingDynamicLinkData> {
-            on { link } `it returns` uri
+            on { link }.thenReturn(uri)
         }
         val task = mock<Task<PendingDynamicLinkData>> {
-            on { addOnSuccessListener(testOnSuccessListener.capture()) } `it returns` it
-            on { addOnFailureListener(testOnFailureListener.capture()) } `it returns` it
+            on { addOnSuccessListener(testOnSuccessListener.capture()) }.thenReturn(it)
+            on { addOnFailureListener(testOnFailureListener.capture()) }.thenReturn(it)
         }
         val dynamicLinks = mock<FirebaseDynamicLinks> {
-            on { getDynamicLink(any<Intent>()) } `it returns` task
+            on { getDynamicLink(any<Intent>()) }.thenReturn(task)
         }
 
         val testObserver = DynamicLinkHandler(dynamicLinks)
@@ -48,14 +48,14 @@ class DynamicLinkHandlerTest {
     @Test
     fun `completes if uri not present`() {
         val data = mock<PendingDynamicLinkData> {
-            on { link } `it returns` null
+            on { link }.thenReturn(null)
         }
         val task = mock<Task<PendingDynamicLinkData>> {
-            on { addOnSuccessListener(testOnSuccessListener.capture()) } `it returns` it
-            on { addOnFailureListener(testOnFailureListener.capture()) } `it returns` it
+            on { addOnSuccessListener(testOnSuccessListener.capture()) }.thenReturn(it)
+            on { addOnFailureListener(testOnFailureListener.capture()) }.thenReturn(it)
         }
         val dynamicLinks = mock<FirebaseDynamicLinks> {
-            on { getDynamicLink(any<Intent>()) } `it returns` task
+            on { getDynamicLink(any<Intent>()) }.thenReturn(task)
         }
 
         val testObserver = DynamicLinkHandler(dynamicLinks)
@@ -75,11 +75,11 @@ class DynamicLinkHandlerTest {
     @Test
     fun `returns failure present`() {
         val task = mock<Task<PendingDynamicLinkData>> {
-            on { addOnSuccessListener(testOnSuccessListener.capture()) } `it returns` it
-            on { addOnFailureListener(testOnFailureListener.capture()) } `it returns` it
+            on { addOnSuccessListener(testOnSuccessListener.capture()) }.thenReturn(it)
+            on { addOnFailureListener(testOnFailureListener.capture()) }.thenReturn(it)
         }
         val dynamicLinks = mock<FirebaseDynamicLinks> {
-            on { getDynamicLink(any<Intent>()) } `it returns` task
+            on { getDynamicLink(any<Intent>()) }.thenReturn(task)
         }
 
         val testObserver = DynamicLinkHandler(dynamicLinks)

@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.transactionflow
 
-import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert
 import org.junit.Test
 import piuk.blockchain.android.coincore.AssetAction

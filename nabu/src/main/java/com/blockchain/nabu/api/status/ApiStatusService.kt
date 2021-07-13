@@ -1,7 +1,7 @@
 package com.blockchain.nabu.api.status
 
 import com.blockchain.nabu.models.responses.status.ApiIncidentsResponse
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import retrofit2.http.GET
 
 interface ApiStatusService {

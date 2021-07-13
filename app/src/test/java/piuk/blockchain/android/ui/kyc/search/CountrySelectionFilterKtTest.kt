@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.kyc.search
 
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import org.junit.Test
 import piuk.blockchain.android.ui.kyc.countryselection.util.CountryDisplayModel
 

@@ -7,10 +7,10 @@ import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Singles
-import io.reactivex.rxkotlin.zipWith
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.simplebuy.SimpleBuyModel
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.androidcore.utils.extensions.thenSingle

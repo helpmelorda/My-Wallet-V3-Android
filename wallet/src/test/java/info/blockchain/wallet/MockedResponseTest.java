@@ -1,12 +1,5 @@
 package info.blockchain.wallet;
 
-import info.blockchain.wallet.api.Environment;
-import io.reactivex.Scheduler;
-import io.reactivex.functions.Function;
-import io.reactivex.internal.schedulers.TrampolineScheduler;
-import io.reactivex.plugins.RxJavaPlugins;
-import okhttp3.OkHttpClient;
-
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
@@ -18,8 +11,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import info.blockchain.wallet.api.Environment;
+import io.reactivex.rxjava3.internal.schedulers.TrampolineScheduler;
+import io.reactivex.rxjava3.plugins.RxJavaPlugins;
+import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 public abstract class MockedResponseTest {
@@ -64,24 +61,9 @@ public abstract class MockedResponseTest {
     public void setupRxCalls() {
         RxJavaPlugins.reset();
 
-        RxJavaPlugins.setIoSchedulerHandler(new Function<Scheduler, Scheduler>() {
-            @Override
-            public Scheduler apply(Scheduler schedulerCallable) {
-                return TrampolineScheduler.instance();
-            }
-        });
-        RxJavaPlugins.setComputationSchedulerHandler(new Function<Scheduler, Scheduler>() {
-            @Override
-            public Scheduler apply(Scheduler schedulerCallable) {
-                return TrampolineScheduler.instance();
-            }
-        });
-        RxJavaPlugins.setNewThreadSchedulerHandler(new Function<Scheduler, Scheduler>() {
-            @Override
-            public Scheduler apply(Scheduler schedulerCallable) {
-                return TrampolineScheduler.instance();
-            }
-        });
+        RxJavaPlugins.setIoSchedulerHandler(schedulerCallable -> TrampolineScheduler.instance());
+        RxJavaPlugins.setComputationSchedulerHandler(schedulerCallable -> TrampolineScheduler.instance());
+        RxJavaPlugins.setNewThreadSchedulerHandler(schedulerCallable -> TrampolineScheduler.instance());
     }
 
     @After
@@ -102,7 +84,7 @@ public abstract class MockedResponseTest {
                 .baseUrl(url)
                 .client(client)
                 .addConverterFactory(JacksonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .build();
     }
 

@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import com.blockchain.preferences.WalletStatus
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListFragment.Companion.ARGUMENT_SECOND_PASSWORD
 import piuk.blockchain.android.ui.base.BasePresenter

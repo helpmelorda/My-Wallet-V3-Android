@@ -4,7 +4,6 @@ apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'androidx.navigation.safeargs'
 apply plugin: 'com.novoda.build-properties'
-apply from: '../quality/jacocoApp.gradle'
 apply from: '../quality/ktlint.gradle'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.gms.google-services'
@@ -379,10 +378,11 @@ dependencies {
     implementation Libraries.navigationControllerFragments
 
     // RxJava
-    implementation Libraries.rxReplayShare
+    implementation Libraries.rxReplayShareKotlin
     implementation Libraries.rxRelay
-    implementation Libraries.rxBindingV4
-    implementation Libraries.rxBindingV7
+    implementation Libraries.rxBinding
+    implementation Libraries.rxBindingCompat
+    implementation Libraries.rxBindingCore
 
     //Animations
     implementation Libraries.lottie

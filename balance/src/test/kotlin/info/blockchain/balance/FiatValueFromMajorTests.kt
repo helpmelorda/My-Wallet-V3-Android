@@ -1,6 +1,6 @@
 package info.blockchain.balance
 
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class FiatValueFromMajorTests {
@@ -10,7 +10,7 @@ class FiatValueFromMajorTests {
         FiatValue.fromMajor(
             "GBP",
             1.23.toBigDecimal()
-        ) `should equal` 1.23.gbp()
+        ) `should be equal to` 1.23.gbp()
     }
 
     @Test
@@ -18,7 +18,7 @@ class FiatValueFromMajorTests {
         FiatValue.fromMajor(
             "GBP",
             1.235.toBigDecimal()
-        ) `should equal` 1.23.gbp()
+        ) `should be equal to` 1.23.gbp()
     }
 
     @Test
@@ -26,7 +26,7 @@ class FiatValueFromMajorTests {
         FiatValue.fromMajor(
             "GBP",
             1.2349.toBigDecimal()
-        ) `should equal` 1.23.gbp()
+        ) `should be equal to` 1.23.gbp()
     }
 
     @Test
@@ -34,7 +34,7 @@ class FiatValueFromMajorTests {
         FiatValue.fromMajor(
             "GBP",
             1.toBigDecimal()
-        ).toBigDecimal().scale() `should equal` 2
+        ).toBigDecimal().scale() `should be equal to` 2
     }
 
     @Test
@@ -42,7 +42,7 @@ class FiatValueFromMajorTests {
         FiatValue.fromMajor(
             "JPY",
             500.toBigDecimal()
-        ) `should equal` 500.jpy()
+        ) `should be equal to` 500.jpy()
     }
 
     @Test
@@ -50,6 +50,6 @@ class FiatValueFromMajorTests {
         FiatValue.fromMajor(
             "JPY",
             1.toBigDecimal()
-        ).toBigDecimal().scale() `should equal` 0
+        ).toBigDecimal().scale() `should be equal to` 0
     }
 }

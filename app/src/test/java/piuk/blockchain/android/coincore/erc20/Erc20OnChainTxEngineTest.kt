@@ -6,22 +6,20 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.gwei
 import com.blockchain.testutils.numberToBigDecimal
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.api.data.FeeLimits
 import info.blockchain.wallet.api.data.FeeOptions
-import io.reactivex.Observable
-import io.reactivex.Single
-import org.amshove.kluent.any
-import org.amshove.kluent.itReturns
-import org.amshove.kluent.mock
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -64,20 +62,20 @@ class Erc20OnChainTxEngineTest {
     }
 
     private val ethDataManager: EthDataManager = mock {
-        on { erc20ContractAddress(any()) } itReturns ""
+        on { erc20ContractAddress(any()) }.thenReturn("")
     }
     private val ethFeeOptions: FeeOptions = mock()
 
     private val feeManager: FeeDataManager = mock {
-        on { getErc20FeeOptions(any()) } itReturns Observable.just(ethFeeOptions)
+        on { getErc20FeeOptions(any()) }.thenReturn(Observable.just(ethFeeOptions))
     }
     private val walletPreferences: WalletStatus = mock {
-        on { getFeeTypeForAsset(ASSET) } itReturns FeeLevel.Regular.ordinal
+        on { getFeeTypeForAsset(ASSET) }.thenReturn(FeeLevel.Regular.ordinal)
     }
     private val exchangeRates: ExchangeRateDataManager = mock()
 
     private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency } itReturns SELECTED_FIAT
+        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
     }
 
     private val subject = Erc20OnChainTxEngine(
@@ -109,8 +107,8 @@ class Erc20OnChainTxEngineTest {
     fun `inputs validate when correct`() {
         val sourceAccount = mockSourceAccount()
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
-            on { address } itReturns TARGET_ADDRESS
+            on { asset }.thenReturn(ASSET)
+            on { address }.thenReturn(TARGET_ADDRESS)
         }
 
         // Act
@@ -133,11 +131,11 @@ class Erc20OnChainTxEngineTest {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source Asset incorrect`() {
         val sourceAccount = mock<Erc20NonCustodialAccount>() {
-            on { asset } itReturns WRONG_ASSET
+            on { asset }.thenReturn(WRONG_ASSET)
         }
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
-            on { address } itReturns TARGET_ADDRESS
+            on { asset }.thenReturn(ASSET)
+            on { address }.thenReturn(TARGET_ADDRESS)
         }
 
         // Act
@@ -161,7 +159,7 @@ class Erc20OnChainTxEngineTest {
         // Arrange
         val sourceAccount = mockSourceAccount()
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         // Act
@@ -185,7 +183,7 @@ class Erc20OnChainTxEngineTest {
         // Arrange
         val sourceAccount = mockSourceAccount()
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         subject.start(
@@ -228,7 +226,7 @@ class Erc20OnChainTxEngineTest {
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         withDefaultFeeOptions()
@@ -292,7 +290,7 @@ class Erc20OnChainTxEngineTest {
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         withDefaultFeeOptions()
@@ -359,7 +357,7 @@ class Erc20OnChainTxEngineTest {
         val sourceAccount = mockSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         withDefaultFeeOptions()
@@ -428,7 +426,7 @@ class Erc20OnChainTxEngineTest {
         val sourceAccount = mockSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         withDefaultFeeOptions()
@@ -474,7 +472,7 @@ class Erc20OnChainTxEngineTest {
         val sourceAccount = mockSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         withDefaultFeeOptions()
@@ -520,7 +518,7 @@ class Erc20OnChainTxEngineTest {
         val sourceAccount = mockSourceAccount(totalBalance, availableBalance)
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         withDefaultFeeOptions()
@@ -568,9 +566,9 @@ class Erc20OnChainTxEngineTest {
         totalBalance: Money = CryptoValue.zero(ASSET),
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<Erc20NonCustodialAccount> {
-        on { asset } itReturns ASSET
-        on { accountBalance } itReturns Single.just(totalBalance)
-        on { actionableBalance } itReturns Single.just(availableBalance)
+        on { asset }.thenReturn(ASSET)
+        on { accountBalance }.thenReturn(Single.just(totalBalance))
+        on { actionableBalance }.thenReturn(Single.just(availableBalance))
     }
 
     private fun withDefaultFeeOptions() {

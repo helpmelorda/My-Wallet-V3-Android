@@ -2,7 +2,7 @@ package piuk.blockchain.androidcore.data.walletoptions
 
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.api.data.WalletOptions
-import io.reactivex.subjects.ReplaySubject
+import io.reactivex.rxjava3.subjects.ReplaySubject
 import piuk.blockchain.androidcore.utils.helperfunctions.InvalidatableLazy
 
 class WalletOptionsState {

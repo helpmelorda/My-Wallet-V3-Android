@@ -14,10 +14,10 @@ import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.remoteconfig.FeatureFlag
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import io.reactivex.Maybe
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.rxkotlin.zipWith
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.encodeToString
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.ui.home.MainActivity

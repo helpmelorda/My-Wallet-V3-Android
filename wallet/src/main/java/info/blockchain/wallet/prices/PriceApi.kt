@@ -3,7 +3,7 @@ package info.blockchain.wallet.prices
 import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.ApiCode
 import info.blockchain.wallet.prices.data.PriceDatum
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
 
 /**

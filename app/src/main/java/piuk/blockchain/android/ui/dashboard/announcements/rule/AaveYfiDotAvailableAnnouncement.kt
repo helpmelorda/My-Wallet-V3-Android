@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import android.content.res.Resources
 import androidx.annotation.VisibleForTesting
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementRule

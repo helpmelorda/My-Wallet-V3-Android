@@ -11,28 +11,27 @@ import com.blockchain.sunriver.models.XlmTransaction
 import com.blockchain.testutils.lumens
 import com.blockchain.testutils.rxInit
 import com.blockchain.testutils.stroops
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.anyOrNull
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.spy
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.verifyZeroInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
+import com.nhaarman.mockitokotlin2.doThrow
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.spy
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoValue
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`it throws`
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.mock
+import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test
+import org.spongycastle.asn1.cmc.CMCStatus.success
 import org.stellar.sdk.KeyPair
 import org.stellar.sdk.Transaction
 import org.stellar.sdk.responses.TransactionResponse
@@ -75,7 +74,7 @@ class XlmDataManagerTest {
             givenBalances("ANY" to 123.lumens())
         )
             .getBalance(XlmAccountReference("", "ANY"))
-            .testSingle() `should equal` 123.lumens()
+            .testSingle() `should be equal to` 123.lumens()
     }
 
     @Test
@@ -84,7 +83,7 @@ class XlmDataManagerTest {
             givenBalances("ANY" to 456.lumens())
         )
             .getBalance(XlmAccountReference("", "ANY"))
-            .testSingle() `should equal` 456.lumens()
+            .testSingle() `should be equal to` 456.lumens()
     }
 
     @Test
@@ -106,7 +105,7 @@ class XlmDataManagerTest {
             )
         )
             .getBalance()
-            .testSingle() `should equal` 456.lumens()
+            .testSingle() `should be equal to` 456.lumens()
     }
 
     @Test
@@ -134,7 +133,7 @@ class XlmDataManagerTest {
             feesFetcher = givenXlmFees(450.stroops())
         )
             .getMaxSpendableAfterFees(FeeType.Regular)
-            .testSingle() `should equal` 456.lumens() - 4.lumens() - 450.stroops()
+            .testSingle() `should be equal to` 456.lumens() - 4.lumens() - 450.stroops()
     }
 
     @Test
@@ -162,8 +161,8 @@ class XlmDataManagerTest {
         )
             .getBalanceAndMin()
             .testSingle().apply {
-                minimumBalance `should equal` 4.lumens()
-                balance `should equal` 456.lumens()
+                minimumBalance `should be equal to` 4.lumens()
+                balance `should be equal to` 456.lumens()
             }
     }
 
@@ -174,7 +173,7 @@ class XlmDataManagerTest {
             givenNoMetaData()
         )
             .getBalance()
-            .testSingle() `should equal` 0.lumens()
+            .testSingle() `should be equal to` 0.lumens()
     }
 
     @Test
@@ -202,8 +201,8 @@ class XlmDataManagerTest {
             .defaultAccount()
             .testSingle()
             .apply {
-                label `should equal` "Account #1"
-                accountId `should equal` "ADDRESS1"
+                label `should be equal to` "Account #1"
+                accountId `should be equal to` "ADDRESS1"
             }
     }
 
@@ -233,8 +232,8 @@ class XlmDataManagerTest {
             .toSingle()
             .testSingle()
             .apply {
-                label `should equal` "Account #1"
-                accountId `should equal` "ADDRESS1"
+                label `should be equal to` "Account #1"
+                accountId `should be equal to` "ADDRESS1"
             }
     }
 
@@ -263,8 +262,8 @@ class XlmDataManagerTest {
             .defaultAccount()
             .testSingle()
             .apply {
-                label `should equal` "Account #2"
-                accountId `should equal` "ADDRESS2"
+                label `should be equal to` "Account #2"
+                accountId `should be equal to` "ADDRESS2"
             }
     }
 
@@ -292,7 +291,7 @@ class XlmDataManagerTest {
         )
         val accountReference: XlmAccountReference = dataManager.defaultAccountReference().testSingle()
         val accountReferenceXlm: XlmAccountReference = dataManager.defaultAccount().testSingle()
-        accountReference `should equal` accountReferenceXlm
+        accountReference `should be equal to` accountReferenceXlm
     }
 
     @Test
@@ -321,8 +320,8 @@ class XlmDataManagerTest {
             .toSingle()
             .testSingle()
             .apply {
-                label `should equal` "Account #2"
-                accountId `should equal` "ADDRESS2"
+                label `should be equal to` "Account #2"
+                accountId `should be equal to` "ADDRESS2"
             }
     }
 
@@ -353,7 +352,7 @@ class XlmDataManagerTest {
             )
         )
             .getBalance()
-            .testSingle() `should equal` 20.lumens()
+            .testSingle() `should be equal to` 20.lumens()
     }
 
     @Test
@@ -384,10 +383,10 @@ class XlmDataManagerTest {
         )
         xlmDataManager
             .getBalance(XlmAccountReference("", "ADDRESS1"))
-            .testSingle() `should equal` 10.lumens()
+            .testSingle() `should be equal to` 10.lumens()
         xlmDataManager
             .getBalance(XlmAccountReference("", "ADDRESS2"))
-            .testSingle() `should equal` 20.lumens()
+            .testSingle() `should be equal to` 20.lumens()
     }
 }
 
@@ -415,8 +414,10 @@ class XlmDataManagerTransactionListTest {
     @Test
     fun `get transaction list from default account`() {
         givenXlmDataManager(
-            givenTransactions(1,
-                "GC24LNYWXIYYB6OGCMAZZ5RX6WPI2F74ZV7HNBV4ADALLXJRT7ZTLHP2" to getResponseList()),
+            givenTransactions(
+                1,
+                "GC24LNYWXIYYB6OGCMAZZ5RX6WPI2F74ZV7HNBV4ADALLXJRT7ZTLHP2" to getResponseList()
+            ),
             givenMetaDataPrompt(
                 XlmMetaData(
                     defaultAccountIndex = 0,
@@ -432,18 +433,21 @@ class XlmDataManagerTransactionListTest {
             )
         )
             .getTransactionList()
-            .testSingle() `should equal` getXlmList()
+            .testSingle() `should be equal to` getXlmList()
     }
 
     @Test
     fun `get transactions`() {
         givenXlmDataManager(
-            givenTransactions(1,
-                "GC24LNYWXIYYB6OGCMAZZ5RX6WPI2F74ZV7HNBV4ADALLXJRT7ZTLHP2" to getResponseList())
+            givenTransactions(
+                1,
+                "GC24LNYWXIYYB6OGCMAZZ5RX6WPI2F74ZV7HNBV4ADALLXJRT7ZTLHP2" to getResponseList()
+            )
         )
             .getTransactionList(
-                XlmAccountReference("", "GC24LNYWXIYYB6OGCMAZZ5RX6WPI2F74ZV7HNBV4ADALLXJRT7ZTLHP2"))
-            .testSingle() `should equal` getXlmList()
+                XlmAccountReference("", "GC24LNYWXIYYB6OGCMAZZ5RX6WPI2F74ZV7HNBV4ADALLXJRT7ZTLHP2")
+            )
+            .testSingle() `should be equal to` getXlmList()
     }
 
     private fun getXlmList(): List<XlmTransaction> = listOf(
@@ -470,23 +474,27 @@ class XlmDataManagerTransactionListTest {
     private fun getResponseList(): List<OperationResponse> {
         val mockIgnored: SetOptionsOperationResponse = mock()
         val mockCreate: CreateAccountOperationResponse = mock {
-            on { createdAt } `it returns` "createdAt"
-            on { startingBalance } `it returns` "10000"
-            on { transactionHash } `it returns` "transactionHash"
-            on { account } `it returns`
+            on { createdAt }.thenReturn("createdAt")
+            on { startingBalance }.thenReturn("10000")
+            on { transactionHash }.thenReturn("transactionHash")
+            on { account }.thenReturn(
                 "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI"
-            on { funder } `it returns`
+            )
+            on { funder }.thenReturn(
                 "GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR"
+            )
         }
         val mockPayment: PaymentOperationResponse = mock {
-            on { createdAt } `it returns` "createdAt"
-            on { amount } `it returns` "100"
-            on { transactionHash } `it returns` "transactionHash"
-            on { to } `it returns`
+            on { createdAt }.thenReturn("createdAt")
+            on { amount }.thenReturn("100")
+            on { transactionHash }.thenReturn("transactionHash")
+            on { to }.thenReturn(
                 "GBAHSNSG37BOGBS4GXUPMHZWJQ22WIOJQYORRBHTABMMU6SGSKDEAOPT"
-            on { from } `it returns`
+            )
+            on { from }.thenReturn(
                 "GC24LNYWXIYYB6OGCMAZZ5RX6WPI2F74ZV7HNBV4ADALLXJRT7ZTLHP2"
-            on { type } `it returns` "payment"
+            )
+            on { type }.thenReturn("payment")
         }
 
         return listOf(mockIgnored, mockCreate, mockPayment)
@@ -533,7 +541,7 @@ class XlmDataManagerSendTransactionTest {
         val eventLogger: EventLogger = mock()
         val lastTxUpdater: LastTxUpdater = givenLastTxUpdater()
         val transaction = mock<Transaction> {
-            on { hash() } `it returns` byteArrayOf(127, 128.toByte(), 255.toByte())
+            on { hash() }.thenReturn(byteArrayOf(127, 128.toByte(), 255.toByte()))
         }
         val horizonProxy: HorizonProxy = mock {
             on {
@@ -544,15 +552,18 @@ class XlmDataManagerSendTransactionTest {
                         )
                     ),
                     destinationAccountId = eq(
-                        "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3"),
+                        "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3"
+                    ),
                     amount = eq(199.456.lumens()),
                     memo = eq(org.stellar.sdk.Memo.none()),
                     timeout = any(),
                     perOperationFee = eq(256.stroops())
                 )
-            } `it returns` HorizonProxy.SendResult(
-                success = true,
-                transaction = transaction
+            }.thenReturn(
+                HorizonProxy.SendResult(
+                    success = true,
+                    transaction = transaction
+                )
             )
         }
         givenXlmDataManager(
@@ -588,7 +599,7 @@ class XlmDataManagerSendTransactionTest {
             .test()
             .assertNoErrors()
             .assertComplete()
-            .values().single().hash `should equal` "7F80FF"
+            .values().single().hash `should be equal to` "7F80FF"
 
         horizonProxy.verifyJustTheOneSendAttemptAndUpdate()
         verify(eventLogger).logEvent(any())
@@ -603,9 +614,11 @@ class XlmDataManagerSendTransactionTest {
         val horizonProxy: HorizonProxy = mock {
             on {
                 sendTransaction(any(), any(), any(), any(), any(), any())
-            } `it returns` HorizonProxy.SendResult(
-                success = false,
-                transaction = mock()
+            }.thenReturn(
+                HorizonProxy.SendResult(
+                    success = false,
+                    transaction = mock()
+                )
             )
         }
         val sendDetails = SendDetails(
@@ -639,7 +652,7 @@ class XlmDataManagerSendTransactionTest {
             sendDetails
         ).test()
             .assertComplete()
-            .values().single() `should equal`
+            .values().single() `should be equal to`
             SendFundsResult(
                 sendDetails = sendDetails,
                 errorCode = 1,
@@ -656,7 +669,7 @@ class XlmDataManagerSendTransactionTest {
         val eventLogger: EventLogger = mock()
         val lastTxUpdater: LastTxUpdater = givenLastTxUpdater()
         val transaction = mock<Transaction> {
-            on { hash() } `it returns` byteArrayOf(127, 128.toByte(), 255.toByte())
+            on { hash() }.thenReturn(byteArrayOf(127, 128.toByte(), 255.toByte()))
         }
         val horizonProxy: HorizonProxy = mock {
             on {
@@ -667,15 +680,18 @@ class XlmDataManagerSendTransactionTest {
                         )
                     ),
                     destinationAccountId = eq(
-                        "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3"),
+                        "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3"
+                    ),
                     amount = eq(199.456.lumens()),
                     memo = eq(org.stellar.sdk.Memo.none()),
                     timeout = any(),
                     perOperationFee = eq(256.stroops())
                 )
-            } `it returns` HorizonProxy.SendResult(
-                success = true,
-                transaction = transaction
+            }.thenReturn(
+                HorizonProxy.SendResult(
+                    success = true,
+                    transaction = transaction
+                )
             )
         }
         givenXlmDataManager(
@@ -712,7 +728,7 @@ class XlmDataManagerSendTransactionTest {
             .test()
             .assertNoErrors()
             .assertComplete()
-            .values().single().hash `should equal` "7F80FF"
+            .values().single().hash `should be equal to` "7F80FF"
 
         horizonProxy.verifyJustTheOneSendAttemptAndUpdate()
         verify(eventLogger).logEvent(any())
@@ -722,11 +738,11 @@ class XlmDataManagerSendTransactionTest {
     @Test
     fun `completes with failed update of last tx`() {
         val lastTxUpdater: LastTxUpdater = mock {
-            on { updateLastTxTime() } `it returns` Completable.error(Exception())
+            on { updateLastTxTime() }.thenReturn(Completable.error(Exception()))
         }
 
         val transaction = mock<Transaction> {
-            on { hash() } `it returns` byteArrayOf(127, 128.toByte(), 255.toByte())
+            on { hash() }.thenReturn(byteArrayOf(127, 128.toByte(), 255.toByte()))
         }
         val horizonProxy: HorizonProxy = mock {
             on {
@@ -737,15 +753,18 @@ class XlmDataManagerSendTransactionTest {
                         )
                     ),
                     destinationAccountId = eq(
-                        "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3"),
+                        "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3"
+                    ),
                     amount = eq(199.456.lumens()),
                     memo = eq(org.stellar.sdk.Memo.none()),
                     timeout = any(),
                     perOperationFee = eq(256.stroops())
                 )
-            } `it returns` HorizonProxy.SendResult(
-                success = true,
-                transaction = transaction
+            }.thenReturn(
+                HorizonProxy.SendResult(
+                    success = true,
+                    transaction = transaction
+                )
             )
         }
         givenXlmDataManager(
@@ -781,7 +800,7 @@ class XlmDataManagerSendTransactionTest {
             .test()
             .assertNoErrors()
             .assertComplete()
-            .values().single().hash `should equal` "7F80FF"
+            .values().single().hash `should be equal to` "7F80FF"
 
         horizonProxy.verifyJustTheOneSendAttemptAndUpdate()
         verify(lastTxUpdater).updateLastTxTime()
@@ -792,9 +811,11 @@ class XlmDataManagerSendTransactionTest {
         val horizonProxy: HorizonProxy = mock {
             on {
                 dryRunTransaction(any(), any(), any(), any(), any(), any())
-            } `it returns` HorizonProxy.SendResult(
-                success = false,
-                transaction = mock()
+            }.thenReturn(
+                HorizonProxy.SendResult(
+                    success = false,
+                    transaction = mock()
+                )
             )
         }
         val sendDetails = SendDetails(
@@ -826,7 +847,7 @@ class XlmDataManagerSendTransactionTest {
             sendDetails
         ).test()
             .assertComplete()
-            .values().single() `should equal`
+            .values().single() `should be equal to`
             SendFundsResult(
                 sendDetails = sendDetails,
                 errorCode = 1,
@@ -841,10 +862,12 @@ class XlmDataManagerSendTransactionTest {
         val horizonProxy: HorizonProxy = mock {
             on {
                 dryRunTransaction(any(), any(), any(), any(), any(), any())
-            } `it returns` HorizonProxy.SendResult(
-                success = false,
-                transaction = mock(),
-                failureReason = HorizonProxy.FailureReason.BadDestinationAccountId
+            }.thenReturn(
+                HorizonProxy.SendResult(
+                    success = false,
+                    transaction = mock(),
+                    failureReason = HorizonProxy.FailureReason.BadDestinationAccountId
+                )
             )
         }
         val sendDetails = SendDetails(
@@ -876,7 +899,7 @@ class XlmDataManagerSendTransactionTest {
             sendDetails
         ).test()
             .assertComplete()
-            .values().single() `should equal`
+            .values().single() `should be equal to`
             SendFundsResult(
                 sendDetails = sendDetails,
                 errorCode = 5,
@@ -889,8 +912,8 @@ class XlmDataManagerSendTransactionTest {
     @Test
     fun `can send from a specific account`() {
         val transaction = mock<Transaction> {
-            on { hash() } `it returns` byteArrayOf(0, 1, 2, 3, 255.toByte())
-            on { fee } `it returns` 101.stroops().toBigInteger().toLong()
+            on { hash() }.thenReturn(byteArrayOf(0, 1, 2, 3, 255.toByte()))
+            on { fee }.thenReturn(101.stroops().toBigInteger().toLong())
         }
         val horizonProxy: HorizonProxy = mock {
             on {
@@ -901,15 +924,18 @@ class XlmDataManagerSendTransactionTest {
                         )
                     ),
                     destinationAccountId = eq(
-                        "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3"),
+                        "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3"
+                    ),
                     amount = eq(1.23.lumens()),
                     memo = any(),
                     timeout = any(),
                     perOperationFee = eq(256.stroops())
                 )
-            } `it returns` HorizonProxy.SendResult(
-                success = true,
-                transaction = transaction
+            }.thenReturn(
+                HorizonProxy.SendResult(
+                    success = true,
+                    transaction = transaction
+                )
             )
         }
         val sendDetails = SendDetails(
@@ -950,7 +976,7 @@ class XlmDataManagerSendTransactionTest {
         ).test()
             .assertNoErrors()
             .assertComplete()
-            .values().single() `should equal`
+            .values().single() `should be equal to`
             SendFundsResult(
                 sendDetails = sendDetails,
                 errorCode = 0,
@@ -966,8 +992,8 @@ class XlmDataManagerSendTransactionTest {
     @Test
     fun `can dry run send from a specific account`() {
         val transaction = mock<Transaction> {
-            on { hash() } `it returns` byteArrayOf(0, 1, 2, 3, 255.toByte())
-            on { fee } `it returns` 1000.stroops().toBigInteger().toLong()
+            on { hash() }.thenReturn(byteArrayOf(0, 1, 2, 3, 255.toByte()))
+            on { fee }.thenReturn(1000.stroops().toBigInteger().toLong())
         }
         val horizonProxy: HorizonProxy = mock {
             on {
@@ -978,15 +1004,18 @@ class XlmDataManagerSendTransactionTest {
                         )
                     ),
                     destinationAccountId = eq(
-                        "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3"),
+                        "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3"
+                    ),
                     amount = eq(1.23.lumens()),
                     memo = any(),
                     perOperationFee = eq(500.stroops()),
                     timeout = any()
                 )
-            } `it returns` HorizonProxy.SendResult(
-                success = true,
-                transaction = transaction
+            }.thenReturn(
+                HorizonProxy.SendResult(
+                    success = true,
+                    transaction = transaction
+                )
             )
         }
         val sendDetails = SendDetails(
@@ -1021,7 +1050,7 @@ class XlmDataManagerSendTransactionTest {
         ).test()
             .assertNoErrors()
             .assertComplete()
-            .values().single() `should equal`
+            .values().single() `should be equal to`
             SendFundsResult(
                 sendDetails = sendDetails,
                 errorCode = 0,
@@ -1039,9 +1068,11 @@ class XlmDataManagerSendTransactionTest {
         val horizonProxy: HorizonProxy = mock {
             on {
                 sendTransaction(any(), any(), any(), any(), any(), any())
-            } `it returns` HorizonProxy.SendResult(
-                success = false,
-                failureReason = HorizonProxy.FailureReason.BadDestinationAccountId
+            }.thenReturn(
+                HorizonProxy.SendResult(
+                    success = false,
+                    failureReason = HorizonProxy.FailureReason.BadDestinationAccountId
+                )
             )
         }
         givenXlmDataManager(
@@ -1062,7 +1093,7 @@ class XlmDataManagerSendTransactionTest {
             .assertNoErrors()
             .assertComplete()
             .values().single().apply {
-                errorCode `should equal` 5
+                errorCode `should be equal to` 5
                 success `should be` false
             }
         horizonProxy.verifyJustTheOneSendAttemptAndUpdate()
@@ -1080,33 +1111,37 @@ class XlmDataManagerSendWithMemoTest {
     fun `includes supplied memo`() {
         val memoText = org.stellar.sdk.Memo.text("Hi, this is the memo to add")
         val transaction = mock<Transaction> {
-            on { hash() } `it returns` byteArrayOf(0, 1, 2, 3, 255.toByte())
-            on { fee } `it returns` 101.stroops().toBigInteger().toLong()
-            on { memo } `it returns` memoText
+            on { hash() }.thenReturn(byteArrayOf(0, 1, 2, 3, 255.toByte()))
+            on { fee }.thenReturn(101.stroops().toBigInteger().toLong())
+            on { memo }.thenReturn(memoText)
         }
         val horizonProxy: HorizonProxy = mock {
             on {
                 sendTransaction(any(), any(), any(), eq(memoText), any(), any())
-            } `it returns` HorizonProxy.SendResult(
-                success = true,
-                transaction = transaction
+            }.thenReturn(
+                HorizonProxy.SendResult(
+                    success = true,
+                    transaction = transaction
+                )
             )
         }
         val memo = Memo("")
 
         val memoMapper = mock<MemoMapper> {
-            on { mapMemo(memo) } `it returns` memoText
+            on { mapMemo(memo) }.thenReturn(memoText)
         }
-        val dataManager = spy(givenXlmDataManager(
-            horizonProxy,
-            mock(),
-            givenPrivateForPublic(
-                "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR" to
-                    "SCIB3NRLJR6BPQRF3WCSPBICSZIXNLGHKWDZZ32OA6TFOJJKWGNHOHIA"
-            ),
-            memoMapper
-        ))
-        whenever(dataManager.memoToEvent(memo)) `it returns` object : CustomEventBuilder("event") {}
+        val dataManager = spy(
+            givenXlmDataManager(
+                horizonProxy,
+                mock(),
+                givenPrivateForPublic(
+                    "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR" to
+                        "SCIB3NRLJR6BPQRF3WCSPBICSZIXNLGHKWDZZ32OA6TFOJJKWGNHOHIA"
+                ),
+                memoMapper
+            )
+        )
+        whenever(dataManager.memoToEvent(memo)).thenReturn(object : CustomEventBuilder("event") {})
 
         dataManager.sendFunds(
             SendDetails(
@@ -1120,7 +1155,6 @@ class XlmDataManagerSendWithMemoTest {
             .assertNoErrors()
             .assertComplete()
             .values().single().apply {
-                errorCode `should equal` 0
                 success `should be` true
                 transaction.memo `should be` memoText
             }
@@ -1131,21 +1165,23 @@ class XlmDataManagerSendWithMemoTest {
     fun `includes supplied memo on dry run`() {
         val memoId = org.stellar.sdk.Memo.id(1234L)
         val transaction = mock<Transaction> {
-            on { hash() } `it returns` byteArrayOf(0, 1, 2, 3, 255.toByte())
-            on { fee } `it returns` 101.stroops().toBigInteger().toLong()
-            on { memo } `it returns` memoId
+            on { hash() }.thenReturn(byteArrayOf(0, 1, 2, 3, 255.toByte()))
+            on { fee }.thenReturn(101.stroops().toBigInteger().toLong())
+            on { memo }.thenReturn(memoId)
         }
         val horizonProxy: HorizonProxy = mock {
             on {
                 dryRunTransaction(any(), any(), any(), eq(memoId), any(), any())
-            } `it returns` HorizonProxy.SendResult(
-                success = true,
-                transaction = transaction
+            }.thenReturn(
+                HorizonProxy.SendResult(
+                    success = true,
+                    transaction = transaction
+                )
             )
         }
         val memo = Memo("Hi, this is the memo to add", type = "id")
         val memoMapper = mock<MemoMapper> {
-            on { mapMemo(memo) } `it returns` memoId
+            on { mapMemo(memo) }.thenReturn(memoId)
         }
         givenXlmDataManager(
             horizonProxy,
@@ -1167,7 +1203,7 @@ class XlmDataManagerSendWithMemoTest {
             .assertNoErrors()
             .assertComplete()
             .values().single().apply {
-                errorCode `should equal` 0
+                errorCode `should be equal to` 0
                 success `should be` true
                 transaction.memo `should be` memoId
             }
@@ -1196,7 +1232,7 @@ private fun givenBalances(
 ): HorizonProxy {
     val horizonProxy: HorizonProxy = mock()
     balances.forEach { pair ->
-        whenever(horizonProxy.getBalance(pair.first)) `it returns` pair.second
+        whenever(horizonProxy.getBalance(pair.first)).thenReturn(pair.second)
     }
     return horizonProxy
 }
@@ -1206,7 +1242,7 @@ private fun givenBalancesAndMinimums(
 ): HorizonProxy {
     val horizonProxy: HorizonProxy = mock()
     balances.forEach { pair ->
-        whenever(horizonProxy.getBalanceAndMin(pair.first)) `it returns` pair.second
+        whenever(horizonProxy.getBalanceAndMin(pair.first)).thenReturn(pair.second)
     }
     return horizonProxy
 }
@@ -1216,46 +1252,43 @@ private fun givenTransactions(
     vararg transactions: Pair<String, List<OperationResponse>>
 ): HorizonProxy {
     val horizonProxy: HorizonProxy = mock()
-    val mockTx: TransactionResponse = mock { on { feeCharged } `it returns` fee }
+    val mockTx: TransactionResponse = mock { on { feeCharged }.thenReturn(fee) }
     transactions
         .forEach { pair ->
-            whenever(horizonProxy.getTransactionList(pair.first)) `it returns` pair.second
+            whenever(horizonProxy.getTransactionList(pair.first)).thenReturn(pair.second)
         }
-    whenever(horizonProxy.getTransaction(any())) `it returns` mockTx
-    return horizonProxy
-}
-
-private fun givenTransaction(
-    vararg transactions: Pair<String, TransactionResponse>
-): HorizonProxy {
-    val horizonProxy: HorizonProxy = mock()
-    transactions
-        .forEach { pair ->
-            whenever(horizonProxy.getTransaction(pair.first)) `it returns` pair.second
-        }
+    whenever(horizonProxy.getTransaction(any())).thenReturn(mockTx)
     return horizonProxy
 }
 
 private fun givenMetaDataMaybe(metaData: XlmMetaData): XlmMetaDataInitializer =
     mock {
-        on { initWalletMaybe } `it returns` Maybe.just(
-            metaData
-        ).subscribeOn(Schedulers.io())
+        on { initWalletMaybe }.thenReturn(
+            Maybe.just(
+                metaData
+            ).subscribeOn(Schedulers.io())
+        )
     }
 
 private fun givenMetaDataPrompt(metaData: XlmMetaData): XlmMetaDataInitializer =
     mock {
-        on { initWalletMaybePrompt } `it returns` Maybe.just(
-            metaData
-        ).subscribeOn(Schedulers.io())
+        on { initWalletMaybePrompt }.thenReturn(
+            Maybe.just(
+                metaData
+            ).subscribeOn(Schedulers.io())
+        )
     }
 
 private fun givenNoMetaData(): XlmMetaDataInitializer =
     mock {
-        on { initWalletMaybe } `it returns` Maybe.empty<XlmMetaData>()
-            .subscribeOn(Schedulers.io())
-        on { initWalletMaybePrompt } `it returns` Maybe.empty<XlmMetaData>()
-            .subscribeOn(Schedulers.io())
+        on { initWalletMaybe }.thenReturn(
+            Maybe.empty<XlmMetaData>()
+                .subscribeOn(Schedulers.io())
+        )
+        on { initWalletMaybePrompt }.thenReturn(
+            Maybe.empty<XlmMetaData>()
+                .subscribeOn(Schedulers.io())
+        )
     }
 
 private fun verifyNoInteractionsBeforeSubscribe(function: XlmDataManager.() -> Unit) {
@@ -1294,37 +1327,38 @@ private fun givenXlmDataManager(
         lastTxUpdater,
         eventLogger,
         urlFetcher(),
-        "")
+        ""
+    )
 }
 
 fun urlFetcher(): XlmHorizonUrlFetcher =
     mock {
-        on { xlmHorizonUrl(any()) } `it returns` Single.just("")
+        on { xlmHorizonUrl(any()) }.thenReturn(Single.just(""))
     }
 
 private fun givenLastTxUpdater(): LastTxUpdater =
     mock {
-        on { this.updateLastTxTime() } `it returns` Completable.complete()
+        on { this.updateLastTxTime() }.thenReturn(Completable.complete())
     }
 
 private fun givenTimeoutFetcher(timeout: Long): XlmTransactionTimeoutFetcher =
     mock {
-        on { this.transactionTimeout() } `it returns` Single.just(timeout)
+        on { this.transactionTimeout() }.thenReturn(Single.just(timeout))
     }
 
 private fun givenXlmFees(perOperationFee: CryptoValue): XlmFeesFetcher =
     mock {
-        on { this.operationFee(any()) } `it returns` Single.just(perOperationFee)
+        on { this.operationFee(any()) }.thenReturn(Single.just(perOperationFee))
     }
 
 private fun givenAllMemosMapToNone(): MemoMapper =
     mock {
-        on { mapMemo(anyOrNull()) } `it returns` org.stellar.sdk.Memo.none()
+        on { mapMemo(anyOrNull()) }.thenReturn(org.stellar.sdk.Memo.none())
     }
 
 private fun givenNoExpectedSecretAccess(): XlmSecretAccess =
     mock {
-        on { getPrivate(any(), any()) } `it throws` RuntimeException("Not expected")
+        on { getPrivate(any(), any()) }.doThrow(RuntimeException("Not expected"))
     }
 
 private fun givenPrivateForPublic(vararg pairs: Pair<String, String>): XlmSecretAccess {

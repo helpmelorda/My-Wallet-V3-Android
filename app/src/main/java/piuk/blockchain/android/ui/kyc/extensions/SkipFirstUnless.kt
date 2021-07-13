@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.kyc.extensions
 
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 
 fun <T> Observable<T>.skipFirstUnless(predicate: (T) -> Boolean): Observable<T> =
     this.publish { upstream ->

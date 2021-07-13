@@ -16,10 +16,10 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Singles
-import io.reactivex.rxkotlin.zipWith
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.AssetAction
@@ -89,7 +89,7 @@ class CustodialTradingAccount(
 
     override val accountBalance: Single<Money>
         get() = custodialWalletManager.getTotalBalanceForAsset(asset)
-            .toSingle(CryptoValue.zero(asset))
+            .defaultIfEmpty(CryptoValue.zero(asset))
             .onErrorReturn {
                 Timber.d("Unable to get custodial trading total balance: $it")
                 CryptoValue.zero(asset)
@@ -99,7 +99,7 @@ class CustodialTradingAccount(
 
     override val actionableBalance: Single<Money>
         get() = custodialWalletManager.getActionableBalanceForAsset(asset)
-            .toSingle(CryptoValue.zero(asset))
+            .defaultIfEmpty(CryptoValue.zero(asset))
             .onErrorReturn {
                 Timber.d("Unable to get custodial trading actionable balance: $it")
                 CryptoValue.zero(asset)
@@ -109,7 +109,7 @@ class CustodialTradingAccount(
 
     override val pendingBalance: Single<Money>
         get() = custodialWalletManager.getPendingBalanceForAsset(asset)
-            .toSingle(CryptoValue.zero(asset))
+            .defaultIfEmpty(CryptoValue.zero(asset))
             .map { it }
 
     override val activity: Single<ActivitySummaryList>

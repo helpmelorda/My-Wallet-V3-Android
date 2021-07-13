@@ -6,7 +6,7 @@ import com.blockchain.serialization.toMoshiJson
 import com.blockchain.testutils.`should be assignable from`
 import com.blockchain.testutils.getStringFromResource
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class XlmMetaDataSerializationTest {
@@ -26,14 +26,14 @@ class XlmMetaDataSerializationTest {
         XlmMetaData::class.fromMoshiJson(getStringFromResource("metadata/xlm_metadata.json"))
             .apply {
                 defaultAccountIndex `should be` 0
-                accounts `should equal` listOf(
+                accounts `should be equal to` listOf(
                     XlmAccount(
                         "GBCRNVZPJFDBF3JECAXOTD2LTAQMLHVYJUV5IEGYJ5H73TA3EOW7RZJY",
                         label = "My Stellar Wallet",
                         archived = false
                     )
                 )
-                transactionNotes `should equal` emptyMap<String, String>()
+                transactionNotes `should be equal to` emptyMap<String, String>()
             }
     }
 
@@ -42,7 +42,7 @@ class XlmMetaDataSerializationTest {
         XlmMetaData::class.fromMoshiJson(getStringFromResource("metadata/xlm_metadata_2.json"))
             .apply {
                 defaultAccountIndex `should be` 1
-                accounts `should equal` listOf(
+                accounts `should be equal to` listOf(
                     XlmAccount(
                         "GBNPUQCB2UY7YXBKZZYMRXDH3WMVD6XOGOHAU5U4WIXOPHKN3TRBXD2Z",
                         label = "My Old Stellar Wallet",
@@ -54,7 +54,7 @@ class XlmMetaDataSerializationTest {
                         archived = false
                     )
                 )
-                transactionNotes `should equal` mapOf(
+                transactionNotes `should be equal to` mapOf(
                     "tx1" to "something",
                     "tx2" to "something else"
                 )
@@ -66,7 +66,7 @@ class XlmMetaDataSerializationTest {
         XlmMetaData::class.fromMoshiJson(getStringFromResource("metadata/xlm_metadata_with_missing_values.json"))
             .apply {
                 defaultAccountIndex `should be` 0
-                accounts `should equal` listOf(
+                accounts `should be equal to` listOf(
                     XlmAccount(
                         "GBNPUQCB2UY7YXBKZZYMRXDH3WMVD6XOGOHAU5U4WIXOPHKN3TRBXD2Z",
                         label = null,
@@ -126,5 +126,5 @@ private fun String.assertJsonRoundTrip() {
 }
 
 private fun XlmMetaData.assertJsonRoundTrip() {
-    XlmMetaData::class.fromMoshiJson(toMoshiJson()) `should equal` this
+    XlmMetaData::class.fromMoshiJson(toMoshiJson()) `should be equal to` this
 }

@@ -2,7 +2,7 @@ package com.blockchain.api
 
 import com.blockchain.api.wallet.WalletApiInterface
 import com.blockchain.api.wallet.data.WalletSettingsDto
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 class WalletSettingsService internal constructor(
     private val api: WalletApiInterface,

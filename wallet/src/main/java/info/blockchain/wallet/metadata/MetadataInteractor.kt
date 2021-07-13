@@ -4,12 +4,11 @@ import info.blockchain.wallet.crypto.AESUtil
 import info.blockchain.wallet.metadata.data.MetadataBody
 import info.blockchain.wallet.util.FormatsUtil
 import info.blockchain.wallet.util.MetadataUtil
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.functions.Function
-import io.reactivex.rxkotlin.zipWith
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import org.json.JSONException
 import org.spongycastle.crypto.CryptoException
 import org.spongycastle.util.encoders.Base64
@@ -74,13 +73,11 @@ class MetadataInteractor(
             .toMaybe()
             .map {
                 decryptMetadata(metadata, it.payload)
-            }.onErrorResumeNext(
-                Function {
-                    if (it is HttpException && it.code() == 404) // haven't been created
-                        Maybe.empty()
-                    else Maybe.error(it)
-                }
-            )
+            }.onErrorResumeNext {
+                if (it is HttpException && it.code() == 404) // haven't been created
+                    Maybe.empty()
+                else Maybe.error(it)
+            }
     }
 
     private fun decryptMetadata(metadata: Metadata, payload: String): String =

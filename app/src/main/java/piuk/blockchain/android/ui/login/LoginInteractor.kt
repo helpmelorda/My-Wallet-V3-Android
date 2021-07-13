@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.login
 
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthService

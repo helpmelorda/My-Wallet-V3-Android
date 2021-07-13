@@ -3,14 +3,13 @@ package piuk.blockchain.android.coincore.impl
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import io.reactivex.Maybe
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.coincore.AssetAction
@@ -274,16 +273,16 @@ class CustodialTradingAccountTest {
         interest: Boolean,
         supportedFiat: List<String>
     ) {
-        whenever(identity.isEligibleFor(Feature.SimpleBuy)).itReturns(Single.just(simpleBuy))
+        whenever(identity.isEligibleFor(Feature.SimpleBuy)).thenReturn(Single.just(simpleBuy))
         val interestFeature = Feature.Interest(testAsset)
-        whenever(identity.isEligibleFor(interestFeature)).itReturns(Single.just(interest))
+        whenever(identity.isEligibleFor(interestFeature)).thenReturn(Single.just(interest))
 
         whenever(custodialManager.getTotalBalanceForAsset(testAsset))
-            .itReturns(Maybe.just(accountBalance))
+            .thenReturn(Maybe.just(accountBalance))
         whenever(custodialManager.getActionableBalanceForAsset(testAsset))
-            .itReturns(Maybe.just(actionableBalance))
+            .thenReturn(Maybe.just(actionableBalance))
         whenever(custodialManager.getSupportedFundsFiats())
-            .itReturns(Single.just(supportedFiat))
+            .thenReturn(Single.just(supportedFiat))
     }
 
     companion object {

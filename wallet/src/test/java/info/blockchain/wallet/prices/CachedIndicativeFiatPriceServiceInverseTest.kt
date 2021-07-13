@@ -1,12 +1,12 @@
 package info.blockchain.wallet.prices
 
 import com.blockchain.testutils.rxInit
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.schedulers.TestScheduler
-import org.amshove.kluent.`should equal`
+import io.reactivex.rxjava3.schedulers.TestScheduler
+import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test
 import java.math.BigDecimal
@@ -32,9 +32,9 @@ class CachedIndicativeFiatPriceServiceInverseTest {
             .indicativeRateStream(fromFiat = "GBP", to = CryptoCurrency.BTC)
             .assertSingle()
             .apply {
-                rate `should equal` BigDecimal.ONE.divide(99.toBigDecimal(), 8, RoundingMode.HALF_UP)
-                from `should equal` "GBP"
-                to `should equal` CryptoCurrency.BTC
+                rate `should be equal to` BigDecimal.ONE.divide(99.toBigDecimal(), 8, RoundingMode.HALF_UP)
+                from `should be equal to` "GBP"
+                to `should be equal to` CryptoCurrency.BTC
             }
         mockPriceApi.verifyNumberOfApiCalls(1)
     }

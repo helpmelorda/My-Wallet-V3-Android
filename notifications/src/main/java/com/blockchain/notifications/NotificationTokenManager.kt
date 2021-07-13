@@ -6,10 +6,10 @@ import com.blockchain.preferences.NotificationPrefs
 import com.google.common.base.Optional
 import com.google.firebase.iid.FirebaseInstanceId
 import info.blockchain.wallet.payload.PayloadManager
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.androidcore.data.access.AuthEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import timber.log.Timber

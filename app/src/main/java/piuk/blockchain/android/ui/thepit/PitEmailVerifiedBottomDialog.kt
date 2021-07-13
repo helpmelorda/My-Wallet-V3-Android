@@ -6,8 +6,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import piuk.blockchain.android.util.throttledClicks
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.databinding.PitEmailVerifiedBottomDialogBinding
 import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
 import piuk.blockchain.android.util.gone

@@ -2,7 +2,7 @@ package com.blockchain.network.websocket
 
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 
 inline fun <reified OUTGOING : Any, reified INCOMING : Any> WebSocket<String, String>.toJsonSocket(
     moshi: Moshi

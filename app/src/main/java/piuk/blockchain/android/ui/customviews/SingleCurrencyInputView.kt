@@ -10,8 +10,8 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import piuk.blockchain.android.databinding.EnterFiatCryptoLayoutBinding

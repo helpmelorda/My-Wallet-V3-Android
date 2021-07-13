@@ -8,8 +8,8 @@ import info.blockchain.balance.Money
 import info.blockchain.wallet.bch.BchMainNetParams
 import info.blockchain.wallet.bch.CashAddress
 import info.blockchain.wallet.coin.GenericMetadataAccount
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import org.bitcoinj.core.LegacyAddress
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.CryptoAccount

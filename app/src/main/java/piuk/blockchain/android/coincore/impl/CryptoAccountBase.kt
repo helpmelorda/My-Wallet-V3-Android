@@ -11,9 +11,9 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.total
 import info.blockchain.wallet.multiaddress.TransactionSummary
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.zipWith
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.ActivitySummaryList

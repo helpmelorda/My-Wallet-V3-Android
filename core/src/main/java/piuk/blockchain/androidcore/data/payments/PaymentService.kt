@@ -9,8 +9,8 @@ import info.blockchain.wallet.payload.model.Utxo
 import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.Payment
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.annotations.WebRequest
 import java.math.BigInteger
 import java.util.HashMap

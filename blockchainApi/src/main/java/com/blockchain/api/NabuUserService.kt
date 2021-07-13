@@ -2,7 +2,7 @@ package com.blockchain.api
 
 import com.blockchain.api.nabu.NabuUserApiInterface
 import com.blockchain.api.nabu.data.InterestEligibilityResponse
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import java.util.Locale
 
 data class InterestEligibility(

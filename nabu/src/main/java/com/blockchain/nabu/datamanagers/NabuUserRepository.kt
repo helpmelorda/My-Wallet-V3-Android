@@ -1,8 +1,8 @@
 package com.blockchain.nabu.datamanagers
 
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import io.reactivex.Maybe
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
 
 private const val CACHE_LIFETIME = 2 * 60 * 1000
 class NabuUserRepository(private val nabuDataUserProvider: NabuDataUserProvider) {

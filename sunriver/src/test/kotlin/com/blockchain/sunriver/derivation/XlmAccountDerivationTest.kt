@@ -1,7 +1,7 @@
 package com.blockchain.sunriver.derivation
 
 import io.github.novacrypto.bip39.SeedCalculator
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 /**
@@ -13,8 +13,8 @@ class XlmAccountDerivationTest {
     fun `case 1 - 12 words`() {
         derive("illness spike retreat truth genius clock brain pass fit cave bargain toe")
             .apply {
-                accountId `should equal` "GDRXE2BQUC3AZNPVFSCEZ76NJ3WWL25FYFK6RGZGIEKWE4SOOHSUJUJ6"
-                secret `should equal` "SBGWSG6BTNCKCOB3DIFBGCVMUPQFYPA2G4O34RMTB343OYPXU5DJDVMN"
+                accountId `should be equal to` "GDRXE2BQUC3AZNPVFSCEZ76NJ3WWL25FYFK6RGZGIEKWE4SOOHSUJUJ6"
+                secret `should be equal to` "SBGWSG6BTNCKCOB3DIFBGCVMUPQFYPA2G4O34RMTB343OYPXU5DJDVMN"
             }
     }
 
@@ -25,8 +25,8 @@ class XlmAccountDerivationTest {
                 "fire useful arch jewel impose vague theory cushion top"
         )
             .apply {
-                accountId `should equal` "GAVXVW5MCK7Q66RIBWZZKZEDQTRXWCZUP4DIIFXCCENGW2P6W4OA34RH"
-                secret `should equal` "SAKS7I2PNDBE5SJSUSU2XLJ7K5XJ3V3K4UDFAHMSBQYPOKE247VHAGDB"
+                accountId `should be equal to` "GAVXVW5MCK7Q66RIBWZZKZEDQTRXWCZUP4DIIFXCCENGW2P6W4OA34RH"
+                secret `should be equal to` "SAKS7I2PNDBE5SJSUSU2XLJ7K5XJ3V3K4UDFAHMSBQYPOKE247VHAGDB"
             }
     }
 
@@ -37,8 +37,8 @@ class XlmAccountDerivationTest {
                 "thunder author capable act festival slice deposit sauce coconut afford frown better"
         )
             .apply {
-                accountId `should equal` "GC3MMSXBWHL6CPOAVERSJITX7BH76YU252WGLUOM5CJX3E7UCYZBTPJQ"
-                secret `should equal` "SAEWIVK3VLNEJ3WEJRZXQGDAS5NVG2BYSYDFRSH4GKVTS5RXNVED5AX7"
+                accountId `should be equal to` "GC3MMSXBWHL6CPOAVERSJITX7BH76YU252WGLUOM5CJX3E7UCYZBTPJQ"
+                secret `should be equal to` "SAEWIVK3VLNEJ3WEJRZXQGDAS5NVG2BYSYDFRSH4GKVTS5RXNVED5AX7"
             }
     }
 
@@ -49,8 +49,8 @@ class XlmAccountDerivationTest {
                 "method loan turn phrase state blanket interest dry amazing dress blast tube",
             passphrase = "p4ssphr4se"
         ).apply {
-            accountId `should equal` "GDAHPZ2NSYIIHZXM56Y36SBVTV5QKFIZGYMMBHOU53ETUSWTP62B63EQ"
-            secret `should equal` "SAFWTGXVS7ELMNCXELFWCFZOPMHUZ5LXNBGUVRCY3FHLFPXK4QPXYP2X"
+            accountId `should be equal to` "GDAHPZ2NSYIIHZXM56Y36SBVTV5QKFIZGYMMBHOU53ETUSWTP62B63EQ"
+            secret `should be equal to` "SAFWTGXVS7ELMNCXELFWCFZOPMHUZ5LXNBGUVRCY3FHLFPXK4QPXYP2X"
         }
     }
 
@@ -62,8 +62,8 @@ class XlmAccountDerivationTest {
             passphrase = "p4ssphr4se",
             account = 1
         ).apply {
-            accountId `should equal` "GDY47CJARRHHL66JH3RJURDYXAMIQ5DMXZLP3TDAUJ6IN2GUOFX4OJOC"
-            secret `should equal` "SBQPDFUGLMWJYEYXFRM5TQX3AX2BR47WKI4FDS7EJQUSEUUVY72MZPJF"
+            accountId `should be equal to` "GDY47CJARRHHL66JH3RJURDYXAMIQ5DMXZLP3TDAUJ6IN2GUOFX4OJOC"
+            secret `should be equal to` "SBQPDFUGLMWJYEYXFRM5TQX3AX2BR47WKI4FDS7EJQUSEUUVY72MZPJF"
         }
     }
 }

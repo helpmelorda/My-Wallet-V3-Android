@@ -4,7 +4,7 @@ import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.Seed
 import com.blockchain.wallet.SeedAccess
 import com.blockchain.wallet.SeedAccessWithoutPrompt
-import io.reactivex.Maybe
+import io.reactivex.rxjava3.core.Maybe
 
 internal class PromptingSeedAccessAdapter(
     seedAccessWithoutPrompt: SeedAccessWithoutPrompt,

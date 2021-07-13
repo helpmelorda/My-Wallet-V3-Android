@@ -3,7 +3,7 @@ package com.blockchain.nabu.datamanagers
 import com.blockchain.nabu.Authenticator
 import com.blockchain.api.TradingBalanceMap
 import com.blockchain.api.CustodialBalanceService
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 class BalanceProviderImpl(
     private val balanceService: CustodialBalanceService,

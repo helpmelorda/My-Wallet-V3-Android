@@ -1,6 +1,6 @@
 package com.blockchain.rx
 
-import io.reactivex.Maybe
+import io.reactivex.rxjava3.core.Maybe
 import java.util.concurrent.atomic.AtomicReference
 
 /**

@@ -31,9 +31,9 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import java.io.Serializable
 import java.math.BigDecimal
 import java.math.BigInteger

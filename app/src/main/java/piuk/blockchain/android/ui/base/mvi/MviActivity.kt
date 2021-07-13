@@ -6,8 +6,8 @@ import android.os.Bundle
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import timber.log.Timber

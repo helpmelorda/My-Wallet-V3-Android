@@ -1,7 +1,7 @@
 package com.blockchain.ui.password
 
 import android.content.Context
-import io.reactivex.Maybe
+import io.reactivex.rxjava3.core.Maybe
 
 interface SecondPasswordHandler {
 

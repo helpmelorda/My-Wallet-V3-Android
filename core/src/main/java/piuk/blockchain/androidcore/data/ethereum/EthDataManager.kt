@@ -15,10 +15,10 @@ import info.blockchain.wallet.ethereum.data.EthTransaction
 import info.blockchain.wallet.ethereum.data.TransactionState
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.spongycastle.util.encoders.Hex
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Address
@@ -180,7 +180,7 @@ class EthDataManager(
         ethDataStore.ethWallet?.account?.address?.let {
             ethAccountApi.getLastEthTransaction(listOf(it)).map { tx ->
                 tx.state.toLocalState() == TransactionState.PENDING
-            }.defaultIfEmpty(false).toSingle()
+            }.defaultIfEmpty(false)
         } ?: Single.just(false)
 
     /*
@@ -405,7 +405,7 @@ class EthDataManager(
                     needsSave = true
                 }
                 ethWallet to needsSave
-            }.toSingle()
+            }
 
     fun save(): Completable =
         metadataManager.saveToMetadata(

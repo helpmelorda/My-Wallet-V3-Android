@@ -1,9 +1,9 @@
 package com.blockchain.sunriver
 
 import org.amshove.kluent.`should be instance of`
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
-import org.amshove.kluent.`should throw the Exception`
+import org.amshove.kluent.`should throw`
 import org.amshove.kluent.`with message`
 import org.junit.Test
 import org.stellar.sdk.Memo
@@ -16,7 +16,7 @@ class MemoMapperTest {
 
     @Test
     fun `null memo`() {
-        MemoMapper().mapMemo(null) `should equal` Memo.none()
+        MemoMapper().mapMemo(null) `should be equal to` Memo.none()
     }
 
     @Test
@@ -24,7 +24,7 @@ class MemoMapperTest {
         val memo = createMemo("Hello, test memo", type = "text")
         memo `should not be` null
         memo `should be instance of` MemoText::class.java
-        (memo as MemoText).text `should equal` "Hello, test memo"
+        (memo as MemoText).text `should be equal to` "Hello, test memo"
     }
 
     @Test
@@ -32,7 +32,7 @@ class MemoMapperTest {
         val memo = createMemo("Hello, test memo, with null")
         memo `should not be` null
         memo `should be instance of` MemoText::class.java
-        (memo as MemoText).text `should equal` "Hello, test memo, with null"
+        (memo as MemoText).text `should be equal to` "Hello, test memo, with null"
     }
 
     @Test
@@ -40,7 +40,7 @@ class MemoMapperTest {
         val memo = createMemo("9871230892735", type = "id")
         memo `should not be` null
         memo `should be instance of` MemoId::class.java
-        (memo as MemoId).id `should equal` 9871230892735L
+        (memo as MemoId).id `should be equal to` 9871230892735L
     }
 
     @Test
@@ -48,7 +48,8 @@ class MemoMapperTest {
         val memo = createMemo("0102030405060707020212351a8e0d9fffff0f8f7f6f5f5f24f5f67f2f2f63fa", type = "hash")
         memo `should not be` null
         memo `should be instance of` MemoHash::class.java
-        (memo as MemoHash).hexValue `should equal` "0102030405060707020212351a8e0d9fffff0f8f7f6f5f5f24f5f67f2f2f63fa"
+        (memo as MemoHash).hexValue `should be equal to`
+            "0102030405060707020212351a8e0d9fffff0f8f7f6f5f5f24f5f67f2f2f63fa"
     }
 
     @Test
@@ -56,7 +57,7 @@ class MemoMapperTest {
         val memo = createMemo("0102030405060707020212351a8e0d9fffff0f8f7f6f5f5f24f5f67f2f2f63fa", type = "return")
         memo `should not be` null
         memo `should be instance of` MemoReturnHash::class.java
-        (memo as MemoReturnHash).hexValue `should equal`
+        (memo as MemoReturnHash).hexValue `should be equal to`
             "0102030405060707020212351a8e0d9fffff0f8f7f6f5f5f24f5f67f2f2f63fa"
     }
 
@@ -64,32 +65,32 @@ class MemoMapperTest {
     fun `with unknown specified type should throw`() {
         {
             MemoMapper().mapMemo(
-                com.blockchain.sunriver.Memo(
+                Memo(
                     value = "Hello, test memo",
                     type = "unknown"
                 )
             )
-        } `should throw the Exception` IllegalArgumentException::class `with message`
+        } `should throw` IllegalArgumentException::class `with message`
             "Only null, text, id, hash and return are supported, not unknown"
     }
 
     @Test
     fun `Map none`() {
-        MemoMapper().mapMemo(com.blockchain.sunriver.Memo.None) `should equal` Memo.none()
+        MemoMapper().mapMemo(com.blockchain.sunriver.Memo.None) `should be equal to` Memo.none()
     }
 
     @Test
     fun `Map blank text`() {
-        MemoMapper().mapMemo(com.blockchain.sunriver.Memo(value = "   ", type = "text")) `should equal` Memo.none()
+        MemoMapper().mapMemo(Memo(value = "   ", type = "text")) `should be equal to` Memo.none()
     }
 
     @Test
     fun `Map blank id`() {
-        MemoMapper().mapMemo(com.blockchain.sunriver.Memo(value = "   ", type = "id")) `should equal` Memo.none()
+        MemoMapper().mapMemo(Memo(value = "   ", type = "id")) `should be equal to` Memo.none()
     }
 
     private fun createMemo(value: String, type: String? = null) = MemoMapper().mapMemo(
-        com.blockchain.sunriver.Memo(
+        Memo(
             value = value,
             type = type
         )

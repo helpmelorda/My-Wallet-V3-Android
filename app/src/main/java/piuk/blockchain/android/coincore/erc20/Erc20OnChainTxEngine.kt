@@ -7,9 +7,9 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.api.data.FeeOptions
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Singles
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 import org.web3j.crypto.RawTransaction
 import org.web3j.utils.Convert
 import piuk.blockchain.android.coincore.AssetAction

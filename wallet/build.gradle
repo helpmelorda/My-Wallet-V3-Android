@@ -1,7 +1,6 @@
 apply plugin: 'java-library'
 apply plugin: 'kotlin'
 apply from: 'integrationTest.gradle'
-apply from: '../quality/jacocoKtLibrary.gradle'
 apply from: '../quality/ktlint.gradle'
 
 group = 'info.blockchain'
@@ -68,7 +67,7 @@ dependencies {
     implementation Libraries.koin
 
     // Rx
-    implementation Libraries.rxReplayShare
+    implementation Libraries.rxReplayShareKotlin
 
     // Testing
     testImplementation project(':testutils')

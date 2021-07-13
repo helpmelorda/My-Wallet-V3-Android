@@ -1,10 +1,10 @@
 package com.blockchain.network.websocket
 
-import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockitokotlin2.mock
 import com.squareup.moshi.Moshi
-import io.reactivex.Observable
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`should equal`
+import io.reactivex.rxjava3.core.Observable
+
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class MoshiJsonWebSocketReceiveDecoratorTest {
@@ -16,15 +16,17 @@ class MoshiJsonWebSocketReceiveDecoratorTest {
     @Test
     fun `incoming message is formatted from json`() {
         val inner = mock<WebSocketReceive<String>> {
-            on { responses } `it returns` Observable.just(
-                "{\"fieldC\":\"Message1\",\"fieldD\":1234}",
-                "{\"fieldC\":\"Message2\",\"fieldD\":5678}"
+            on { responses }.thenReturn(
+                Observable.just(
+                    "{\"fieldC\":\"Message1\",\"fieldD\":1234}",
+                    "{\"fieldC\":\"Message2\",\"fieldD\":5678}"
+                )
             )
         }
         inner.toJsonReceive<TypeIn>(moshi)
             .responses
             .test()
-            .values() `should equal`
+            .values() `should be equal to`
             listOf(
                 TypeIn(fieldC = "Message1", fieldD = 1234),
                 TypeIn(fieldC = "Message2", fieldD = 5678)

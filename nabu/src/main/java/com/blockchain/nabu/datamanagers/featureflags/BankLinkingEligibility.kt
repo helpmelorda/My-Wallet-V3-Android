@@ -3,7 +3,7 @@ package com.blockchain.nabu.datamanagers.featureflags
 import android.os.Build
 import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.remoteconfig.FeatureFlag
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 interface BankLinkingEnabledProvider {
     fun supportedBankPartners(): Single<List<BankPartner>>

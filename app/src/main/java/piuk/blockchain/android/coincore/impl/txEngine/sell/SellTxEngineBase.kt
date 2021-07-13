@@ -13,9 +13,9 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.FiatAccount
 import piuk.blockchain.android.coincore.NullAddress

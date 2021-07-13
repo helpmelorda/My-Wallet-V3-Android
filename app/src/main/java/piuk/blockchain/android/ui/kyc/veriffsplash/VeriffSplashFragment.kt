@@ -24,7 +24,7 @@ import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_GOLD_UNAVAILABLE_SUPPORT
 import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_KYC_SUPPORTED_COUNTRIES_LIST
 import com.blockchain.veriff.VeriffApplicantAndToken
 import com.blockchain.veriff.VeriffLauncher
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType

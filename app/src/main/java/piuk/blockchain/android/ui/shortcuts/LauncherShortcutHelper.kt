@@ -8,8 +8,8 @@ import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.annotation.RequiresApi
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.core.KoinComponent
 import org.koin.core.get
 import piuk.blockchain.android.R

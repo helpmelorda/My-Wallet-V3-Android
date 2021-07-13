@@ -9,9 +9,9 @@ import info.blockchain.wallet.ethereum.data.EthLatestBlock
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthPushTxRequest
 import info.blockchain.wallet.ethereum.data.EthTransaction
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 
 class EthAccountApi(private val apiCode: ApiCode) {
 

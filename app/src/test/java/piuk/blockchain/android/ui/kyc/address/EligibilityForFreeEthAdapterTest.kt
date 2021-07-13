@@ -5,10 +5,10 @@ import piuk.blockchain.android.ui.getBlankNabuUser
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.TierLevels
 import com.blockchain.nabu.NabuToken
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Single
-import org.amshove.kluent.`should equal to`
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Single
+import org.amshove.kluent.`should be equal to`
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -47,7 +47,7 @@ class EligibilityForFreeEthAdapterTest {
         val testEligibleObserver = eligibilityForFreeEthAdapter.isEligible().test()
 
         testEligibleObserver.values().single().apply {
-            this `should equal to` false
+            this `should be equal to` false
         }
     }
 
@@ -67,7 +67,7 @@ class EligibilityForFreeEthAdapterTest {
         val testEligibleObserver = eligibilityForFreeEthAdapter.isEligible().test()
 
         testEligibleObserver.values().single().apply {
-            this `should equal to` false
+            this `should be equal to` false
         }
     }
 
@@ -87,7 +87,7 @@ class EligibilityForFreeEthAdapterTest {
         val testEligibleObserver = eligibilityForFreeEthAdapter.isEligible().test()
 
         testEligibleObserver.values().single().apply {
-            this `should equal to` false
+            this `should be equal to` false
         }
     }
 
@@ -107,7 +107,7 @@ class EligibilityForFreeEthAdapterTest {
         val testEligibleObserver = eligibilityForFreeEthAdapter.isEligible().test()
 
         testEligibleObserver.values().single().apply {
-            this `should equal to` true
+            this `should be equal to` true
         }
     }
 }

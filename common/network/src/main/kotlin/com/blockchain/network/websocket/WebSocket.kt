@@ -1,7 +1,7 @@
 package com.blockchain.network.websocket
 
-import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.Disposable
 
 sealed class ConnectionEvent {
 

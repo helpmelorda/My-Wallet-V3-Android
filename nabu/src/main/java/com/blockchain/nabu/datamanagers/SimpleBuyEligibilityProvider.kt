@@ -4,7 +4,7 @@ import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.rx.ParameteredSingleTimedCacheRequest
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 interface SimpleBuyEligibilityProvider {
     val defCurrency: String

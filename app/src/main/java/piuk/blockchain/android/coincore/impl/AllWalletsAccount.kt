@@ -4,7 +4,7 @@ import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.AssetAction
@@ -45,7 +45,7 @@ class AllWalletsAccount(
         allAccounts().flattenAsObservable { it }
             .flatMapSingle { it.fiatBalance(fiatCurrency, exchangeRates) }
             .reduce { a, v -> a + v }
-            .toSingle(FiatValue.zero(fiatCurrency))
+            .defaultIfEmpty(FiatValue.zero(fiatCurrency))
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.error(NotImplementedError("No receive address for All Wallets meta account"))
@@ -62,7 +62,7 @@ class AllWalletsAccount(
                     .onErrorResumeNext { Single.just(emptyList()) }
             }
             .reduce { a, l -> a + l }
-            .toSingle(emptyList())
+            .defaultIfEmpty(emptyList())
             .map { it.distinct() }
             .map { it.sorted() }
 }

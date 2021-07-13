@@ -13,7 +13,7 @@ import com.blockchain.sunriver.fromStellarUri
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.isErc20
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import info.blockchain.wallet.util.FormatsUtil
 import org.bitcoinj.uri.BitcoinURI
 import piuk.blockchain.android.R

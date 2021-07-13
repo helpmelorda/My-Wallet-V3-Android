@@ -8,9 +8,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.wallet.api.data.Settings.Companion.UNIT_FIAT
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.parcelize.Parcelize
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.FragmentSimpleBuyCurrencySelectionBinding

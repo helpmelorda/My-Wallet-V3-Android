@@ -10,7 +10,7 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.koin.ssoLoginFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R

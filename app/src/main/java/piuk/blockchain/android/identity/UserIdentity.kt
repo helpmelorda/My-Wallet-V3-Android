@@ -1,7 +1,7 @@
 package piuk.blockchain.android.identity
 
 import info.blockchain.balance.AssetInfo
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 interface UserIdentity {
     fun isEligibleFor(feature: Feature): Single<Boolean>

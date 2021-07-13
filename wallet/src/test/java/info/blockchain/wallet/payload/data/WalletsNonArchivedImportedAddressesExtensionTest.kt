@@ -1,6 +1,6 @@
 package info.blockchain.wallet.payload.data
 
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class WalletsNonArchivedImportedAddressesExtensionTest {
@@ -13,21 +13,21 @@ class WalletsNonArchivedImportedAddressesExtensionTest {
 
     @Test
     fun `empty list`() {
-        Wallet().nonArchivedImportedAddressStrings() `should equal` emptyList()
+        Wallet().nonArchivedImportedAddressStrings() `should be equal to` emptyList()
     }
 
     @Test
     fun `one spendable`() {
         Wallet().apply {
             importedAddressList.add(importedAddressWithPrivateKey("Address1"))
-        }.nonArchivedImportedAddressStrings() `should equal` listOf("Address1")
+        }.nonArchivedImportedAddressStrings() `should be equal to` listOf("Address1")
     }
 
     @Test
     fun `one archived`() {
         Wallet().apply {
             importedAddressList.add(importedAddressWithPrivateKey("Address1").apply { archive() })
-        }.nonArchivedImportedAddressStrings() `should equal` emptyList()
+        }.nonArchivedImportedAddressStrings() `should be equal to` emptyList()
     }
 
     @Test
@@ -36,7 +36,7 @@ class WalletsNonArchivedImportedAddressesExtensionTest {
             importedAddressList.add(ImportedAddress().apply {
                 address = "Address1"
             })
-        }.nonArchivedImportedAddressStrings() `should equal` listOf("Address1")
+        }.nonArchivedImportedAddressStrings() `should be equal to` listOf("Address1")
     }
 
     @Test
@@ -44,7 +44,7 @@ class WalletsNonArchivedImportedAddressesExtensionTest {
         Wallet().apply {
             importedAddressList.add(importedAddressWithPrivateKey("Address1", "PRIVATE_KEY1"))
             importedAddressList.add(importedAddressWithPrivateKey("Address2", "PRIVATE_KEY2"))
-        }.nonArchivedImportedAddressStrings() `should equal` listOf("Address1", "Address2")
+        }.nonArchivedImportedAddressStrings() `should be equal to` listOf("Address1", "Address2")
     }
 
     @Test
@@ -52,6 +52,6 @@ class WalletsNonArchivedImportedAddressesExtensionTest {
         Wallet().apply {
             importedAddressList.add(importedAddressWithPrivateKey("Address1", "PRIVATE_KEY1"))
             importedAddressList.add(importedAddressWithPrivateKey("Address1", "PRIVATE_KEY2"))
-        }.nonArchivedImportedAddressStrings() `should equal` listOf("Address1")
+        }.nonArchivedImportedAddressStrings() `should be equal to` listOf("Address1")
     }
 }

@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.backup.completed
 
 import com.blockchain.preferences.WalletStatus
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.base.View
 import piuk.blockchain.androidcore.data.auth.AuthDataManager

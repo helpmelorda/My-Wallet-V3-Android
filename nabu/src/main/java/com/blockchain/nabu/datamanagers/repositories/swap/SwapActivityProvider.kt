@@ -13,7 +13,7 @@ import com.blockchain.nabu.service.NabuService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 
 interface SwapActivityProvider {

@@ -15,18 +15,18 @@ import com.blockchain.nabu.models.responses.simplebuy.PaymentAttributes
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.google.gson.Gson
-import com.nhaarman.mockito_kotlin.anyOrNull
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.anyOrNull
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.any
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
+
+import com.nhaarman.mockitokotlin2.any
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -58,16 +58,16 @@ class SimpleBuyModelTest {
 
     private val interactor: SimpleBuyInteractor = mock()
     private val prefs: SimpleBuyPrefs = mock {
-        on { simpleBuyState() } `it returns` Gson().toJson(defaultState)
+        on { simpleBuyState() }.thenReturn(Gson().toJson(defaultState))
     }
 
     private val environmentConfig: EnvironmentConfig = mock {
-        on { isRunningInDebugMode() } `it returns` false
+        on { isRunningInDebugMode() }.thenReturn(false)
     }
 
     private val ratingPrefs: RatingPrefs = mock {
-        on { hasSeenRatingDialog } `it returns` true
-        on { preRatingActionCompletedTimes } `it returns` 0
+        on { hasSeenRatingDialog }.thenReturn(true)
+        on { preRatingActionCompletedTimes }.thenReturn(0)
     }
 
     private val serializer: SimpleBuyPrefsSerializer = mock()

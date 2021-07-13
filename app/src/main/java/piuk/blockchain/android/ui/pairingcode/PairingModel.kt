@@ -2,9 +2,9 @@ package piuk.blockchain.android.ui.pairingcode
 
 import android.graphics.Bitmap
 import com.blockchain.logging.CrashLogger
-import io.reactivex.Scheduler
-import io.reactivex.Single
-import io.reactivex.disposables.Disposable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.Disposable
 import okhttp3.ResponseBody
 import piuk.blockchain.android.scan.QrCodeDataManager
 import piuk.blockchain.android.ui.base.mvi.MviModel

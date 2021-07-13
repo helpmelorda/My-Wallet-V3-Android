@@ -2,7 +2,7 @@ package piuk.blockchain.android.kyc
 
 import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.wallet.api.WalletApi
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 class KycServerSideFeatureFlag(private val walletApi: WalletApi) : FeatureFlag {
     override val enabled: Single<Boolean>

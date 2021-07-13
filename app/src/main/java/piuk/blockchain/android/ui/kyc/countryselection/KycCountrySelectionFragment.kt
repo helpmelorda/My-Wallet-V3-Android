@@ -11,11 +11,11 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
-import com.jakewharton.rxbinding2.support.v7.widget.queryTextChanges
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.subjects.ReplaySubject
+import com.jakewharton.rxbinding4.appcompat.queryTextChanges
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.subjects.ReplaySubject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycCountrySelectionBinding

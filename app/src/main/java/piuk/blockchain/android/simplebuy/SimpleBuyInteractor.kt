@@ -32,10 +32,10 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.zipWith
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.cards.CardIntent
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.networking.PollResult

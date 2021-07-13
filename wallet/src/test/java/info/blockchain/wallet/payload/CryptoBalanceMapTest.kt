@@ -2,16 +2,16 @@ package info.blockchain.wallet.payload
 
 import com.blockchain.testutils.satoshi
 import com.blockchain.testutils.satoshiCash
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.`should throw the Exception`
+
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should throw`
 import org.amshove.kluent.`with message`
 import org.junit.Test
 import java.math.BigInteger
@@ -26,8 +26,8 @@ class CryptoBalanceMapTest {
             emptyList(),
             emptyList()
         ).apply {
-            totalSpendable `should equal` CryptoValue.zero(CryptoCurrency.BTC)
-            totalSpendableImported `should equal` CryptoValue.zero(CryptoCurrency.BTC)
+            totalSpendable `should be equal to` CryptoValue.zero(CryptoCurrency.BTC)
+            totalSpendableImported `should be equal to` CryptoValue.zero(CryptoCurrency.BTC)
         }
     }
 
@@ -43,8 +43,8 @@ class CryptoBalanceMapTest {
             ),
             imported = emptyList()
         ).apply {
-            totalSpendable `should equal` CryptoValue(CryptoCurrency.ETHER, 123L.toBigInteger())
-            totalSpendableImported `should equal` CryptoValue.zero(CryptoCurrency.ETHER)
+            totalSpendable `should be equal to` CryptoValue(CryptoCurrency.ETHER, 123L.toBigInteger())
+            totalSpendableImported `should be equal to` CryptoValue.zero(CryptoCurrency.ETHER)
         }
     }
 
@@ -60,8 +60,8 @@ class CryptoBalanceMapTest {
             ),
             imported = emptyList()
         ).apply {
-            totalSpendable `should equal` 123.satoshi()
-            totalSpendableImported `should equal` CryptoValue.zero(CryptoCurrency.BTC)
+            totalSpendable `should be equal to` 123.satoshi()
+            totalSpendableImported `should be equal to` CryptoValue.zero(CryptoCurrency.BTC)
         }
     }
 
@@ -76,8 +76,8 @@ class CryptoBalanceMapTest {
             ),
             imported = emptyList()
         ).apply {
-            totalSpendable `should equal` 579.satoshi()
-            totalSpendableImported `should equal` CryptoValue.zero(CryptoCurrency.BTC)
+            totalSpendable `should be equal to` 579.satoshi()
+            totalSpendableImported `should be equal to` CryptoValue.zero(CryptoCurrency.BTC)
         }
     }
 
@@ -89,15 +89,15 @@ class CryptoBalanceMapTest {
             xpubs = emptyList(),
             imported = listOf("A")
         ).apply {
-            totalSpendable `should equal` 123L.satoshi()
-            totalSpendableImported `should equal` 123L.satoshi()
+            totalSpendable `should be equal to` 123L.satoshi()
+            totalSpendableImported `should be equal to` 123L.satoshi()
         }
     }
 
     @Test
     fun `all addresses are queried`() {
         val getBalances: BalanceQuery = mock {
-            on { getBalancesForXPubs(any(), any()) } `it returns` emptyMap()
+            on { getBalancesForXPubs(any(), any()) }.thenReturn(emptyMap())
         }
 
         val xpubs = listOf(
@@ -115,8 +115,8 @@ class CryptoBalanceMapTest {
             xpubs = xpubs,
             imported = imported
         ).apply {
-            totalSpendable `should equal` CryptoValue.zero(CryptoCurrency.BTC)
-            totalSpendableImported `should equal` CryptoValue.zero(CryptoCurrency.BTC)
+            totalSpendable `should be equal to` CryptoValue.zero(CryptoCurrency.BTC)
+            totalSpendableImported `should be equal to` CryptoValue.zero(CryptoCurrency.BTC)
         }
 
         verify(getBalances).getBalancesForXPubs(xpubs, imported)
@@ -141,12 +141,12 @@ class CryptoBalanceMapTest {
             xpubs = xpubs,
             imported = listOf("B")
         ).apply {
-            get("A") `should equal` 100L.satoshiCash()
-            get("B") `should equal` 200L.satoshiCash()
-            get("C") `should equal` 300L.satoshiCash()
-            get("D") `should equal` 400L.satoshiCash()
-            get("Not listed") `should equal` 500L.satoshiCash()
-            get("Missing") `should equal` 0L.satoshiCash()
+            get("A") `should be equal to` 100L.satoshiCash()
+            get("B") `should be equal to` 200L.satoshiCash()
+            get("C") `should be equal to` 300L.satoshiCash()
+            get("D") `should be equal to` 400L.satoshiCash()
+            get("Not listed") `should be equal to` 500L.satoshiCash()
+            get("Missing") `should be equal to` 0L.satoshiCash()
         }
     }
 
@@ -163,15 +163,15 @@ class CryptoBalanceMapTest {
             xpubs = xpubs,
             imported = listOf("B")
         ).apply {
-            totalSpendable `should equal` 300L.satoshi()
-            totalSpendableImported `should equal` 200L.satoshi()
+            totalSpendable `should be equal to` 300L.satoshi()
+            totalSpendableImported `should be equal to` 200L.satoshi()
         }.run {
             subtractAmountFromAddress("A", 30L.satoshi())
         }.apply {
-            totalSpendable `should equal` 270L.satoshi()
-            totalSpendableImported `should equal` 200L.satoshi()
-            get("A") `should equal` 70L.satoshi()
-            get("B") `should equal` 200L.satoshi()
+            totalSpendable `should be equal to` 270L.satoshi()
+            totalSpendableImported `should be equal to` 200L.satoshi()
+            get("A") `should be equal to` 70L.satoshi()
+            get("B") `should be equal to` 200L.satoshi()
         }
     }
 
@@ -188,15 +188,15 @@ class CryptoBalanceMapTest {
             xpubs = xpubs,
             imported = listOf("B")
         ).apply {
-            totalSpendable `should equal` 300.satoshiCash()
-            totalSpendableImported `should equal` 200.satoshiCash()
+            totalSpendable `should be equal to` 300.satoshiCash()
+            totalSpendableImported `should be equal to` 200.satoshiCash()
         }.run {
             subtractAmountFromAddress("B", 50.satoshi())
         }.apply {
-            totalSpendable `should equal` 250.satoshiCash()
-            totalSpendableImported `should equal` 150.satoshiCash()
-            get("A") `should equal` 100.satoshiCash()
-            get("B") `should equal` 150.satoshiCash()
+            totalSpendable `should be equal to` 250.satoshiCash()
+            totalSpendableImported `should be equal to` 150.satoshiCash()
+            get("A") `should be equal to` 100.satoshiCash()
+            get("B") `should be equal to` 150.satoshiCash()
         }
     }
 
@@ -213,13 +213,13 @@ class CryptoBalanceMapTest {
             xpubs = xpubs,
             imported = listOf("B")
         ).apply {
-            totalSpendable `should equal` 300.satoshiCash()
-            totalSpendableImported `should equal` 200.satoshiCash()
+            totalSpendable `should be equal to` 300.satoshiCash()
+            totalSpendableImported `should be equal to` 200.satoshiCash()
         }.apply {
-            totalSpendable `should equal` 300.satoshiCash()
-            totalSpendableImported `should equal` 200.satoshiCash()
-            get("A") `should equal` 100.satoshiCash()
-            get("B") `should equal` 200.satoshiCash()
+            totalSpendable `should be equal to` 300.satoshiCash()
+            totalSpendableImported `should be equal to` 200.satoshiCash()
+            get("A") `should be equal to` 100.satoshiCash()
+            get("B") `should be equal to` 200.satoshiCash()
         }
     }
 
@@ -239,7 +239,7 @@ class CryptoBalanceMapTest {
         ).apply {
             {
                 subtractAmountFromAddress("Missing", 500L.satoshi())
-            } `should throw the Exception` Exception::class `with message`
+            } `should throw` Exception::class `with message`
                     "No info for this address. updateAllBalances should be called first."
         }
     }

@@ -4,7 +4,7 @@ import com.blockchain.nabu.Authenticator
 import com.blockchain.api.NabuUserService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import java.lang.IllegalArgumentException
 
 enum class IneligibilityReason {

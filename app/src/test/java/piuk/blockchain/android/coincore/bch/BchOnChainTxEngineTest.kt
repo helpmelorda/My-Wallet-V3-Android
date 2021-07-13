@@ -6,12 +6,12 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.bitcoinCash
 import com.blockchain.testutils.satoshiCash
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.atMost
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.atMost
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
@@ -20,10 +20,8 @@ import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.model.Utxo
 import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
-import io.reactivex.Observable
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
-import org.amshove.kluent.mock
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -56,26 +54,26 @@ class BchOnChainTxEngineTest {
 
     private val bchDataManager: BchDataManager = mock()
     private val payloadDataManager: PayloadDataManager = mock {
-        on { getAddressOutputType(TARGET_ADDRESS) } itReturns OutputType.P2PKH
-        on { getXpubFormatOutputType(XPub.Format.LEGACY) } itReturns OutputType.P2PKH
+        on { getAddressOutputType(TARGET_ADDRESS) }.thenReturn(OutputType.P2PKH)
+        on { getXpubFormatOutputType(XPub.Format.LEGACY) }.thenReturn(OutputType.P2PKH)
     }
     private val sendDataManager: SendDataManager = mock()
 
     private val bchFeeOptions: FeeOptions = mock {
-        on { regularFee } itReturns FEE_REGULAR
-        on { priorityFee } itReturns FEE_PRIORITY
+        on { regularFee }.thenReturn(FEE_REGULAR)
+        on { priorityFee }.thenReturn(FEE_PRIORITY)
     }
     private val feeManager: FeeDataManager = mock {
-        on { bchFeeOptions } itReturns Observable.just(bchFeeOptions)
+        on { bchFeeOptions }.thenReturn(Observable.just(bchFeeOptions))
     }
 
     private val walletPreferences: WalletStatus = mock {
-        on { getFeeTypeForAsset(ASSET) } itReturns FeeLevel.Regular.ordinal
+        on { getFeeTypeForAsset(ASSET) }.thenReturn(FeeLevel.Regular.ordinal)
     }
     private val exchangeRates: ExchangeRateDataManager = mock()
 
     private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency } itReturns SELECTED_FIAT
+        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
     }
 
     private val subject = BchOnChainTxEngine(
@@ -108,11 +106,11 @@ class BchOnChainTxEngineTest {
     @Test
     fun `inputs validate when correct`() {
         val sourceAccount: BchCryptoWalletAccount = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         // Act
@@ -134,11 +132,11 @@ class BchOnChainTxEngineTest {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source Asset incorrect`() {
         val sourceAccount: BchCryptoWalletAccount = mock {
-            on { asset } itReturns WRONG_ASSET
+            on { asset }.thenReturn(WRONG_ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         // Act
@@ -161,11 +159,11 @@ class BchOnChainTxEngineTest {
     fun `asset is returned correctly`() {
         // Arrange
         val sourceAccount: BchCryptoWalletAccount = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         // Act
@@ -188,11 +186,11 @@ class BchOnChainTxEngineTest {
     fun `PendingTx is correctly initialised`() {
         // Arrange
         val sourceAccount: BchCryptoWalletAccount = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         subject.start(
@@ -234,8 +232,8 @@ class BchOnChainTxEngineTest {
         val totalFee = (FEE_REGULAR * 1000 * 3).satoshiCash()
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
-            on { address } itReturns TARGET_ADDRESS
+            on { asset }.thenReturn(ASSET)
+            on { address }.thenReturn(TARGET_ADDRESS)
         }
 
         val totalBalance = 21.bitcoinCash()
@@ -268,7 +266,7 @@ class BchOnChainTxEngineTest {
         )
 
         val utxoBundle: SpendableUnspentOutputs = mock {
-            on { absoluteFee } itReturns totalFee.toBigInteger()
+            on { absoluteFee }.thenReturn(totalFee.toBigInteger())
         }
 
         whenever(sendDataManager.getSpendableCoins(
@@ -338,8 +336,8 @@ class BchOnChainTxEngineTest {
         val totalFee = (FEE_REGULAR * 1000 * 3).satoshiCash()
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
-            on { address } itReturns TARGET_ADDRESS
+            on { asset }.thenReturn(ASSET)
+            on { address }.thenReturn(TARGET_ADDRESS)
         }
 
         val totalBalance = 21.bitcoinCash()
@@ -384,8 +382,8 @@ class BchOnChainTxEngineTest {
         val totalFee = (FEE_REGULAR * 1000 * 3).satoshiCash()
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
-            on { address } itReturns TARGET_ADDRESS
+            on { asset }.thenReturn(ASSET)
+            on { address }.thenReturn(TARGET_ADDRESS)
         }
 
         val totalBalance = 21.bitcoinCash()
@@ -430,8 +428,8 @@ class BchOnChainTxEngineTest {
         val totalFee = (FEE_REGULAR * 1000 * 3).satoshiCash()
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
-            on { address } itReturns TARGET_ADDRESS
+            on { asset }.thenReturn(ASSET)
+            on { address }.thenReturn(TARGET_ADDRESS)
         }
 
         val totalBalance = 21.bitcoinCash()
@@ -476,8 +474,8 @@ class BchOnChainTxEngineTest {
         val totalFee = (FEE_REGULAR * 1000 * 3).satoshiCash()
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
-            on { address } itReturns TARGET_ADDRESS
+            on { asset }.thenReturn(ASSET)
+            on { address }.thenReturn(TARGET_ADDRESS)
         }
 
         val totalBalance = 21.bitcoinCash()
@@ -527,10 +525,10 @@ class BchOnChainTxEngineTest {
 
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<BchCryptoWalletAccount> {
-            on { asset } itReturns ASSET
-            on { accountBalance } itReturns Single.just(totalBalance)
-            on { actionableBalance } itReturns Single.just(availableBalance)
-            on { xpubAddress } itReturns SOURCE_XPUB
+            on { asset }.thenReturn(ASSET)
+            on { accountBalance }.thenReturn(Single.just(totalBalance))
+            on { actionableBalance }.thenReturn(Single.just(availableBalance))
+            on { xpubAddress }.thenReturn(SOURCE_XPUB)
         }
 
     private fun verifyFeeLevels(feeSelection: FeeSelection, expectedLevel: FeeLevel) =

@@ -5,10 +5,10 @@ import com.blockchain.koin.scopedInject
 import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.LaunchOrigin
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import piuk.blockchain.android.R
@@ -125,7 +125,7 @@ class AssetDetailsFlow(
         action: AssetAction?
     ): Single<List<BlockchainAccount>> =
         coincore[asset].accountGroup(AssetFilter.NonCustodial)
-            .map { it.accounts }.toSingle(emptyList())
+            .map { it.accounts }.defaultIfEmpty(emptyList())
             .flattenAsObservable { it }
             .flatMapSingle { account ->
                 account.actions.map { actions ->

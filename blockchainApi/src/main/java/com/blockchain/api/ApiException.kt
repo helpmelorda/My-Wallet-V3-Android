@@ -1,8 +1,7 @@
 package com.blockchain.api
 
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.functions.Function
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
 
 open class ApiException : Exception {
@@ -39,11 +38,9 @@ internal fun <T> Single<T>.wrapErrorMessage(): Single<T> = this.onErrorResumeNex
     }
 }
 
-internal fun <T> Maybe<T>.wrapErrorMessage(): Maybe<T> = this.onErrorResumeNext(
-    Function {
-        when (it) {
-            is HttpException -> Maybe.error(ApiException(it))
-            else -> Maybe.error(it)
-        }
+internal fun <T> Maybe<T>.wrapErrorMessage(): Maybe<T> = this.onErrorResumeNext {
+    when (it) {
+        is HttpException -> Maybe.error(ApiException(it))
+        else -> Maybe.error(it)
     }
-)
+}

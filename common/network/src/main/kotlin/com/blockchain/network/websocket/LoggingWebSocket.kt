@@ -2,7 +2,7 @@ package com.blockchain.network.websocket
 
 import com.blockchain.logging.Logger
 import com.blockchain.logging.NullLogger
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import org.koin.core.parameter.emptyParametersHolder
 import org.koin.java.KoinJavaComponent.getKoin
 

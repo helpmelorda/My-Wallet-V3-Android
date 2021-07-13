@@ -11,9 +11,9 @@ import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.ProductsUsed
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.service.TierService
-import com.nhaarman.mockito_kotlin.mock
-import io.reactivex.Single
-import org.amshove.kluent.`it returns`
+import com.nhaarman.mockitokotlin2.mock
+import io.reactivex.rxjava3.core.Single
+
 import org.amshove.kluent.`should be`
 import org.junit.Test
 
@@ -115,10 +115,10 @@ private infix fun <R> KycTiersQueries.then(function: KycTiersQueries.() -> Singl
 
 private infix fun NabuUser.and(tiersState: KycTiers): KycTiersQueries {
     val nabuDataProvider = mock<NabuDataUserProvider> {
-        on { getUser() } `it returns` Single.just(this@and)
+        on { getUser() }.thenReturn(Single.just(this@and))
     }
     val tiersService = mock<TierService> {
-        on { tiers() } `it returns` Single.just(tiersState)
+        on { tiers() }.thenReturn(Single.just(tiersState))
     }
     return KycTiersQueries(nabuDataProvider, tiersService)
 }

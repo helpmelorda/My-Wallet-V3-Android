@@ -4,7 +4,7 @@ import com.blockchain.network.initRule
 import com.squareup.moshi.Moshi
 import io.fabric8.mockwebserver.DefaultMockServer
 import okhttp3.OkHttpClient
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test
 
@@ -43,7 +43,7 @@ class OkHttpWebSocketJsonIntegrationTest {
                 open()
                 send(ClientMessage(data1 = "Subscribe", data2 = 1))
                 waiter.waitForAllMessages()
-                test.values() `should equal` listOf(ServerMessage(data3 = "OK", data4 = 2))
+                test.values() `should be equal to` listOf(ServerMessage(data3 = "OK", data4 = 2))
             }
     }
 

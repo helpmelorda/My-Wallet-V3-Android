@@ -5,9 +5,9 @@ import com.blockchain.nabu.extensions.wrapErrorMessage
 import com.blockchain.nabu.models.responses.nabu.TierUpdateJson
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.Authenticator
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 internal class NabuTierService(
     private val endpoint: Nabu,

@@ -10,8 +10,8 @@ import com.blockchain.testutils.mockWebServerInit
 import com.squareup.moshi.Moshi
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import org.amshove.kluent.`should equal to`
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -55,17 +55,17 @@ class RetailWalletTokenServiceTest {
             sharedKey = sharedKey
         ).test()
         // Assert
-        testObserver.awaitTerminalEvent()
+        testObserver.await()
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         // Check response
         val jwtResponse = testObserver.values().first()
-        jwtResponse.isSuccessful `should equal to` true
-        jwtResponse.token `should equal` "TOKEN"
-        jwtResponse.error `should equal` null
+        jwtResponse.isSuccessful `should be equal to` true
+        jwtResponse.token `should be equal to` "TOKEN"
+        jwtResponse.error `should be equal to` null
         // Check URL
         val request = server.takeRequest()
-        request.path!! `should equal to` "/$RETAIL_JWT_TOKEN?guid=$guid&sharedKey=$sharedKey&api_code=$apiKey"
+        request.path!! `should be equal to` "/$RETAIL_JWT_TOKEN?guid=$guid&sharedKey=$sharedKey&api_code=$apiKey"
     }
 
     @Test
@@ -85,16 +85,16 @@ class RetailWalletTokenServiceTest {
             sharedKey = sharedKey
         ).test()
         // Assert
-        testObserver.awaitTerminalEvent()
+        testObserver.await()
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         // Check response
         val jwtResponse = testObserver.values().first()
-        jwtResponse.isSuccessful `should equal to` false
-        jwtResponse.error `should equal` "ERROR"
-        jwtResponse.token `should equal` null
+        jwtResponse.isSuccessful `should be equal to` false
+        jwtResponse.error `should be equal to` "ERROR"
+        jwtResponse.token `should be equal to` null
         // Check URL
         val request = server.takeRequest()
-        request.path!! `should equal to` "/$RETAIL_JWT_TOKEN?guid=$guid&sharedKey=$sharedKey&api_code=$apiKey"
+        request.path!! `should be equal to` "/$RETAIL_JWT_TOKEN?guid=$guid&sharedKey=$sharedKey&api_code=$apiKey"
     }
 }

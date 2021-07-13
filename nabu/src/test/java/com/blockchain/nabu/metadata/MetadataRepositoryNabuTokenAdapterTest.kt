@@ -6,18 +6,18 @@ import com.blockchain.nabu.CreateNabuToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.mapFromMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.mapToMetadata
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.times
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.verifyZeroInteractions
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`should equal to`
-import org.amshove.kluent.`should equal`
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
+
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class MetadataRepositoryNabuTokenAdapterTest {
@@ -48,7 +48,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
         ).fetchNabuToken()
             .test()
             .values()
-            .single() `should equal` NabuOfflineTokenResponse(userId = "User1",
+            .single() `should be equal to` NabuOfflineTokenResponse(userId = "User1",
             token = "TOKEN123")
     }
 
@@ -71,8 +71,8 @@ class MetadataRepositoryNabuTokenAdapterTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         val (userId, token) = testObserver.values().single()
-        userId `should equal to` id
-        token `should equal to` lifetimeToken
+        userId `should be equal to` id
+        token `should be equal to` lifetimeToken
     }
 
     @Test
@@ -88,7 +88,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
         val nabuToken = MetadataRepositoryNabuTokenAdapter(
             metadataRepository,
             mock {
-                on { createNabuOfflineToken() } `it returns` Single.just(offlineToken)
+                on { createNabuOfflineToken() }.thenReturn(Single.just(offlineToken))
             },
             mock()
         )
@@ -98,8 +98,8 @@ class MetadataRepositoryNabuTokenAdapterTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         val (userId, token) = testObserver.values().single()
-        userId `should equal to` id
-        token `should equal to` lifetimeToken
+        userId `should be equal to` id
+        token `should be equal to` lifetimeToken
         verify(metadataRepository).saveMetadata(
             data,
             NabuCredentialsMetadata::class.java,
@@ -121,7 +121,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
         val nabuToken = MetadataRepositoryNabuTokenAdapter(
             metadataRepository,
             mock {
-                on { createNabuOfflineToken() } `it returns` Single.just(offlineToken)
+                on { createNabuOfflineToken() }.thenReturn(Single.just(offlineToken))
             },
             mock()
         )
@@ -131,8 +131,8 @@ class MetadataRepositoryNabuTokenAdapterTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         val (userId, token) = testObserver.values().single()
-        userId `should equal to` id
-        token `should equal to` lifetimeToken
+        userId `should be equal to` id
+        token `should be equal to` lifetimeToken
         verify(metadataRepository).saveMetadata(
             data,
             NabuCredentialsMetadata::class.java,
@@ -150,7 +150,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
                 Maybe.empty()
             ).expectSave(offlineToken),
             mock {
-                on { createNabuOfflineToken() } `it returns` Single.just(metadata)
+                on { createNabuOfflineToken() }.thenReturn(Single.just(metadata))
             },
             mock()
         )
@@ -179,15 +179,15 @@ class MetadataRepositoryNabuTokenAdapterTest {
             .assertComplete()
             .values()
             .single().apply {
-                this.userId `should equal` "USER1"
-                this.token `should equal` "TOKEN2"
+                this.userId `should be equal to` "USER1"
+                this.token `should be equal to` "TOKEN2"
             }
         metadataRepository.verifyJustLoadCalledNTimes(2)
     }
 
     private fun givenCantCreate(): CreateNabuToken =
         mock {
-            on { createNabuOfflineToken() } `it returns` Single.error(Throwable("Can't create"))
+            on { createNabuOfflineToken() }.thenReturn(Single.error(Throwable("Can't create")))
         }
 
     @Test
@@ -204,16 +204,16 @@ class MetadataRepositoryNabuTokenAdapterTest {
             .assertComplete()
             .values()
             .single().apply {
-                this.userId `should equal` "USER1"
-                this.token `should equal` "TOKEN1"
+                this.userId `should be equal to` "USER1"
+                this.token `should be equal to` "TOKEN1"
             }
         metadataRepository.givenMetaData(Maybe.just(NabuCredentialsMetadata("USER2", "TOKEN2")))
         nabuToken.fetchNabuToken().test()
             .assertComplete()
             .values()
             .single().apply {
-                this.userId `should equal` "USER1"
-                this.token `should equal` "TOKEN1"
+                this.userId `should be equal to` "USER1"
+                this.token `should be equal to` "TOKEN1"
             }
         metadataRepository.verifyJustLoadCalledNTimes(1)
     }

@@ -6,11 +6,10 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.percentageDelta
 import info.blockchain.wallet.prices.TimeAgo
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.zipWith
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.impl.AllWalletsAccount
 import piuk.blockchain.android.coincore.impl.AssetLoader
 import piuk.blockchain.android.coincore.impl.TxProcessorFactory
@@ -109,7 +108,7 @@ class Coincore internal constructor(
 
         val fiatTargets = fiatAsset.accountGroup(AssetFilter.All).map {
             it.accounts
-        }.toSingle(emptyList())
+        }.defaultIfEmpty(emptyList())
 
         val sameCurrencyPlusFiat = sameCurrencyTransactionTargets.zipWith(fiatTargets) { crypto, fiat ->
             crypto + fiat
@@ -188,7 +187,7 @@ class Coincore internal constructor(
             .toList()
             .flatMapMaybe {
                 if (it.isEmpty())
-                    Maybe.empty<SingleAccount>()
+                    Maybe.empty()
                 else
                     Maybe.just(it.first())
             }
@@ -207,7 +206,7 @@ class Coincore internal constructor(
     fun getExchangePriceWithDelta(asset: AssetInfo): Single<ExchangePriceWithDelta> =
         this[asset].exchangeRate().zipWith(
             this[asset].historicRate(TimeAgo.ONE_DAY.epoch)
-        ).map { (currentPrice, price24h) ->
+        ) { currentPrice, price24h ->
             val price = currentPrice.percentageDelta(price24h)
             ExchangePriceWithDelta(currentPrice.price(), price)
         }

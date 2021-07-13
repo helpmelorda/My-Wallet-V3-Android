@@ -10,7 +10,7 @@ import org.robolectric.annotation.Config;
 
 import java.util.UUID;
 
-import io.reactivex.observers.TestObserver;
+import io.reactivex.rxjava3.observers.TestObserver;
 import piuk.blockchain.android.BlockchainTestApplication;
 import piuk.blockchain.android.scan.QrCodeDataManager;
 import piuk.blockchain.android.testutils.RxTest;

@@ -1,7 +1,7 @@
 package com.blockchain.network.websocket
 
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.subjects.PublishSubject
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response

@@ -10,8 +10,8 @@ import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Utxo
 import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import org.bitcoinj.core.Transaction
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.data.rxjava.RxPinning

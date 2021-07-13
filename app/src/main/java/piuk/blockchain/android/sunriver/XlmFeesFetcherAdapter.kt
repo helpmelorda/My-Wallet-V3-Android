@@ -4,7 +4,7 @@ import com.blockchain.fees.FeeType
 import com.blockchain.sunriver.XlmFeesFetcher
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 internal class XlmFeesFetcherAdapter(

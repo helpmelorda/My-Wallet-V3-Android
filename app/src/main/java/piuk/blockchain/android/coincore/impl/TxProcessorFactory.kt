@@ -4,7 +4,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.WalletStatus
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BankAccount
 import piuk.blockchain.android.coincore.BlockchainAccount

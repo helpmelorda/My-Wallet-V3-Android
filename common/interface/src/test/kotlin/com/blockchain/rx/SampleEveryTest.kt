@@ -1,7 +1,7 @@
 package com.blockchain.rx
 
-import io.reactivex.subjects.PublishSubject
-import org.amshove.kluent.`should equal`
+import io.reactivex.rxjava3.subjects.PublishSubject
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class SampleEveryTest {
@@ -39,7 +39,7 @@ class SampleEveryTest {
         subject.onNext(1)
         sampler.onNext(Unit)
 
-        test.assertNotComplete().values() `should equal` listOf(1)
+        test.assertNotComplete().values() `should be equal to` listOf(1)
     }
 
     @Test
@@ -51,7 +51,7 @@ class SampleEveryTest {
         subject.onNext(4)
         sampler.onNext(Unit)
 
-        test.assertNotComplete().values() `should equal` listOf(3, 4)
+        test.assertNotComplete().values() `should be equal to` listOf(3, 4)
     }
 
     @Test
@@ -80,7 +80,7 @@ class SampleEveryTest {
         sampler.onNext(Unit)
         sampler.onNext(Unit)
 
-        test.assertNotComplete().values() `should equal` listOf(3, 3)
+        test.assertNotComplete().values() `should be equal to` listOf(3, 3)
     }
 
     @Test
@@ -91,7 +91,7 @@ class SampleEveryTest {
         subject.onNext(4)
         sampler.onNext(Unit)
 
-        test.assertNotComplete().values() `should equal` listOf(4)
+        test.assertNotComplete().values() `should be equal to` listOf(4)
     }
 
     @Test
@@ -106,6 +106,6 @@ class SampleEveryTest {
         subject.onNext(3)
         samplerString.onNext("Test2")
 
-        test.assertNotComplete().values() `should equal` listOf(1, 3)
+        test.assertNotComplete().values() `should be equal to` listOf(1, 3)
     }
 }

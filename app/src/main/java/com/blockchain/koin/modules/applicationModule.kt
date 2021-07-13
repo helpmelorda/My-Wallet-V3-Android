@@ -19,7 +19,7 @@ import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.DefaultLabels
 import com.google.gson.GsonBuilder
 import info.blockchain.wallet.metadata.MetadataDerivation
-import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import okhttp3.OkHttpClient
 import org.koin.dsl.bind
 import org.koin.dsl.module

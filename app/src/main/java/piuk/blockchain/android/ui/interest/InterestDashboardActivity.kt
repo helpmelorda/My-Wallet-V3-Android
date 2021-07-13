@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.LaunchOrigin
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType

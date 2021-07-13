@@ -7,7 +7,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isCustodialOnly
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.util.Locale

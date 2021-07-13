@@ -7,12 +7,12 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.YodleeAttributes
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Single
-import org.amshove.kluent.`it returns`
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Single
+
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -29,7 +29,7 @@ class DashboardInteractorTest {
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val model: DashboardModel = mock()
     private val targetFiatAccount: FiatAccount = mock {
-        on { fiatCurrency } `it returns` "USD"
+        on { fiatCurrency }.thenReturn("USD")
     }
 
     private val internalFlags: InternalFeatureFlagApi = mock()
@@ -158,7 +158,7 @@ class DashboardInteractorTest {
     @Test
     fun `with 1 available bank transfer, flow should be launched and wire transfer should get ignored`() {
         val linkedBankAccount: LinkedBankAccount = mock {
-            on { currency } `it returns` "USD"
+            on { currency }.thenReturn("USD")
         }
         whenever(linkedBanksFactory.eligibleBankPaymentMethods(any())).thenReturn(
             Single.just(

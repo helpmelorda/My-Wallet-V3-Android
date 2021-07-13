@@ -4,7 +4,7 @@ import com.blockchain.rx.TimedCacheRequest
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.TransferDirection
 import info.blockchain.balance.AssetInfo
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 class CustodialRepository(pairsProvider: TradingPairsProvider, activityProvider: SwapActivityProvider) {
 

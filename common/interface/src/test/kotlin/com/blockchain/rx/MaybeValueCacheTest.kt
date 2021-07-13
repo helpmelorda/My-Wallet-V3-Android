@@ -1,6 +1,6 @@
 package com.blockchain.rx
 
-import io.reactivex.Maybe
+import io.reactivex.rxjava3.core.Maybe
 import org.amshove.kluent.`should be`
 import org.junit.Test
 
@@ -28,8 +28,8 @@ class MaybeValueCacheTest {
     fun `regular cache error behaviour`() {
         var subscriptions = 0
         val cached = Maybe.error<Int>(Exception("X")).doOnSubscribe { subscriptions++ }.cache()
-        cached.test().assertNoValues().assertErrorMessage("X")
-        cached.test().assertNoValues().assertErrorMessage("X")
+        cached.test().assertNoValues().assertError { it.message == "X" }
+        cached.test().assertNoValues().assertError { it.message == "X" }
         subscriptions `should be` 1
     }
 
@@ -37,8 +37,8 @@ class MaybeValueCacheTest {
     fun `maybeCache error behaviour`() {
         var subscriptions = 0
         val cached = Maybe.error<Int>(Exception("X")).doOnSubscribe { subscriptions++ }.maybeCache()
-        cached.test().assertNoValues().assertErrorMessage("X")
-        cached.test().assertNoValues().assertErrorMessage("X")
+        cached.test().assertNoValues().assertError { it.message == "X" }
+        cached.test().assertNoValues().assertError { it.message == "X" }
         subscriptions `should be` 2
     }
 
@@ -83,7 +83,7 @@ class MaybeValueCacheTest {
                 if (it != null) {
                     Maybe.just(it)
                 } else {
-                    Maybe.empty<String>()
+                    Maybe.empty()
                 }
             }
         }

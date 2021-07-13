@@ -2,7 +2,7 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.nabu.CreateNabuToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 internal class CreateNabuTokenAdapter(
     private val nabuDataManager: NabuDataManager

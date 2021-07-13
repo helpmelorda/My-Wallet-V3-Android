@@ -2,9 +2,9 @@ package piuk.blockchain.android.ui.activity
 
 import com.blockchain.logging.CrashLogger
 import info.blockchain.balance.AssetInfo
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.ui.base.mvi.MviModel

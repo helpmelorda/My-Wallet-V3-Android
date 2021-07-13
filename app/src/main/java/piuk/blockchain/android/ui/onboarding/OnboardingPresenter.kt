@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.onboarding
 
 import androidx.annotation.VisibleForTesting
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.androidcore.data.access.AccessState

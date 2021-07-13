@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.recover
 
 import com.blockchain.android.testutils.rxInit
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Completable
-import io.reactivex.schedulers.Schedulers
-import org.amshove.kluent.`it returns`
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.schedulers.Schedulers
+
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -16,7 +16,7 @@ class AccountRecoveryModelTest {
     private lateinit var model: AccountRecoveryModel
 
     private val environmentConfig: EnvironmentConfig = mock {
-        on { isRunningInDebugMode() } `it returns` false
+        on { isRunningInDebugMode() }.thenReturn(false)
     }
 
     private val interactor: AccountRecoveryInteractor = mock()

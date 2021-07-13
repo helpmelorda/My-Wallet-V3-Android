@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import com.blockchain.preferences.WalletStatus
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder

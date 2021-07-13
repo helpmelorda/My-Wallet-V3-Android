@@ -8,10 +8,10 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -19,8 +19,8 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Single
+
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -44,8 +44,8 @@ class BtcAccountActivityTest {
     private val refreshTrigger: AccountRefreshTrigger = mock()
 
     private val jsonAccount: Account = mock {
-        on { isArchived } itReturns false
-        on { xpubs } itReturns XPubs(listOf(XPub(ACCOUNT_XPUB, XPub.Format.LEGACY)))
+        on { isArchived }.thenReturn(false)
+        on { xpubs }.thenReturn(XPubs(listOf(XPub(ACCOUNT_XPUB, XPub.Format.LEGACY))))
     }
 
     private val subject =

@@ -3,7 +3,7 @@ package com.blockchain.api.bitcoin
 import com.blockchain.api.bitcoin.data.BalanceResponseDto
 import com.blockchain.api.bitcoin.data.MultiAddress
 import com.blockchain.api.bitcoin.data.UnspentOutputsDto
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Field

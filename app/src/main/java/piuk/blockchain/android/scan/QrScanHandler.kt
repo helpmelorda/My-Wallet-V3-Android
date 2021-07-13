@@ -10,12 +10,13 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.util.FormatsUtil
 import info.blockchain.wallet.util.FormatsUtil.BCH_PREFIX
 import info.blockchain.wallet.util.FormatsUtil.BTC_PREFIX
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.MaybeSubject
-import io.reactivex.subjects.SingleSubject
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.SingleSubject
+import io.reactivex.rxjava3.subjects.MaybeSubject
+
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AddressFactory
 import piuk.blockchain.android.coincore.AssetFilter

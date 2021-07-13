@@ -7,10 +7,10 @@ import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.metadata.MetadataInteractor
 import info.blockchain.wallet.metadata.MetadataNodeFactory
 import info.blockchain.wallet.metadata.data.RemoteMetadataNodes
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.spongycastle.crypto.InvalidCipherTextException
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
@@ -126,7 +126,6 @@ class MetadataManager(
             .map { metadata -> metadataNodeFactory.initNodes(RemoteMetadataNodes.fromJson(metadata)) }
             .defaultIfEmpty(false)
             .onErrorReturn { false }
-            .toSingle()
 
     fun reset() {
         _metadataNodeFactory = null

@@ -6,19 +6,19 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.bitcoin
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.argThat
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argThat
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Single
+
 import org.amshove.kluent.shouldEqual
 import org.junit.After
 import org.junit.Before
@@ -55,7 +55,7 @@ class BitpayTxEngineTest {
     private val exchangeRates: ExchangeRateDataManager = mock()
 
     private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency } itReturns SELECTED_FIAT
+        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
     }
 
     private val onChainEngine: BtcOnChainTxEngine = mock()
@@ -114,7 +114,7 @@ class BitpayTxEngineTest {
     fun `inputs fail validation when target account incorrect`() {
         val sourceAccount = mockSourceAccount()
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         // Act
@@ -144,7 +144,7 @@ class BitpayTxEngineTest {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source asset is not BTC incorrect`() {
         val sourceAccount = mock<CryptoNonCustodialAccount>() {
-            on { asset } itReturns WRONG_ASSET
+            on { asset }.thenReturn(WRONG_ASSET)
         }
         val txTarget = mockTransactionTarget()
 
@@ -453,16 +453,16 @@ class BitpayTxEngineTest {
         totalBalance: Money = CryptoValue.zero(ASSET),
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<BtcCryptoWalletAccount> {
-        on { asset } itReturns ASSET
-        on { accountBalance } itReturns Single.just(totalBalance)
-        on { actionableBalance } itReturns Single.just(availableBalance)
+        on { asset }.thenReturn(ASSET)
+        on { accountBalance }.thenReturn(Single.just(totalBalance))
+        on { actionableBalance }.thenReturn(Single.just(availableBalance))
     }
 
     private fun mockTransactionTarget(
         invoiceAmount: CryptoValue = CryptoValue.zero(ASSET)
     ) = mock<BitPayInvoiceTarget> {
-        on { asset } itReturns ASSET
-        on { amount } itReturns invoiceAmount
+        on { asset }.thenReturn(ASSET)
+        on { amount }.thenReturn(invoiceAmount)
     }
 
     private fun verifyOnChainEngineStarted(sourceAccount: CryptoAccount) {

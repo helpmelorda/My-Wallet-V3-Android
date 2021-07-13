@@ -1,15 +1,15 @@
 package piuk.blockchain.android.ui.login.auth
 
 import com.blockchain.android.testutils.rxInit
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.exceptions.DecryptionException
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody.Companion.toResponseBody
-import org.amshove.kluent.`it returns`
+
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -21,7 +21,7 @@ class LoginAuthModelTest {
     private lateinit var model: LoginAuthModel
 
     private val environmentConfig: EnvironmentConfig = mock {
-        on { isRunningInDebugMode() } `it returns` false
+        on { isRunningInDebugMode() }.thenReturn(false)
     }
 
     private val interactor: LoginAuthInteractor = mock()

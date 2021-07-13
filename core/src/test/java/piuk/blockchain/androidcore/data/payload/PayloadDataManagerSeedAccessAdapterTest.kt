@@ -1,13 +1,13 @@
 package piuk.blockchain.androidcore.data.payload
 
 import com.blockchain.wallet.SeedAccessWithoutPrompt
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.verify
 import info.blockchain.wallet.payload.data.WalletBody
 import info.blockchain.wallet.payload.data.Wallet
-import org.amshove.kluent.`it returns`
+
 import org.amshove.kluent.`should be`
 import org.junit.Test
 
@@ -33,13 +33,13 @@ class PayloadDataManagerSeedAccessAdapterTest {
     fun `if the HD wallet throws HD Exception, returns empty`() {
         val theSeed = byteArrayOf(1, 2, 3)
         val hdWallet = mock<WalletBody> {
-            on { hdSeed } `it returns` theSeed
+            on { hdSeed }.thenReturn(theSeed)
         }
         val wallet = mock<Wallet> {
-            on { walletBodies } `it returns` listOf(hdWallet)
+            on { walletBodies }.thenReturn(listOf(hdWallet))
         }
         val payloadDataManager = mock<PayloadDataManager> {
-            on { this.wallet } `it returns` wallet
+            on { this.wallet }.thenReturn(wallet)
         }
         val seedAccess: SeedAccessWithoutPrompt = PayloadDataManagerSeedAccessAdapter(payloadDataManager)
         seedAccess.seed
@@ -51,10 +51,10 @@ class PayloadDataManagerSeedAccessAdapterTest {
     @Test
     fun `if the list is null, returns empty`() {
         val wallet = mock<Wallet> {
-            on { walletBody } `it returns` null
+            on { walletBody }.thenReturn(null)
         }
         val payloadDataManager = mock<PayloadDataManager> {
-            on { this.wallet } `it returns` wallet
+            on { this.wallet }.thenReturn(wallet)
         }
         val seedAccess: SeedAccessWithoutPrompt = PayloadDataManagerSeedAccessAdapter(payloadDataManager)
         seedAccess.seed
@@ -66,7 +66,7 @@ class PayloadDataManagerSeedAccessAdapterTest {
     @Test
     fun `if the wallet is null, returns empty`() {
         val payloadDataManager = mock<PayloadDataManager> {
-            on { this.wallet } `it returns` null
+            on { this.wallet }.thenReturn(null)
         }
         val seedAccess: SeedAccessWithoutPrompt = PayloadDataManagerSeedAccessAdapter(payloadDataManager)
         seedAccess.seed
@@ -92,7 +92,7 @@ class PayloadDataManagerSeedAccessAdapterTest {
     @Test
     fun `decrypts if required`() {
         val payloadDataManager = mock<PayloadDataManager> {
-            on { this.wallet } `it returns` null
+            on { this.wallet }.thenReturn(null)
         }
         val seedAccess: SeedAccessWithoutPrompt = PayloadDataManagerSeedAccessAdapter(
             payloadDataManager
@@ -106,12 +106,12 @@ private fun givenADecodedPayload(
     theSeed: ByteArray
 ): PayloadDataManager {
     val hdwallet = mock<WalletBody> {
-        on { hdSeed } `it returns` theSeed
+        on { hdSeed }.thenReturn(theSeed)
     }
     val wallet = mock<Wallet> {
-        on { walletBody } `it returns` hdwallet
+        on { walletBody }.thenReturn(hdwallet)
     }
     return mock {
-        on { this.wallet } `it returns` wallet
+        on { this.wallet }.thenReturn(wallet)
     }
 }

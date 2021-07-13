@@ -1,6 +1,6 @@
 package com.blockchain.nabu.datamanagers.featureflags
 
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 enum class Feature {
     INTEREST_RATES,

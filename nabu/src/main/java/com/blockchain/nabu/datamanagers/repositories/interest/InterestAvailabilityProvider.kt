@@ -4,7 +4,7 @@ import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.service.NabuService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 interface InterestAvailabilityProvider {
     fun getEnabledStatusForAllAssets(): Single<List<AssetInfo>>

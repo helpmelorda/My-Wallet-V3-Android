@@ -7,9 +7,9 @@ import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.LimitsJson
 import com.blockchain.nabu.models.responses.nabu.TierResponse
 import com.blockchain.nabu.service.TierService
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Single
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Single
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.identity.Feature

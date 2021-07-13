@@ -11,9 +11,9 @@ import com.blockchain.nabu.models.data.RecurringBuyState
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.base.mvi.MviModel

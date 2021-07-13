@@ -4,7 +4,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.isCustodialOnly
 import info.blockchain.balance.isErc20
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.bch.BchAddress

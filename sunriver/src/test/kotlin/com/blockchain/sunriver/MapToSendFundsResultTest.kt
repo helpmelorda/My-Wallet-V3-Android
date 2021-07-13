@@ -2,9 +2,9 @@ package com.blockchain.sunriver
 
 import com.blockchain.testutils.lumens
 import com.blockchain.testutils.stroops
-import com.nhaarman.mockito_kotlin.mock
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`should equal`
+import com.nhaarman.mockitokotlin2.mock
+
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class MapToSendFundsResultTest {
@@ -16,11 +16,11 @@ class MapToSendFundsResultTest {
         HorizonProxy.SendResult(
             success = true,
             transaction = mock {
-                on { fee } `it returns` 98
-                on { hash() } `it returns` byteArrayOf(1, 2, 3)
+                on { fee }.thenReturn(98)
+                on { hash() }.thenReturn(byteArrayOf(1, 2, 3))
             },
             failureReason = HorizonProxy.FailureReason.Unknown
-        ).mapToSendFundsResult(sendDetails) `should equal`
+        ).mapToSendFundsResult(sendDetails) `should be equal to`
             SendFundsResult(
                 sendDetails = sendDetails,
                 errorCode = 0,
@@ -61,12 +61,12 @@ class MapToSendFundsResultTest {
         HorizonProxy.SendResult(
             success = false,
             transaction = mock {
-                on { fee } `it returns` 98
-                on { hash() } `it returns` byteArrayOf(1, 2, 3)
+                on { fee }.thenReturn(98)
+                on { hash() }.thenReturn(byteArrayOf(1, 2, 3))
             },
             failureReason = failureReason,
             failureValue = 100.lumens()
-        ).mapToSendFundsResult(sendDetails) `should equal`
+        ).mapToSendFundsResult(sendDetails) `should be equal to`
             SendFundsResult(
                 sendDetails = sendDetails,
                 errorCode = expectedErrorCode,

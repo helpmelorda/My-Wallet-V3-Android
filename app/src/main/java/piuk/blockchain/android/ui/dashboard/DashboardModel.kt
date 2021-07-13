@@ -11,9 +11,9 @@ import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
 import info.blockchain.balance.percentageDelta
 import info.blockchain.balance.total
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.core.KoinComponent
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AssetFilter

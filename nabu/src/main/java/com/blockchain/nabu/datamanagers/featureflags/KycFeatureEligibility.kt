@@ -2,7 +2,7 @@ package com.blockchain.nabu.datamanagers.featureflags
 
 import com.blockchain.nabu.datamanagers.repositories.NabuUserRepository
 import com.blockchain.nabu.models.responses.nabu.KycState
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 class KycFeatureEligibility(private val userRepository: NabuUserRepository) : FeatureEligibility {
     override fun isEligibleFor(feature: Feature): Single<Boolean> =

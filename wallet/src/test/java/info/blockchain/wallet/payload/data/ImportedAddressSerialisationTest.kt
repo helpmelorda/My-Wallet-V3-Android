@@ -4,7 +4,7 @@ import com.blockchain.serialization.fromMoshiJson
 import com.blockchain.serialization.toMoshiJson
 import com.blockchain.testutils.getStringFromResource
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.amshove.kluent.`should equal to`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class ImportedAddressSerialisationTest {
@@ -19,7 +19,7 @@ class ImportedAddressSerialisationTest {
         val object2 = objectMapper.readValue(jsonA, ImportedAddress::class.java)
         val jsonB = object2.toMoshiJson()
 
-        jsonA `should equal to` jsonB
+        jsonA `should be equal to` jsonB
     }
 
     @Test
@@ -32,6 +32,6 @@ class ImportedAddressSerialisationTest {
         val object2 = ImportedAddress::class.fromMoshiJson(jsonA)
         val jsonB = objectMapper.writeValueAsString(object2)
 
-        jsonA `should equal to` jsonB
+        jsonA `should be equal to` jsonB
     }
 }

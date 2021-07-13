@@ -2,8 +2,8 @@ package piuk.blockchain.androidcore.data.fees;
 
 import info.blockchain.wallet.api.FeeApi;
 import info.blockchain.wallet.api.data.FeeOptions;
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 
 import piuk.blockchain.androidcore.data.rxjava.RxBus;
 import piuk.blockchain.androidcore.data.rxjava.RxPinning;

@@ -15,9 +15,9 @@ import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.ImportedAddress
 import info.blockchain.wallet.util.FormatsUtil
 import info.blockchain.wallet.util.PrivateKeyFactory
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.ReceiveAddress

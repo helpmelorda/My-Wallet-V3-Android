@@ -5,7 +5,7 @@ import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.service.TierService
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.FeeLevel
 import piuk.blockchain.android.coincore.FeeSelection
 import piuk.blockchain.android.coincore.PendingTx

@@ -1,8 +1,8 @@
 package com.blockchain.network.websocket
 
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import java.util.LinkedList
 import java.util.Queue
 import java.util.concurrent.atomic.AtomicReference

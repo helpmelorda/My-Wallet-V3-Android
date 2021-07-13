@@ -1,16 +1,14 @@
 package piuk.blockchain.android.util
 
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
-import info.blockchain.wallet.payload.data.Wallet
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.payload.data.WalletBody
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.itReturns
-import org.amshove.kluent.itThrows
-import org.amshove.kluent.mock
+import info.blockchain.wallet.payload.data.Wallet
+import org.amshove.kluent.`should be equal to`
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -30,11 +28,11 @@ class BackupWalletUtilTest {
         // Arrange
         val expectedMnemonic = listOf("one", "two", "three", "four")
         val hdwallet: WalletBody = mock {
-            on { mnemonic } itReturns expectedMnemonic
+            on { mnemonic }.thenReturn(expectedMnemonic)
         }
 
         val wallet: Wallet = mock {
-            on { walletBody } itReturns hdwallet
+            on { walletBody }.thenReturn(hdwallet)
         }
 
         whenever(payloadDataManager.wallet).thenReturn(wallet)
@@ -45,7 +43,7 @@ class BackupWalletUtilTest {
         // Assert
         verify(payloadDataManager, atLeastOnce()).wallet
         verifyNoMoreInteractions(payloadDataManager)
-        result.size `should equal` 3
+        result.size `should be equal to` 3
     }
 
     @Test
@@ -53,11 +51,11 @@ class BackupWalletUtilTest {
         // Arrange
         val expectedMnemonic = listOf("one", "two", "three", "four")
         val hdwallet: WalletBody = mock {
-            on { mnemonic } itReturns expectedMnemonic
+            on { mnemonic }.thenReturn(expectedMnemonic)
         }
 
         val wallet: Wallet = mock {
-            on { walletBody } itReturns hdwallet
+            on { walletBody }.thenReturn(hdwallet)
         }
 
         whenever(payloadDataManager.wallet).thenReturn(wallet)
@@ -73,14 +71,14 @@ class BackupWalletUtilTest {
         verifyNoMoreInteractions(payloadDataManager)
         verifyNoMoreInteractions(wallet)
 
-        result `should equal` expectedMnemonic
+        result `should be equal to` expectedMnemonic
     }
 
     @Test
     fun `getMnemonic error`() {
         // Arrange
         val wallet: Wallet = mock {
-            on { decryptHDWallet(null) } itThrows NullPointerException()
+            on { decryptHDWallet(null) }.thenThrow(NullPointerException())
         }
         whenever(payloadDataManager.wallet).thenReturn(wallet)
         // Act
@@ -90,6 +88,6 @@ class BackupWalletUtilTest {
         verifyNoMoreInteractions(payloadDataManager)
         verify(wallet).decryptHDWallet(null)
         verifyNoMoreInteractions(wallet)
-        result `should equal` null
+        result `should be equal to` null
     }
 }

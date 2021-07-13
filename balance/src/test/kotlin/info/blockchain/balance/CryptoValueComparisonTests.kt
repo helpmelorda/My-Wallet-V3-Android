@@ -1,7 +1,7 @@
 package info.blockchain.balance
 
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should throw the Exception`
+import org.amshove.kluent.`should throw`
 import org.amshove.kluent.withMessage
 import org.junit.Test
 
@@ -46,14 +46,14 @@ class CryptoValueComparisonTests {
     fun `can't compare different currencies with greater than`() {
         val a = 3.ether()
         val b = 3.bitcoin();
-        { a > b } `should throw the Exception` ValueTypeMismatchException::class withMessage "Can't compare ETH and BTC"
+        { a > b } `should throw` ValueTypeMismatchException::class withMessage "Can't compare ETH and BTC"
     }
 
     @Test
     fun `can't compare different currencies with less than`() {
         val a = 3.bitcoin()
         val b = 3.ether();
-        { a < b } `should throw the Exception` ValueTypeMismatchException::class withMessage "Can't compare BTC and ETH"
+        { a < b } `should throw` ValueTypeMismatchException::class withMessage "Can't compare BTC and ETH"
     }
 
     @Test

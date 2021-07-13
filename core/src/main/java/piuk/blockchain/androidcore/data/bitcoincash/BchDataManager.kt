@@ -17,11 +17,11 @@ import info.blockchain.wallet.payload.data.Derivation
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.bch.CashAddress
 import info.blockchain.wallet.payload.model.Utxo
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.bitcoinj.core.LegacyAddress
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager

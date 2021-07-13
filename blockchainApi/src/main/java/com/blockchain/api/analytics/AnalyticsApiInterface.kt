@@ -1,7 +1,7 @@
 package com.blockchain.api.analytics
 
 import com.blockchain.api.NabuAnalyticsEvent
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 import kotlinx.serialization.Serializable
 import retrofit2.http.Body
 import retrofit2.http.Header

@@ -1,10 +1,10 @@
 package com.blockchain.network.websocket
 
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
-import io.reactivex.disposables.Disposable
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.verify
+import io.reactivex.rxjava3.disposables.Disposable
+import org.amshove.kluent.`should be equal to`
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 
 class AfterOpenWebSocketTest {
@@ -18,10 +18,10 @@ class AfterOpenWebSocketTest {
                 counter++
                 mock()
             }
-        counter `should equal` 0
+        counter `should be equal to` 0
         webSocket.open()
         mockConnection.simulateSuccess()
-        counter `should equal` 1
+        counter `should be equal to` 1
     }
 
     @Test
@@ -33,11 +33,11 @@ class AfterOpenWebSocketTest {
                 counter++
                 mock()
             }
-        counter `should equal` 0
+        counter `should be equal to` 0
         webSocket.open()
         mockConnection.simulateFailure()
         mockConnection.simulateDisconnect()
-        counter `should equal` 0
+        counter `should be equal to` 0
     }
 
     @Test
@@ -60,11 +60,11 @@ class AfterOpenWebSocketTest {
                 counter++
                 mock()
             }
-        counter `should equal` 0
+        counter `should be equal to` 0
         webSocket.open()
         webSocket.close()
         mockConnection.simulateSuccess()
-        counter `should equal` 0
+        counter `should be equal to` 0
     }
 
     @Test
@@ -76,12 +76,12 @@ class AfterOpenWebSocketTest {
                 counter++
                 mock()
             }
-        counter `should equal` 0
+        counter `should be equal to` 0
         webSocket.open()
         webSocket.close()
         webSocket.open()
         mockConnection.simulateSuccess()
-        counter `should equal` 1
+        counter `should be equal to` 1
     }
 
     @Test

@@ -5,8 +5,8 @@ import com.blockchain.preferences.AuthPrefs
 import com.google.gson.Gson
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.api.WalletApi
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.data.api.NotificationReceiveAddresses
 import timber.log.Timber
 import java.lang.IllegalStateException

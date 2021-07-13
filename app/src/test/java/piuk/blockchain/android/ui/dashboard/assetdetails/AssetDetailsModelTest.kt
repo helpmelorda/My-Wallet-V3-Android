@@ -5,17 +5,16 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.wallet.prices.data.PriceDatum
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
+
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -48,7 +47,7 @@ class AssetDetailsModelTest {
     )
 
     private val environmentConfig: EnvironmentConfig = mock {
-        on { isRunningInDebugMode() } `it returns` false
+        on { isRunningInDebugMode() }.thenReturn(false)
     }
 
     private val interactor: AssetDetailsInteractor = mock()
@@ -82,7 +81,7 @@ class AssetDetailsModelTest {
         val price = "1000 BTC"
         val priceSeries = listOf(PriceDatum())
         val asset: CryptoAsset = mock {
-            on { asset } itReturns CryptoCurrency.BTC
+            on { asset }.thenReturn(CryptoCurrency.BTC)
         }
 
         val timeSpan = TimeSpan.DAY

@@ -13,8 +13,8 @@ import info.blockchain.wallet.payload.BalanceManagerBch
 import info.blockchain.wallet.payload.data.ImportedAddress
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Utxo
-import io.reactivex.Completable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.bitcoinj.core.NetworkParameters
 import java.math.BigInteger
 import java.util.ArrayList

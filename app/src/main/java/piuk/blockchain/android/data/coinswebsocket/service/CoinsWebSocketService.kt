@@ -7,8 +7,8 @@ import android.content.Intent
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.Analytics
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import piuk.blockchain.android.R

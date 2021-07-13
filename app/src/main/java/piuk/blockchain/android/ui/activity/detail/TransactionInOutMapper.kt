@@ -7,8 +7,8 @@ import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.util.FormatsUtil
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Singles
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
@@ -73,9 +73,9 @@ class TransactionInOutMapper(
 
         return Singles.zip(
             coincore.findAccountByAddress(activitySummaryItem.asset, fromAddress)
-                .toSingle(NullCryptoAccount(fromAddress)),
+                .defaultIfEmpty(NullCryptoAccount(fromAddress)),
             coincore.findAccountByAddress(activitySummaryItem.asset, toAddress)
-                .toSingle(NullCryptoAccount(toAddress))
+                .defaultIfEmpty(NullCryptoAccount(toAddress))
         ) { fromAccount, toAccount ->
             TransactionInOutDetails(
                 inputs = listOf(

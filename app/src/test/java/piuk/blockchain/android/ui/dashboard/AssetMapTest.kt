@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.dashboard
 
 import com.blockchain.testutils.bitcoin
 import com.blockchain.testutils.ether
-import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.ExchangeRate

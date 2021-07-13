@@ -16,7 +16,7 @@ import piuk.blockchain.android.urllinks.URL_BACKUP_INFO
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import com.blockchain.wallet.DefaultLabels
-import com.jakewharton.rxbinding2.widget.RxTextView
+import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityCreateWalletBinding
@@ -74,25 +74,25 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
             passwordStrengthBinding.passStrengthBar.max = 100 * 10
 
             walletPass.onFocusChangeListener = this@CreateWalletActivity
-            RxTextView.afterTextChangeEvents(walletPass)
+            walletPass.afterTextChangeEvents()
                 .doOnNext {
                     showEntropyContainer()
                     presenter.logEventPasswordOneClicked()
-                    binding.entropyContainer.updatePassword(it.editable().toString())
+                    binding.entropyContainer.updatePassword(it.editable.toString())
                     hideShowCreateButton(
-                        it.editable().toString().length,
+                        it.editable.toString().length,
                         walletPassConfirm.getTextString().length,
                         walletPasswordCheckbox.isChecked
                     )
                 }
                 .emptySubscribe()
 
-            RxTextView.afterTextChangeEvents(walletPassConfirm)
+            walletPassConfirm.afterTextChangeEvents()
                 .doOnNext {
                     presenter.logEventPasswordTwoClicked()
                     hideShowCreateButton(
                         walletPass.getTextString().length,
-                        it.editable().toString().length,
+                        it.editable.toString().length,
                         walletPasswordCheckbox.isChecked
                     )
                 }

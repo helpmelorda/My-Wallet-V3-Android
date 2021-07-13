@@ -3,9 +3,9 @@ package piuk.blockchain.android.coincore
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.wallet.prices.TimeInterval
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.exchangerate.PriceSeries
 import piuk.blockchain.androidcore.data.exchangerate.TimeSpan
 

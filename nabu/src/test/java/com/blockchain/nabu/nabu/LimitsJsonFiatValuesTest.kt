@@ -5,7 +5,7 @@ import com.blockchain.nabu.models.responses.nabu.LimitsJson
 import com.blockchain.testutils.gbp
 import com.blockchain.testutils.usd
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class LimitsJsonFiatValuesTest {
@@ -34,7 +34,7 @@ class LimitsJsonFiatValuesTest {
             currency = "USD",
             daily = 100.toBigDecimal(),
             annual = null
-        )).dailyFiat `should equal` 100.usd()
+        )).dailyFiat `should be equal to` 100.usd()
     }
 
     @Test
@@ -43,6 +43,6 @@ class LimitsJsonFiatValuesTest {
             currency = "GBP",
             daily = 100.toBigDecimal(),
             annual = 50.12.toBigDecimal()
-        )).annualFiat `should equal` 50.12.gbp()
+        )).annualFiat `should be equal to` 50.12.gbp()
     }
 }

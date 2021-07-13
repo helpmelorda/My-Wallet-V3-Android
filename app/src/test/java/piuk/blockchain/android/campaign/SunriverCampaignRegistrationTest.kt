@@ -10,17 +10,15 @@ import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.sunriver.XlmAccountReference
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Completable
-import io.reactivex.Single
-import org.amshove.kluent.`it returns`
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.mock
 import org.junit.Rule
 import org.junit.Test
 
@@ -37,12 +35,12 @@ class SunriverCampaignRegistrationTest {
         SunriverCampaignRegistration(
 
             mock {
-                on { getCampaignList(offlineToken) } `it returns` Single.just(listOf("SUNRIVER"))
+                on { getCampaignList(offlineToken) }.thenReturn(Single.just(listOf("SUNRIVER")))
             },
             givenToken(offlineToken),
             mock {
-                on { getUserState() } `it returns` Single.just<UserState>(UserState.Active)
-                on { getKycStatus() } `it returns` Single.just<KycState>(KycState.Verified)
+                on { getUserState() }.thenReturn(Single.just(UserState.Active))
+                on { getKycStatus() }.thenReturn(Single.just(KycState.Verified))
             },
             mock()
         ).getCampaignCardType()
@@ -50,7 +48,7 @@ class SunriverCampaignRegistrationTest {
             .values()
             .first()
             .apply {
-                this `should equal` SunriverCardType.Complete
+                this `should be equal to` SunriverCardType.Complete
             }
     }
 
@@ -59,12 +57,12 @@ class SunriverCampaignRegistrationTest {
         val offlineToken = NabuOfflineTokenResponse("userId", "token")
         SunriverCampaignRegistration(
             mock {
-                on { getCampaignList(offlineToken) } `it returns` Single.just(emptyList())
+                on { getCampaignList(offlineToken) }.thenReturn(Single.just(emptyList()))
             },
             givenToken(offlineToken),
             mock {
-                on { getUserState() } `it returns` Single.just(UserState.Active)
-                on { getKycStatus() } `it returns` Single.just(KycState.None)
+                on { getUserState() }.thenReturn(Single.just(UserState.Active))
+                on { getKycStatus() }.thenReturn(Single.just(KycState.None))
             },
             mock()
         ).getCampaignCardType()
@@ -72,7 +70,7 @@ class SunriverCampaignRegistrationTest {
             .values()
             .first()
             .apply {
-                this `should equal` SunriverCardType.JoinWaitList
+                this `should be equal to` SunriverCardType.JoinWaitList
             }
     }
 
@@ -81,12 +79,12 @@ class SunriverCampaignRegistrationTest {
         val offlineToken = NabuOfflineTokenResponse("userId", "token")
         SunriverCampaignRegistration(
             mock {
-                on { getCampaignList(offlineToken) } `it returns` Single.just(listOf("SUNRIVER"))
+                on { getCampaignList(offlineToken) }.thenReturn(Single.just(listOf("SUNRIVER")))
             },
             givenToken(offlineToken),
             mock {
-                on { getUserState() } `it returns` Single.just<UserState>(UserState.Created)
-                on { getKycStatus() } `it returns` Single.just<KycState>(KycState.None)
+                on { getUserState() }.thenReturn(Single.just(UserState.Created))
+                on { getKycStatus() }.thenReturn(Single.just(KycState.None))
             },
             mock()
         ).getCampaignCardType()
@@ -94,7 +92,7 @@ class SunriverCampaignRegistrationTest {
             .values()
             .first()
             .apply {
-                this `should equal` SunriverCardType.FinishSignUp
+                this `should be equal to` SunriverCardType.FinishSignUp
             }
     }
 
@@ -104,7 +102,7 @@ class SunriverCampaignRegistrationTest {
         val accountRef = XlmAccountReference("", "GABCDEFHI")
         val campaignData = CampaignData("name", false)
         val nabuDataManager = mock<NabuDataManager> {
-            on { registerCampaign(any(), any(), any()) } `it returns` Completable.complete()
+            on { registerCampaign(any(), any(), any()) }.thenReturn(Completable.complete())
         }
         val xlmDataManager: XlmDataManager = mock()
         whenever(xlmDataManager.defaultAccount()).thenReturn(Single.just(accountRef))
@@ -135,9 +133,9 @@ class SunriverCampaignRegistrationTest {
         val accountRef = XlmAccountReference("", "GABCDEFHIJ")
         val campaignData = CampaignData("name", false)
         val nabuDataManager = mock<NabuDataManager> {
-            on { registerCampaign(any(), any(), any()) } `it returns` Completable.complete()
-            on { requestJwt() } `it returns` Single.just("jwt")
-            on { getAuthToken("jwt") } `it returns` Single.just(offlineToken)
+            on { registerCampaign(any(), any(), any()) }.thenReturn(Completable.complete())
+            on { requestJwt() }.thenReturn(Single.just("jwt"))
+            on { getAuthToken("jwt") }.thenReturn(Single.just(offlineToken))
         }
         val xlmDataManager: XlmDataManager = mock()
         whenever(xlmDataManager.defaultAccount()).thenReturn(Single.just(accountRef))
@@ -168,7 +166,7 @@ class SunriverCampaignRegistrationTest {
 //        val accountRef = AccountReference.Xlm("", "GABCDEFHI")
 //        val campaignData = CampaignData("name", false)
 //        val nabuDataManager = mock<NabuDataManager> {
-//            on { registerCampaign(any(), any(), any()) } `it returns` Completable.complete()
+//            on { registerCampaign(any(), any(), any()) }.thenReturn(Completable.complete()
 //        }
 //        SunriverCampaignRegistration(
 //            mock(),
@@ -197,9 +195,9 @@ class SunriverCampaignRegistrationTest {
 //        val accountRef = AccountReference.Xlm("", "GABCDEFHIJ")
 //        val campaignData = CampaignData("name", false)
 //        val nabuDataManager = mock<NabuDataManager> {
-//            on { registerCampaign(any(), any(), any()) } `it returns` Completable.complete()
-//            on { requestJwt() } `it returns` Single.just("jwt")
-//            on { getAuthToken("jwt") } `it returns` Single.just(offlineToken)
+//            on { registerCampaign(any(), any(), any()) }.thenReturn(Completable.complete()
+//            on { requestJwt() }.thenReturn(Single.just("jwt")
+//            on { getAuthToken("jwt") }.thenReturn(Single.just(offlineToken)
 //        }
 //        SunriverCampaignRegistration(
 //            mock(),
@@ -227,14 +225,14 @@ class SunriverCampaignRegistrationTest {
         val offlineToken = NabuOfflineTokenResponse("userId", "token")
         val accountRef = XlmAccountReference("", "GABCDEFHJIK")
         val nabuDataManager = mock<NabuDataManager> {
-            on { registerCampaign(any(), any(), any()) } `it returns` Completable.complete()
+            on { registerCampaign(any(), any(), any()) }.thenReturn(Completable.complete())
         }
         SunriverCampaignRegistration(
             nabuDataManager,
             givenToken(offlineToken),
             mock(),
             mock {
-                on { defaultAccount() } `it returns` Single.just(accountRef)
+                on { defaultAccount() }.thenReturn(Single.just(accountRef))
             }
         ).registerCampaign()
             .test()
@@ -292,7 +290,7 @@ private fun givenUserInCampaigns(campaigns: List<String>): SunriverCampaignRegis
     val offlineToken = NabuOfflineTokenResponse("userId", "token")
     return SunriverCampaignRegistration(
         mock {
-            on { getCampaignList(offlineToken) } `it returns` Single.just(campaigns)
+            on { getCampaignList(offlineToken) }.thenReturn(Single.just(campaigns))
         },
         givenToken(offlineToken),
         mock(),
@@ -302,5 +300,5 @@ private fun givenUserInCampaigns(campaigns: List<String>): SunriverCampaignRegis
 
 private fun givenToken(offlineToken: NabuOfflineTokenResponse): NabuToken =
     mock {
-        on { fetchNabuToken() } `it returns` Single.just(offlineToken)
+        on { fetchNabuToken() }.thenReturn(Single.just(offlineToken))
     }

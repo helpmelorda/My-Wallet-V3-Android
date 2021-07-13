@@ -3,8 +3,8 @@ package com.blockchain.nabu.datamanagers.repositories.interest
 import com.blockchain.rx.TimedCacheRequest
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
-import io.reactivex.Maybe
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 
 class InterestRepository(
     private val interestLimitsProvider: InterestLimitsProvider,
@@ -57,12 +57,12 @@ class InterestRepository(
             limitsForAsset?.let {
                 Maybe.just(it)
             } ?: Maybe.empty()
-        }.onErrorResumeNext(Maybe.empty())
+        }.onErrorResumeNext { Maybe.empty() }
 
     fun getAvailabilityForAsset(ccy: AssetInfo): Single<Boolean> =
         availabilityCache.getCachedSingle().flatMap { enabledList ->
             Single.just(enabledList.contains(ccy))
-        }.onErrorResumeNext(Single.just(false))
+        }.onErrorResumeNext { Single.just(false) }
 
     fun getAvailableAssets(): Single<List<AssetInfo>> =
         availabilityCache.getCachedSingle()

@@ -6,9 +6,9 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.api.dust.data.DustInput
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.disposables.Disposable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.Disposable
 import org.bitcoinj.core.Transaction
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.android.coincore.BlockchainAccount

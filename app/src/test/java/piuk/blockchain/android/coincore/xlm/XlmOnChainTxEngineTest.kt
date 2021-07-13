@@ -9,17 +9,17 @@ import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
 import com.blockchain.testutils.lumens
 import com.blockchain.testutils.stroops
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
-import org.amshove.kluent.mock
+import io.reactivex.rxjava3.core.Single
+
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -52,18 +52,18 @@ class XlmOnChainTxEngineTest {
 
     private val xlmDataManager: XlmDataManager = mock()
     private val walletOptionsDataManager: WalletOptionsDataManager = mock {
-        on { isXlmAddressExchange(TARGET_ADDRESS) } itReturns false
-        on { isXlmAddressExchange(TARGET_EXCHANGE_ADDRESS) } itReturns true
+        on { isXlmAddressExchange(TARGET_ADDRESS) }.thenReturn(false)
+        on { isXlmAddressExchange(TARGET_EXCHANGE_ADDRESS) }.thenReturn(true)
     }
     private val xlmFeesFetcher: XlmFeesFetcher = mock {
-        on { operationFee(FeeType.Regular) } itReturns Single.just(FEE_REGULAR)
+        on { operationFee(FeeType.Regular) }.thenReturn(Single.just(FEE_REGULAR))
     }
 
     private val walletPreferences: WalletStatus = mock()
     private val exchangeRates: ExchangeRateDataManager = mock()
 
     private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency } itReturns SELECTED_FIAT
+        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
     }
 
     private val subject = XlmOnChainTxEngine(
@@ -95,11 +95,11 @@ class XlmOnChainTxEngineTest {
     @Test
     fun `inputs validate when correct`() {
         val sourceAccount: CryptoAccount = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         // Act
@@ -121,11 +121,11 @@ class XlmOnChainTxEngineTest {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source Asset incorrect`() {
         val sourceAccount: CryptoAccount = mock {
-            on { asset } itReturns WRONG_ASSET
+            on { asset }.thenReturn(WRONG_ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         // Act
@@ -148,11 +148,11 @@ class XlmOnChainTxEngineTest {
     fun `asset is returned correctly`() {
         // Arrange
         val sourceAccount: CryptoAccount = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         // Act
@@ -175,13 +175,13 @@ class XlmOnChainTxEngineTest {
     fun `PendingTx is correctly initialised for non-exchange address`() {
         // Arrange
         val sourceAccount: CryptoAccount = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         val txTarget: XlmAddress = mock {
-            on { asset } itReturns ASSET
-            on { address } itReturns TARGET_ADDRESS
-            on { memo } itReturns MEMO_TEXT
+            on { asset }.thenReturn(ASSET)
+            on { address }.thenReturn(TARGET_ADDRESS)
+            on { memo }.thenReturn(MEMO_TEXT)
         }
 
         whenever(sourceAccount.asset).thenReturn(ASSET)
@@ -231,13 +231,13 @@ class XlmOnChainTxEngineTest {
     fun `PendingTx is correctly initialised for exchange address`() {
         // Arrange
         val sourceAccount: CryptoAccount = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         val txTarget: XlmAddress = mock {
-            on { asset } itReturns ASSET
-            on { address } itReturns TARGET_EXCHANGE_ADDRESS
-            on { memo } itReturns MEMO_TEXT
+            on { asset }.thenReturn(ASSET)
+            on { address }.thenReturn(TARGET_EXCHANGE_ADDRESS)
+            on { memo }.thenReturn(MEMO_TEXT)
         }
 
         subject.start(
@@ -286,7 +286,7 @@ class XlmOnChainTxEngineTest {
     fun `update amount modifies the pendingTx correctly`() {
         // Arrange
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         val totalBalance = 21.lumens()
@@ -346,7 +346,7 @@ class XlmOnChainTxEngineTest {
     fun `update fee level to PRIORITY is rejected`() {
         // Arrange
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         val totalBalance = 21.lumens()
@@ -387,7 +387,7 @@ class XlmOnChainTxEngineTest {
     fun `update fee level to NONE is rejected`() {
         // Arrange
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         val totalBalance = 21.lumens()
@@ -428,7 +428,7 @@ class XlmOnChainTxEngineTest {
     fun `update fee level to CUSTOM is rejected`() {
         // Arrange
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         val totalBalance = 21.lumens()
@@ -469,7 +469,7 @@ class XlmOnChainTxEngineTest {
     fun `update fee level to REGULAR has no effect`() {
         // Arrange
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         val totalBalance = 21.lumens()
@@ -522,9 +522,9 @@ class XlmOnChainTxEngineTest {
 
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<XlmCryptoWalletAccount> {
-            on { asset } itReturns ASSET
-            on { accountBalance } itReturns Single.just(totalBalance)
-            on { actionableBalance } itReturns Single.just(availableBalance)
+            on { asset }.thenReturn(ASSET)
+            on { accountBalance }.thenReturn(Single.just(totalBalance))
+            on { actionableBalance }.thenReturn(Single.just(availableBalance))
         }
 
     private fun verifyFeeLevels(

@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.kyc.email.entry
 
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.networking.PollService
 import piuk.blockchain.androidcore.data.settings.Email
 import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater

@@ -4,12 +4,12 @@ import com.blockchain.sunriver.derivation.deriveXlmAccountKeyPair
 import com.blockchain.testutils.rxInit
 import com.blockchain.wallet.Seed
 import com.blockchain.wallet.SeedAccess
-import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockitokotlin2.mock
 import io.github.novacrypto.bip39.SeedCalculator
-import io.reactivex.Maybe
-import io.reactivex.observers.TestObserver
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`should equal`
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.observers.TestObserver
+import org.amshove.kluent.`should be equal to`
+
 import org.junit.Rule
 import org.junit.Test
 
@@ -69,14 +69,14 @@ private val seed = SeedCalculator().calculateSeed("some mnemonic", "")
 private fun assertPrivateForPublic(public: String, expectedPrivate: String) {
     val test = searchForPublic(public)
     test.values().single().apply {
-        String(this.secret) `should equal` expectedPrivate
+        String(this.secret) `should be equal to` expectedPrivate
     }
 }
 
 private fun searchForPublic(public: String): TestObserver<HorizonKeyPair.Private> {
     val mockSeed = mockSeed()
     val seedAccess: SeedAccess = mock {
-        on { seed(null) } `it returns` Maybe.just(mockSeed)
+        on { seed(null) }.thenReturn(Maybe.just(mockSeed))
     }
     return XlmSecretAccess(seedAccess)
         .getPrivate(
@@ -87,6 +87,6 @@ private fun searchForPublic(public: String): TestObserver<HorizonKeyPair.Private
 
 private fun mockSeed(): Seed {
     return mock {
-        on { hdSeed } `it returns` seed
+        on { hdSeed }.thenReturn(seed)
     }
 }

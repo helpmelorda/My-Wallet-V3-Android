@@ -1,12 +1,12 @@
 package piuk.blockchain.androidcore.data.walletoptions
 
 import com.blockchain.android.testutils.rxInit
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.AndroidUpgrade
 import info.blockchain.wallet.api.data.UpdateType
 import info.blockchain.wallet.api.data.WalletOptions
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

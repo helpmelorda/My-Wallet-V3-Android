@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.base
 
 import androidx.annotation.StringRes
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 interface MvpView {
     fun showProgressDialog(@StringRes messageId: Int, onCancel: (() -> Unit)? = null)

@@ -1,7 +1,7 @@
 package piuk.blockchain.android.coincore
 
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.`should not equal`
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should not be equal to`
 import org.junit.Test
 
 class NonCustodialActivitySummaryItemTest {
@@ -12,9 +12,9 @@ class NonCustodialActivitySummaryItemTest {
         val activityItem = TestNonCustodialSummaryItem()
         val objectToCompare = Any()
 
-        activityItem.toString() `should not equal` objectToCompare.toString()
-        activityItem.hashCode() `should not equal` objectToCompare.hashCode()
-        activityItem `should not equal` objectToCompare
+        activityItem.toString() `should not be equal to` objectToCompare.toString()
+        activityItem.hashCode() `should not be equal to` objectToCompare.hashCode()
+        activityItem `should not be equal to` objectToCompare
     }
 
     @Test
@@ -26,9 +26,9 @@ class NonCustodialActivitySummaryItemTest {
         val itemTwo = TestNonCustodialSummaryItem()
             .apply { note = "note 2" }
 
-        itemOne.toString() `should not equal` itemTwo.toString()
-        itemOne.hashCode() `should not equal` itemTwo.hashCode()
-        itemOne `should not equal` itemTwo
+        itemOne.toString() `should not be equal to` itemTwo.toString()
+        itemOne.hashCode() `should not be equal to` itemTwo.hashCode()
+        itemOne `should not be equal to` itemTwo
     }
 
     @Test
@@ -40,8 +40,8 @@ class NonCustodialActivitySummaryItemTest {
         val itemTwo = TestNonCustodialSummaryItem()
             .apply { note = "note" }
 
-        itemOne.toString() `should equal` itemTwo.toString()
-        itemOne.hashCode() `should equal` itemTwo.hashCode()
-        itemOne `should equal` itemTwo
+        itemOne.toString() `should be equal to` itemTwo.toString()
+        itemOne.hashCode() `should be equal to` itemTwo.hashCode()
+        itemOne `should be equal to` itemTwo
     }
 }

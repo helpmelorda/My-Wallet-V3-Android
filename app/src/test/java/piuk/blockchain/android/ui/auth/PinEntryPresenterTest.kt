@@ -8,17 +8,17 @@ import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.wallet.DefaultLabels
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.doAnswer
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.isNull
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.times
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.verifyZeroInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.doAnswer
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.isNull
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.UpdateType
 import info.blockchain.wallet.exceptions.AccountLockedException
 import info.blockchain.wallet.exceptions.DecryptionException
@@ -28,11 +28,9 @@ import info.blockchain.wallet.exceptions.ServerConnectionException
 import info.blockchain.wallet.exceptions.UnsupportedVersionException
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.Wallet
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
-import org.amshove.kluent.mock
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -70,20 +68,20 @@ class PinEntryPresenterTest {
 
     private val mockImageView = Mockito.mock(ImageView::class.java)
     private val activity: PinEntryView = mock {
-        on { pinBoxList } itReturns listOf(mockImageView, mockImageView, mockImageView, mockImageView)
+        on { pinBoxList }.thenReturn(listOf(mockImageView, mockImageView, mockImageView, mockImageView))
     }
 
     private val authDataManager: AuthDataManager = mock()
     private val appUtil: AppUtil = mock()
     private val prefsUtil: PersistentPrefs = mock {
-        on { walletGuid } itReturns WALLET_GUID
-        on { sharedKey } itReturns SHARED_KEY
+        on { walletGuid }.thenReturn(WALLET_GUID)
+        on { sharedKey }.thenReturn(SHARED_KEY)
     }
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private val payloadManager: PayloadDataManager = mock()
     private val defaultLabels: DefaultLabels = mock {
-        on { getDefaultNonCustodialWalletLabel() } itReturns "string resource"
+        on { getDefaultNonCustodialWalletLabel() }.thenReturn("string resource")
     }
 
     private val biometricsController: BiometricsController = mock()
@@ -97,7 +95,7 @@ class PinEntryPresenterTest {
     private val credentialsWiper: CredentialsWiper = mock()
 
     private val apiStatus: ApiStatus = mock {
-        on { isHealthy() } itReturns Single.just(true)
+        on { isHealthy() }.thenReturn(Single.just(true))
     }
 
     private val subject: PinEntryPresenter = PinEntryPresenter(
@@ -142,7 +140,7 @@ class PinEntryPresenterTest {
         // Arrange
         whenever(activity.pageIntent).thenReturn(null)
         whenever(prefsUtil.pinFails).thenReturn(4)
-        whenever(payloadManager.wallet).thenReturn(mock(Wallet::class))
+        whenever(payloadManager.wallet).thenReturn(mock())
         whenever(prefsUtil.pinId).thenReturn("")
         whenever(biometricsController.getDecodedData()).thenReturn("")
         whenever(remoteConfig.getFeatureCount(anyString())).thenReturn(Single.just(4L))
@@ -704,7 +702,7 @@ class PinEntryPresenterTest {
             .thenReturn(Completable.complete())
 
         val mockPayload: Wallet = mock {
-            on { sharedKey } itReturns SHARED_KEY
+            on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockPayload)
 
@@ -727,7 +725,7 @@ class PinEntryPresenterTest {
             .thenReturn(Completable.complete())
 
         val mockPayload: Wallet = mock {
-            on { sharedKey } itReturns SHARED_KEY
+            on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockPayload)
 
@@ -747,7 +745,7 @@ class PinEntryPresenterTest {
         whenever(payloadManager.initializeAndDecrypt(SHARED_KEY, WALLET_GUID, password))
             .thenReturn(Completable.error(HDWalletException()))
         val mockPayload: Wallet = mock {
-            on { sharedKey } itReturns SHARED_KEY
+            on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockPayload)
         whenever(authDataManager.verifyCloudBackup())
@@ -771,7 +769,7 @@ class PinEntryPresenterTest {
             .thenReturn(Completable.error(UnsupportedVersionException()))
 
         val mockPayload: Wallet = mock {
-            on { sharedKey } itReturns SHARED_KEY
+            on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockPayload)
         whenever(authDataManager.verifyCloudBackup())
@@ -794,7 +792,7 @@ class PinEntryPresenterTest {
             .thenReturn(Completable.error(AccountLockedException()))
 
         val mockPayload = mock<Wallet> {
-            on { sharedKey } itReturns SHARED_KEY
+            on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockPayload)
         whenever(authDataManager.verifyCloudBackup())
@@ -817,13 +815,13 @@ class PinEntryPresenterTest {
             .thenReturn(Completable.complete())
 
         val mockAccount: Account = mock {
-            on { label } itReturns ""
+            on { label }.thenReturn("")
         }
         whenever(payloadManager.accounts).thenReturn(listOf(mockAccount))
         whenever(payloadManager.getAccount(0)).thenReturn(mockAccount)
 
         val mockWallet: Wallet = mock {
-            on { sharedKey } itReturns SHARED_KEY
+            on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
         whenever(accessState.isNewlyCreated).thenReturn(true)
@@ -858,11 +856,11 @@ class PinEntryPresenterTest {
             .thenReturn(Completable.complete())
 
         val mockAccount: Account = mock {
-            on { label } itReturns "label"
+            on { label }.thenReturn("label")
         }
         whenever(payloadManager.getAccount(0)).thenReturn(mockAccount)
         val mockWallet: Wallet = mock {
-            on { sharedKey } itReturns SHARED_KEY
+            on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
         whenever(payloadManager.isWalletUpgradeRequired).thenReturn(true)
@@ -899,13 +897,13 @@ class PinEntryPresenterTest {
             .thenReturn(Completable.complete())
 
         val mockAccount: Account = mock {
-            on { label } itReturns "label"
+            on { label }.thenReturn("label")
         }
         whenever(payloadManager.getAccount(0)).thenReturn(mockAccount)
         whenever(payloadManager.isWalletUpgradeRequired).thenReturn(false)
 
         val mockWallet: Wallet = mock {
-            on { sharedKey } itReturns SHARED_KEY
+            on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
         whenever(accessState.isNewlyCreated).thenReturn(false)
@@ -1047,7 +1045,7 @@ class PinEntryPresenterTest {
     @Test
     fun handlePayloadUpdateComplete_fromPinCreationAndBiometricsEnabled() {
         val mockWallet: Wallet = mock {
-            on { sharedKey } itReturns SHARED_KEY
+            on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
         whenever(biometricsController.isFingerprintAvailable).thenReturn(true)
@@ -1060,7 +1058,7 @@ class PinEntryPresenterTest {
     @Test
     fun handlePayloadUpdateComplete_fromPinCreationAndBiometricsNotEnabled() {
         val mockWallet: Wallet = mock {
-            on { sharedKey } itReturns SHARED_KEY
+            on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
         whenever(biometricsController.isFingerprintAvailable).thenReturn(false)
@@ -1073,7 +1071,7 @@ class PinEntryPresenterTest {
     @Test
     fun handlePayloadUpdateComplete_notFromPinCreation() {
         val mockWallet: Wallet = mock {
-            on { sharedKey } itReturns SHARED_KEY
+            on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
         whenever(biometricsController.isFingerprintAvailable).thenReturn(true)
