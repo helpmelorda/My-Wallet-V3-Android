@@ -67,7 +67,11 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
         setContentView(binding.root)
         val title = R.string.identity_verification
         setupToolbar(binding.toolbarKyc, title)
-        analytics.logEvent(KYCAnalyticsEvents.UpgradeKycVeriffClicked(campaignType.toLaunchOrigin()))
+        analytics.logEvent(
+            KYCAnalyticsEvents.UpgradeKycVeriffClicked(
+                campaignType.toLaunchOrigin()
+            )
+        )
         navController.setGraph(R.navigation.kyc_nav, intent.extras)
 
         onViewReady()

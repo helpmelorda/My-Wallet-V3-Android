@@ -18,6 +18,7 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.isLastDayOfTheMonth
 import com.blockchain.utils.to12HourFormat
@@ -46,6 +47,7 @@ import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
@@ -537,6 +539,9 @@ class SimpleBuyCryptoFragment :
                     paymentMethod.toNabuAnalyticsString()
                 )
             )
+        if (paymentMethod is PaymentMethod.UndefinedCard) {
+            analytics.logEvent(SettingsAnalytics.LinkCardClicked(LaunchOrigin.BUY))
+        }
     }
 
     private fun addPaymentMethod(type: PaymentMethodType) {

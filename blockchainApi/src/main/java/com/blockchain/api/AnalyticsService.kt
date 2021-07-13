@@ -19,6 +19,7 @@ class AnalyticsService internal constructor(
         id: String,
         analyticsContext: AnalyticsContext,
         platform: String,
+        device: String,
         authorization: String?
     ): Completable {
 
@@ -26,6 +27,7 @@ class AnalyticsService internal constructor(
             authorization,
             AnalyticsRequestBody(
                 id = id,
+                device = device,
                 platform = platform,
                 events = events,
                 context = analyticsContext

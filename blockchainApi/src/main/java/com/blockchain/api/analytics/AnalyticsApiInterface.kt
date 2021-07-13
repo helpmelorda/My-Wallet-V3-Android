@@ -20,6 +20,7 @@ class AnalyticsRequestBody(
     val id: String,
     val context: AnalyticsContext,
     val platform: String,
+    val device: String,
     val events: List<NabuAnalyticsEvent>
 )
 

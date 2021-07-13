@@ -44,6 +44,7 @@ import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsEvents
+import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.notifications.analytics.Logging
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.remoteconfig.FeatureFlag
@@ -248,6 +249,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
         smsPref.onClick {
             settingsPresenter.onVerifySmsRequested()
             analytics.logEvent(SettingsAnalytics.PhoneClicked)
+            analytics.logEvent(SettingsAnalytics.MobileChangeClicked)
         }
 
         thePit.onClick { settingsPresenter.onThePitClicked() }
@@ -262,7 +264,10 @@ class SettingsFragment : PreferenceFragmentCompat(),
             showDialogEmailNotifications()
             analytics.logEvent(SettingsAnalytics.EmailNotificationClicked)
         }
-        pushNotificationPref.onClick { showDialogPushNotifications() }
+        pushNotificationPref.onClick {
+            showDialogPushNotifications()
+            analytics.logEvent(SettingsAnalytics.NotificationPrefsUpdated)
+        }
 
         // Security
         fingerprintPref.onClick {
@@ -326,8 +331,12 @@ class SettingsFragment : PreferenceFragmentCompat(),
             )
         }
 
-        findPreference<Preference>("tos").onClick { onTosClicked() }
-        findPreference<Preference>("privacy").onClick { onPrivacyClicked() }
+        findPreference<Preference>("tos").onClick {
+            onTosClicked()
+        }
+        findPreference<Preference>("privacy").onClick {
+            onPrivacyClicked()
+        }
 
         settingsPresenter.checkShouldDisplayRateUs()
 
@@ -613,6 +622,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
             CardPreference(context = requireContext()).apply {
                 onClick {
                     addNewCard()
+                    analytics.logEvent(SettingsAnalytics.LinkCardClicked(LaunchOrigin.SETTINGS))
                 }
                 key = ADD_CARD_KEY
             }
@@ -785,10 +795,20 @@ class SettingsFragment : PreferenceFragmentCompat(),
     }
 
     private fun onTosClicked() {
+        analytics.logEvent(
+            SettingsAnalytics.SettingsHyperlinkClicked(
+                SettingsAnalytics.AnalyticsHyperlinkDestination.TERMS_OF_SERVICE
+            )
+        )
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(URL_TOS_POLICY)))
     }
 
     private fun onPrivacyClicked() {
+        analytics.logEvent(
+            SettingsAnalytics.SettingsHyperlinkClicked(
+                SettingsAnalytics.AnalyticsHyperlinkDestination.PRIVACY_POLICY
+            )
+        )
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(URL_PRIVACY_POLICY)))
     }
 

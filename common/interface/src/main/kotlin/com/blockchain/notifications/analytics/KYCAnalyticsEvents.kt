@@ -24,7 +24,14 @@ sealed class KYCAnalyticsEvents(override val event: String, override val params:
 
     class UpgradeKycVeriffClicked(override val origin: LaunchOrigin) : AnalyticsEvent {
         override val event: String
-            get() = AnalyticsNames.EMAIL_VERIFF_REQUESTED.eventName
+            get() = AnalyticsNames.UPGRADE_KYC_VERIFICATION_CLICKED.eventName
+        override val params: Map<String, Serializable>
+            get() = emptyMap()
+    }
+
+    class EmailVeriffSkipped(override val origin: LaunchOrigin) : AnalyticsEvent {
+        override val event: String
+            get() = AnalyticsNames.EMAIL_VERIF_SKIPPED.eventName
         override val params: Map<String, Serializable>
             get() = emptyMap()
     }

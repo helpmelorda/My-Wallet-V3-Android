@@ -100,6 +100,7 @@ class NabuAnalytics(
                 id = id,
                 analyticsContext = analyticsContextProvider.context(),
                 platform = "WALLET",
+                device = "APP-Android",
                 authorization = if (it is Optional.Some) it.element.authHeader else null
             )
         }

@@ -140,7 +140,14 @@ enum class AnalyticsNames(val eventName: String) {
     PIN_CODE_CHANGED("Mobile Pin Code Changed"),
     RECOVERY_PHRASE_SHOWN("Recovery Phrase Shown"),
     TWO_STEP_VERIFICATION_CODE_CLICKED("Two Step Verification Option Clicked"),
-    TWO_STEP_VERIFICATION_CODE_SUBMITTED("TVerification Code Submitted"),
+    TWO_STEP_VERIFICATION_CODE_SUBMITTED("Verification Code Submitted"),
+    UPGRADE_KYC_VERIFICATION_CLICKED("Upgrade Verification Clicked"),
+    EMAIL_VERIF_SKIPPED("Email Verification Skipped"),
+    REMOVE_CARD_CLICKED("Remove Linked Card Clicked"),
+    SETTINGS_HYPERLINK_DESTINATION("Settings Hyperlink Clicked"),
+    NOTIFICATION_PREFS_UPDATED("Notification Preferences Updated"),
+    LINK_CARD_CLICKED("Link Card Clicked"),
+    CHANGE_MOBILE_NUMBER_CLICKED("Change Mobile Number Clicked"),
     EMAIL_VERIFF_REQUESTED("Email Verification Requested");
 }
 
@@ -154,6 +161,7 @@ enum class LaunchOrigin {
     DASHBOARD_PROMO,
     TRANSACTION_DETAILS,
     DEPOSIT,
+    BUY,
     WITHDRAWAL,
     CURRENCY_PAGE,
     SAVINGS,

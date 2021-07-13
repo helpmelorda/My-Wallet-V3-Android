@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.settings
 
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
+import com.blockchain.notifications.analytics.LaunchOrigin
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 
 sealed class SettingsAnalytics(override val event: String, override val params: Map<String, String> = mapOf()) :
@@ -21,6 +22,8 @@ sealed class SettingsAnalytics(override val event: String, override val params: 
     object PinChanged_Old : SettingsAnalytics("settings_pin_selected")
     object PasswordChanged_Old : SettingsAnalytics("settings_password_selected")
     object CurrencyChanged : SettingsAnalytics("settings_currency_selected")
+    object MobileChangeClicked : SettingsAnalytics(AnalyticsNames.CHANGE_MOBILE_NUMBER_CLICKED.eventName)
+    object NotificationPrefsUpdated : SettingsAnalytics(AnalyticsNames.NOTIFICATION_PREFS_UPDATED.eventName)
 
     class PasswordChanged(txFlowAccountType: TxFlowAnalyticsAccountType) : SettingsAnalytics(
         AnalyticsNames.ACCOUNT_PASSWORD_CHANGED.eventName,
@@ -66,8 +69,22 @@ sealed class SettingsAnalytics(override val event: String, override val params: 
         )
     )
 
+    class LinkCardClicked(override val origin: LaunchOrigin) : SettingsAnalytics(
+        AnalyticsNames.LINK_CARD_CLICKED.eventName
+    )
+
+    class RemoveCardClicked(override val origin: LaunchOrigin) :
+        SettingsAnalytics(AnalyticsNames.REMOVE_CARD_CLICKED.eventName)
+
+    class SettingsHyperlinkClicked(private val destination: AnalyticsHyperlinkDestination) :
+        SettingsAnalytics(AnalyticsNames.SETTINGS_HYPERLINK_DESTINATION.eventName)
+
     companion object {
         const val TWO_SET_MOBILE_NUMBER_OPTION = "Mobile Number"
         private const val TWO_STEP_OPTION = "two_step_option"
+    }
+
+    enum class AnalyticsHyperlinkDestination {
+        ABOUT, PRIVACY_POLICY, TERMS_OF_SERVICE
     }
 }
