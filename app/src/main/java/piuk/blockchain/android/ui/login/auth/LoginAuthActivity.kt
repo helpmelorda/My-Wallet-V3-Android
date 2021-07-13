@@ -30,6 +30,8 @@ import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
+import piuk.blockchain.android.ui.settings.SettingsAnalytics
+import piuk.blockchain.android.ui.settings.SettingsAnalytics.Companion.TWO_SET_MOBILE_NUMBER_OPTION
 import piuk.blockchain.android.ui.start.ManualPairingActivity
 import piuk.blockchain.android.urllinks.RESET_2FA
 import piuk.blockchain.android.urllinks.SECOND_PASSWORD_EXPLANATION
@@ -135,6 +137,7 @@ class LoginAuthActivity :
                             code = codeText.text.toString()
                         )
                     )
+                    analytics.logEvent(SettingsAnalytics.TwoStepVerificationCodeSubmitted(TWO_SET_MOBILE_NUMBER_OPTION))
                 } else {
                     model.process(LoginAuthIntents.VerifyPassword(passwordText.text.toString()))
                 }

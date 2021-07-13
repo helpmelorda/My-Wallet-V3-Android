@@ -44,7 +44,6 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.Logging
-import com.blockchain.notifications.analytics.SettingsAnalyticsEvents
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.play.core.review.ReviewInfo
@@ -95,6 +94,7 @@ import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.pairingcode.PairingBottomSheet
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
+import piuk.blockchain.android.ui.settings.SettingsAnalytics.Companion.TWO_SET_MOBILE_NUMBER_OPTION
 import piuk.blockchain.android.ui.settings.preferences.BankPreference
 import piuk.blockchain.android.ui.settings.preferences.CardPreference
 import piuk.blockchain.android.ui.settings.preferences.KycStatusPreference
@@ -233,21 +233,21 @@ class SettingsFragment : PreferenceFragmentCompat(),
         // Profile
         kycStatusPref.onClick {
             settingsPresenter.onKycStatusClicked()
-            analytics.logEvent(SettingsAnalyticsEvents.SwapLimitChecked)
+            analytics.logEvent(SettingsAnalytics.SwapLimitChecked)
         }
         kycStatusPref?.isVisible = false
 
         guidPref.onClick {
             showDialogGuid()
-            analytics.logEvent(SettingsAnalyticsEvents.WalletIdCopyClicked)
+            analytics.logEvent(SettingsAnalytics.WalletIdCopyClicked)
         }
         emailPref.onClick {
             onUpdateEmailClicked()
-            analytics.logEvent(SettingsAnalyticsEvents.EmailClicked)
+            analytics.logEvent(SettingsAnalytics.EmailClicked)
         }
         smsPref.onClick {
             settingsPresenter.onVerifySmsRequested()
-            analytics.logEvent(SettingsAnalyticsEvents.PhoneClicked)
+            analytics.logEvent(SettingsAnalytics.PhoneClicked)
         }
 
         thePit.onClick { settingsPresenter.onThePitClicked() }
@@ -260,27 +260,29 @@ class SettingsFragment : PreferenceFragmentCompat(),
         fiatPref.onClick { showDialogFiatUnits() }
         emailNotificationPref.onClick {
             showDialogEmailNotifications()
-            analytics.logEvent(SettingsAnalyticsEvents.EmailNotificationClicked)
+            analytics.logEvent(SettingsAnalytics.EmailNotificationClicked)
         }
         pushNotificationPref.onClick { showDialogPushNotifications() }
 
         // Security
         fingerprintPref.onClick {
             onFingerprintClicked()
-            analytics.logEvent(SettingsAnalyticsEvents.BiometryAuthSwitch)
+            analytics.logEvent(SettingsAnalytics.BiometryAuthSwitch)
         }
         findPreference<Preference>("pin").onClick {
             showDialogChangePin()
-            analytics.logEvent(SettingsAnalyticsEvents.ChangePinClicked)
+            analytics.logEvent(SettingsAnalytics.ChangePinClicked_Old)
+            analytics.logEvent(SettingsAnalytics.ChangePinClicked)
         }
         twoStepVerificationPref.onClick {
             settingsPresenter.onTwoStepVerificationRequested()
-            analytics.logEvent(SettingsAnalyticsEvents.TwoFactorAuthClicked)
+            analytics.logEvent(SettingsAnalytics.TwoFactorAuthClicked)
+            analytics.logEvent(SettingsAnalytics.TwoStepVerificationClicked(TWO_SET_MOBILE_NUMBER_OPTION))
         }
 
         findPreference<Preference>("change_pw").onClick {
             showDialogChangePasswordWarning()
-            analytics.logEvent(SettingsAnalyticsEvents.ChangePassClicked)
+            analytics.logEvent(SettingsAnalytics.ChangePassClicked)
         }
 
         torPref?.setOnPreferenceChangeListener { _, newValue ->
@@ -311,7 +313,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
         cloudBackupPref?.setOnPreferenceChangeListener { _, newValue ->
             settingsPresenter.updateCloudData(newValue as Boolean)
-            analytics.logEvent(SettingsAnalyticsEvents.CloudBackupSwitch)
+            analytics.logEvent(SettingsAnalytics.CloudBackupSwitch)
             true
         }
 
@@ -761,7 +763,8 @@ class SettingsFragment : PreferenceFragmentCompat(),
         val intent = Intent(activity, PinEntryActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
-        analytics.logEvent(SettingsAnalyticsEvents.PinChanged)
+        analytics.logEvent(SettingsAnalytics.PinChanged_Old)
+        analytics.logEvent(SettingsAnalytics.PinCodeChanged)
     }
 
     override fun launchThePitLandingActivity() {
@@ -774,6 +777,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
     private fun onUpdateEmailClicked() {
         settingsPresenter.onEmailShowRequested()
+        analytics.logEvent(SettingsAnalytics.EmailChangeClicked)
     }
 
     private fun onBackupClicked() {
@@ -893,7 +897,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
                 val clip = ClipData.newPlainText("guid", guidPref!!.summary)
                 clipboard.setPrimaryClip(clip)
                 showCustomToast(R.string.copied_to_clipboard)
-                analytics.logEvent(SettingsAnalyticsEvents.WalletIdCopyCopied)
+                analytics.logEvent(SettingsAnalytics.WalletIdCopyCopied)
             }
             .setNegativeButton(R.string.common_no, null)
             .show()

@@ -133,6 +133,14 @@ enum class AnalyticsNames(val eventName: String) {
     INTEREST_VIEWED("Interest Viewed"),
     INTEREST_WITHDRAWAL_CLICKED("Interest Withdrawal Clicked"),
     INTEREST_WITHDRAWAL_VIEWED("Interest Withdrawal Viewed"),
+    ACCOUNT_PASSWORD_CHANGED("Account Password Changed"),
+    CHANGE_PIN_CODE_CLICKED("Change Pin Clicked"),
+    CHANGE_EMAIL_CLICKED("Email Change Clicked"),
+    BIOMETRICS_OPTION_UPDATED("Face Id Updated"),
+    PIN_CODE_CHANGED("Mobile Pin Code Changed"),
+    RECOVERY_PHRASE_SHOWN("Recovery Phrase Shown"),
+    TWO_STEP_VERIFICATION_CODE_CLICKED("Two Step Verification Option Clicked"),
+    TWO_STEP_VERIFICATION_CODE_SUBMITTED("TVerification Code Submitted"),
     EMAIL_VERIFF_REQUESTED("Email Verification Requested");
 }
 

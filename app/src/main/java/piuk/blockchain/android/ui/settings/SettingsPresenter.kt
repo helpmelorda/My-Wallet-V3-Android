@@ -13,7 +13,6 @@ import com.blockchain.nabu.models.responses.nabu.NabuErrorStatusCodes
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.SettingsAnalyticsEvents
 import com.blockchain.preferences.RatingPrefs
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.payload.PayloadManager
@@ -36,6 +35,7 @@ import piuk.blockchain.android.thepit.PitLinkingState
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
+import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
@@ -272,6 +272,7 @@ class SettingsPresenter(
                 throw IllegalStateException("PIN code not found in AccessState")
             }
         }
+        analytics.logEvent(SettingsAnalytics.BiometricsOptionUpdated(isFingerprintUnlockEnabled))
     }
 
     fun updateKyc() {
@@ -517,7 +518,9 @@ class SettingsPresenter(
             .subscribeBy(
                 onComplete = {
                     view?.showError(R.string.password_changed)
-                    analytics.logEvent(SettingsAnalyticsEvents.PasswordChanged)
+
+                    analytics.logEvent(SettingsAnalytics.PasswordChanged_Old)
+                    analytics.logEvent(SettingsAnalytics.PasswordChanged(TxFlowAnalyticsAccountType.USERKEY))
                 },
                 onError = { showUpdatePasswordFailed(fallbackPassword) })
     }
@@ -540,7 +543,7 @@ class SettingsPresenter(
                     }
                     prefs.selectedFiatCurrency = fiatUnit
                     prefs.clearBuyState()
-                    analytics.logEvent(SettingsAnalyticsEvents.CurrencyChanged)
+                    analytics.logEvent(SettingsAnalytics.CurrencyChanged)
                     updateUi(it)
                 },
                 onError = { view?.showError(R.string.update_failed) }
@@ -585,7 +588,8 @@ class SettingsPresenter(
                 onSuccess = {
                     when (it) {
                         is ScanResult.SecuredChannelLogin -> secureChannelManager.sendHandshake(it.handshake)
-                        else -> {}
+                        else -> {
+                        }
                     }.exhaustive
                 },
                 onError = {
