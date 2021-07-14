@@ -34,7 +34,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
-import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.Bank
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -47,11 +46,11 @@ import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.notifications.analytics.Logging
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.mukesh.countrypicker.CountryPicker
+import info.blockchain.wallet.api.Environment
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.util.PasswordUtil
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -109,11 +108,11 @@ import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.visible
+import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Locale
@@ -187,9 +186,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
     private val analytics: Analytics by inject()
     private val rxBus: RxBus by inject()
     private val formatChecker: FormatChecker by inject()
-    private val mwaFF: FeatureFlag by inject(mwaFeatureFlag)
-
-    private var isMWAEnabled: Boolean = false
+    private val environmentConfig: EnvironmentConfig by inject()
 
     private var progressDialog: MaterialProgressDialog? = null
 
@@ -206,15 +203,6 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
         analytics.logEvent(AnalyticsEvents.Settings)
         Logging.logContentView(javaClass.simpleName)
-
-        val compositeDisposable = mwaFF.enabled.observeOn(Schedulers.io()).subscribe(
-            { result ->
-                isMWAEnabled = result
-            },
-            {
-                isMWAEnabled = false
-            }
-        )
 
         initReviews()
     }
@@ -255,7 +243,8 @@ class SettingsFragment : PreferenceFragmentCompat(),
         thePit.onClick { settingsPresenter.onThePitClicked() }
         thePit?.isVisible = true
 
-        qrConnectPref?.isVisible = isMWAEnabled
+        qrConnectPref?.isVisible = environmentConfig.isRunningInDebugMode() &&
+            environmentConfig.environment != Environment.PRODUCTION
         qrConnectPref.onClick { PairingBottomSheet().show(childFragmentManager, BOTTOM_SHEET) }
 
         // Preferences
