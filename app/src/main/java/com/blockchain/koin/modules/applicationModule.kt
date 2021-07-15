@@ -167,7 +167,6 @@ val applicationModule = module {
         factory {
             EthDataManager(
                 payloadDataManager = get(),
-                assetCatalogue = get(),
                 ethAccountApi = get(),
                 ethDataStore = get(),
                 erc20DataStore = get(),
@@ -194,7 +193,12 @@ val applicationModule = module {
             SecondPasswordDialog(contextAccess = get(), payloadManager = get())
         }.bind(SecondPasswordHandler::class)
 
-        factory { KycStatusHelper(get(), get(), get(), get()) }
+        factory { KycStatusHelper(
+            nabuDataManager = get(),
+            nabuToken = get(),
+            settingsDataManager = get(),
+            tierService = get()
+        ) }
 
         scoped {
             CredentialsWiper(
@@ -435,7 +439,11 @@ val applicationModule = module {
             )
         }
 
-        factory { DeepLinkPersistence(get()) }
+        factory {
+            DeepLinkPersistence(
+                prefs = get()
+            )
+        }
 
         factory {
             DashboardModel(
@@ -762,8 +770,15 @@ val applicationModule = module {
         }
 
         factory {
-            EmailVerifyInteractor(get())
+            EmailVerifyInteractor(emailUpdater = get())
         }
+
+        factory {
+            DashboardAccountsSorting(
+                dashboardPrefs = get(),
+                assetCatalogue = get()
+            )
+        }.bind(AccountsSorting::class)
     }
 
     factory {
@@ -801,13 +816,6 @@ val applicationModule = module {
             assetResources = get()
         )
     }.bind(DefaultLabels::class)
-
-    factory {
-        DashboardAccountsSorting(
-            dashboardPrefs = get(),
-            assetCatalogue = get()
-        )
-    }.bind(AccountsSorting::class)
 
     single {
         OverlayDetection(get())

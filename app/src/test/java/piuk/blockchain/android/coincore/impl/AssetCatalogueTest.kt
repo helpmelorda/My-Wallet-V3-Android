@@ -1,14 +1,18 @@
 package piuk.blockchain.android.coincore.impl
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.remoteconfig.RemoteConfig
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.core.Completable
 import org.amshove.kluent.`should be`
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.android.coincore.loader.AssetCatalogueImpl
+import piuk.blockchain.android.coincore.loader.AssetRemoteFeatureLookup
+import piuk.blockchain.android.coincore.loader.RemoteFeature
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 
 class AssetCatalogueTest {
@@ -20,15 +24,25 @@ class AssetCatalogueTest {
         computationTrampoline()
     }
 
-    private val remoteConfig: RemoteConfig = mock {
-        on { getRawJson(AssetCatalogueImpl.CUSTODIAL_ONLY_TOKENS) }.thenReturn(Single.just(DYNAMIC_ENABLED_JSON))
+    private val featureConfig: AssetRemoteFeatureLookup = mock {
+        on { init(any()) }.thenReturn(Completable.complete())
+        on { featuresFor(anyOrNull()) }.thenReturn(setOf(RemoteFeature.Balance))
     }
 
-    private val subject = AssetCatalogueImpl(remoteConfig)
+    private val subject = AssetCatalogueImpl(
+        featureConfig = featureConfig
+    )
 
     @Before
-    fun init() {
-        subject.init().emptySubscribe()
+    fun before() {
+        subject.initialise(
+            setOf(
+                CryptoCurrency.BTC,
+                CryptoCurrency.BCH,
+                CryptoCurrency.ETHER,
+                CryptoCurrency.XLM
+            )
+        ).emptySubscribe()
     }
 
     @Test
@@ -79,9 +93,5 @@ class AssetCatalogueTest {
     @Test
     fun `not recognised should return null`() {
         subject.fromNetworkTicker("NONE") `should be` null
-    }
-
-    companion object {
-        private const val DYNAMIC_ENABLED_JSON = "[\"DOT\", \"ALGO\", \"DOGE\", \"CLOUT\", \"LTC\", \"ETC\"]"
     }
 }

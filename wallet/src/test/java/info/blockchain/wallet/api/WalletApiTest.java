@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -32,7 +33,7 @@ public final class WalletApiTest extends WalletApiMockedResponseTest {
     @Test
     public void getEncryptedPayload() throws IOException, URISyntaxException {
         URI uri = getClass().getClassLoader().getResource("encrypted-payload.txt").toURI();
-        String encryptedPayload = new String(Files.readAllBytes(Paths.get(uri)), Charset.forName("utf-8"));
+        String encryptedPayload = new String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8);
         mockInterceptor.setResponseCode(200);
         mockInterceptor.setResponseString(encryptedPayload);
         final TestObserver<Response<ResponseBody>> testObserver =

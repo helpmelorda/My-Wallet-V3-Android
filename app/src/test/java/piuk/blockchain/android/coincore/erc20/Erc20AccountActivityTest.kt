@@ -24,6 +24,7 @@ import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.android.coincore.impl.CryptoAccountBase
 import piuk.blockchain.androidcore.data.erc20.Erc20Transfer
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
@@ -58,7 +59,8 @@ class Erc20AccountActivityTest {
         exchangeRates = exchangeRates,
         walletPreferences = walletPreferences,
         custodialWalletManager = custodialWalletManager,
-        identity = mock()
+        identity = mock(),
+        baseActions = CryptoAccountBase.defaultActions
     )
 
     @get:Rule

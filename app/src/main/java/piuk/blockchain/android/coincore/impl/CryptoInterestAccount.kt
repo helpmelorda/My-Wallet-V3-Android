@@ -32,8 +32,11 @@ internal class CryptoInterestAccount(
     override val label: String,
     private val custodialWalletManager: CustodialWalletManager,
     override val exchangeRates: ExchangeRateDataManager,
+    @Suppress("unused")
     private val features: InternalFeatureFlagApi
 ) : CryptoAccountBase(), InterestAccount {
+
+    override val baseActions: Set<AssetAction> = emptySet() // Not used by this class
 
     private val hasFunds = AtomicBoolean(false)
 
@@ -143,13 +146,11 @@ internal class CryptoInterestAccount(
             }
 
     override val actions: Single<AvailableActions> =
-        actionableBalance.map {
+        actionableBalance.map { balance ->
             setOfNotNull(
-                if (it.isPositive) {
-                    AssetAction.InterestWithdraw
-                } else {
-                    null
-                }, AssetAction.ViewStatement, AssetAction.ViewActivity
+                AssetAction.InterestWithdraw.takeIf { balance.isPositive },
+                AssetAction.ViewStatement,
+                AssetAction.ViewActivity
             )
         }
 

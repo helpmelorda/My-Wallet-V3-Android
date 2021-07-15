@@ -23,6 +23,7 @@ import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.impl.CryptoAssetBase
+import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
@@ -86,6 +87,20 @@ internal class XlmAsset(
             }.map {
                 listOf(it)
             }
+
+    override fun loadCustodialAccounts(): Single<SingleAccountList> =
+        Single.just(
+            listOf(
+                CustodialTradingAccount(
+                    asset = asset,
+                    label = labels.getDefaultCustodialWalletLabel(),
+                    exchangeRates = exchangeRates,
+                    custodialWalletManager = custodialManager,
+                    identity = identity,
+                    features = features
+                )
+            )
+        )
 
     override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> =
         Maybe.fromCallable {

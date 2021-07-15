@@ -10,12 +10,13 @@ import piuk.blockchain.android.coincore.btc.BtcAsset
 import piuk.blockchain.android.coincore.eth.EthAsset
 import piuk.blockchain.android.coincore.fiat.FiatAsset
 import piuk.blockchain.android.coincore.fiat.LinkedBanksFactory
-import piuk.blockchain.android.coincore.impl.AssetCatalogueImpl
-import piuk.blockchain.android.coincore.impl.AssetLoader
-import piuk.blockchain.android.coincore.impl.CryptoAssetLoader
+import piuk.blockchain.android.coincore.loader.AssetLoader
+import piuk.blockchain.android.coincore.loader.CryptoAssetLoader
 import piuk.blockchain.android.coincore.impl.BackendNotificationUpdater
 import piuk.blockchain.android.coincore.impl.TxProcessorFactory
 import piuk.blockchain.android.coincore.impl.txEngine.TransferQuotesEngine
+import piuk.blockchain.android.coincore.loader.AssetCatalogueImpl
+import piuk.blockchain.android.coincore.loader.AssetRemoteFeatureLookup
 import piuk.blockchain.android.coincore.xlm.XlmAsset
 import piuk.blockchain.android.repositories.AssetActivityRepository
 
@@ -113,11 +114,13 @@ val coincoreModule = module {
         }
 
         scoped {
+            val fixedAssets: List<CryptoAsset> = payloadScope.getAll()
             Coincore(
+                fixedAssets = fixedAssets,
+                assetCatalogue = get(),
                 payloadManager = get(),
                 fiatAsset = get<FiatAsset>(),
                 assetLoader = get(),
-                assetCatalogue = get(),
                 txProcessorFactory = get(),
                 defaultLabels = get(),
                 crashLogger = get()
@@ -125,10 +128,8 @@ val coincoreModule = module {
         }
 
         scoped {
-            val nonErc20Assets: List<CryptoAsset> = payloadScope.getAll()
             CryptoAssetLoader(
-                fixedAssets = nonErc20Assets,
-                assetCatalogue = get(),
+                featureConfig = get(),
                 payloadManager = get(),
                 ethDataManager = get(),
                 feeDataManager = get(),
@@ -197,8 +198,14 @@ val coincoreModule = module {
     }
 
     single {
-        AssetCatalogueImpl(
+        AssetRemoteFeatureLookup(
             remoteConfig = get()
+        )
+    }
+
+    single {
+        AssetCatalogueImpl(
+            featureConfig = get()
         )
     }.bind(AssetCatalogue::class)
 }

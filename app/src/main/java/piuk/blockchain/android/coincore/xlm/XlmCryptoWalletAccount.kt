@@ -11,6 +11,7 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.ActivitySummaryList
+import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.TxEngine
 import piuk.blockchain.android.coincore.impl.CryptoNonCustodialAccount
@@ -22,7 +23,7 @@ import piuk.blockchain.androidcore.utils.extensions.mapList
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal class XlmCryptoWalletAccount(
-    private val payloadManager: PayloadDataManager,
+    payloadManager: PayloadDataManager,
     private var xlmAccountReference: XlmAccountReference,
     private val xlmManager: XlmDataManager,
     override val exchangeRates: ExchangeRateDataManager,
@@ -33,6 +34,7 @@ internal class XlmCryptoWalletAccount(
     identity: UserIdentity
 ) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.XLM, custodialWalletManager, identity) {
 
+    override val baseActions: Set<AssetAction> = defaultActions
     override val isDefault: Boolean = true // Only one account ever, so always default
 
     override val label: String

@@ -95,7 +95,7 @@ internal abstract class CryptoAssetBase(
     private fun loadAccounts(): Single<SingleAccountList> =
         Singles.zip(
             loadNonCustodialAccounts(labels),
-            loadCustodialAccount(),
+            loadCustodialAccounts(),
             loadInterestAccounts()
         ) { nc, c, i ->
             nc + c + i
@@ -116,6 +116,7 @@ internal abstract class CryptoAssetBase(
 
     abstract fun initToken(): Completable
 
+    abstract fun loadCustodialAccounts(): Single<SingleAccountList>
     abstract fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList>
 
     private fun loadInterestAccounts(): Single<SingleAccountList> =
@@ -137,20 +138,6 @@ internal abstract class CryptoAssetBase(
             }
 
     override fun interestRate(): Single<Double> = custodialManager.getInterestAccountRates(asset)
-
-    open fun loadCustodialAccount(): Single<SingleAccountList> =
-        Single.just(
-            listOf(
-                CustodialTradingAccount(
-                    asset = asset,
-                    label = labels.getDefaultCustodialWalletLabel(),
-                    exchangeRates = exchangeRates,
-                    custodialWalletManager = custodialManager,
-                    identity = identity,
-                    features = features
-                )
-            )
-        )
 
     final override fun accountGroup(filter: AssetFilter): Maybe<AccountGroup> =
         accounts.flatMapMaybe {

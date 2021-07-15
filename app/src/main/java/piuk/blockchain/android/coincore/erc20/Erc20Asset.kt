@@ -14,9 +14,11 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AddressParseError
+import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.impl.CryptoAssetBase
+import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
@@ -39,7 +41,9 @@ internal class Erc20Asset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     identity: UserIdentity,
-    features: InternalFeatureFlagApi
+    features: InternalFeatureFlagApi,
+    private val availableCustodialActions: Set<AssetAction>,
+    private val availableNonCustodialActions: Set<AssetAction>
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -63,6 +67,21 @@ internal class Erc20Asset(
         Single.just(getNonCustodialAccount())
             .map { listOf(it) }
 
+    override fun loadCustodialAccounts(): Single<SingleAccountList> =
+        Single.just(
+            listOf(
+                CustodialTradingAccount(
+                    asset = asset,
+                    label = labels.getDefaultCustodialWalletLabel(),
+                    exchangeRates = exchangeRates,
+                    custodialWalletManager = custodialManager,
+                    identity = identity,
+                    features = features,
+                    baseActions = availableCustodialActions
+                )
+            )
+        )
+
     private fun getNonCustodialAccount(): Erc20NonCustodialAccount {
         val erc20Address = ethDataManager.getEthWallet()?.account?.address
             ?: throw Exception("No ${asset.ticker} wallet found")
@@ -77,6 +96,7 @@ internal class Erc20Asset(
             exchangeRates,
             walletPreferences,
             custodialManager,
+            availableNonCustodialActions,
             identity
         )
     }

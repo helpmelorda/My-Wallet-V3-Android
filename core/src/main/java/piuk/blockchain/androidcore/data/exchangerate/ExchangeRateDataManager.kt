@@ -1,5 +1,6 @@
 package piuk.blockchain.androidcore.data.exchangerate
 
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRates
@@ -22,12 +23,13 @@ import java.math.RoundingMode
  */
 class ExchangeRateDataManager(
     private val exchangeRateDataStore: ExchangeRateDataStore,
+    private val assetCatalogue: AssetCatalogue,
     rxBus: RxBus
 ) : ExchangeRates {
     private val rxPinning = RxPinning(rxBus)
 
     fun updateTickers(): Completable =
-        rxPinning.call { exchangeRateDataStore.updateExchangeRates() }
+        rxPinning.call { exchangeRateDataStore.updateExchangeRates(assetCatalogue) }
             .subscribeOn(Schedulers.io())
 
     override fun getLastPrice(cryptoAsset: AssetInfo, fiatName: String) =

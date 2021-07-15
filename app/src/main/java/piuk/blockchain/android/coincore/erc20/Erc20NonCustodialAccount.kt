@@ -9,6 +9,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.coincore.ActivitySummaryList
+import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.TxEngine
@@ -34,6 +35,7 @@ class Erc20NonCustodialAccount(
     override val exchangeRates: ExchangeRateDataManager,
     private val walletPreferences: WalletStatus,
     private val custodialWalletManager: CustodialWalletManager,
+    override val baseActions: Set<AssetAction>,
     identity: UserIdentity
 ) : CryptoNonCustodialAccount(payloadManager, asset, custodialWalletManager, identity) {
 

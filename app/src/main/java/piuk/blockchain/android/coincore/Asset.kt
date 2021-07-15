@@ -58,6 +58,12 @@ enum class AssetAction(
 
 typealias AvailableActions = Set<AssetAction>
 
+internal inline fun AssetAction.takeEnabledIf(
+    baseActions: AvailableActions,
+    predicate: (AssetAction) -> Boolean = { true }
+): AssetAction? =
+    this.takeIf { it in baseActions && predicate(this) }
+
 interface Asset {
     fun init(): Completable
     val isEnabled: Boolean

@@ -2,7 +2,6 @@ package piuk.blockchain.android.coincore
 
 import com.blockchain.logging.CrashLogger
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.percentageDelta
 import info.blockchain.wallet.prices.TimeAgo
@@ -11,8 +10,9 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.impl.AllWalletsAccount
-import piuk.blockchain.android.coincore.impl.AssetLoader
 import piuk.blockchain.android.coincore.impl.TxProcessorFactory
+import piuk.blockchain.android.coincore.loader.AssetCatalogueImpl
+import piuk.blockchain.android.coincore.loader.AssetLoader
 import piuk.blockchain.android.ui.sell.ExchangePriceWithDelta
 import piuk.blockchain.android.ui.transfer.AccountsSorter
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -21,10 +21,11 @@ import timber.log.Timber
 private class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e)
 
 class Coincore internal constructor(
+    private val fixedAssets: List<CryptoAsset>,
+    private val assetCatalogue: AssetCatalogueImpl,
+    private val assetLoader: AssetLoader,
     // TODO: Build an interface on PayloadDataManager/PayloadManager for 'global' crypto calls; second password etc?
     private val payloadManager: PayloadDataManager,
-    private val assetLoader: AssetLoader,
-    private val assetCatalogue: AssetCatalogue,
     private val txProcessorFactory: TxProcessorFactory,
     private val defaultLabels: DefaultLabels,
     private val fiatAsset: Asset,
@@ -39,22 +40,26 @@ class Coincore internal constructor(
         )
 
     fun init(): Completable =
-        assetLoader.loadCryptoAssets()
+        assetCatalogue.initialise(fixedAssets.map { it.asset }.toSet())
+            .flatMap { assetLoader.loadDynamicAssets(it) }
+            .map { fixedAssets + it }
             .doOnSuccess { assetList -> assetMap = assetList.associateBy { it.asset } }
-            .flatMapCompletable { assetList ->
-                Completable.concat(
-                    assetList.map { asset ->
-                        Completable.defer { asset.init() }
-                            .doOnError {
-                                crashLogger.logException(
-                                    CoincoreInitFailure("Failed init: ${asset.asset.ticker}", it)
-                                )
-                            }
-                    }.toList()
-                )
-            }.doOnError {
+            .flatMapCompletable { assetList -> initAssets(assetList) }
+            .doOnError {
                 Timber.e("Coincore initialisation failed! $it")
             }
+
+    private fun initAssets(assetList: List<CryptoAsset>): Completable =
+        Completable.concat(
+            assetList.map { asset ->
+                Completable.defer { asset.init() }
+                    .doOnError {
+                        crashLogger.logException(
+                            CoincoreInitFailure("Failed init: ${asset.asset.ticker}", it)
+                        )
+                    }
+            }.toList()
+        )
 
     val fiatAssets: Asset
         get() = fiatAsset

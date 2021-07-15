@@ -21,6 +21,7 @@ import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.impl.CryptoAssetBase
 import piuk.blockchain.android.coincore.impl.BackendNotificationUpdater
+import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
 import piuk.blockchain.android.coincore.impl.NotificationAddresses
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
@@ -99,6 +100,20 @@ internal class BchAsset(
                 }
             }
         }
+
+    override fun loadCustodialAccounts(): Single<SingleAccountList> =
+        Single.just(
+            listOf(
+                CustodialTradingAccount(
+                    asset = asset,
+                    label = labels.getDefaultCustodialWalletLabel(),
+                    exchangeRates = exchangeRates,
+                    custodialWalletManager = custodialManager,
+                    identity = identity,
+                    features = features
+                )
+            )
+        )
 
     private fun updateBackendNotificationAddresses(account: BchCryptoWalletAccount) {
         require(account.isDefault)

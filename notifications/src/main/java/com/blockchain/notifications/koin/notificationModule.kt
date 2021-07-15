@@ -77,8 +77,11 @@ val notificationModule = module {
         }
     }
 
-    factory { RemoteConfiguration(get()) }
-        .bind(RemoteConfig::class)
+    factory {
+        RemoteConfiguration(
+            remoteConfig = get()
+        )
+    }.bind(RemoteConfig::class)
         .bind(ABTestExperiment::class)
 
     single {

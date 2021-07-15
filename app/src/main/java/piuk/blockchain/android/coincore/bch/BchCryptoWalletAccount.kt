@@ -12,6 +12,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.bitcoinj.core.LegacyAddress
 import piuk.blockchain.android.coincore.ActivitySummaryList
+import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.TxEngine
@@ -43,6 +44,8 @@ internal class BchCryptoWalletAccount private constructor(
     private val refreshTrigger: AccountRefreshTrigger,
     identity: UserIdentity
 ) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.BCH, custodialWalletManager, identity) {
+
+    override val baseActions: Set<AssetAction> = defaultActions
 
     private val hasFunds = AtomicBoolean(false)
 

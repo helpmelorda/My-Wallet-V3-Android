@@ -41,7 +41,6 @@ import java.util.Locale
 
 class EthDataManager(
     private val payloadDataManager: PayloadDataManager,
-    private val assetCatalogue: AssetCatalogue,
     private val ethAccountApi: EthAccountApi,
     private val ethDataStore: EthDataStore,
     private val erc20DataStore: Erc20DataStore,
@@ -254,6 +253,7 @@ class EthDataManager(
      * @return An [Completable]
      */
     fun initEthereumWallet(
+        assetCatalogue: AssetCatalogue,
         label: String
     ): Completable =
         fetchOrCreateEthereumWallet(assetCatalogue, label)

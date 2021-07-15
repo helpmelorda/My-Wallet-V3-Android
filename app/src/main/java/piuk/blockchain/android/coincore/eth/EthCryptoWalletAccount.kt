@@ -10,6 +10,7 @@ import info.blockchain.wallet.ethereum.EthereumAccount
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.ActivitySummaryList
+import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.TxEngine
 import piuk.blockchain.android.coincore.TxSourceState
@@ -32,6 +33,8 @@ internal class EthCryptoWalletAccount(
     private val assetCatalogue: AssetCatalogue,
     identity: UserIdentity
 ) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.ETHER, custodialWalletManager, identity) {
+
+    override val baseActions: Set<AssetAction> = defaultActions
 
     internal val address: String
         get() = jsonAccount.address

@@ -162,7 +162,7 @@ val transactionModule = module {
                 custodialWalletManager = payloadScope.get(),
                 currencyPrefs = get(),
                 eligibilityProvider = payloadScope.get(),
-                accountsSorting = get(),
+                accountsSorting = payloadScope.get(),
                 linkedBanksFactory = payloadScope.get(),
                 bankLinkingPrefs = payloadScope.get()
             )

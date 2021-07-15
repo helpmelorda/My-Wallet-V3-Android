@@ -57,7 +57,7 @@ internal class DynamicOnlyTradingAsset(
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         Single.just(emptyList())
 
-    override fun loadCustodialAccount(): Single<SingleAccountList> =
+    override fun loadCustodialAccounts(): Single<SingleAccountList> =
         Single.just(
             listOf(
                 CustodialTradingAccount(

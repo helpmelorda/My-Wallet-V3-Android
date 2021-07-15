@@ -78,7 +78,6 @@ class EthDataManagerTest {
 
     private val subject = EthDataManager(
         payloadDataManager = payloadManager,
-        assetCatalogue = assetCatalogue,
         ethAccountApi = ethAccountApi,
         ethDataStore = ethDataStore,
         erc20DataStore = erc20DataStore,
@@ -86,7 +85,7 @@ class EthDataManagerTest {
         metadataManager = metadataManager,
         lastTxUpdater = lastTxUpdater,
         rxBus = rxBus
-        )
+    )
 
     @Test
     fun clearEthAccountDetails() {

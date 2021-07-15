@@ -6,6 +6,7 @@ import com.blockchain.testutils.ether
 import com.blockchain.testutils.lumens
 import com.blockchain.testutils.rxInit
 import com.blockchain.testutils.usd
+import info.blockchain.balance.AssetCatalogue
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -23,6 +24,7 @@ class ExchangeRateDataManagerTest {
 
     private lateinit var subject: ExchangeRateDataManager
     private val exchangeRateDataStore: ExchangeRateDataStore = mock()
+    private val assetCatalogue: AssetCatalogue = mock()
     private val rxBus: RxBus = mock()
 
     @get:Rule
@@ -33,8 +35,9 @@ class ExchangeRateDataManagerTest {
     @Before
     fun setUp() {
         subject = ExchangeRateDataManager(
-            exchangeRateDataStore,
-            rxBus
+            exchangeRateDataStore = exchangeRateDataStore,
+            assetCatalogue = assetCatalogue,
+            rxBus = rxBus
         )
     }
 

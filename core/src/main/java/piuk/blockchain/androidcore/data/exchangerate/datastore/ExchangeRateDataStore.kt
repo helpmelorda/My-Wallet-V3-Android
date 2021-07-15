@@ -18,17 +18,16 @@ import java.math.BigDecimal
 // more elegant. This is out of scope for this current refactor pass, however.
 class ExchangeRateDataStore(
     private val exchangeRateService: ExchangeRateService,
-    private val assetCatalogue: AssetCatalogue,
     private val prefs: PersistentPrefs
 ) {
     // Map assets to a map of FIAT -> CURRENT PRICE in that fiat
     private val tickerCache: MutableMap<AssetInfo, Map<String, PriceDatum>> = HashMap()
 
-    fun updateExchangeRates(): Completable = Single.merge(
+    fun updateExchangeRates(assetCatalogue: AssetCatalogue): Completable = Single.merge(
         assetCatalogue.supportedCryptoAssets
             .map { asset ->
                 exchangeRateService.getExchangeRateMap(asset)
-                    .doOnSuccess { tickerCache.put(asset, it.toMap()) }
+                    .doOnSuccess { tickerCache[asset] = it.toMap() }
             }
         ).ignoreElements()
 

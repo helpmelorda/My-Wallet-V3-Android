@@ -170,6 +170,7 @@ val coreModule = module {
 
         factory {
             ExchangeRateDataManager(
+                assetCatalogue = get(),
                 exchangeRateDataStore = get(),
                 rxBus = get()
             )
@@ -177,7 +178,6 @@ val coreModule = module {
 
         scoped {
             ExchangeRateDataStore(
-                assetCatalogue = get(),
                 exchangeRateService = get(),
                 prefs = get()
             )

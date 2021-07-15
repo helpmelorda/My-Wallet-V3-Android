@@ -1,4 +1,4 @@
-package piuk.blockchain.android.coincore.impl
+package piuk.blockchain.android.coincore.loader
 
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency

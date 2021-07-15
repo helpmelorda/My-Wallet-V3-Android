@@ -3,7 +3,7 @@ package piuk.blockchain.android.coincore
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.coincore.impl.PAX
+import piuk.blockchain.android.coincore.loader.PAX
 import piuk.blockchain.android.identity.Feature
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.ui.dashboard.assetdetails.selectFirstAccount

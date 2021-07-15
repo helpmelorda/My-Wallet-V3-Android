@@ -29,6 +29,7 @@ import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.android.coincore.impl.BackendNotificationUpdater
+import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
 import piuk.blockchain.android.coincore.impl.NotificationAddresses
 import piuk.blockchain.android.identity.UserIdentity
 
@@ -67,7 +68,10 @@ internal class EthAsset(
     override val multiWallet: Boolean = false
 
     override fun initToken(): Completable =
-        ethDataManager.initEthereumWallet(labels.getDefaultNonCustodialWalletLabel())
+        ethDataManager.initEthereumWallet(
+            assetCatalogue.value,
+            labels.getDefaultNonCustodialWalletLabel()
+        )
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         Single.just(ethDataManager.getEthWallet() ?: throw Exception("No ether wallet found"))
@@ -88,6 +92,20 @@ internal class EthAsset(
             }.map {
                 listOf(it)
             }
+
+    override fun loadCustodialAccounts(): Single<SingleAccountList> =
+        Single.just(
+            listOf(
+                CustodialTradingAccount(
+                    asset = asset,
+                    label = labels.getDefaultCustodialWalletLabel(),
+                    exchangeRates = exchangeRates,
+                    custodialWalletManager = custodialManager,
+                    identity = identity,
+                    features = features
+                )
+            )
+        )
 
     private fun updateBackendNotificationAddresses(account: EthCryptoWalletAccount) {
         val notify = NotificationAddresses(

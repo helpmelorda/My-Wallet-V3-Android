@@ -33,6 +33,7 @@ import piuk.blockchain.android.coincore.TradeActivitySummaryItem
 import piuk.blockchain.android.coincore.TradingAccount
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.TxSourceState
+import piuk.blockchain.android.coincore.takeEnabledIf
 import piuk.blockchain.android.identity.Feature
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
@@ -49,7 +50,7 @@ class CustodialTradingAccount(
     private val identity: UserIdentity,
     @Suppress("unused")
     private val features: InternalFeatureFlagApi,
-    private val baseActions: Set<AssetAction> = defaultCustodialActions
+    override val baseActions: Set<AssetAction> = CryptoAccountBase.defaultActions
 ) : CryptoAccountBase(), TradingAccount {
 
     private val hasFunds = AtomicBoolean(false)
@@ -153,20 +154,20 @@ class CustodialTradingAccount(
             ) { hasFunds, hasActionableBalance, isEligibleForSimpleBuy, isEligibleForInterest, fiatAccounts ->
                 val isActiveFunded = !isArchived && hasFunds
 
-                val activity = AssetAction.ViewActivity.takeEnabledIf()
-                val receive = AssetAction.Receive.takeEnabledIf()
-                val buy = AssetAction.Buy.takeEnabledIf()
+                val activity = AssetAction.ViewActivity.takeEnabledIf(baseActions)
+                val receive = AssetAction.Receive.takeEnabledIf(baseActions)
+                val buy = AssetAction.Buy.takeEnabledIf(baseActions)
 
-                val send = AssetAction.Send.takeEnabledIf {
+                val send = AssetAction.Send.takeEnabledIf(baseActions) {
                     isActiveFunded && hasActionableBalance
                 }
-                val interest = AssetAction.InterestDeposit.takeEnabledIf {
+                val interest = AssetAction.InterestDeposit.takeEnabledIf(baseActions) {
                     isActiveFunded && isEligibleForInterest
                 }
-                val swap = AssetAction.Swap.takeEnabledIf {
+                val swap = AssetAction.Swap.takeEnabledIf(baseActions) {
                     isActiveFunded && isEligibleForSimpleBuy
                 }
-                val sell = AssetAction.Sell.takeEnabledIf {
+                val sell = AssetAction.Sell.takeEnabledIf(baseActions) {
                     isActiveFunded && isEligibleForSimpleBuy && fiatAccounts.isNotEmpty()
                 }
 
@@ -174,11 +175,6 @@ class CustodialTradingAccount(
                     buy, sell, swap, send, receive, interest, activity
                 )
             }
-
-    private inline fun AssetAction.takeEnabledIf(
-        predicate: (AssetAction) -> Boolean = { true }
-    ): AssetAction? =
-        this.takeIf { it in baseActions && predicate(this) }
 
     override val hasStaticAddress: Boolean = false
 
@@ -306,16 +302,6 @@ class CustodialTradingAccount(
             CustodialOrderState.PENDING_DEPOSIT,
             CustodialOrderState.PENDING_EXECUTION,
             CustodialOrderState.FAILED
-        )
-
-        private val defaultCustodialActions = setOf(
-            AssetAction.ViewActivity,
-            AssetAction.Send,
-            AssetAction.InterestDeposit,
-            AssetAction.Swap,
-            AssetAction.Sell,
-            AssetAction.Receive,
-            AssetAction.Buy
         )
     }
 }

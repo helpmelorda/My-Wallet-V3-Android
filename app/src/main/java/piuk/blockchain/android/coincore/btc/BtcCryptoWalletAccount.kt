@@ -46,7 +46,7 @@ internal class BtcCryptoWalletAccount(
     private val refreshTrigger: AccountRefreshTrigger,
     identity: UserIdentity
 ) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.BTC, custodialWalletManager, identity) {
-
+    override val baseActions: Set<AssetAction> = defaultActions
     private val hasFunds = AtomicBoolean(false)
 
     override val label: String

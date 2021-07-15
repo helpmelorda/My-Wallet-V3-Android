@@ -193,7 +193,7 @@ class DashboardFragment :
                 newList.add(IDX_CARD_ANNOUNCE, get(IDX_CARD_ANNOUNCE))
                 newList.add(IDX_CARD_BALANCE, newState)
                 if (newState.fiatAssets?.fiatAccounts?.isNotEmpty() == true) {
-                    set(IDX_FUNDS_BALANCE, newState.fiatAssets)
+                    newList.add(IDX_FUNDS_BALANCE, newState.fiatAssets)
                 } else {
                     newList.add(IDX_FUNDS_BALANCE, get(IDX_FUNDS_BALANCE))
                 }
