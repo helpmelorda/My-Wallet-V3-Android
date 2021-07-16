@@ -1,10 +1,12 @@
 package piuk.blockchain.androidcore.data.settings
 
+import com.blockchain.api.WalletSettingsService
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import okhttp3.ResponseBody
 import org.junit.Assert.assertEquals
@@ -24,11 +26,12 @@ class SettingsDataManagerTest : RxTest() {
     private val settingsService: SettingsService = mock()
     private val settingsDataStore: SettingsDataStore = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
+    private val walletSettingsService: WalletSettingsService = mock()
     private val rxBus: RxBus = mock()
 
     @Before
     fun setUp() {
-        subject = SettingsDataManager(settingsService, settingsDataStore, currencyPrefs, rxBus)
+        subject = SettingsDataManager(settingsService, settingsDataStore, currencyPrefs, walletSettingsService, rxBus)
     }
 
     @Test
@@ -386,5 +389,20 @@ class SettingsDataManagerTest : RxTest() {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
+    }
+
+    @Test
+    fun triggerEmailAlert() {
+        val guid = "GUID"
+        val sharedKey = "SHARED_KEY"
+        whenever(walletSettingsService.triggerAlert(guid, sharedKey)).thenReturn(Completable.complete())
+
+        val testObserver = subject.triggerEmailAlert(guid, sharedKey).test()
+
+        verifyNoMoreInteractions(settingsService)
+        verify(walletSettingsService).triggerAlert(guid, sharedKey)
+        verifyNoMoreInteractions(walletSettingsService)
+        testObserver.assertComplete()
+        testObserver.assertNoErrors()
     }
 }

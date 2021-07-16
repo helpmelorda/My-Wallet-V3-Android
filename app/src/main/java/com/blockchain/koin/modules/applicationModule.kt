@@ -63,7 +63,6 @@ import piuk.blockchain.android.ui.auth.FirebaseMobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.PinEntryPresenter
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedPresenter
-import piuk.blockchain.android.ui.backup.start.BackupWalletStartingPresenter
 import piuk.blockchain.android.ui.backup.verify.BackupVerifyPresenter
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListPresenter
 import piuk.blockchain.android.ui.createwallet.CreateWalletPresenter
@@ -89,6 +88,9 @@ import piuk.blockchain.android.ui.linkbank.BankAuthState
 import piuk.blockchain.android.ui.onboarding.OnboardingPresenter
 import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
+import piuk.blockchain.android.ui.backup.start.BackupWalletStartingInteractor
+import piuk.blockchain.android.ui.backup.start.BackupWalletStartingModel
+import piuk.blockchain.android.ui.backup.start.BackupWalletStartingState
 import piuk.blockchain.android.ui.pairingcode.PairingModel
 import piuk.blockchain.android.ui.pairingcode.PairingState
 import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
@@ -332,7 +334,20 @@ val applicationModule = module {
         }
 
         factory {
-            BackupWalletStartingPresenter()
+            BackupWalletStartingInteractor(
+                prefs = get(),
+                settingsDataManager = get()
+            )
+        }
+
+        factory {
+            BackupWalletStartingModel(
+                initialState = BackupWalletStartingState(),
+                mainScheduler = AndroidSchedulers.mainThread(),
+                environmentConfig = get(),
+                crashLogger = get(),
+                interactor = get()
+            )
         }
 
         factory {

@@ -1,5 +1,6 @@
 package piuk.blockchain.androidcore.data.settings
 
+import com.blockchain.api.WalletSettingsService
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
@@ -14,6 +15,7 @@ class SettingsDataManager(
     private val settingsService: SettingsService,
     private val settingsDataStore: SettingsDataStore,
     private val currencyPrefs: CurrencyPrefs,
+    private val walletSettingsService: WalletSettingsService,
     rxBus: RxBus
 ) {
     private val rxPinning: RxPinning = RxPinning(rxBus)
@@ -217,4 +219,10 @@ class SettingsDataManager(
                 currencyPrefs.selectedFiatCurrency = fiatUnit
             }
             .applySchedulers()
+
+    fun triggerEmailAlert(guid: String, sharedKey: String) =
+        walletSettingsService.triggerAlert(
+            guid = guid,
+            sharedKey = sharedKey
+        )
 }

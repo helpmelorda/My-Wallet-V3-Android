@@ -10,32 +10,26 @@ import com.blockchain.ui.password.SecondPasswordHandler
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupStartBinding
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListFragment
-import piuk.blockchain.android.ui.base.BaseFragment
+import piuk.blockchain.android.ui.base.mvi.MviFragment
 
 class BackupWalletStartingFragment :
-    BaseFragment<BackupWalletStartingView, BackupWalletStartingPresenter>(),
-    BackupWalletStartingView {
-
-    private val backupWalletStartingPresenter: BackupWalletStartingPresenter by scopedInject()
+    MviFragment<BackupWalletStartingModel,
+                BackupWalletStartingIntents,
+                BackupWalletStartingState,
+                FragmentBackupStartBinding>() {
 
     private val secondPasswordHandler: SecondPasswordHandler by scopedInjectActivity()
 
-    private var _binding: FragmentBackupStartBinding? = null
-    private val binding get() = _binding!!
+    override val model: BackupWalletStartingModel by scopedInject()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentBackupStartBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentBackupStartBinding =
+        FragmentBackupStartBinding.inflate(inflater, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonStart.setOnClickListener {
+            model.process(BackupWalletStartingIntents.TriggerEmailAlert)
             secondPasswordHandler.validate(
                 requireContext(),
                 object : SecondPasswordHandler.ResultListener {
@@ -51,9 +45,7 @@ class BackupWalletStartingFragment :
         }
     }
 
-    override fun createPresenter() = backupWalletStartingPresenter
-
-    override fun getMvpView() = this
+    override fun render(newState: BackupWalletStartingState) {}
 
     private fun loadFragmentWordListFragment(secondPassword: String? = null) {
         val fragment = BackupWalletWordListFragment().apply {
@@ -66,7 +58,7 @@ class BackupWalletStartingFragment :
                 }
             }
         }
-        activity?.run {
+        activity.run {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.content_frame, fragment)
                 .addToBackStack(null)
