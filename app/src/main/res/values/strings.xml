@@ -2118,6 +2118,7 @@
     <string name="retry_recovery_phrase_cta">Retry Recovery Phrase</string>
     <string name="reset_account_warning_title">Resetting Account may result in lost funds</string>
     <string name="reset_account_warning_description">This means that if you lose your recovery phrase, you will lose access to your Private Key Wallet funds. You can always restore your Private Key Wallet funds later if you find your recovery phrase.</string>
+    <string name="restore_wallet_cta">Restore Wallet</string>
 
     <!-- Recurring buy screens -->
     <string name="recurring_buy_toolbar">Recurring Buys</string>
