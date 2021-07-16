@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.login.auth
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
@@ -264,11 +265,25 @@ class LoginAuthActivity :
                 replace(entry.key, entry.value)
             }
         }
-        val data = Base64.decode(
-            urlSafeEncodedData.toByteArray(Charsets.UTF_8),
-            Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING
-        )
-        return JSONObject(String(data))
+        return tryDecode(urlSafeEncodedData.toByteArray(Charsets.UTF_8))
+    }
+
+    private fun tryDecode(urlSafeEncodedData: ByteArray): JSONObject {
+        return try {
+            val data = Base64.decode(
+                urlSafeEncodedData,
+                Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING
+            )
+            JSONObject(String(data))
+        } catch (ex: Exception) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // The getUrlDecoder() returns the URL_SAFE Base64 decoder
+                val data = java.util.Base64.getUrlDecoder().decode(urlSafeEncodedData)
+                JSONObject(String(data))
+            } else {
+                throw ex
+            }
+        }
     }
 
     private fun validateAndLogDeeplinkHost(host: String?) {
