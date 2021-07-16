@@ -6,8 +6,8 @@ apply plugin: 'androidx.navigation.safeargs'
 apply plugin: 'com.novoda.build-properties'
 apply from: '../quality/ktlint.gradle'
 apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'com.google.gms.google-services'
 apply plugin: 'kotlinx-serialization'
+apply plugin: 'com.google.gms.google-services'
 
 
 buildProperties {
