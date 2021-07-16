@@ -2,15 +2,10 @@ package piuk.blockchain.android.simplebuy
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
@@ -20,7 +15,6 @@ import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.preferences.RatingPrefs
-import piuk.blockchain.android.urllinks.URL_SUPPORT_BALANCE_LOCKED
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManagerFactory
 import info.blockchain.balance.FiatValue
@@ -40,8 +34,8 @@ import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankPaymentApproval
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
-import piuk.blockchain.android.util.StringUtils
 import com.blockchain.utils.secondsToDays
+import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import java.util.Locale
 
 class SimpleBuyPaymentFragment :
@@ -50,7 +44,6 @@ class SimpleBuyPaymentFragment :
     UnlockHigherLimitsBottomSheet.Host {
 
     override val model: SimpleBuyModel by scopedInject()
-    private val stringUtils: StringUtils by inject()
     private val ratingPrefs: RatingPrefs by scopedInject()
     private var reviewInfo: ReviewInfo? = null
     private var isFirstLoad = false
@@ -102,7 +95,8 @@ class SimpleBuyPaymentFragment :
         }
 
         if (internalFlags.isFeatureEnabled(GatedFeature.RECURRING_BUYS) &&
-            newState.recurringBuyState == RecurringBuyState.INACTIVE) {
+            newState.recurringBuyState == RecurringBuyState.INACTIVE
+        ) {
             toast(resources.getString(R.string.recurring_buy_creation_error), ToastCustom.TYPE_ERROR)
         }
 
@@ -122,10 +116,13 @@ class SimpleBuyPaymentFragment :
         )
 
         binding.transactionProgressView.onCtaClick {
-            if (!newState.paymentPending)
-                navigator().exitSimpleBuyFlow()
-            else
-                navigator().goToPendingOrderScreen()
+            when {
+                newState.showRecurringBuyFirstTimeFlow -> {
+                    navigator().goToSetupFirstRecurringBuy()
+                }
+                !newState.paymentPending -> navigator().exitSimpleBuyFlow()
+                else -> navigator().goToPendingOrderScreen()
+            }
         }
 
         newState.everypayAuthOptions?.let {
@@ -232,9 +229,11 @@ class SimpleBuyPaymentFragment :
                     binding.transactionProgressView.showPendingTx(
                         title = getString(R.string.card_purchased, newState.orderValue.formatOrSymbolForZero()),
                         subtitle = messageOnPayment,
-                        locksNote = subtitleForLockedFunds(
-                            lockedFundDays, newState.selectedPaymentMethod.paymentMethodType
-                        )
+                        locksNote = newState.selectedPaymentMethod.paymentMethodType
+                            .subtitleForLockedFunds(
+                                lockedFundDays,
+                                requireContext()
+                            )
                     )
                 }
                 checkForUnlockHigherLimits(newState.shouldShowUnlockHigherFunds)
@@ -275,6 +274,7 @@ class SimpleBuyPaymentFragment :
                     }
                 }
             }
+
             newState.errorState != null -> {
                 binding.transactionProgressView.showTxError(
                     getString(R.string.common_oops),
@@ -290,40 +290,6 @@ class SimpleBuyPaymentFragment :
         binding.transactionProgressView.configureSecondaryButton(getString(R.string.want_to_buy_more)) {
             showBottomSheet(UnlockHigherLimitsBottomSheet())
         }
-    }
-
-    private fun subtitleForLockedFunds(lockedFundDays: Long, paymentMethod: PaymentMethodType): SpannableStringBuilder {
-        val intro = when (paymentMethod) {
-            PaymentMethodType.PAYMENT_CARD -> getString(
-                R.string.security_locked_card_funds_explanation,
-                lockedFundDays.toString()
-            )
-            PaymentMethodType.BANK_TRANSFER ->
-                getString(
-                    R.string.security_locked_funds_bank_transfer_payment_screen_explanation,
-                    lockedFundDays.toString()
-                )
-            else -> return SpannableStringBuilder()
-        }
-
-        val map = mapOf("learn_more_link" to Uri.parse(URL_SUPPORT_BALANCE_LOCKED))
-
-        val learnLink = stringUtils.getStringWithMappedAnnotations(
-            R.string.common_linked_learn_more,
-            map,
-            activity
-        )
-
-        val sb = SpannableStringBuilder()
-        sb.append(intro)
-            .append(learnLink)
-            .setSpan(
-                ForegroundColorSpan(ContextCompat.getColor(activity, R.color.blue_600)),
-                intro.length, intro.length + learnLink.length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-
-        return sb
     }
 
     private fun openWebView(paymentLink: String, exitLink: String) {

@@ -4,7 +4,7 @@ import com.google.common.collect.BiMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.blockchain.api.NonCustodialBitcoinService;
+import com.blockchain.api.services.NonCustodialBitcoinService;
 import com.blockchain.api.bitcoin.data.BalanceDto;
 import info.blockchain.wallet.WalletApiMockedResponseTest;
 import info.blockchain.wallet.exceptions.HDWalletException;

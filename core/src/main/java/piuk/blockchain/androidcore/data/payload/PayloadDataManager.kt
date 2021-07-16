@@ -2,7 +2,7 @@ package piuk.blockchain.androidcore.data.payload
 
 import com.blockchain.annotations.MoveCandidate
 import com.blockchain.logging.CrashLogger
-import com.blockchain.api.NonCustodialBitcoinService
+import com.blockchain.api.services.NonCustodialBitcoinService
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.bip44.HDWalletFactory
 import info.blockchain.wallet.exceptions.DecryptionException

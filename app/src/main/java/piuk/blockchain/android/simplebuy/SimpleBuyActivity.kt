@@ -3,6 +3,7 @@ package piuk.blockchain.android.simplebuy
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.fragment.app.FragmentTransaction
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.AssetCatalogue
@@ -23,6 +24,8 @@ import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
+import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
+import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
 import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
@@ -139,6 +142,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
         preselectedPaymentMethodId: String?
     ) {
         supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
             .replace(
                 R.id.content_frame,
                 SimpleBuyCryptoFragment.newInstance(preselectedAsset, preselectedPaymentMethodId),
@@ -154,8 +158,8 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override fun goToCheckOutScreen(addToBackStack: Boolean) {
         ViewUtils.hideKeyboard(this)
-
         supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
             .replace(R.id.content_frame, SimpleBuyCheckoutFragment(), SimpleBuyCheckoutFragment::class.simpleName)
             .apply {
                 if (addToBackStack) {
@@ -167,6 +171,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override fun goToKycVerificationScreen(addToBackStack: Boolean) {
         supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
             .replace(R.id.content_frame, SimpleBuyPendingKycFragment(), SimpleBuyPendingKycFragment::class.simpleName)
             .apply {
                 if (addToBackStack) {
@@ -178,6 +183,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override fun goToPendingOrderScreen() {
         supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
             .replace(
                 R.id.content_frame,
                 SimpleBuyCheckoutFragment.newInstance(true),
@@ -197,6 +203,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override fun goToPaymentScreen(addToBackStack: Boolean, isPaymentAuthorised: Boolean) {
         supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
             .replace(
                 R.id.content_frame, SimpleBuyPaymentFragment.newInstance(isPaymentAuthorised),
                 SimpleBuyPaymentFragment::class.simpleName
@@ -209,12 +216,6 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
             .commitAllowingStateLoss()
     }
 
-    override fun launchIntro() {
-        supportFragmentManager.beginTransaction()
-            .add(R.id.content_frame, SimpleBuyIntroFragment())
-            .commitAllowingStateLoss()
-    }
-
     override fun onSupportNavigateUp(): Boolean = consume { onBackPressed() }
 
     override fun showLoading() = binding.progress.visible()
@@ -224,6 +225,28 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     override fun launchBankAuthWithError(errorState: ErrorState) {
         startActivity(BankAuthActivity.newInstance(errorState, BankAuthSource.SIMPLE_BUY, this))
     }
+
+    override fun goToSetupFirstRecurringBuy() {
+        supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
+            .replace(R.id.content_frame, RecurringBuyFirstTimeBuyerFragment())
+            .commitAllowingStateLoss()
+    }
+
+    override fun goToFirstRecurringBuyCreated() {
+        supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
+            .replace(R.id.content_frame, RecurringBuySuccessfulFragment())
+            .commitAllowingStateLoss()
+    }
+
+    private fun FragmentTransaction.addAnimationTransaction(): FragmentTransaction =
+        this.setCustomAnimations(
+            R.anim.fragment_slide_left_enter,
+            R.anim.fragment_slide_left_exit,
+            R.anim.fragment_slide_right_enter,
+            R.anim.fragment_slide_right_exit
+        )
 
     companion object {
         const val KYC_STARTED = 6788

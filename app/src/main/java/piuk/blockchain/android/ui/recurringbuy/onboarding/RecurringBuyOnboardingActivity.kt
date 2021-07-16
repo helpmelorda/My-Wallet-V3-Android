@@ -1,6 +1,5 @@
-package piuk.blockchain.android.ui.recurringbuy
+package piuk.blockchain.android.ui.recurringbuy.onboarding
 
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -44,9 +43,6 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
 
     private fun showHeader(isShown: Boolean) {
         binding.apply {
-            title.visibleIf { isShown }
-            icon.visibleIf { isShown }
-            headerBkgd.visibleIf { isShown }
             headerText.visibleIf { isShown }
         }
     }
@@ -61,8 +57,11 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
     }
 
     private fun goToRecurringSetUpScreen() {
-        startActivity(Intent(this, SimpleBuyActivity::class.java))
-        finish()
+        startActivity(
+            SimpleBuyActivity.newInstance(
+                context = this
+            )
+        )
     }
 
     private fun createListOfRecurringBuyInfo(): List<RecurringBuyInfo> = listOf(

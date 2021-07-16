@@ -46,6 +46,7 @@ import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBot
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
+import piuk.blockchain.android.ui.recurringbuy.RecurringBuySelectionBottomSheet
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.util.getResolvedColor

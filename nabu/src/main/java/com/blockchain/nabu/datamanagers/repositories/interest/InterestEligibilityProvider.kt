@@ -1,7 +1,7 @@
 package com.blockchain.nabu.datamanagers.repositories.interest
 
 import com.blockchain.nabu.Authenticator
-import com.blockchain.api.NabuUserService
+import com.blockchain.api.services.NabuUserService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single

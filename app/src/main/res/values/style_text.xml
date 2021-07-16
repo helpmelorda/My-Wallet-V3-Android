@@ -141,6 +141,11 @@
         <item name="android:textSize">12sp</item>
     </style>
 
+    <style name="Text.Light.Centered.12">
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
     <style name="Text.Light.Centered.14">
         <item name="android:textSize">14sp</item>
     </style>

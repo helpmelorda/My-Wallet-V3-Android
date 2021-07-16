@@ -1,6 +1,6 @@
-package com.blockchain.api
+package com.blockchain.api.services
 
-import com.blockchain.api.nabu.NabuUserApiInterface
+import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.nabu.data.InterestEligibilityResponse
 import io.reactivex.rxjava3.core.Single
 import java.util.Locale
@@ -18,7 +18,7 @@ data class InterestEligibility(
 
 // TODO: Add nabu User and User Capability calls to this service (and the underlying interface)
 class NabuUserService internal constructor(
-    private val api: NabuUserApiInterface
+    private val api: NabuUserApi
 ) {
     fun getInterestEligibility(
         authHeader: String

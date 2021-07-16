@@ -34,7 +34,8 @@
             android:name=".ui.launcher.LauncherActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTask">
-            <meta-data android:name="android.app.shortcuts"
+            <meta-data
+                android:name="android.app.shortcuts"
                 android:resource="@xml/debug_shortcuts" />
 
             <intent-filter>
@@ -75,14 +76,12 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-
         <activity
             android:name="piuk.blockchain.com.FeatureFlagsHandlingActivity"
             android:clearTaskOnLaunch="true"
             android:screenOrientation="portrait"
             android:taskAffinity="piuk.blockchain.com.FeatureFlagsHandlingActivity"
-            android:theme="@style/AppTheme"/>
-
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".ui.home.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -100,11 +99,13 @@
         <activity
             android:name=".ui.login.LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode="adjustResize" >
+            android:windowSoftInputMode="adjustResize">
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="${LOGIN_LINK_HOST}"
                     android:scheme="https" />
@@ -195,11 +196,10 @@
             android:name=".ui.linkbank.BankAuthActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
-            android:name=".ui.recurringbuy.RecurringBuyOnboardingActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-
-        <activity
             android:name=".ui.transactionflow.fullscreen.TransactionFlowActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name=".ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
 
         <meta-data

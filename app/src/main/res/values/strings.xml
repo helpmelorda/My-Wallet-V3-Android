@@ -2131,7 +2131,7 @@
     <string name="recurring_buy_title_3_2">\nYou’ll buy more crypto.</string>
     <string name="recurring_buy_title_4_1">When the price goes up.</string>
     <string name="recurring_buy_title_4_2">\nYou’ll buy less crypto.</string>
-    <string name="recurring_buy_title_5_1">But does it work?\n\nOver the past 5 years, buying Bitcoin every week performed better than timing the market</string>
+    <string name="recurring_buy_title_5_1">But does it work?\nOver the past 5 years, buying Bitcoin every week performed better than timing the market</string>
     <string name="recurring_buy_title_5_2">\n86% of the time.</string>
     <string name="recurring_buy_note">Calculation is based on one $30 purchase a week on a random day. \"Timing the market\" is defined as buying Bitcoin on every 6% dip.\n<annotation link="learn_more">Learn more -></annotation></string>
     <string name="recurring_buy_one_time_short">One time</string>
@@ -2172,7 +2172,6 @@
     <string name="recurring_buy_details_fees">Fees</string>
     <string name="activity_details_label_btn_cash">Add Cash</string>
     <string name="recurring_buy_funds_label">%s Account</string>
-
     <string name="recurring_buy_short_error">Failed</string>
     <string name="recurring_buy_insufficient_funds_short_error">Failed. Low Balance</string>
     <string name="recurring_buy_insufficient_funds_error">Your payment method has insufficient funds. Add more to complete the recurring buy.</string>
@@ -2183,4 +2182,10 @@
     <string name="recurring_buy_generic_error">There has been an error with your purchase. <annotation link="contact_support_link">Contact support</annotation> for more information.</string>
     <string name="fee_calculated_at_checkout">Calculated at checkout</string>
     <string name="recurring_buy_on_boarding_header">Set an easy, automatic Recurring Buy for every day, week or month. Tap into the power of Dollar Cost Averaging.</string>
+    <string name="recurring_buy_set_up_title">Set Up a Recurring Buy</string>
+    <string name="recurring_buy_first_time_toolbar">Recurring Buy</string>
+    <string name="recurring_buy_first_time_title">Buy %1$s of %2$s</string>
+    <string name="recurring_buy_first_time_success_title">Recurring Buy Started!</string>
+    <string name="recurring_buy_first_time_info">Buy %1$s of %2$s every day, week or month with a Recurring Buy. No need to ever time the market.</string>
+    <string name="recurring_buy_first_time_success_subtitle">We will buy %1$s of %2$s %3$s at that moment’s market price. Cancel this recurring buy at anytime.</string>
 </resources>

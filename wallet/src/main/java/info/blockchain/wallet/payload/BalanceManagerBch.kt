@@ -1,6 +1,6 @@
 package info.blockchain.wallet.payload
 
-import com.blockchain.api.NonCustodialBitcoinService
+import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.bitcoin.data.BalanceResponseDto
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.payload.data.XPubs

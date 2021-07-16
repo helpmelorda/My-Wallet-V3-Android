@@ -1,5 +1,6 @@
-package com.blockchain.api
+package com.blockchain.api.services
 
+import com.blockchain.api.ApiException
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.addressmapping.data.AddressMapRequest
 import io.reactivex.rxjava3.core.Single

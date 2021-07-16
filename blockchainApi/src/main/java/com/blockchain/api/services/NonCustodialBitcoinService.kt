@@ -1,6 +1,6 @@
-package com.blockchain.api
+package com.blockchain.api.services
 
-import com.blockchain.api.bitcoin.BitcoinApiInterface
+import com.blockchain.api.bitcoin.BitcoinApi
 import com.blockchain.api.bitcoin.data.BalanceResponseDto
 import com.blockchain.api.bitcoin.data.MultiAddress
 import com.blockchain.api.bitcoin.data.UnspentOutputsDto
@@ -10,7 +10,7 @@ import retrofit2.Call
 import retrofit2.HttpException
 
 class NonCustodialBitcoinService internal constructor(
-    private val api: BitcoinApiInterface,
+    private val api: BitcoinApi,
     private val apiCode: String
 ) {
     enum class BalanceFilter(val filterInt: Int) {

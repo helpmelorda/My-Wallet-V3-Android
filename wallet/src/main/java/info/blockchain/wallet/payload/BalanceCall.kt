@@ -1,7 +1,7 @@
 package info.blockchain.wallet.payload
 
 import info.blockchain.balance.AssetInfo
-import com.blockchain.api.NonCustodialBitcoinService
+import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.bitcoin.data.BalanceResponseDto
 import info.blockchain.wallet.exceptions.ServerConnectionException
 import info.blockchain.wallet.payload.data.XPubs

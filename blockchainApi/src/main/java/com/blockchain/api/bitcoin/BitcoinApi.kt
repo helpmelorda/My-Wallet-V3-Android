@@ -15,7 +15,7 @@ import retrofit2.http.Query
 
 // TODO: Should be internal, but required for payload integration tests.
 // Once those are re-written, this can be changed back
-/*internal*/ interface BitcoinApiInterface {
+/*internal*/ interface BitcoinApi {
     @FormUrlEncoded
     @POST("{coin}/multiaddr")
     fun getMultiAddress(

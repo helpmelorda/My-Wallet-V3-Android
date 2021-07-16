@@ -1,6 +1,6 @@
 package info.blockchain.wallet.payment
 
-import com.blockchain.api.NonCustodialBitcoinService
+import com.blockchain.api.services.NonCustodialBitcoinService
 import info.blockchain.wallet.api.dust.data.DustInput
 import info.blockchain.wallet.bch.BchMainNetParams
 import info.blockchain.wallet.keys.SigningKey

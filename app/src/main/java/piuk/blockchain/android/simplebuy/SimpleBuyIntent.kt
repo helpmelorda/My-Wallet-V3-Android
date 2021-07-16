@@ -340,6 +340,11 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
+    object FinishedFirstBuy : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(showRecurringBuyFirstTimeFlow = true)
+    }
+
     class OrderCreated(
         private val buyOrder: BuySellOrder,
         private val showInAppRating: Boolean = false,
@@ -453,6 +458,17 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     class RecurringBuyIntervalUpdated(private val recurringBuyFrequency: RecurringBuyFrequency) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(recurringBuyFrequency = recurringBuyFrequency)
+    }
+
+    class RecurringBuySelectedFirstTimeFlow(private val recurringBuyFrequency: RecurringBuyFrequency) :
+        SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(recurringBuyFrequency = recurringBuyFrequency)
+    }
+
+    object RecurringBuyCreatedFirstTimeFlow : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(recurringBuyState = RecurringBuyState.ACTIVE)
     }
 
     class RecurringBuyEligibilityUpdated(private val eligibleMethods: List<PaymentMethodType>) : SimpleBuyIntent() {

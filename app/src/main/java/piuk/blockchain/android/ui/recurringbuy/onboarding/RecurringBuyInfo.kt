@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.recurringbuy
+package piuk.blockchain.android.ui.recurringbuy.onboarding
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

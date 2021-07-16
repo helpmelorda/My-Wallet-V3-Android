@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.recurringbuy
+package piuk.blockchain.android.ui.recurringbuy.onboarding
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment

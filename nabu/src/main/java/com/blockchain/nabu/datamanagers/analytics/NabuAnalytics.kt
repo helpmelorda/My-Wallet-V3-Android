@@ -8,8 +8,8 @@ import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.utils.Optional
 import com.blockchain.utils.toUtcIso8601
-import com.blockchain.api.AnalyticsService
-import com.blockchain.api.NabuAnalyticsEvent
+import com.blockchain.api.services.AnalyticsService
+import com.blockchain.api.services.NabuAnalyticsEvent
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign

@@ -1,4 +1,4 @@
-package com.blockchain.api
+package com.blockchain.api.services
 
 import com.blockchain.api.wallet.WalletApiInterface
 import com.blockchain.api.wallet.data.WalletSettingsDto

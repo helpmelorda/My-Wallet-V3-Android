@@ -1,7 +1,8 @@
-package com.blockchain.api
+package com.blockchain.api.services
 
-import com.blockchain.api.custodial.CustodialBalanceApiInterface
+import com.blockchain.api.custodial.CustodialBalanceApi
 import com.blockchain.api.custodial.data.TradingBalanceResponseDto
+import com.blockchain.api.wrapErrorMessage
 import io.reactivex.rxjava3.core.Maybe
 import retrofit2.HttpException
 
@@ -14,7 +15,7 @@ data class TradingBalance(
 typealias TradingBalanceMap = Map<String, TradingBalance>
 
 class CustodialBalanceService internal constructor(
-    private val api: CustodialBalanceApiInterface
+    private val api: CustodialBalanceApi
 ) {
 
     fun getTradingBalanceForAsset(

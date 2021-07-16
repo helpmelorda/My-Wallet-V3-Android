@@ -10,14 +10,13 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.whenever
-import com.blockchain.api.AnalyticsService
-import com.blockchain.api.NabuAnalyticsEvent
+import com.blockchain.api.services.AnalyticsService
+import com.blockchain.api.services.NabuAnalyticsEvent
 import com.blockchain.api.analytics.AnalyticsContext
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import com.nhaarman.mockitokotlin2.any
-
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import org.junit.Test

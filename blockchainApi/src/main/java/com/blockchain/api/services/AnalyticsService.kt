@@ -1,6 +1,6 @@
 @file:UseSerializers(BigDecimalSerializer::class)
 
-package com.blockchain.api
+package com.blockchain.api.services
 
 import com.blockchain.api.analytics.AnalyticsApiInterface
 import com.blockchain.api.analytics.AnalyticsContext

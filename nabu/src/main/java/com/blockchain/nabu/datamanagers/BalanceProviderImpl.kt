@@ -1,8 +1,8 @@
 package com.blockchain.nabu.datamanagers
 
 import com.blockchain.nabu.Authenticator
-import com.blockchain.api.TradingBalanceMap
-import com.blockchain.api.CustodialBalanceService
+import com.blockchain.api.services.TradingBalanceMap
+import com.blockchain.api.services.CustodialBalanceService
 import io.reactivex.rxjava3.core.Single
 
 class BalanceProviderImpl(

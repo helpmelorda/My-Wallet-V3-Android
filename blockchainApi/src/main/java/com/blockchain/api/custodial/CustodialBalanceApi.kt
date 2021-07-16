@@ -7,7 +7,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query
 
-internal interface CustodialBalanceApiInterface {
+internal interface CustodialBalanceApi {
 
     @GET("accounts/simplebuy")
     fun tradingBalanceForAsset(

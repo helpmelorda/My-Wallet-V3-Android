@@ -1,6 +1,6 @@
 package info.blockchain.wallet.payment;
 
-import com.blockchain.api.NonCustodialBitcoinService;
+import com.blockchain.api.services.NonCustodialBitcoinService;
 import com.blockchain.api.bitcoin.data.UnspentOutputsDto;
 import info.blockchain.wallet.MockedResponseTest;
 import info.blockchain.wallet.keys.SigningKey;

@@ -1,7 +1,7 @@
 package info.blockchain.wallet.util;
 
 import com.blockchain.api.ApiException;
-import com.blockchain.api.NonCustodialBitcoinService;
+import com.blockchain.api.services.NonCustodialBitcoinService;
 import com.blockchain.api.bitcoin.data.BalanceDto;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;

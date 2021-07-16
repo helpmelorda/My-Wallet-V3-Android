@@ -1,6 +1,6 @@
 package info.blockchain.wallet.payload;
 
-import com.blockchain.api.NonCustodialBitcoinService;
+import com.blockchain.api.services.NonCustodialBitcoinService;
 import com.blockchain.api.bitcoin.data.BalanceDto;
 import com.blockchain.api.bitcoin.data.MultiAddress;
 import info.blockchain.wallet.ImportedAddressHelper;
@@ -11,7 +11,6 @@ import info.blockchain.wallet.exceptions.ServerConnectionException;
 import info.blockchain.wallet.exceptions.UnsupportedVersionException;
 import info.blockchain.wallet.keys.SigningKey;
 import info.blockchain.wallet.keys.SigningKeyImpl;
-import info.blockchain.wallet.multiaddress.MultiAddressFactory;
 import info.blockchain.wallet.multiaddress.MultiAddressFactoryBtc;
 import info.blockchain.wallet.multiaddress.TransactionSummary;
 import info.blockchain.wallet.multiaddress.TransactionSummary.TransactionType;

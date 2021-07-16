@@ -5,7 +5,7 @@ import io.reactivex.rxjava3.core.Single
 import retrofit2.http.GET
 import retrofit2.http.Header
 
-interface NabuUserApiInterface {
+interface NabuUserApi {
 
     @GET("eligible/product/savings")
     fun getInterestEligibility(

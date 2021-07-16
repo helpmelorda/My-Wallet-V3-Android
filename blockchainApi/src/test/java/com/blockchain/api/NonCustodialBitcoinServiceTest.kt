@@ -1,6 +1,6 @@
 package com.blockchain.api
 
-import com.blockchain.api.bitcoin.BitcoinApiInterface
+import com.blockchain.api.bitcoin.BitcoinApi
 import com.blockchain.api.bitcoin.data.AddressSummary
 import com.blockchain.api.bitcoin.data.BalanceDto
 import com.blockchain.api.bitcoin.data.Info
@@ -31,7 +31,7 @@ import retrofit2.Response
 
 class NonCustodialBitcoinServiceTest {
     private val apiCode = "12345"
-    private val api = mock<BitcoinApiInterface>()
+    private val api = mock<BitcoinApi>()
     private val client: NonCustodialBitcoinService = NonCustodialBitcoinService(api, apiCode)
 
     @Test

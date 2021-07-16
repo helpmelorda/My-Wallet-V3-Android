@@ -28,7 +28,7 @@ fun ImageView.setAssetIconColoursNoTint(asset: AssetInfo) {
     setAssetIconColours(tint, main)
 }
 
-private fun ImageView.setAssetIconColours(@ColorInt tintColor: Int, @ColorInt filterColor: Int) {
+fun ImageView.setAssetIconColours(@ColorInt tintColor: Int, @ColorInt filterColor: Int) {
     setBackgroundResource(R.drawable.bkgd_tx_circle)
     ViewCompat.setBackgroundTintList(this, ColorStateList.valueOf(tintColor))
     setColorFilter(filterColor)

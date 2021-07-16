@@ -2,10 +2,18 @@ package com.blockchain.api
 
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.analytics.AnalyticsApiInterface
-import com.blockchain.api.bitcoin.BitcoinApiInterface
-import com.blockchain.api.nabu.NabuUserApiInterface
+import com.blockchain.api.bitcoin.BitcoinApi
+import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.wallet.WalletApiInterface
-import com.blockchain.api.custodial.CustodialBalanceApiInterface
+import com.blockchain.api.custodial.CustodialBalanceApi
+import com.blockchain.api.services.AddressMappingService
+import com.blockchain.api.services.AnalyticsService
+import com.blockchain.api.services.CustodialBalanceService
+import com.blockchain.api.services.NabuUserService
+import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.api.services.TradeService
+import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.api.trade.TradeApi
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.json.Json
@@ -67,7 +75,7 @@ val blockchainApiModule = module {
     }
 
     factory {
-        val api = get<Retrofit>(blockchainApi).create(BitcoinApiInterface::class.java)
+        val api = get<Retrofit>(blockchainApi).create(BitcoinApi::class.java)
         NonCustodialBitcoinService(
             api,
             getProperty("api-code")
@@ -97,15 +105,22 @@ val blockchainApiModule = module {
     }
 
     factory {
-        val api = get<Retrofit>(nabuApi).create(NabuUserApiInterface::class.java)
+        val api = get<Retrofit>(nabuApi).create(NabuUserApi::class.java)
         NabuUserService(
             api
         )
     }
 
     factory {
-        val api = get<Retrofit>(nabuApi).create(CustodialBalanceApiInterface::class.java)
+        val api = get<Retrofit>(nabuApi).create(CustodialBalanceApi::class.java)
         CustodialBalanceService(
+            api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(TradeApi::class.java)
+        TradeService(
             api = api
         )
     }

@@ -1,6 +1,6 @@
 package piuk.blockchain.androidcore.data.settings
 
-import com.blockchain.api.WalletSettingsService
+import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager

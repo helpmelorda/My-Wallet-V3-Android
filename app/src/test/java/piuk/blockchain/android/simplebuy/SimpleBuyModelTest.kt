@@ -83,7 +83,9 @@ class SimpleBuyModelTest {
         ratingPrefs = ratingPrefs,
         environmentConfig = environmentConfig,
         crashLogger = mock(),
-        serializer = serializer
+        serializer = serializer,
+        getFirstTimeBuyerUseCase = mock(),
+        featureFlagApi = mock()
     )
 
     @Ignore("Fails on CI, works locally. Re-enable ASAP")

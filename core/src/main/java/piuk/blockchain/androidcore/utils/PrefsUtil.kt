@@ -201,6 +201,12 @@ class PrefsUtil(
         get() = getValue(KEY_ADD_CARD_INFO, false)
         set(dismissed) = setValue(KEY_ADD_CARD_INFO, dismissed)
 
+    override var isFirstTimeBuyer: Boolean
+        get() = getValue(KEY_FIRST_TIME_BUYER, true)
+        set(value) {
+            setValue(KEY_FIRST_TIME_BUYER, value)
+        }
+
     override var hasCompletedAtLeastOneBuy: Boolean
         get() = getValue(KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY, false)
         set(value) {
@@ -579,6 +585,7 @@ class PrefsUtil(
         private const val KEY_SIMPLE_BUY_STATE = "key_simple_buy_state_2"
         private const val KEY_CARD_STATE = "key_card_state"
         private const val KEY_ADD_CARD_INFO = "key_add_card_info"
+        private const val KEY_FIRST_TIME_BUYER = "key_first_time_buyer"
         private const val KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY = "has_completed_at_least_one_buy"
 
         private const val KEY_SUPPORTED_CARDS_STATE = "key_supported_cards"

@@ -1,13 +1,15 @@
-package piuk.blockchain.android.simplebuy
+package piuk.blockchain.android.ui.recurringbuy
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import info.blockchain.balance.FiatValue
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetRecurringBuyBinding
 import piuk.blockchain.android.ui.base.HostedBottomSheet
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
+import piuk.blockchain.android.util.gone
 
 class RecurringBuySelectionBottomSheet : SlidingModalBottomDialog<DialogSheetRecurringBuyBinding>() {
 
@@ -17,6 +19,14 @@ class RecurringBuySelectionBottomSheet : SlidingModalBottomDialog<DialogSheetRec
 
     private val interval: RecurringBuyFrequency by lazy {
         arguments?.getSerializable(PREVIOUS_SELECTED_STATE) as RecurringBuyFrequency
+    }
+
+    private val firstTimeAmountSpent: FiatValue? by lazy {
+        arguments?.getSerializable(FIAT_AMOUNT_SPENT) as? FiatValue
+    }
+
+    private val cryptoCode: String? by lazy {
+        arguments?.getString(CRYPTO_CODE)
     }
 
     private var selectedFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME
@@ -30,11 +40,28 @@ class RecurringBuySelectionBottomSheet : SlidingModalBottomDialog<DialogSheetRec
         )
     }
 
+    private fun setViewForFirstTimeBuyer() {
+        if (firstTimeAmountSpent != null && cryptoCode != null) {
+            binding.apply {
+                rbOneTime.gone()
+                title.text = getString(
+                    R.string.recurring_buy_first_time_title,
+                    firstTimeAmountSpent!!.formatOrSymbolForZero(),
+                    cryptoCode!!
+                )
+            }
+        }
+    }
+
     override fun initControls(binding: DialogSheetRecurringBuyBinding) {
+        setViewForFirstTimeBuyer()
+
         with(binding) {
             recurringBuySelectionGroup.check(intervalToId(interval))
             recurringBuySelectionGroup.setOnCheckedChangeListener { _, checkedId ->
                 selectedFrequency = idToInterval(checkedId)
+            }
+            recurringBuySelectCta.setOnClickListener {
                 host.onIntervalSelected(selectedFrequency)
                 dismiss()
             }
@@ -62,10 +89,20 @@ class RecurringBuySelectionBottomSheet : SlidingModalBottomDialog<DialogSheetRec
         }
 
     companion object {
-        private const val PREVIOUS_SELECTED_STATE = "recurring_buy_check"
-        fun newInstance(interval: RecurringBuyFrequency): RecurringBuySelectionBottomSheet =
+        const val PREVIOUS_SELECTED_STATE = "recurring_buy_check"
+        const val FIAT_AMOUNT_SPENT = "fiat_amount_spent"
+        const val CRYPTO_CODE = "crypto_asset_selected"
+        fun newInstance(
+            interval: RecurringBuyFrequency,
+            firstTimeAmountSpent: FiatValue? = null,
+            cryptoValue: String? = null
+        ): RecurringBuySelectionBottomSheet =
             RecurringBuySelectionBottomSheet().apply {
-                arguments = Bundle().apply { putSerializable(PREVIOUS_SELECTED_STATE, interval) }
+                arguments = Bundle().apply {
+                    putSerializable(PREVIOUS_SELECTED_STATE, interval)
+                    if (firstTimeAmountSpent != null) putSerializable(FIAT_AMOUNT_SPENT, firstTimeAmountSpent)
+                    if (cryptoValue != null) putSerializable(CRYPTO_CODE, cryptoValue)
+                }
             }
     }
 }

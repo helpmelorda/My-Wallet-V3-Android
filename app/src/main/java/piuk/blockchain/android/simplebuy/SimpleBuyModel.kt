@@ -1,6 +1,9 @@
 package piuk.blockchain.android.simplebuy
 
+import piuk.blockchain.android.ui.recurringbuy.domain.usecases.IsFirstTimeBuyerUseCase
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BuySellOrder
@@ -9,6 +12,7 @@ import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.BankPartner.Companion.YAPILY_DEEPLINK_PAYMENT_APPROVAL_URL
+import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
@@ -17,6 +21,7 @@ import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttri
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.FiatValue
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
@@ -37,14 +42,20 @@ class SimpleBuyModel(
     private val serializer: SimpleBuyPrefsSerializer,
     private val cardActivators: List<CardActivator>,
     private val interactor: SimpleBuyInteractor,
+    private val isFirstTimeBuyerUseCase: IsFirstTimeBuyerUseCase,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    crashLogger: CrashLogger,
+    private val featureFlagApi: InternalFeatureFlagApi
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
     initialState = serializer.fetch() ?: initialState,
     observeScheduler = scheduler,
     environmentConfig = environmentConfig,
     crashLogger = crashLogger
 ) {
+
+    private val isRecurringBuyEnabled: Boolean by lazy {
+        featureFlagApi.isFeatureEnabled(GatedFeature.RECURRING_BUYS)
+    }
 
     override fun performAction(previousState: SimpleBuyState, intent: SimpleBuyIntent): Disposable? =
         when (intent) {
@@ -216,6 +227,7 @@ class SimpleBuyModel(
                 }
             )
             is SimpleBuyIntent.ConfirmOrder -> processConfirmOrder(previousState)
+            is SimpleBuyIntent.FinishedFirstBuy -> null
             is SimpleBuyIntent.CheckOrderStatus -> interactor.pollForOrderStatus(
                 previousState.id ?: throw IllegalStateException("Order Id not available")
             ).subscribeBy(
@@ -251,6 +263,16 @@ class SimpleBuyModel(
                 ratingPrefs.hasSeenRatingDialog = true
                 null
             }
+
+            is SimpleBuyIntent.RecurringBuySelectedFirstTimeFlow ->
+                createRecurringBuy(previousState).subscribeBy(
+                    onSuccess = {
+                        process(SimpleBuyIntent.RecurringBuyCreatedFirstTimeFlow)
+                    },
+                    onError = {
+                        process(SimpleBuyIntent.ErrorIntent())
+                    }
+                )
 
             else -> null
         }
@@ -313,7 +335,33 @@ class SimpleBuyModel(
     private fun FiatValue.isOpenBankingCurrency() =
         this.currencyCode == "EUR" || this.currencyCode == "GBP"
 
-    private fun processConfirmOrder(previousState: SimpleBuyState): Disposable {
+    private fun isFirstTimeBuyer(previousState: SimpleBuyState): Single<Boolean> {
+        return if (isRecurringBuyEnabled &&
+            prefs.isFirstTimeBuyer &&
+            previousState.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME
+        ) {
+            isFirstTimeBuyerUseCase(Unit)
+        } else {
+            Single.just(false)
+        }
+    }
+
+    private fun createRecurringBuy(
+        previousState: SimpleBuyState,
+        buySellOrder: BuySellOrder? = null
+    ): Single<Pair<BuySellOrder?, RecurringBuyOrder>> {
+        return if (isRecurringBuyEnabled) {
+            interactor.createRecurringBuyOrder(previousState)
+                .map { buySellOrder to it }
+                .onErrorReturn {
+                    buySellOrder to RecurringBuyOrder(RecurringBuyState.INACTIVE)
+                }
+        } else {
+            Single.just(buySellOrder to RecurringBuyOrder())
+        }
+    }
+
+    private fun confirmOrder(previousState: SimpleBuyState): Single<BuySellOrder> {
         val isBankPayment = previousState.selectedPaymentMethod?.isBank()
         return interactor.confirmOrder(
             previousState.id ?: throw IllegalStateException("Order Id not available"),
@@ -326,26 +374,38 @@ class SimpleBuyModel(
                 }?.paymentAttributes()
             },
             isBankPayment
-        ).flatMap { buySellOrder ->
-            interactor.createRecurringBuyOrder(previousState)
-                .map { buySellOrder to it }
-                .onErrorReturn { buySellOrder to RecurringBuyOrder(RecurringBuyState.INACTIVE) }
-        }.subscribeBy(
-            onSuccess = { (buySellOrder, recurringBuy) ->
-                val orderCreatedSuccessfully = buySellOrder.state == OrderState.FINISHED
-                if (orderCreatedSuccessfully) {
-                    updatePersistingCountersForCompletedOrders()
-                }
-                process(
-                    SimpleBuyIntent.OrderCreated(
-                        buySellOrder, shouldShowAppRating(orderCreatedSuccessfully), recurringBuy.state
-                    )
-                )
-            },
-            onError = {
-                processOrderErrors(it)
-            }
         )
+    }
+
+    private fun processConfirmOrder(previousState: SimpleBuyState): Disposable {
+        return isFirstTimeBuyer(previousState)
+            .flatMap { isFirstTimeBuyer ->
+                confirmOrder(previousState)
+                    .map { isFirstTimeBuyer to it }
+            }.flatMap { (isFirstTimeBuyer, buySellOrder) ->
+                if (isFirstTimeBuyer && previousState.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME) {
+                    prefs.isFirstTimeBuyer = false
+                    process(SimpleBuyIntent.FinishedFirstBuy)
+                    Single.just(buySellOrder to RecurringBuyOrder(RecurringBuyState.UNINITIALISED))
+                } else {
+                    createRecurringBuy(previousState, buySellOrder)
+                }
+            }.subscribeBy(
+                onSuccess = { (buySellOrder, recurringBuy) ->
+                    val orderCreatedSuccessfully = buySellOrder!!.state == OrderState.FINISHED
+                    if (orderCreatedSuccessfully) {
+                        updatePersistingCountersForCompletedOrders()
+                    }
+                    process(
+                        SimpleBuyIntent.OrderCreated(
+                            buySellOrder, shouldShowAppRating(orderCreatedSuccessfully), recurringBuy.state
+                        )
+                    )
+                },
+                onError = {
+                    processOrderErrors(it)
+                }
+            )
     }
 
     private fun processOrderErrors(it: Throwable) {

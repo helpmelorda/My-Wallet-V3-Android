@@ -367,15 +367,6 @@ class SimpleBuyCheckoutFragment :
         }
     }
 
-    private fun paymentMethodLabel(
-        selectedPaymentMethod: SelectedPaymentMethod,
-        fiatCurrency: String
-    ): String =
-        when (selectedPaymentMethod.paymentMethodType) {
-            PaymentMethodType.FUNDS -> getString(R.string.fiat_currency_funds_wallet_name_1, fiatCurrency)
-            else -> selectedPaymentMethod.label.orEmpty()
-        }
-
     private fun showErrorState(errorState: ErrorState) {
         when (errorState) {
             ErrorState.DailyLimitExceeded -> showBottomSheet(

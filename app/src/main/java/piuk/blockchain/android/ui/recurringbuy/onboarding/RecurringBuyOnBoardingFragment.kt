@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.recurringbuy
+package piuk.blockchain.android.ui.recurringbuy.onboarding
 
 import android.net.Uri
 import android.os.Bundle

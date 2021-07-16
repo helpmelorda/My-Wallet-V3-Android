@@ -52,6 +52,7 @@ data class SimpleBuyState constructor(
     val withdrawalLockPeriod: BigInteger = BigInteger.ZERO,
     val recurringBuyFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
+    val showRecurringBuyFirstTimeFlow: Boolean = false,
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
     @Transient val errorState: ErrorState? = null,
     @Transient val exchangePriceWithDelta: ExchangePriceWithDelta? = null,
