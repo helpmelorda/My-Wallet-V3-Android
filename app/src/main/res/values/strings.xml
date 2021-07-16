@@ -2,7 +2,7 @@
 <resources>
     <!-- common -->
     <string name="app_name" translatable="false">Blockchain</string>
-    <string name="dogfood_app_name" translatable="false">BlockInternal</string>
+    <string name="alpha_app_name" translatable="false">Blockchain Alpha</string>
     <string name="staging_app_name" translatable="false">BlockStaging</string>
     <string name="dev_app_name" translatable="false">BlockDev</string>
     <string name="debug_app_shortcut">BC Debug Opts</string>

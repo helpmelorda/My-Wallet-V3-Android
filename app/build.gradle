@@ -128,7 +128,7 @@ android {
         envInternalProd {
             dimension "environment"
             manifestPlaceholders = [
-                    APP_NAME: "@string/dogfood_app_name",
+                    APP_NAME: "@string/alpha_app_name",
                     BACKUP_API_KEY     : buildProperties.secrets['prodGoogleBackupApiKey'].string,
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['prodDynamicLink'].string,
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['prodDynamicLink2'].string,
