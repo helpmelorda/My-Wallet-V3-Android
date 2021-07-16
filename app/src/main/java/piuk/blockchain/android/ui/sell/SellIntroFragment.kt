@@ -71,7 +71,7 @@ class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
     private val eligibilityProvider: SimpleBuyEligibilityProvider by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val analytics: Analytics by inject()
-    private val accountsSorting: AccountsSorting by inject()
+    private val accountsSorting: AccountsSorting by scopedInject()
     private val txLauncher: TransactionLauncher by inject()
 
     private val compositeDisposable = CompositeDisposable()
