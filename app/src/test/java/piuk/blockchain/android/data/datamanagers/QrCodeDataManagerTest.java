@@ -18,7 +18,7 @@ import piuk.blockchain.android.testutils.RxTest;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertEquals;
 
-@Config(sdk = 23,  application = BlockchainTestApplication.class)
+@Config(sdk = 24,  application = BlockchainTestApplication.class)
 @RunWith(RobolectricTestRunner.class)
 public class QrCodeDataManagerTest extends RxTest {
 

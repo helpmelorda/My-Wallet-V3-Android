@@ -38,7 +38,7 @@ import java.security.Signature
 import javax.crypto.Cipher
 
 @Suppress("PrivatePropertyName")
-@Config(sdk = [23], application = BlockchainTestApplication::class)
+@Config(sdk = [24], application = BlockchainTestApplication::class)
 @RunWith(RobolectricTestRunner::class)
 class BiometricsControllerTest {
     private lateinit var subject: BiometricsController

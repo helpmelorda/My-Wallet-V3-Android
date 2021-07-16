@@ -9,7 +9,7 @@ import piuk.blockchain.android.BlockchainTestApplication
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-@Config(sdk = [23], application = BlockchainTestApplication::class)
+@Config(sdk = [24], application = BlockchainTestApplication::class)
 @RunWith(RobolectricTestRunner::class)
 class ThePitDeepLinkParserTest {
     private val subject = ThePitDeepLinkParser()

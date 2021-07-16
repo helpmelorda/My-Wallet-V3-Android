@@ -20,7 +20,7 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import kotlin.jvm.Throws
 
-@Config(sdk = [23], application = BlockchainTestApplication::class)
+@Config(sdk = [24], application = BlockchainTestApplication::class)
 @RunWith(RobolectricTestRunner::class)
 class ReceiveQrPresenterTest {
 

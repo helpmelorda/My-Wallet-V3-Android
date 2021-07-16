@@ -3,7 +3,7 @@
 object Versions {
 
     // Release info
-    const val minSdk = 23
+    const val minSdk = 24
     const val targetSdk = 30
     const val compileSdk = 30
 

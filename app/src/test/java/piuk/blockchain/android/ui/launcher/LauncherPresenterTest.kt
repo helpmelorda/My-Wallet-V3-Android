@@ -35,7 +35,7 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 
-@Config(sdk = [23], application = BlockchainTestApplication::class)
+@Config(sdk = [24], application = BlockchainTestApplication::class)
 @RunWith(RobolectricTestRunner::class)
 class LauncherPresenterTest {
     private val launcherActivity: LauncherView = mock()

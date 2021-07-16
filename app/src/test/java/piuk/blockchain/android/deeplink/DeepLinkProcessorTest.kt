@@ -19,7 +19,7 @@ import piuk.blockchain.android.sunriver.CampaignLinkState
 import piuk.blockchain.android.sunriver.SunriverDeepLinkHelper
 import piuk.blockchain.android.thepit.ThePitDeepLinkParser
 
-@Config(sdk = [23], application = BlockchainTestApplication::class)
+@Config(sdk = [24], application = BlockchainTestApplication::class)
 @RunWith(RobolectricTestRunner::class)
 class DeepLinkProcessorTest {
 

@@ -61,7 +61,7 @@ import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrngFixer
 import java.net.SocketTimeoutException
 
-@Config(sdk = [23], application = BlockchainTestApplication::class) @RunWith(
+@Config(sdk = [24], application = BlockchainTestApplication::class) @RunWith(
     RobolectricTestRunner::class
 )
 class PinEntryPresenterTest {
