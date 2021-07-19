@@ -18,6 +18,7 @@ import piuk.blockchain.android.ui.activity.detail.BuyCryptoWallet
 import piuk.blockchain.android.ui.activity.detail.BuyFee
 import piuk.blockchain.android.ui.activity.detail.BuyPaymentMethod
 import piuk.blockchain.android.ui.activity.detail.BuyPurchaseAmount
+import piuk.blockchain.android.ui.activity.detail.Copyable
 import piuk.blockchain.android.ui.activity.detail.Created
 import piuk.blockchain.android.ui.activity.detail.Description
 import piuk.blockchain.android.ui.activity.detail.Fee
@@ -38,8 +39,11 @@ import piuk.blockchain.android.ui.activity.detail.Value
 import piuk.blockchain.android.ui.activity.detail.XlmMemo
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
+import piuk.blockchain.android.util.setSelectableBackground
 
-class ActivityDetailInfoItemDelegate<in T> : AdapterDelegate<T> {
+class ActivityDetailInfoItemDelegate<in T>(
+    private val onLongClick: (String) -> Unit
+) : AdapterDelegate<T> {
     override fun isForViewType(items: List<T>, position: Int): Boolean {
         val item = items[position] as ActivityDetailsType
         return item !is Action && item !is Description
@@ -47,7 +51,8 @@ class ActivityDetailInfoItemDelegate<in T> : AdapterDelegate<T> {
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         InfoItemViewHolder(
-            ItemListInfoRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ItemListInfoRowBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            onLongClick
         )
 
     override fun onBindViewHolder(
@@ -59,12 +64,28 @@ class ActivityDetailInfoItemDelegate<in T> : AdapterDelegate<T> {
     )
 }
 
-private class InfoItemViewHolder(private val binding: ItemListInfoRowBinding) : RecyclerView.ViewHolder(binding.root) {
+private class InfoItemViewHolder(
+    private val binding: ItemListInfoRowBinding,
+    private val onLongClick: (String) -> Unit
+) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(item: ActivityDetailsType) {
         with(binding) {
             itemListInfoRowTitle.text = getHeaderForType(item)
             itemListInfoRowDescription.text = getValueForType(item)
+            updateBackgroundForType(item)
+            itemView.setOnLongClickListener {
+                (item as? Copyable)?.let {
+                    onLongClick(it.filed)
+                }
+                true
+            }
+        }
+    }
+
+    private fun updateBackgroundForType(infoType: ActivityDetailsType) {
+        if (infoType is Copyable) {
+            itemView.setSelectableBackground()
         }
     }
 

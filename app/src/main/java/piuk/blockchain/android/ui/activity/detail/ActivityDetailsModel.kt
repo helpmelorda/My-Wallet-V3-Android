@@ -21,6 +21,10 @@ import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import java.util.Date
 
+interface Copyable {
+    val filed: String
+}
+
 sealed class ActivityDetailsType
 data class Created(val date: Date) : ActivityDetailsType()
 data class NextPayment(val date: Date) : ActivityDetailsType()
@@ -47,7 +51,10 @@ data class BuyPurchaseAmount(val fundedFiat: FiatValue) : ActivityDetailsType()
 data class TotalCostAmount(val fundedFiat: FiatValue) : ActivityDetailsType()
 data class FeeAmount(val fundedFiat: FiatValue) : ActivityDetailsType()
 data class SellPurchaseAmount(val value: Money) : ActivityDetailsType()
-data class TransactionId(val txId: String) : ActivityDetailsType()
+data class TransactionId(val txId: String) : ActivityDetailsType(), Copyable {
+    override val filed: String
+        get() = txId
+}
 data class BuyCryptoWallet(val crypto: AssetInfo) : ActivityDetailsType()
 data class RecurringBuyFrequency(val frequency: RecurringBuyFrequency) : ActivityDetailsType()
 data class SellCryptoWallet(val currency: String) : ActivityDetailsType()

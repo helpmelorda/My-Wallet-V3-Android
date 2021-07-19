@@ -1,5 +1,8 @@
 package piuk.blockchain.android.ui.activity.detail
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -18,17 +21,15 @@ import com.blockchain.nabu.datamanagers.RecurringBuyTransactionState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.notifications.analytics.ActivityAnalytics
-import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.LaunchOrigin
-import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.databinding.DialogSheetActivityDetailsBinding
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.BuySellType
@@ -40,6 +41,9 @@ import piuk.blockchain.android.ui.base.HostedBottomSheet
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
@@ -69,7 +73,8 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
     private val listAdapter: ActivityDetailsDelegateAdapter by lazy {
         ActivityDetailsDelegateAdapter(
             onActionItemClicked = { onActionItemClicked() },
-            onDescriptionItemUpdated = { onDescriptionItemClicked(it) }
+            onDescriptionItemUpdated = { onDescriptionItemClicked(it) },
+            onLongClick = { updateClipboard(it, requireContext()) }
         )
     }
 
@@ -420,6 +425,12 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                 startActivity(this)
             }
         }
+    }
+
+    private fun updateClipboard(value: String, context: Context) {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newPlainText("value", value))
+        toast(R.string.copied_to_clipboard)
     }
 
     private fun mapToAction(transactionType: TransactionSummary.TransactionType?): String =
