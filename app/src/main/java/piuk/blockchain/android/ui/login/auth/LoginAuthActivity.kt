@@ -143,7 +143,6 @@ class LoginAuthActivity :
                     model.process(LoginAuthIntents.VerifyPassword(passwordText.text.toString()))
                 }
             }
-            manualPairingButton.setOnClickListener { start<ManualPairingActivity>(this@LoginAuthActivity) }
         }
     }
 
@@ -172,13 +171,7 @@ class LoginAuthActivity :
                 binding.progressBar.gone()
                 binding.codeTextLayout.setErrorState(getString(R.string.invalid_two_fa_code))
             }
-            AuthStatus.ShowManualPairing -> {
-                binding.authScrollView.gone()
-                binding.progressBar.gone()
-                binding.continueButton.gone()
-                binding.manualPairingButton.isEnabled = true
-                binding.manualPairingButton.visible()
-            }
+            AuthStatus.ShowManualPairing -> start<ManualPairingActivity>(this@LoginAuthActivity)
         }.exhaustive
         update2FALayout(newState.authMethod)
     }
