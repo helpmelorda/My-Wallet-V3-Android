@@ -11,6 +11,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import info.blockchain.wallet.api.Environment
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginNewBinding
@@ -77,13 +78,16 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                     }
                 }
             }
-            scanPairingButton.setOnClickListener {
-                QrScanActivity.start(this@LoginActivity, QrExpected.MAIN_ACTIVITY_QR)
-            }
             continueWithGoogleButton.setOnClickListener {
                 startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
             }
             if (environmentConfig.isRunningInDebugMode()) {
+                scanPairingButton.setOnClickListener {
+                    QrScanActivity.start(this@LoginActivity, QrExpected.MAIN_ACTIVITY_QR)
+                }
+                scanPairingButton.visibleIf {
+                    environmentConfig.environment != Environment.PRODUCTION
+                }
                 manualPairingButton.apply {
                     setOnClickListener {
                         startActivity(Intent(context, ManualPairingActivity::class.java))
@@ -163,7 +167,6 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             loginOrLabel.visibleIf { !newState.isTypingEmail && !newState.isLoading }
             loginOrSeparatorLeft.visibleIf { !newState.isTypingEmail && !newState.isLoading }
             loginOrSeparatorRight.visibleIf { !newState.isTypingEmail && !newState.isLoading }
-            scanPairingButton.visibleIf { !newState.isTypingEmail && !newState.isLoading }
             // TODO enable Google auth once ready
             continueButton.visibleIf { newState.isTypingEmail }
             continueButton.isEnabled = newState.isTypingEmail && emailRegex.matches(newState.email)
