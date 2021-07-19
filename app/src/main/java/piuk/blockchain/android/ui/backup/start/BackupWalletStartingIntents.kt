@@ -7,14 +7,14 @@ sealed class BackupWalletStartingIntents : MviIntent<BackupWalletStartingState> 
     object TriggerEmailAlert : BackupWalletStartingIntents() {
         override fun reduce(oldState: BackupWalletStartingState): BackupWalletStartingState =
             oldState.copy(
-                alertStatus = TriggerAlertStatus.ALERTING
+                status = BackupWalletStartingStatus.SENDING_ALERT
             )
     }
 
-    object ShowComplete : BackupWalletStartingIntents() {
+    data class UpdateStatus(private val status: BackupWalletStartingStatus) : BackupWalletStartingIntents() {
         override fun reduce(oldState: BackupWalletStartingState): BackupWalletStartingState =
             oldState.copy(
-                alertStatus = TriggerAlertStatus.COMPLETE
+                status = status
             )
     }
 }

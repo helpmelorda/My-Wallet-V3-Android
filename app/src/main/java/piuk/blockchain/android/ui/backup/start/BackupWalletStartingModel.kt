@@ -32,7 +32,7 @@ class BackupWalletStartingModel(
     private fun triggerEmailAlert() =
         interactor.triggerSeedPhraseAlert()
             .subscribeBy(
-                onComplete = { process(BackupWalletStartingIntents.ShowComplete) },
-                onError = { process(BackupWalletStartingIntents.ShowComplete) }
+                onComplete = { process(BackupWalletStartingIntents.UpdateStatus(BackupWalletStartingStatus.COMPLETE)) },
+                onError = { process(BackupWalletStartingIntents.UpdateStatus(BackupWalletStartingStatus.COMPLETE)) }
             )
 }

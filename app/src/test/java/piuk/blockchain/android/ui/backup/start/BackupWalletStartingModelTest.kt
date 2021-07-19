@@ -37,7 +37,7 @@ class BackupWalletStartingModelTest {
     }
 
     @Test
-    fun `get session ID and payload`() {
+    fun `trigger alert successfully`() {
         whenever(interactor.triggerSeedPhraseAlert()).thenReturn(Completable.complete())
 
         val testState = model.state.test()
@@ -45,8 +45,8 @@ class BackupWalletStartingModelTest {
 
         testState.assertValues(
             BackupWalletStartingState(),
-            BackupWalletStartingState(alertStatus = TriggerAlertStatus.ALERTING),
-            BackupWalletStartingState(alertStatus = TriggerAlertStatus.COMPLETE)
+            BackupWalletStartingState(status = BackupWalletStartingStatus.SENDING_ALERT),
+            BackupWalletStartingState(status = BackupWalletStartingStatus.COMPLETE)
         )
     }
 }
