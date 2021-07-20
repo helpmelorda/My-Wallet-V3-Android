@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.annotations.CommonCode
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.ActivityAnalytics
+import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -19,9 +20,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.coincore.ActivitySummaryItem
-import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.databinding.FragmentActivitiesBinding
@@ -33,6 +32,9 @@ import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
+import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
+import piuk.blockchain.android.ui.resources.AccountIcon
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.putAccount
@@ -53,8 +55,9 @@ class ActivitiesFragment :
     private val activityAdapter: ActivitiesDelegateAdapter by lazy {
         ActivitiesDelegateAdapter(
             prefs = get(),
-            onCryptoItemClicked = { cc, tx, type ->
-                onCryptoActivityClicked(cc, tx, type)
+            onCryptoItemClicked = { assetInfo, tx, type ->
+                onCryptoActivityClicked(assetInfo, tx, type)
+                sendAnalyticsOnItemClickEvent(type, assetInfo)
             },
             onFiatItemClicked = { cc, tx -> onFiatActivityClicked(cc, tx) }
         )
@@ -98,6 +101,7 @@ class ActivitiesFragment :
                 }
                 ActivitiesSheet.CRYPTO_ACTIVITY_DETAILS -> {
                     newState.selectedCryptoCurrency?.let {
+
                         showBottomSheet(
                             CryptoActivityDetailsBottomSheet.newInstance(
                                 it, newState.selectedTxId,
@@ -137,6 +141,17 @@ class ActivitiesFragment :
                     emptyView.gone()
                 }
             }
+        }
+    }
+
+    private fun sendAnalyticsOnItemClickEvent(type: CryptoActivityType, assetInfo: AssetInfo) {
+        if (type == CryptoActivityType.RECURRING_BUY) {
+            analytics.logEvent(
+                RecurringBuyAnalytics.RecurringBuyDetailsClicked(
+                    LaunchOrigin.TRANSACTION_LIST,
+                    assetInfo.ticker
+                )
+            )
         }
     }
 

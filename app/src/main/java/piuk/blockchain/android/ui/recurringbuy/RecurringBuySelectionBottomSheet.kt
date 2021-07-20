@@ -56,12 +56,12 @@ class RecurringBuySelectionBottomSheet : SlidingModalBottomDialog<DialogSheetRec
     override fun initControls(binding: DialogSheetRecurringBuyBinding) {
         setViewForFirstTimeBuyer()
 
+        analytics.logEvent(RecurringBuyAnalytics.RecurringBuyViewed)
+
         with(binding) {
             recurringBuySelectionGroup.check(intervalToId(interval))
             recurringBuySelectionGroup.setOnCheckedChangeListener { _, checkedId ->
                 selectedFrequency = idToInterval(checkedId)
-            }
-            recurringBuySelectCta.setOnClickListener {
                 host.onIntervalSelected(selectedFrequency)
                 dismiss()
             }

@@ -46,6 +46,9 @@ import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBot
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
+import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
+import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics.Companion.PAYMENT_METHOD_UNAVAILABLE
+import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics.Companion.SELECT_PAYMENT
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySelectionBottomSheet
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
@@ -182,6 +185,13 @@ class SimpleBuyCryptoFragment :
         return !(!canBeUsedForRecurringBuy && intervalSelected != RecurringBuyFrequency.ONE_TIME)
     }
 
+    private fun isPaymentMethodUnselected(): Boolean {
+        return lastState?.selectedPaymentMethod == null ||
+            lastState?.selectedPaymentMethod?.id == PaymentMethod.UNDEFINED_CARD_PAYMENT_ID ||
+            lastState?.selectedPaymentMethod?.id == PaymentMethod.UNDEFINED_BANK_ACCOUNT_ID ||
+            lastState?.selectedPaymentMethod?.id == PaymentMethod.UNDEFINED_BANK_TRANSFER_PAYMENT_ID
+    }
+
     private fun startBuy() {
         lastState?.let {
             if (canContinue(it)) {
@@ -200,6 +210,7 @@ class SimpleBuyCryptoFragment :
 
                 analytics.logEvent(
                     BuyAmountEntered(
+                        lastState?.recurringBuyFrequency?.name ?: return,
                         lastState?.order?.amount ?: return,
                         lastState?.maxFiatAmount ?: return,
                         lastState?.selectedCryptoAsset?.ticker ?: return
@@ -369,7 +380,7 @@ class SimpleBuyCryptoFragment :
 
     private fun renderDefinedPaymentMethod(selectedPaymentMethod: PaymentMethod) {
         binding.frequencySpinner.visibleIf { isRecurringBuyEnabled }
-        if (isRecurringBuyEnabled) renderRecurringBuy(selectedPaymentMethod)
+        if (isRecurringBuyEnabled) renderRecurringBuy()
 
         when (selectedPaymentMethod) {
             is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod)
@@ -389,7 +400,7 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun renderRecurringBuy(paymentMethod: PaymentMethod) {
+    private fun renderRecurringBuy() {
         with(binding) {
             if (lastState?.isSelectedPaymentMethodRecurringBuyEligible() == true) {
                 recurringBuyCta.apply {
@@ -399,12 +410,23 @@ class SimpleBuyCryptoFragment :
             } else {
                 if (!isRecurringFrequencyAvailableForPaymentMethod()) {
                     showDialogRecurringBuyUnavailable()
+                    sendRecurringBuyUnavailableShown()
                 }
                 recurringBuyCta.apply {
                     background = requireContext().getResolvedDrawable(R.drawable.bkgd_grey_000_rounded)
                     setTextColor(requireContext().getResolvedColor(R.color.grey_800))
                 }
             }
+        }
+    }
+
+    private fun sendRecurringBuyUnavailableShown() {
+        if (isPaymentMethodUnselected()) {
+            analytics.logEvent(RecurringBuyAnalytics.RecurringBuyUnavailableShown(SELECT_PAYMENT))
+        } else {
+            analytics.logEvent(
+                RecurringBuyAnalytics.RecurringBuyUnavailableShown(PAYMENT_METHOD_UNAVAILABLE)
+            )
         }
     }
 

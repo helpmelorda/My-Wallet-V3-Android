@@ -10,6 +10,8 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyState
+import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.utils.toFormattedDate
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetRecurringBuyInfoBinding
 import piuk.blockchain.android.simplebuy.CheckoutAdapterDelegate
@@ -25,9 +27,9 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsModel
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsState
 import piuk.blockchain.android.ui.dashboard.assetdetails.ClearSelectedRecurringBuy
 import piuk.blockchain.android.ui.dashboard.assetdetails.DeleteRecurringBuy
-import piuk.blockchain.android.ui.dashboard.assetdetails.ReturnToPreviousStep
-import com.blockchain.utils.toFormattedDate
 import piuk.blockchain.android.ui.dashboard.assetdetails.GetPaymentDetails
+import piuk.blockchain.android.ui.dashboard.assetdetails.ReturnToPreviousStep
+import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 
 class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
     AssetDetailsIntent, AssetDetailsState, DialogSheetRecurringBuyInfoBinding>() {
@@ -37,6 +39,8 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
     }
 
     override val model: AssetDetailsModel by scopedInject()
+
+    lateinit var cacheState: AssetDetailsState
 
     override fun initControls(binding: DialogSheetRecurringBuyInfoBinding) {
         with(binding) {
@@ -51,6 +55,8 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
             }
 
             rbSheetCancel.setOnClickListener {
+                sendAnalyticsForRecurringBuyCancelClicked(cacheState)
+
                 // TODO stopgap check while design make their mind up
                 AlertDialog.Builder(requireContext())
                     .setTitle(R.string.settings_bank_remove_check_title)
@@ -66,7 +72,25 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
         }
     }
 
+    private fun sendAnalyticsForRecurringBuyCancelClicked(state: AssetDetailsState) {
+        state.selectedRecurringBuy?.let {
+            val paymentMethodType = it.paymentDetails?.let { paymentType -> paymentType.paymentDetails }
+                ?: throw IllegalStateException("Missing Payment Method on RecurringBuy")
+            analytics.logEvent(
+                RecurringBuyAnalytics
+                    .RecurringBuyCancelClicked(
+                        LaunchOrigin.RECURRING_BUY_DETAILS,
+                        it.recurringBuyFrequency,
+                        it.amount,
+                        it.asset,
+                        paymentMethodType
+                    )
+            )
+        }
+    }
+
     override fun render(newState: AssetDetailsState) {
+        cacheState = newState
         if (newState.selectedRecurringBuy?.paymentDetails == null
         ) {
             model.process(GetPaymentDetails)

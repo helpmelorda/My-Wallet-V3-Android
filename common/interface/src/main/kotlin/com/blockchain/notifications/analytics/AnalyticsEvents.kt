@@ -91,6 +91,7 @@ fun apiError(host: String, path: String, body: String?, requestId: String?, erro
 
 enum class AnalyticsNames(val eventName: String) {
     BUY_AMOUNT_ENTERED("Buy Amount Entered"),
+    BUY_FREQUENCY_SELECTED("Buy Frequency Selected"),
     BUY_PAYMENT_METHOD_CHANGED("Buy Payment Method Selected"),
     BUY_SELL_CLICKED("Buy Sell Clicked"),
     BUY_SELL_VIEWED("Buy Sell Viewed"),
@@ -136,7 +137,7 @@ enum class AnalyticsNames(val eventName: String) {
     ACCOUNT_PASSWORD_CHANGED("Account Password Changed"),
     CHANGE_PIN_CODE_CLICKED("Change Pin Clicked"),
     CHANGE_EMAIL_CLICKED("Email Change Clicked"),
-    BIOMETRICS_OPTION_UPDATED("Face Id Updated"),
+    BIOMETRICS_OPTION_UPDATED("Biometrics Updated"),
     PIN_CODE_CHANGED("Mobile Pin Code Changed"),
     RECOVERY_PHRASE_SHOWN("Recovery Phrase Shown"),
     TWO_STEP_VERIFICATION_CODE_CLICKED("Two Step Verification Option Clicked"),
@@ -148,7 +149,17 @@ enum class AnalyticsNames(val eventName: String) {
     NOTIFICATION_PREFS_UPDATED("Notification Preferences Updated"),
     LINK_CARD_CLICKED("Link Card Clicked"),
     CHANGE_MOBILE_NUMBER_CLICKED("Change Mobile Number Clicked"),
-    EMAIL_VERIFF_REQUESTED("Email Verification Requested");
+    EMAIL_VERIFF_REQUESTED("Email Verification Requested"),
+    RECURRING_BUY_CANCEL_CLICKED("Cancel Recurring Buy Clicked"),
+    RECURRING_BUY_AMOUNT_ENTERED("Recurring Buy Amount Entered"),
+    RECURRING_BUY_CLICKED("Recurring Buy Clicked"),
+    RECURRING_BUY_INFO_VIEWED("Recurring Buy Info Viewed"),
+    RECURRING_BUY_LEARN_MORE_CLICKED("Recurring Buy Learn More Clicked"),
+    RECURRING_BUY_DETAILS_CLICKED("Recurring Buy Details Clicked"),
+    RECURRING_BUY_SUGGESTION_SKIPPED("Recurring Buy Suggestion Skipped"),
+    RECURRING_BUY_VIEWED("Recurring Buy Viewed"),
+    GET_STARTED_ON_BOARDING("Buy Sell Clicked"),
+    RECURRING_BUY_UNAVAILABLE_SHOWN("Recurring Buy Unavailable Shown");
 }
 
 enum class LaunchOrigin {
@@ -159,6 +170,7 @@ enum class LaunchOrigin {
     RESUBMISSION,
     SIMPLETRADE,
     DASHBOARD_PROMO,
+    TRANSACTION_LIST,
     TRANSACTION_DETAILS,
     DEPOSIT,
     BUY,
@@ -169,5 +181,9 @@ enum class LaunchOrigin {
     SIGN_UP,
     SETTINGS,
     SAVINGS_PAGE,
-    VERIFICATION;
+    VERIFICATION,
+    DCA_DETAILS_LINK,
+    BUY_CONFIRMATION,
+    RECURRING_BUY_DETAILS,
+    RECURRING_BUY;
 }

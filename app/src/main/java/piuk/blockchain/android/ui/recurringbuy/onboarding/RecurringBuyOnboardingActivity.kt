@@ -5,9 +5,12 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.blockchain.notifications.analytics.Analytics
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRecurringBuyOnBoardingBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
+import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.util.visibleIf
 
 class RecurringBuyOnboardingActivity : AppCompatActivity() {
@@ -15,6 +18,8 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
     private val binding: ActivityRecurringBuyOnBoardingBinding by lazy {
         ActivityRecurringBuyOnBoardingBinding.inflate(layoutInflater)
     }
+
+    val analytics: Analytics by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +57,7 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 showHeader(position == 0)
+                analytics.logEvent(RecurringBuyAnalytics.RecurringBuyInfoViewed(position))
             }
         })
     }
