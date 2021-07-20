@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.IdRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -729,7 +730,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     }
 
     /*** Silently switch the current tab in the tab_bar */
-    private fun setCurrentTabItem(item: Int) {
+    private fun setCurrentTabItem(@IdRes item: Int) {
         binding.bottomNavigation.apply {
             setOnNavigationItemSelectedListener(null)
             selectedItemId = item
