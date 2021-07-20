@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.bch
 
+import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.CryptoCurrency
@@ -34,7 +35,6 @@ import piuk.blockchain.android.coincore.impl.txEngine.EngineTransaction
 import piuk.blockchain.android.coincore.impl.txEngine.OnChainTxEngineBase
 import piuk.blockchain.android.coincore.updateTxValidity
 import piuk.blockchain.android.ui.transactionflow.flow.FeeInfo
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager

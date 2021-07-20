@@ -1,5 +1,7 @@
 package piuk.blockchain.android.data.coinswebsocket.strategy
 
+import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
 import com.google.gson.Gson
@@ -35,7 +37,6 @@ import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.androidcore.data.access.AccessState
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.events.TransactionsUpdatedEvent
@@ -65,6 +66,8 @@ private data class CoinWebSocketInput(
 class CoinsWebSocketStrategy(
     private val coinsWebSocket: WebSocket<String, String>,
     private val ethDataManager: EthDataManager,
+    private val erc20DataManager: Erc20DataManager,
+    private val bchDataManager: BchDataManager,
     private val stringUtils: StringUtils,
     private val gson: Gson,
     private val rxBus: RxBus,
@@ -72,7 +75,6 @@ class CoinsWebSocketStrategy(
     private val accessState: AccessState,
     private val appUtil: AppUtil,
     private val payloadDataManager: PayloadDataManager,
-    private val bchDataManager: BchDataManager,
     private val assetCatalogue: AssetCatalogue
 ) {
 
@@ -309,20 +311,11 @@ class CoinsWebSocketStrategy(
             tokenTransaction.from
         )
 
-        messagesSocketHandler?.triggerNotification(title, marquee, text)
-        updateErc20Transactions(asset)
-    }
-
-    private fun updateErc20Transactions(asset: AssetInfo) {
-        compositeDisposable += ethDataManager.refreshErc20Model(asset)
-            .subscribeBy(
-                onComplete = {
-                    messagesSocketHandler?.sendBroadcast(TransactionsUpdatedEvent())
-                },
-                onError = { throwable ->
-                    Timber.e(throwable, "update transaction (${asset.ticker} failed")
-                }
-            )
+        erc20DataManager.flushCaches(asset)
+        messagesSocketHandler?.run {
+            triggerNotification(title, marquee, text)
+            sendBroadcast(TransactionsUpdatedEvent())
+        }
     }
 
     private fun updateEthTransactions() {
@@ -500,8 +493,8 @@ class CoinsWebSocketStrategy(
             }
         } ?: emptyList()
 
-    private fun ethAddress(): String? =
-        ethDataManager.getEthWalletAddress()
+    private fun ethAddress(): String =
+        ethDataManager.accountAddress
 
     private fun subscribe() =
         coinWebSocketInput?.let { input ->

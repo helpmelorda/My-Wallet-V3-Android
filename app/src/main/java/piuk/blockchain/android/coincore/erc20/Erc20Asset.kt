@@ -1,6 +1,7 @@
 package piuk.blockchain.android.coincore.erc20
 
 import com.blockchain.annotations.CommonCode
+import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -21,7 +22,6 @@ import piuk.blockchain.android.coincore.impl.CryptoAssetBase
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -29,10 +29,10 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class Erc20Asset(
     override val asset: AssetInfo,
-    payloadManager: PayloadDataManager,
-    private val ethDataManager: EthDataManager,
+    private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatus,
+    payloadManager: PayloadDataManager,
     custodialManager: CustodialWalletManager,
     exchangeRates: ExchangeRateDataManager,
     historicRates: ExchangeRateService,
@@ -56,12 +56,13 @@ internal class Erc20Asset(
     identity,
     features
 ) {
+    private val erc20address
+        get() = erc20DataManager.accountHash
+
     override val isCustodialOnly: Boolean = asset.isCustodialOnly
     override val multiWallet: Boolean = false
 
-    override fun initToken(): Completable =
-        ethDataManager.fetchErc20DataModel(asset)
-                .ignoreElements()
+    override fun initToken(): Completable = Completable.complete()
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         Single.just(getNonCustodialAccount())
@@ -82,15 +83,12 @@ internal class Erc20Asset(
             )
         )
 
-    private fun getNonCustodialAccount(): Erc20NonCustodialAccount {
-        val erc20Address = ethDataManager.getEthWallet()?.account?.address
-            ?: throw Exception("No ${asset.ticker} wallet found")
-
-        return Erc20NonCustodialAccount(
+    private fun getNonCustodialAccount(): Erc20NonCustodialAccount =
+        Erc20NonCustodialAccount(
             payloadManager,
             asset,
-            ethDataManager,
-            erc20Address,
+            erc20DataManager,
+            erc20address,
             feeDataManager,
             labels.getDefaultNonCustodialWalletLabel(),
             exchangeRates,
@@ -99,13 +97,12 @@ internal class Erc20Asset(
             availableNonCustodialActions,
             identity
         )
-    }
 
     @CommonCode("Exists in EthAsset")
     override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> =
         Single.just(isValidAddress(address)).flatMapMaybe { isValid ->
             if (isValid) {
-                ethDataManager.isContractAddress(address)
+                erc20DataManager.isContractAddress(address)
                     .flatMapMaybe { isContract ->
                         if (isContract) {
                             throw AddressParseError(AddressParseError.Error.ETH_UNEXPECTED_CONTRACT_ADDRESS)

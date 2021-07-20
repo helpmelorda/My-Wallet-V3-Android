@@ -4,12 +4,10 @@ import com.blockchain.logging.LastTxUpdater
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.isErc20
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.EthAccountApi
 import info.blockchain.wallet.ethereum.EthereumWallet
-import info.blockchain.wallet.ethereum.data.Erc20AddressResponse
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthTransaction
 import info.blockchain.wallet.ethereum.data.TransactionState
@@ -20,35 +18,32 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.spongycastle.util.encoders.Hex
-import org.web3j.abi.TypeEncoder
-import org.web3j.abi.datatypes.Address
 import org.web3j.crypto.RawTransaction
-import piuk.blockchain.androidcore.data.erc20.Erc20DataModel
-import piuk.blockchain.androidcore.data.erc20.Erc20Transfer
-import piuk.blockchain.androidcore.data.erc20.datastores.Erc20DataStore
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.data.rxjava.RxPinning
-import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import timber.log.Timber
 import java.math.BigInteger
 import java.util.HashMap
-import java.util.Locale
 
 class EthDataManager(
     private val payloadDataManager: PayloadDataManager,
     private val ethAccountApi: EthAccountApi,
     private val ethDataStore: EthDataStore,
-    private val erc20DataStore: Erc20DataStore,
-    private val walletOptionsDataManager: WalletOptionsDataManager,
     private val metadataManager: MetadataManager,
     private val lastTxUpdater: LastTxUpdater,
     rxBus: RxBus
 ) {
+
+    private val internalAccountAddress: String?
+        get() = ethDataStore.ethWallet?.account?.address
+
+    val accountAddress: String
+        get() = internalAccountAddress ?: throw Exception("No ETH address found")
 
     private val rxPinning = RxPinning(rxBus)
 
@@ -57,7 +52,6 @@ class EthDataManager(
      */
     fun clearAccountDetails() {
         ethDataStore.clearData()
-        erc20DataStore.clearData()
     }
 
     /**
@@ -69,22 +63,11 @@ class EthDataManager(
      */
     fun fetchEthAddress(): Observable<CombinedEthModel> =
         rxPinning.call<CombinedEthModel> {
-            ethAccountApi.getEthAddress(listOf(ethDataStore.ethWallet!!.account.address))
+            ethAccountApi.getEthAddress(listOf(accountAddress))
                 .map(::CombinedEthModel)
                 .doOnNext { ethDataStore.ethAddressResponse = it }
                 .subscribeOn(Schedulers.io())
         }
-
-    fun fetchErc20DataModel(asset: AssetInfo): Observable<Erc20DataModel> {
-        require(asset.isErc20())
-        return getErc20Address(asset)
-            .map { Erc20DataModel(it, asset) }
-            .doOnNext { erc20DataStore.erc20DataModel[asset] = it }
-            .subscribeOn(Schedulers.io())
-    }
-
-    fun refreshErc20Model(asset: AssetInfo): Completable =
-        Completable.fromObservable(fetchErc20DataModel(asset))
 
     fun getBalance(account: String): Single<BigInteger> =
         ethAccountApi.getEthAddress(listOf(account))
@@ -102,40 +85,6 @@ class EthDataManager(
         return save()
     }
 
-    fun getErc20Balance(cryptoCurrency: AssetInfo): Single<CryptoValue> {
-        require(cryptoCurrency.isErc20())
-
-        return getErc20Address(cryptoCurrency)
-            .map {
-                it.balance
-            }.singleOrError()
-            .map { CryptoValue.fromMinor(cryptoCurrency, it) }
-    }
-
-    private fun getErc20Address(currency: AssetInfo): Observable<Erc20AddressResponse> {
-        // If the metadata is not yet loaded, ethDataStore.ethWallet will be null.
-        // So defer() this call, so that the exception occurs after-subscription, rather than
-        // when constructing the Rx chain, so it will can be handled by onError() etc
-        return Observable.defer {
-            val address = ethDataStore.ethWallet!!.account.address
-            val contractAddress = getErc20TokenData(currency).contractAddress
-            ethAccountApi.getErc20Address(
-                address,
-                contractAddress
-            )
-        }.subscribeOn(Schedulers.io())
-    }
-
-    fun getErc20AccountHash(asset: AssetInfo): Single<String> =
-        erc20DataStore.erc20DataModel[asset]?.let { model ->
-            Single.just(model.accountHash)
-        } ?: Single.error(IllegalStateException("erc20 token ${asset.ticker} uninitialised"))
-
-    fun getErc20Transactions(asset: AssetInfo): Observable<List<Erc20Transfer>> =
-        erc20DataStore.erc20DataModel[asset]?.let { model ->
-            Observable.just(model.transfers)
-        } ?: Observable.just(emptyList())
-
     /**
      * Returns the user's ETH account object if previously fetched.
      *
@@ -148,12 +97,8 @@ class EthDataManager(
      *
      * @return A nullable [EthereumWallet] object
      */
+    @Deprecated("This shouldn't be directly exposed to higher layers")
     fun getEthWallet(): EthereumWallet? = ethDataStore.ethWallet
-
-    fun getEthWalletAddress(): String? = ethDataStore.ethWallet?.account?.address
-
-    fun getDefaultEthAddress(): Single<String?> =
-        Single.just(getEthWallet()?.account?.address)
 
     /**
      * Returns a stream of [EthTransaction] objects associated with a user's ETH address specifically
@@ -163,7 +108,7 @@ class EthDataManager(
      * @return An [Observable] stream of [EthTransaction] objects
      */
     fun getEthTransactions(): Single<List<EthTransaction>> =
-        ethDataStore.ethWallet?.account?.address?.let {
+        internalAccountAddress?.let {
             ethAccountApi.getEthTransactions(listOf(it)).applySchedulers()
         } ?: Single.just(emptyList())
 
@@ -176,25 +121,11 @@ class EthDataManager(
      * @return An [Observable] wrapping a [Boolean]
      */
     fun isLastTxPending(): Single<Boolean> =
-        ethDataStore.ethWallet?.account?.address?.let {
+        internalAccountAddress?.let {
             ethAccountApi.getLastEthTransaction(listOf(it)).map { tx ->
                 tx.state.toLocalState() == TransactionState.PENDING
             }.defaultIfEmpty(false)
         } ?: Single.just(false)
-
-    /*
-    If x time passed and transaction was not successfully mined, the last transaction will be
-    deemed dropped and the account will be allowed to create a new transaction.
-     */
-    private fun isTransactionDropped(lastTxTimestamp: Long) =
-        walletOptionsDataManager.getLastEthTransactionFuse()
-            .map { System.currentTimeMillis() > lastTxTimestamp + (it * 1000) }
-
-    private fun hasLastTxBeenProcessed(lastTxHash: String) =
-        fetchEthAddress().flatMapIterable { it.getTransactions() }
-            .filter { list -> list.hash == lastTxHash }
-            .toList()
-            .flatMapObservable { Observable.just(it.size > 0) }
 
     /**
      * Returns a [Number] representing the most recently
@@ -237,7 +168,11 @@ class EthDataManager(
         } ?: Completable.error { IllegalStateException("ETH Wallet is null") }
             .applySchedulers()
 
-    fun updateErc20TransactionNotes(hash: String, note: String, asset: AssetInfo): Completable {
+    internal fun updateErc20TransactionNotes(
+        asset: AssetInfo,
+        hash: String,
+        note: String
+    ): Completable {
         require(asset.isErc20())
 
         return rxPinning.call {
@@ -287,35 +222,6 @@ class EthDataManager(
         weiValue
     )
 
-    fun createErc20Transaction(
-        nonce: BigInteger,
-        to: String,
-        contractAddress: String,
-        gasPriceWei: BigInteger,
-        gasLimitGwei: BigInteger,
-        amount: BigInteger
-    ): RawTransaction? =
-        RawTransaction.createTransaction(
-            nonce,
-            gasPriceWei,
-            gasLimitGwei,
-            contractAddress,
-            0.toBigInteger(),
-            erc20TransferMethod(to, amount)
-        )
-
-    private fun erc20TransferMethod(to: String, amount: BigInteger): String {
-        val transferMethodHex = "0xa9059cbb"
-
-        return transferMethodHex + TypeEncoder.encode(Address(to)) +
-            TypeEncoder.encode(org.web3j.abi.datatypes.generated.Uint256(amount))
-    }
-
-    fun erc20ContractAddress(cryptoCurrency: AssetInfo): String {
-        require(cryptoCurrency.isErc20())
-        return getErc20TokenData(cryptoCurrency).contractAddress
-    }
-
     fun getTransaction(hash: String): Observable<EthTransaction> =
         rxPinning.call<EthTransaction> {
             ethAccountApi.getTransaction(hash)
@@ -351,26 +257,6 @@ class EthDataManager(
 
     fun pushTx(signedTxBytes: ByteArray): Single<String> =
         pushEthTx(signedTxBytes).singleOrError()
-
-    @Deprecated("Eth payload last tx features are no longer used")
-    fun setLastTxHashObservable(txHash: String, timestamp: Long): Observable<String> =
-        rxPinning.call<String> {
-            setLastTxHash(txHash, timestamp)
-                .applySchedulers()
-        }
-
-    @Deprecated("Eth payload last tx features are no longer used")
-    fun setLastTxHashNowSingle(txHash: String): Single<String> =
-        setLastTxHashObservable(txHash, System.currentTimeMillis())
-            .singleOrError()
-
-    @Deprecated("Eth payload last tx features are no longer used")
-    private fun setLastTxHash(txHash: String, timestamp: Long): Observable<String> {
-        ethDataStore.ethWallet!!.setLastTransactionHash(txHash)
-        ethDataStore.ethWallet!!.setLastTransactionTimestamp(timestamp)
-
-        return save().andThen(Observable.just(txHash))
-    }
 
     private fun fetchOrCreateEthereumWallet(
         assetCatalogue: AssetCatalogue,
@@ -416,7 +302,7 @@ class EthDataManager(
     fun getErc20TokenData(asset: AssetInfo): Erc20TokenData {
         require(asset.l2chain == CryptoCurrency.ETHER)
         require(asset.l2identifier != null)
-        val name = asset.ticker.toLowerCase(Locale.ROOT)
+        val name = asset.ticker.lowercase()
 
         return getEthWallet()!!.getErc20TokenData(name)
     }

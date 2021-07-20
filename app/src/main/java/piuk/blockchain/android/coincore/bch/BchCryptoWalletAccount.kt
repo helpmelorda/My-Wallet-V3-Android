@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.bch
 
+import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.CryptoCurrency
@@ -21,7 +22,6 @@ import piuk.blockchain.android.coincore.impl.CryptoNonCustodialAccount
 import piuk.blockchain.android.coincore.impl.transactionFetchCount
 import piuk.blockchain.android.coincore.impl.transactionFetchOffset
 import piuk.blockchain.android.identity.UserIdentity
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager

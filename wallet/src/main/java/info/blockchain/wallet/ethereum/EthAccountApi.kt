@@ -2,7 +2,6 @@ package info.blockchain.wallet.ethereum
 
 import info.blockchain.wallet.ApiCode
 import info.blockchain.wallet.BlockchainFramework
-import info.blockchain.wallet.ethereum.data.Erc20AddressResponse
 import info.blockchain.wallet.ethereum.data.EthAddressResponse
 import info.blockchain.wallet.ethereum.data.EthAddressResponseMap
 import info.blockchain.wallet.ethereum.data.EthLatestBlock
@@ -79,10 +78,6 @@ class EthAccountApi(private val apiCode: ApiCode) {
         val request = EthPushTxRequest(rawTx, apiCode.apiCode)
         return apiInstance.pushTx(request)
             .map { map -> map["txHash"]!! }
-    }
-
-    fun getErc20Address(address: String, hash: String): Observable<Erc20AddressResponse> {
-        return apiInstance.getErc20Address(address, hash)
     }
 
     /**

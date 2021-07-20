@@ -131,7 +131,7 @@ val coincoreModule = module {
             CryptoAssetLoader(
                 featureConfig = get(),
                 payloadManager = get(),
-                ethDataManager = get(),
+                erc20DataManager = get(),
                 feeDataManager = get(),
                 exchangeRates = get(),
                 historicRates = get(),

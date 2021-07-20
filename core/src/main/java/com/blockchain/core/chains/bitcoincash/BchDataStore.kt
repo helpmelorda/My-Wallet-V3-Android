@@ -1,4 +1,4 @@
-package piuk.blockchain.androidcore.data.bitcoincash
+package com.blockchain.core.chains.bitcoincash
 
 import info.blockchain.wallet.BitcoinCashWallet
 import info.blockchain.wallet.coin.GenericMetadataWallet

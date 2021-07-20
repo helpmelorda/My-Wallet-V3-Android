@@ -154,7 +154,6 @@ open class EthOnChainTxEngine(
                 ethDataManager.signEthTransaction(it, secondPassword)
             }
             .flatMap { ethDataManager.pushTx(it) }
-            .flatMap { ethDataManager.setLastTxHashNowSingle(it) }
             .flatMap { hash ->
                 pendingTx.getOption<TxConfirmationValue.Description>(TxConfirmation.DESCRIPTION)?.let { notes ->
                     ethDataManager.updateTransactionNotes(hash, notes.text)

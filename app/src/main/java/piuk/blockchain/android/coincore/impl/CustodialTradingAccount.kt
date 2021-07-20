@@ -18,7 +18,6 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.ActivitySummaryList
@@ -50,7 +49,7 @@ class CustodialTradingAccount(
     private val identity: UserIdentity,
     @Suppress("unused")
     private val features: InternalFeatureFlagApi,
-    override val baseActions: Set<AssetAction> = CryptoAccountBase.defaultActions
+    override val baseActions: Set<AssetAction> = defaultActions
 ) : CryptoAccountBase(), TradingAccount {
 
     private val hasFunds = AtomicBoolean(false)
@@ -132,7 +131,7 @@ class CustodialTradingAccount(
         false // Default is, presently, only ever a non-custodial account.
 
     override val sourceState: Single<TxSourceState>
-        get() = Singles.zip(
+        get() = Single.zip(
             accountBalance,
             actionableBalance
         ) { total, actionable ->
@@ -145,7 +144,7 @@ class CustodialTradingAccount(
 
     override val actions: Single<AvailableActions>
         get() =
-            Singles.zip(
+            Single.zip(
                 accountBalance.map { it.isPositive },
                 actionableBalance.map { it.isPositive },
                 identity.isEligibleFor(Feature.SimpleBuy),

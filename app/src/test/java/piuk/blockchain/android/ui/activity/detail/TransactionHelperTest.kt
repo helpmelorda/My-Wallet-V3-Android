@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.activity.detail
 
+import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.testutils.satoshi
 import com.blockchain.testutils.satoshiCash
 import com.nhaarman.mockitokotlin2.any
@@ -10,7 +11,6 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.payload.data.Wallet
 import org.junit.Test
 import piuk.blockchain.android.coincore.TestNonCustodialSummaryItem
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import kotlin.test.assertEquals
 

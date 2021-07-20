@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.loader
 
+import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -18,7 +19,6 @@ import piuk.blockchain.android.coincore.custodialonly.DynamicOnlyTradingAsset
 import piuk.blockchain.android.coincore.erc20.Erc20Asset
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -37,7 +37,7 @@ private const val defaultCustodialAddressValidation = "[a-zA-Z0-9]{15,}"
 internal class CryptoAssetLoader(
     private val featureConfig: AssetRemoteFeatureLookup,
     private val payloadManager: PayloadDataManager,
-    private val ethDataManager: EthDataManager,
+    private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatus,
     private val custodialManager: CustodialWalletManager,
@@ -100,7 +100,7 @@ internal class CryptoAssetLoader(
         return Erc20Asset(
             asset = assetInfo,
             payloadManager = payloadManager,
-            ethDataManager = ethDataManager,
+            erc20DataManager = erc20DataManager,
             feeDataManager = feeDataManager,
             exchangeRates = exchangeRates,
             historicRates = historicRates,

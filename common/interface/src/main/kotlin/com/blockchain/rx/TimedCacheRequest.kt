@@ -24,6 +24,10 @@ class TimedCacheRequest<T>(
             }
             current
         }
+
+    fun invalidate() {
+        expired.set(true)
+    }
 }
 
 class ParameteredSingleTimedCacheRequest<INPUT, OUTPUT>(

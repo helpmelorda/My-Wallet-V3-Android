@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.activity.detail
 
+import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.sunriver.XlmDataManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -14,7 +15,6 @@ import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
 import piuk.blockchain.android.coincore.NullCryptoAccount
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class TransactionInOutMapper(

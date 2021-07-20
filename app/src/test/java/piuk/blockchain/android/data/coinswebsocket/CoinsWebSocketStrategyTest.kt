@@ -1,6 +1,8 @@
 package piuk.blockchain.android.data.coinswebsocket
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
 import com.google.gson.Gson
@@ -18,7 +20,6 @@ import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -26,7 +27,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.data.coinswebsocket.service.MessagesSocketHandler
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -91,9 +91,10 @@ class CoinsWebSocketStrategyTest {
         on { fetchEthAddress() }.thenReturn(
             Observable.just(CombinedEthModel(EthAddressResponseMap()))
         )
-        on { getEthWalletAddress() }.thenReturn("0x4058a004dd718babab47e14dd0d744742e5b9903")
-        on { refreshErc20Model(any()) }.thenReturn(Completable.complete())
+        on { accountAddress }.thenReturn("0x4058a004dd718babab47e14dd0d744742e5b9903")
     }
+
+    private val erc20DataManager: Erc20DataManager = mock { }
 
     private val stringUtils: StringUtils = mock {
         on { getString(R.string.app_name) }.thenReturn("Blockchain")
@@ -143,6 +144,7 @@ class CoinsWebSocketStrategyTest {
     private val strategy = CoinsWebSocketStrategy(
         coinsWebSocket = webSocket,
         ethDataManager = ethDataManager,
+        erc20DataManager = erc20DataManager,
         stringUtils = stringUtils,
         gson = Gson(),
         bchDataManager = bchDataManager,
@@ -186,7 +188,7 @@ class CoinsWebSocketStrategyTest {
 
         verify(mockWebSocket).open()
         verify(ethDataManager).fetchEthAddress()
-        verify(ethDataManager, never()).refreshErc20Model(any())
+        verify(erc20DataManager, never()).flushCaches(any())
         verify(messagesSocketHandler).sendBroadcast(any())
     }
 
@@ -196,7 +198,7 @@ class CoinsWebSocketStrategyTest {
 
         verify(mockWebSocket).open()
         verify(ethDataManager, never()).fetchEthAddress()
-        verify(ethDataManager).refreshErc20Model(DUMMY_ERC20_1)
+        verify(erc20DataManager).flushCaches(DUMMY_ERC20_1)
         verify(messagesSocketHandler).triggerNotification(
             "Blockchain",
             "Received Dummies 1.21 DUMMY",

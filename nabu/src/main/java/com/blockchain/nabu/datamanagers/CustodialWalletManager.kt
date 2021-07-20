@@ -52,11 +52,6 @@ enum class OrderState {
     FAILED
 }
 
-// inject an instance of this to provide simple buy and custodial balance/transfer services.
-// In the short-term, use aa instance which provides mock data - for development and testing.
-// Once the UI and business logic are all working, we can then have NabuDataManager - or something similar -
-// implement this, and use koin.bind to have that instance injected instead to provide live data
-
 interface CustodialWalletManager {
 
     fun getTotalBalanceForAsset(

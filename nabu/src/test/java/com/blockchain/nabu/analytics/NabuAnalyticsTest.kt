@@ -17,6 +17,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import org.junit.Test
@@ -58,13 +59,23 @@ class NabuAnalyticsTest {
 
     @Test
     fun flushIsWorking() {
-        whenever(analyticsService.postEvents(any(), any(), any(), any(), any())).thenReturn(Completable.complete())
+        whenever(
+            analyticsService.postEvents(
+                events = any(),
+                id = any(),
+                analyticsContext = any(),
+                platform = any(),
+                device = any(),
+                authorization = anyOrNull()
+            )
+        ).thenReturn(Completable.complete())
         whenever(localAnalyticsPersistence.getAllItems()).thenReturn(Single.just(randomListOfEventsWithSize(84)))
         whenever(localAnalyticsPersistence.removeOldestItems(any())).thenReturn(Completable.complete())
         val testSubscriber = nabuAnalytics.flush().test()
 
         testSubscriber.assertComplete()
-        Mockito.verify(analyticsService, times(9)).postEvents(any(), any(), any(), any(), any())
+        Mockito.verify(analyticsService, times(9))
+            .postEvents(any(), any(), any(), any(), any(), anyOrNull())
 
         Mockito.verify(localAnalyticsPersistence, times(8)).removeOldestItems(10)
         Mockito.verify(localAnalyticsPersistence).removeOldestItems(4)
@@ -72,22 +83,41 @@ class NabuAnalyticsTest {
 
     @Test
     fun flushOnEmptyStorageShouldNotInvokeAnyPosts() {
-        whenever(analyticsService.postEvents(any(), any(), any(), any(), any())).thenReturn(Completable.complete())
+        whenever(
+            analyticsService.postEvents(
+                events = any(),
+                id = any(),
+                analyticsContext = any(),
+                platform = any(),
+                device = any(),
+                authorization = anyOrNull()
+            )
+        ).thenReturn(Completable.complete())
+
         whenever(localAnalyticsPersistence.getAllItems()).thenReturn(Single.just(randomListOfEventsWithSize(0)))
         whenever(localAnalyticsPersistence.removeOldestItems(any())).thenReturn(Completable.complete())
         val testSubscriber = nabuAnalytics.flush().test()
 
         testSubscriber.assertComplete()
-        Mockito.verify(analyticsService, never()).postEvents(any(), any(), any(), any(), any())
+        Mockito.verify(analyticsService, never())
+            .postEvents(any(), any(), any(), any(), any(), anyOrNull())
 
         Mockito.verify(localAnalyticsPersistence, never()).removeOldestItems(any())
     }
 
     @Test
     fun ifPostFailsCompletableShouldFailToo() {
-        whenever(analyticsService.postEvents(any(), any(), any(), any(), any())).thenReturn(
-            Completable.error(Throwable())
-        )
+        whenever(
+            analyticsService.postEvents(
+                events = any(),
+                id = any(),
+                analyticsContext = any(),
+                platform = any(),
+                device = any(),
+                authorization = anyOrNull()
+            )
+        ).thenReturn(Completable.error(Throwable()))
+
         whenever(localAnalyticsPersistence.getAllItems()).thenReturn(Single.just(randomListOfEventsWithSize(10)))
         whenever(localAnalyticsPersistence.removeOldestItems(any())).thenReturn(Completable.complete())
         val testSubscriber = nabuAnalytics.flush().test()

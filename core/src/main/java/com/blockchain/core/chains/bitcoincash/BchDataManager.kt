@@ -1,4 +1,4 @@
-package piuk.blockchain.androidcore.data.bitcoincash
+package com.blockchain.core.chains.bitcoincash
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.logging.CrashLogger

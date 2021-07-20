@@ -1,6 +1,5 @@
 @file:Suppress("SameParameterValue")
-
-package piuk.blockchain.androidcore.data.bitcoincash
+package com.blockchain.core.chains.bitcoincash
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.logging.CrashLogger

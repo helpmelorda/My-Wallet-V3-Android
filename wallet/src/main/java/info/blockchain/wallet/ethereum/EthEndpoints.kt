@@ -1,6 +1,5 @@
 package info.blockchain.wallet.ethereum
 
-import info.blockchain.wallet.ethereum.data.Erc20AddressResponse
 import info.blockchain.wallet.ethereum.data.EthAddressResponseMap
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthPushTxRequest
@@ -39,11 +38,4 @@ internal interface EthEndpoints {
         @Path("address") address: String,
         @Query("size") size: Int = 50
     ): Single<EthTransactionsResponse>
-
-    @GET(EthUrls.V2_DATA_ACCOUNT + "/{address}/token/{hash}/wallet")
-    @Headers("Accept: application/json")
-    fun getErc20Address(
-        @Path("address") address: String,
-        @Path("hash") hash: String
-    ): Observable<Erc20AddressResponse>
 }

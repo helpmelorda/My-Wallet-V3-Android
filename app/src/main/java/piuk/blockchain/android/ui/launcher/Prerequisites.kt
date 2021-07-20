@@ -36,8 +36,8 @@ class Prerequisites(
             } else
                 Completable.error(MetadataInitException(it))
         }
-            .then { simpleBuySync.performSync().logAndCompleteOnError(SIMPLE_BUY_SYNC) }
             .then { coincore.init() } // Coincore signals the crash logger internally
+            .then { simpleBuySync.performSync().logAndCompleteOnError(SIMPLE_BUY_SYNC) }
             .then { Completable.concat(flushables.map { it.flush().logAndCompleteOnError(it.tag) }) }
             .then { walletCredentialsUpdater.checkAndUpdate().logAndCompleteOnError(WALLET_CREDENTIALS) }
             .doOnComplete {

@@ -2,6 +2,7 @@ package piuk.blockchain.android.thepit
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.annotations.CommonCode
+import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
@@ -24,7 +25,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
@@ -259,7 +259,7 @@ class PitLinkingImplTest {
     }
 
     private fun ethManagerReturnsGoodAddress() {
-        whenever(ethDataManager.getDefaultEthAddress()).thenReturn(Single.just(ETH_ACCOUNT_ADDRESS))
+        whenever(ethDataManager.accountAddress).thenReturn(ETH_ACCOUNT_ADDRESS)
     }
 
     private fun xlmManagerReturnsGoodAddress() {
@@ -282,7 +282,7 @@ class PitLinkingImplTest {
     }
 
     private fun ethManagerFailsWhenReturningAddress() {
-        whenever(ethDataManager.getDefaultEthAddress()).thenReturn(Single.error(Throwable("ooooopsie")))
+        whenever(ethDataManager.accountAddress).thenAnswer { throw Throwable("ooooopsie") }
     }
 
     private fun xlmManagerFailsWhenReturningAddress() {
@@ -304,7 +304,7 @@ class PitLinkingImplTest {
     }
 
     private fun ethManagerReturnsEmptyAddress() {
-        whenever(ethDataManager.getDefaultEthAddress()).thenReturn(Single.just(""))
+        whenever(ethDataManager.accountAddress).thenReturn("")
     }
 
     private fun xlmManagerReturnsEmptyAddress() {

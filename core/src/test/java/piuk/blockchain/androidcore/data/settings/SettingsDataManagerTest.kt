@@ -1,6 +1,6 @@
 package piuk.blockchain.androidcore.data.settings
 
-import com.blockchain.api.WalletSettingsService
+import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever

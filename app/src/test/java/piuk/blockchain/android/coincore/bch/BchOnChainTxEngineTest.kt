@@ -1,6 +1,7 @@
 package piuk.blockchain.android.coincore.bch
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
@@ -37,7 +38,6 @@ import piuk.blockchain.android.coincore.PendingTx
 import piuk.blockchain.android.coincore.TransactionTarget
 import piuk.blockchain.android.coincore.ValidationState
 import piuk.blockchain.android.coincore.impl.injectMocks
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager

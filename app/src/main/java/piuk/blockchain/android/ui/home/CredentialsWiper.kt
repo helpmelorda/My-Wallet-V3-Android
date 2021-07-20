@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.home
 
+import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import info.blockchain.wallet.payload.PayloadManagerWiper
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.access.AccessState
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsState

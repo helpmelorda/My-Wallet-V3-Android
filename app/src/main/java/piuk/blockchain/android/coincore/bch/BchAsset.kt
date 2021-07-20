@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.bch
 
+import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -25,7 +26,6 @@ import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
 import piuk.blockchain.android.coincore.impl.NotificationAddresses
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
 import piuk.blockchain.androidcore.data.fees.FeeDataManager

@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.auth
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.notifications.analytics.Analytics
@@ -15,7 +16,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.transactionScopeOrNull
 import piuk.blockchain.android.util.OSUtil
 import piuk.blockchain.androidcore.data.access.AccessState
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsState
 import piuk.blockchain.androidcore.utils.PersistentPrefs

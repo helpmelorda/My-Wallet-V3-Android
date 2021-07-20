@@ -127,8 +127,6 @@ import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.lifecycle.LifecycleInterestedComponent
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.utils.PrngFixer
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 
@@ -169,30 +167,6 @@ val applicationModule = module {
     }.bind(DigitalTrust::class)
 
     scope(payloadScopeQualifier) {
-        factory {
-            EthDataManager(
-                payloadDataManager = get(),
-                ethAccountApi = get(),
-                ethDataStore = get(),
-                erc20DataStore = get(),
-                walletOptionsDataManager = get(),
-                metadataManager = get(),
-                lastTxUpdater = get(),
-                rxBus = get()
-            )
-        }
-
-        factory {
-            BchDataManager(
-                payloadDataManager = get(),
-                bchDataStore = get(),
-                bitcoinApi = get(),
-                defaultLabels = get(),
-                metadataManager = get(),
-                rxBus = get(),
-                crashLogger = get()
-            )
-        }
 
         factory {
             SecondPasswordDialog(contextAccess = get(), payloadManager = get())
@@ -267,10 +241,11 @@ val applicationModule = module {
             CoinsWebSocketStrategy(
                 coinsWebSocket = get(),
                 ethDataManager = get(),
+                erc20DataManager = get(),
+                bchDataManager = get(),
                 stringUtils = get(),
                 gson = get(),
                 payloadDataManager = get(),
-                bchDataManager = get(),
                 rxBus = get(),
                 prefs = get(),
                 appUtil = get(),

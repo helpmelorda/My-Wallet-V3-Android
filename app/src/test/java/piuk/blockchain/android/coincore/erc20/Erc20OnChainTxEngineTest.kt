@@ -1,12 +1,12 @@
 package piuk.blockchain.android.coincore.erc20
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.gwei
 import com.blockchain.testutils.numberToBigDecimal
-import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -35,21 +35,8 @@ import piuk.blockchain.android.coincore.PendingTx
 import piuk.blockchain.android.coincore.TransactionTarget
 import piuk.blockchain.android.coincore.ValidationState
 import piuk.blockchain.android.coincore.impl.injectMocks
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
-
-@Suppress("ClassName")
-private object DUMMY_ERC20 : CryptoCurrency(
-    ticker = "DUMMY",
-    name = "Dummies",
-    categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
-    precisionDp = 8,
-    requiredConfirmations = 5,
-    colour = "#123456"
-)
-
-fun Number.dummies() = CryptoValue.fromMajor(DUMMY_ERC20, numberToBigDecimal())
 
 @Suppress("UnnecessaryVariable")
 class Erc20OnChainTxEngineTest {
@@ -61,13 +48,13 @@ class Erc20OnChainTxEngineTest {
         computationTrampoline()
     }
 
-    private val ethDataManager: EthDataManager = mock {
-        on { erc20ContractAddress(any()) }.thenReturn("")
+    private val erc20DataManager: Erc20DataManager = mock {
     }
+
     private val ethFeeOptions: FeeOptions = mock()
 
     private val feeManager: FeeDataManager = mock {
-        on { getErc20FeeOptions(any()) }.thenReturn(Observable.just(ethFeeOptions))
+        on { getErc20FeeOptions(CONTRACT_ADDRESS) }.thenReturn(Observable.just(ethFeeOptions))
     }
     private val walletPreferences: WalletStatus = mock {
         on { getFeeTypeForAsset(ASSET) }.thenReturn(FeeLevel.Regular.ordinal)
@@ -79,7 +66,7 @@ class Erc20OnChainTxEngineTest {
     }
 
     private val subject = Erc20OnChainTxEngine(
-        ethDataManager = ethDataManager,
+        erc20DataManager = erc20DataManager,
         feeManager = feeManager,
         requireSecondPassword = false,
         walletPreferences = walletPreferences
@@ -274,8 +261,7 @@ class Erc20OnChainTxEngineTest {
         verify(sourceAccount, atLeastOnce()).asset
         verify(sourceAccount).accountBalance
         verify(sourceAccount).actionableBalance
-        verify(ethDataManager).erc20ContractAddress(any())
-        verify(feeManager).getErc20FeeOptions(any())
+        verify(feeManager).getErc20FeeOptions(CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions).regularFee
 
@@ -317,7 +303,6 @@ class Erc20OnChainTxEngineTest {
 
         val inputAmount = 2.dummies()
         val expectedFee = (GAS_LIMIT_CONTRACT * FEE_PRIORITY).gwei()
-        val expectedFullFee = expectedFee
 
         // Act
         subject.doUpdateAmount(
@@ -337,8 +322,7 @@ class Erc20OnChainTxEngineTest {
         verify(sourceAccount, atLeastOnce()).asset
         verify(sourceAccount).accountBalance
         verify(sourceAccount).actionableBalance
-        verify(ethDataManager).erc20ContractAddress(any())
-        verify(feeManager).getErc20FeeOptions(any())
+        verify(feeManager).getErc20FeeOptions(CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions).priorityFee
 
@@ -405,8 +389,7 @@ class Erc20OnChainTxEngineTest {
         verify(sourceAccount, atLeastOnce()).asset
         verify(sourceAccount).accountBalance
         verify(sourceAccount).actionableBalance
-        verify(ethDataManager).erc20ContractAddress(any())
-        verify(feeManager).getErc20FeeOptions(any())
+        verify(feeManager).getErc20FeeOptions(CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions).priorityFee
         verify(walletPreferences).setFeeTypeForAsset(ASSET, FeeLevel.Priority.ordinal)
@@ -588,7 +571,7 @@ class Erc20OnChainTxEngineTest {
 
     private fun noMoreInteractions(sourceAccount: BlockchainAccount, txTarget: TransactionTarget) {
         verifyNoMoreInteractions(txTarget)
-        verifyNoMoreInteractions(ethDataManager)
+        verifyNoMoreInteractions(erc20DataManager)
         verifyNoMoreInteractions(feeManager)
         verifyNoMoreInteractions(ethFeeOptions)
         verifyNoMoreInteractions(walletPreferences)
@@ -598,6 +581,22 @@ class Erc20OnChainTxEngineTest {
     }
 
     companion object {
+        private const val CONTRACT_ADDRESS = "0x123456545654656"
+
+        @Suppress("ClassName")
+        private object DUMMY_ERC20 : CryptoCurrency(
+            ticker = "DUMMY",
+            name = "Dummies",
+            categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
+            precisionDp = 8,
+            l2chain = CryptoCurrency.ETHER,
+            l2identifier = CONTRACT_ADDRESS,
+            requiredConfirmations = 5,
+            colour = "#123456"
+        )
+
+        fun Number.dummies() = CryptoValue.fromMajor(DUMMY_ERC20, numberToBigDecimal())
+
         private val ASSET = DUMMY_ERC20
         private val WRONG_ASSET = CryptoCurrency.BTC
         private val FEE_ASSET = CryptoCurrency.ETHER
