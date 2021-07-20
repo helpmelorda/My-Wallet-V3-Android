@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
+import com.blockchain.notifications.analytics.LaunchOrigin
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentRecurringbuyFirstTimeBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyIntent
@@ -34,7 +35,10 @@ class RecurringBuyFirstTimeBuyerFragment :
         activity.setupToolbar(R.string.recurring_buy_first_time_toolbar, false)
 
         binding.apply {
-            skipBtn.setOnClickListener { getActivity()?.finish() }
+            skipBtn.setOnClickListener {
+                analytics.logEvent(RecurringBuyAnalytics.RecurringBuySuggestionSkipped(LaunchOrigin.BUY_CONFIRMATION))
+                getActivity()?.finish()
+            }
             learnMoreBtn.setOnClickListener {
                 val intent = Intent(requireContext(), RecurringBuyOnboardingActivity::class.java)
                 startActivity(intent)
@@ -51,6 +55,8 @@ class RecurringBuyFirstTimeBuyerFragment :
                     orderValue?.currency?.name
                 )
                 getStartedBtn.setOnClickListener {
+                    analytics.logEvent(RecurringBuyAnalytics.RecurringBuyClicked(LaunchOrigin.BUY_CONFIRMATION))
+
                     showBottomSheet(
                         RecurringBuySelectionBottomSheet.newInstance(
                             RecurringBuyFrequency.DAILY,
@@ -75,7 +81,7 @@ class RecurringBuyFirstTimeBuyerFragment :
             "Parent must implement SimpleBuyNavigator"
         )
 
-    override fun onSheetClosed() { }
+    override fun onSheetClosed() {}
 
     override fun onBackPressed(): Boolean = true
 }

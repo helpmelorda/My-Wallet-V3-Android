@@ -11,8 +11,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.notifications.analytics.LaunchOrigin
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentRecurringBuyOnBoardingBinding
+import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.urllinks.DOLLAR_COST_AVERAGING
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.gone
@@ -30,6 +34,8 @@ class RecurringBuyOnBoardingFragment : Fragment() {
             "RecurringBuyInfo not provided"
         )
     }
+
+    val analytics: Analytics by inject()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,6 +57,12 @@ class RecurringBuyOnBoardingFragment : Fragment() {
         binding.title.text = buildColorStrings()
     }
 
+    private fun onClickLearnMore() {
+        analytics.logEvent(
+            RecurringBuyAnalytics.RecurringBuyLearnMoreClicked(LaunchOrigin.DCA_DETAILS_LINK)
+        )
+    }
+
     private fun setNote(stringId: Int): CharSequence {
         val linksMap = mapOf<String, Uri>(
             "learn_more" to Uri.parse(DOLLAR_COST_AVERAGING)
@@ -59,7 +71,7 @@ class RecurringBuyOnBoardingFragment : Fragment() {
             requireContext(),
             stringId,
             linksMap
-        )
+        ) { onClickLearnMore() }
     }
 
     private fun buildColorStrings(): Spannable {

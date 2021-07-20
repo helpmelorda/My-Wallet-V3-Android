@@ -13,6 +13,7 @@ import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.data.RecurringBuy
+import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.github.mikephil.charting.charts.LineChart
@@ -43,6 +44,7 @@ import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.account.PendingBalanceAccountDecorator
 import piuk.blockchain.android.ui.dashboard.assetdetails.delegates.AssetDetailAdapterDelegate
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
+import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.gone
@@ -186,12 +188,19 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     }
 
     private fun openOnboardingForRecurringBuy() {
+        analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreClicked(LaunchOrigin.CURRENCY_PAGE))
         val intent = Intent(requireActivity(), RecurringBuyOnboardingActivity::class.java)
         startActivity(intent)
     }
 
     private fun onRecurringBuyClicked(recurringBuy: RecurringBuy) {
         clearList()
+        analytics.logEvent(
+            RecurringBuyAnalytics.RecurringBuyDetailsClicked(
+                LaunchOrigin.RECURRING_BUY_DETAILS,
+                recurringBuy.asset.ticker
+            )
+        )
         model.process(ShowRecurringBuySheet(recurringBuy))
     }
 

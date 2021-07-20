@@ -4,9 +4,9 @@ import com.blockchain.extensions.withoutNullValues
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.notifications.analytics.AnalyticsEvent
-import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import java.io.Serializable
 
@@ -130,6 +130,13 @@ fun withdrawEventWithCurrency(analytics: SimpleBuyAnalytics, currency: String, a
         }.toMap()
     }
 
+class BuyFrequencySelected(frequency: String) : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_FREQUENCY_SELECTED.name
+    override val params: Map<String, String> = mapOf(
+        "frequency" to frequency
+    )
+}
+
 class CustodialBalanceClicked(asset: AssetInfo) : AnalyticsEvent {
     override val event: String = "sb_trading_wallet_clicked"
     override val params: Map<String, String> = mapOf(
@@ -174,9 +181,15 @@ class CurrencyChangedFromBuyForm(fiatCurrency: String) : AnalyticsEvent {
     )
 }
 
-class BuyAmountEntered(inputAmount: Money, maxAmount: Money, outputCurrency: String) : AnalyticsEvent {
+class BuyAmountEntered(
+    frequency: String,
+    inputAmount: Money,
+    maxAmount: Money,
+    outputCurrency: String
+) : AnalyticsEvent {
     override val event: String = AnalyticsNames.BUY_AMOUNT_ENTERED.eventName
     override val params: Map<String, Serializable> = mapOf(
+        "frequency" to frequency,
         "input_amount" to inputAmount.toBigDecimal(),
         "input_currency" to inputAmount.currencyCode,
         "input_amount_max" to maxAmount.toBigDecimal(),
@@ -194,7 +207,6 @@ class BuySellViewedEvent(private val type: BuySellType? = null) : AnalyticsEvent
 }
 
 class BuySellClicked(override val origin: LaunchOrigin, val type: BuySellType? = null) : AnalyticsEvent {
-
     override val event: String
         get() = AnalyticsNames.BUY_SELL_CLICKED.eventName
     override val params: Map<String, Serializable>

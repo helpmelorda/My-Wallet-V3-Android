@@ -42,7 +42,9 @@ import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.ui.transactionflow.analytics.DepositAnalytics
 import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.gone
@@ -182,9 +184,32 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         }
     }
 
+    private fun sendAttributeRecurringBuyCancelClicked(state: ActivityDetailState) {
+        val frequency =
+            state.listOfItems.filterIsInstance<RecurringBuyFrequency>().firstOrNull()?.frequency
+                ?: throw IllegalStateException("Missing RecurringBuyFrequency on RecurringBuy")
+        val paymentMethodType = state.recurringBuyPaymentMethodType
+            ?: throw IllegalStateException("Missing Input money on RecurringBuy")
+        val inputMoney = state.amount
+            ?: throw IllegalStateException("Missing Payment Method on RecurringBuy")
+
+        analytics.logEvent(
+            RecurringBuyAnalytics
+                .RecurringBuyCancelClicked(
+                    LaunchOrigin.TRANSACTION_DETAILS,
+                    frequency,
+                    inputMoney,
+                    asset,
+                    paymentMethodType
+                )
+        )
+    }
+
     private fun showRecurringBuyUi(state: ActivityDetailState) {
         binding.rbSheetCancel.apply {
             binding.rbSheetCancel.setOnClickListener {
+                sendAttributeRecurringBuyCancelClicked(state)
+
                 AlertDialog.Builder(requireContext())
                     .setTitle(R.string.settings_bank_remove_check_title)
                     .setMessage(R.string.recurring_buy_cancel_dialog_desc)
@@ -231,6 +256,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
     }
 
     private fun launchDepositFlow(originCurrency: String) {
+        analytics.logEvent(DepositAnalytics.DepositClicked(LaunchOrigin.RECURRING_BUY))
         host.onAddCash(originCurrency)
     }
 
@@ -430,7 +456,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
     private fun updateClipboard(value: String, context: Context) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText("value", value))
-        toast(R.string.copied_to_clipboard)
+        toast(R.string.copied_to_clipboard, ToastCustom.TYPE_OK)
     }
 
     private fun mapToAction(transactionType: TransactionSummary.TransactionType?): String =

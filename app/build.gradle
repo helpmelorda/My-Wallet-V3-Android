@@ -123,6 +123,11 @@ android {
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['prodSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
             buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['prodLoginLink']
+
+            def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
+            if (ciVersionCode != null) {
+                versionCode = ciVersionCode.toInteger()
+            }
         }
 
         envInternalProd {
