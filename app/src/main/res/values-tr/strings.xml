@@ -2001,7 +2001,6 @@ Banka transferiniz %3$s tarihinde tamamlandıktan sonra para çekme işlemi ger�
     <string name="recurring_buy_cancel_dialog_desc">Bu Yinelenen Satın Alma İşlemini iptal etmek istediğinizden emin misiniz?</string>
     <string name="recurring_buy_activity_pending">Bekliyor</string>
     <string name="recurring_buy_details_next_payment">Sonraki Ödeme</string>
-    <string name="recurring_buy_details_recurring">Yinelenen</string>
     <string name="recurring_buy_details_fees">harç</string>
     <string name="activity_details_label_btn_cash">Nakit Ekle</string>
     <string name="recurring_buy_funds_label">%s Hesabı</string>

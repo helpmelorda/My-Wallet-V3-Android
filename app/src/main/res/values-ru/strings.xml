@@ -1943,7 +1943,6 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="recurring_buy_cancel_dialog_desc">Вы уверены, что хотите отменить повторяющуюся покупку?</string>
     <string name="recurring_buy_activity_pending">В ожидании</string>
     <string name="recurring_buy_details_next_payment">Следующий платеж</string>
-    <string name="recurring_buy_details_recurring">Повторяющийся</string>
     <string name="recurring_buy_details_fees">сборы</string>
     <string name="activity_details_label_btn_cash">Добавить наличные</string>
     <string name="recurring_buy_funds_label">Учетная запись %s</string>

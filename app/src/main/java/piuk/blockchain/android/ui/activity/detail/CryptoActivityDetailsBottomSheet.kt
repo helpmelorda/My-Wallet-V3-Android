@@ -336,7 +336,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                 R.string.recurring_buy_final_attempt_error
             }
         RecurringBuyErrorState.TRADING_LIMITS_EXCEED -> R.string.recurring_buy_limits_exceed_error
-        RecurringBuyErrorState.INSUFFICIENT_FUNDS -> R.string.recurring_buy_insufficient_funds_error
+        RecurringBuyErrorState.INSUFFICIENT_FUNDS -> R.string.recurring_buy_insufficient_funds_error_1
         RecurringBuyErrorState.BLOCKED_BENEFICIARY_ID -> R.string.recurring_buy_beneficiary_error
         RecurringBuyErrorState.UNKNOWN -> R.string.recurring_buy_generic_error
     }
