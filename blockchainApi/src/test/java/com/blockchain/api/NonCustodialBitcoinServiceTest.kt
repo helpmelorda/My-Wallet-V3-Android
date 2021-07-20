@@ -1,6 +1,7 @@
 package com.blockchain.api
 
 import com.blockchain.api.bitcoin.BitcoinApi
+import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.bitcoin.data.AddressSummary
 import com.blockchain.api.bitcoin.data.BalanceDto
 import com.blockchain.api.bitcoin.data.Info

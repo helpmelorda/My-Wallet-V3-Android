@@ -25,7 +25,6 @@ import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-
 import com.nhaarman.mockitokotlin2.any
 import org.junit.Ignore
 import org.junit.Rule
@@ -84,7 +83,7 @@ class SimpleBuyModelTest {
         environmentConfig = environmentConfig,
         crashLogger = mock(),
         serializer = serializer,
-        getFirstTimeBuyerUseCase = mock(),
+        isFirstTimeBuyerUseCase = mock(),
         featureFlagApi = mock()
     )
 
