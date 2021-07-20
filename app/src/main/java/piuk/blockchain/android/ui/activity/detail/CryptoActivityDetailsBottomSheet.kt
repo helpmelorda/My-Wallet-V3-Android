@@ -456,7 +456,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
     private fun updateClipboard(value: String, context: Context) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText("value", value))
-        toast(R.string.copied_to_clipboard)
+        toast(R.string.copied_to_clipboard, ToastCustom.TYPE_OK)
     }
 
     private fun mapToAction(transactionType: TransactionSummary.TransactionType?): String =

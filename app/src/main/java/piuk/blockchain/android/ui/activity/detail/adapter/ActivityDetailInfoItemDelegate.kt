@@ -39,7 +39,7 @@ import piuk.blockchain.android.ui.activity.detail.Value
 import piuk.blockchain.android.ui.activity.detail.XlmMemo
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.setSelectableBackground
+import piuk.blockchain.android.util.visible
 
 class ActivityDetailInfoItemDelegate<in T>(
     private val onLongClick: (String) -> Unit
@@ -73,19 +73,22 @@ private class InfoItemViewHolder(
         with(binding) {
             itemListInfoRowTitle.text = getHeaderForType(item)
             itemListInfoRowDescription.text = getValueForType(item)
-            updateBackgroundForType(item)
-            itemView.setOnLongClickListener {
-                (item as? Copyable)?.let {
-                    onLongClick(it.filed)
-                }
-                true
-            }
+            setupCopyContentForType(item)
         }
     }
 
-    private fun updateBackgroundForType(infoType: ActivityDetailsType) {
-        if (infoType is Copyable) {
-            itemView.setSelectableBackground()
+    private fun setupCopyContentForType(infoType: ActivityDetailsType) {
+        (infoType as? Copyable)?.let { copyable ->
+            val tinyPadding = context.resources.getDimension(R.dimen.tiny_margin).toInt()
+            itemView.setPadding(itemView.paddingLeft, itemView.paddingTop, tinyPadding, itemView.paddingBottom)
+            itemView.setOnLongClickListener {
+                onLongClick(copyable.filed)
+                true
+            }
+            binding.copyTapTarget.visible()
+            binding.copyTapTarget.setOnClickListener {
+                onLongClick(copyable.filed)
+            }
         }
     }
 

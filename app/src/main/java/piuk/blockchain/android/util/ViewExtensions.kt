@@ -2,7 +2,6 @@ package piuk.blockchain.android.util
 
 import android.annotation.SuppressLint
 import android.graphics.Rect
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -177,9 +176,4 @@ fun View.afterMeasured(f: (View) -> Unit) {
             }
         }
     })
-}
-
-fun View.setSelectableBackground() = with(TypedValue()) {
-    context.theme.resolveAttribute(android.R.attr.selectableItemBackground, this, true)
-    setBackgroundResource(resourceId)
 }
