@@ -131,7 +131,7 @@ private class InfoItemViewHolder(
                 (infoType.feeValue as CryptoValue).currency.ticker
             )
             is XlmMemo -> context.getString(R.string.xlm_memo_text)
-            is RecurringBuyFrequency -> context.getString(R.string.recurring_buy_details_recurring)
+            is RecurringBuyFrequency -> context.getString(R.string.recurring_buy_frequency_label_1)
             else -> context.getString(R.string.empty)
         }
 

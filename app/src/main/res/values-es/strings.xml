@@ -1889,7 +1889,6 @@ Su %1$s estará disponible en su cuenta de \"%2$s\" en 2 días.</string>
     <string name="recurring_buy_cancel_dialog_desc">¿Seguro que quiere cancelar esta compra periódica?</string>
     <string name="recurring_buy_activity_pending">Pendiente</string>
     <string name="recurring_buy_details_next_payment">Siguiente pago</string>
-    <string name="recurring_buy_details_recurring">Periódica</string>
     <string name="recurring_buy_details_fees">Tarifa</string>
     <string name="activity_details_label_btn_cash">Agregar dinero en efectivo</string>
     <string name="recurring_buy_funds_label">Cuenta de %s</string>

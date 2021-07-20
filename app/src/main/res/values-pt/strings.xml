@@ -2004,7 +2004,6 @@ Os seus %1$s estarão disponíveis na sua conta \"%2$s\" no prazo de 2 dias.</st
     <string name="recurring_buy_cancel_dialog_desc">Tem a certeza de que quer cancelar esta Compra Recorrente?</string>
     <string name="recurring_buy_activity_pending">Pendente</string>
     <string name="recurring_buy_details_next_payment">Próximo pagamento</string>
-    <string name="recurring_buy_details_recurring">Recorrente</string>
     <string name="recurring_buy_details_fees">Honorários</string>
     <string name="activity_details_label_btn_cash">Adicionar dinheiro</string>
     <string name="recurring_buy_funds_label">Conta %s</string>

@@ -153,7 +153,7 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
                 }
             },
             SimpleBuyCheckoutItem.ComplexCheckoutItem(
-                getString(R.string.recurring_buy_frequency_label),
+                getString(R.string.recurring_buy_frequency_label_1),
                 recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext()),
                 recurringBuyFrequency.toHumanReadableRecurringDate(requireContext())
             ),

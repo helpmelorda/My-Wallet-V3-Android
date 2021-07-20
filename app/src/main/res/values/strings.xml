@@ -2140,7 +2140,7 @@
     <string name="recurring_buy_weekly">Every week</string>
     <string name="recurring_buy_bi_weekly">Every 2 weeks</string>
     <string name="recurring_buy_monthly">Every month</string>
-    <string name="recurring_buy_frequency_label">Recurring</string>
+    <string name="recurring_buy_frequency_label_1">Frequency</string>
     <string name="recurring_buy_frequency_subtitle">on %1$s</string>
     <string name="recurring_buy_frequency_subtitle_each_day">around %s</string>
     <string name="recurring_buy_frequency_subtitle_monthly">on day %s</string>
@@ -2167,14 +2167,13 @@
     <string name="recurring_buy_cancel_dialog_desc">Are you sure you want to cancel this Recurring Buy?</string>
     <string name="recurring_buy_activity_pending">Pending</string>
     <string name="recurring_buy_details_next_payment">Next Payment</string>
-    <string name="recurring_buy_details_recurring">Recurring</string>
     <string name="recurring_buy_details_total_cost">Total Cost</string>
     <string name="recurring_buy_details_fees">Fees</string>
     <string name="activity_details_label_btn_cash">Add Cash</string>
     <string name="recurring_buy_funds_label">%s Account</string>
     <string name="recurring_buy_short_error">Failed</string>
     <string name="recurring_buy_insufficient_funds_short_error">Failed. Low Balance</string>
-    <string name="recurring_buy_insufficient_funds_error">Your payment method has insufficient funds. Add more to complete the recurring buy.</string>
+    <string name="recurring_buy_insufficient_funds_error_1">Your payment method\'s balance is too low. Please add more cash now.</string>
     <string name="recurring_buy_internal_server_error">There has been an error with your purchase. We will retry shortly.</string>
     <string name="recurring_buy_final_attempt_error">There has been an error with your purchase. <annotation link="contact_support_link">Contact support</annotation> for more information.</string>
     <string name="recurring_buy_beneficiary_error">Your selected payment method is not active. Please use another.</string>

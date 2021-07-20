@@ -1912,7 +1912,6 @@ Vos %1$s seront disponibles sur votre compte « %2$s » dans les 2 jours.</strin
     <string name="recurring_buy_cancel_dialog_desc">Voulez-vous vraiment annuler cet Achat récurrent ?</string>
     <string name="recurring_buy_activity_pending">En attente</string>
     <string name="recurring_buy_details_next_payment">Prochain paiement</string>
-    <string name="recurring_buy_details_recurring">Récurrent</string>
     <string name="recurring_buy_details_fees">Honoraires</string>
     <string name="activity_details_label_btn_cash">Ajouter de l\'argent</string>
     <string name="recurring_buy_funds_label">%sCompte</string>
