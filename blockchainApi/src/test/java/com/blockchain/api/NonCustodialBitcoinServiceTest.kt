@@ -14,7 +14,6 @@ import com.blockchain.api.bitcoin.data.Transaction
 import com.blockchain.api.bitcoin.data.UnspentOutputDto
 import com.blockchain.api.bitcoin.data.UnspentOutputsDto
 import com.blockchain.api.bitcoin.data.XpubDto
-import com.blockchain.api.services.NonCustodialBitcoinService
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
