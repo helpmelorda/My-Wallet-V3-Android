@@ -52,6 +52,7 @@ class ConfirmInfoItemValidationStatusDelegate<in T> :
                 ValidationState.INSUFFICIENT_FUNDS -> ctx.getString(R.string.confirm_status_msg_insufficient_funds)
                 ValidationState.INSUFFICIENT_GAS -> ctx.getString(R.string.confirm_status_msg_insufficient_gas)
                 ValidationState.OPTION_INVALID -> ctx.getString(R.string.confirm_status_msg_option_invalid)
+                ValidationState.MEMO_INVALID -> ctx.getString(R.string.confirm_status_memo_invalid)
                 ValidationState.INVOICE_EXPIRED -> ctx.getString(R.string.confirm_status_msg_invoice_expired)
                 ValidationState.UNDER_MIN_LIMIT -> {
                     this.money?.toStringWithSymbol()?.let {

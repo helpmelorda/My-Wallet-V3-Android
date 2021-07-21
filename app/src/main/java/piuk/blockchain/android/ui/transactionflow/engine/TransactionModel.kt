@@ -200,10 +200,10 @@ class TransactionModel(
             }
             is TransactionIntent.TargetSelected ->
                 processTargetSelectionConfirmed(
-                    previousState.sendingAccount,
-                    previousState.amount,
-                    previousState.selectedTarget,
-                    previousState.action
+                    sourceAccount = previousState.sendingAccount,
+                    amount = previousState.amount,
+                    transactionTarget = previousState.selectedTarget,
+                    action = previousState.action
                 )
             is TransactionIntent.TargetSelectionUpdated -> null
             is TransactionIntent.InitialiseWithSourceAndPreferredTarget ->

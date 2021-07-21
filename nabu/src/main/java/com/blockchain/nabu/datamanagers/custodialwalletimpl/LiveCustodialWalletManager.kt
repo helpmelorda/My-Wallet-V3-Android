@@ -1224,7 +1224,7 @@ class LiveCustodialWalletManager(
                     amount = amount.toBigInteger().toString(),
                     currency = amount.currencyCode,
                     origin = origin.toRequestString(),
-                    destination = destination.name
+                    destination = destination.toRequestString()
                 )
             ).doOnComplete {
                 interestRepository.clearBalanceForAsset(amount.currencyCode)

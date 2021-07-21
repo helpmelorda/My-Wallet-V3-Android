@@ -107,9 +107,7 @@ class InterestWithdrawTradingTxEngine(
         doValidateAmount(pendingTx)
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
-        (txTarget as CryptoAccount).receiveAddress.flatMap {
-            walletManager.startInterestWithdrawal(sourceAsset, pendingTx.amount, it.address).toSingle {
-                TxResult.UnHashedTxResult(pendingTx.amount)
-            }
+        walletManager.executeCustodialTransfer(pendingTx.amount, Product.SAVINGS, Product.BUY).toSingle {
+            TxResult.UnHashedTxResult(pendingTx.amount)
         }
 }

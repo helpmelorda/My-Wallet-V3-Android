@@ -36,6 +36,7 @@ enum class ValidationState {
     INVALID_ADDRESS,
     ADDRESS_IS_CONTRACT,
     OPTION_INVALID,
+    MEMO_INVALID,
     UNDER_MIN_LIMIT,
     PENDING_ORDERS_LIMIT_REACHED,
     OVER_MAX_LIMIT,
@@ -45,7 +46,7 @@ enum class ValidationState {
     UNKNOWN_ERROR
 }
 
-class TxValidationFailure(val state: ValidationState) : TransferError("Invalid Send Tx: $state")
+class TxValidationFailure(val state: ValidationState) : TransferError("Invalid Tx: $state")
 class NeedsApprovalException(val bankPaymentData: BankPaymentApproval) : Throwable()
 
 enum class FeeLevel {
@@ -451,7 +452,8 @@ class TransactionProcessor(
             ValidationState.INSUFFICIENT_GAS -> Completable.error(TransactionError.InsufficientBalance)
             ValidationState.INVALID_ADDRESS -> Completable.error(TransactionError.InvalidCryptoAddress)
             ValidationState.ADDRESS_IS_CONTRACT -> Completable.error(TransactionError.InvalidCryptoAddress)
-            ValidationState.OPTION_INVALID -> Completable.error(TransactionError.UnexpectedError)
+            ValidationState.OPTION_INVALID,
+            ValidationState.MEMO_INVALID -> Completable.error(TransactionError.UnexpectedError)
             ValidationState.UNDER_MIN_LIMIT -> Completable.error(TransactionError.OrderBelowMin)
             ValidationState.PENDING_ORDERS_LIMIT_REACHED ->
                 Completable.error(TransactionError.OrderLimitReached)
