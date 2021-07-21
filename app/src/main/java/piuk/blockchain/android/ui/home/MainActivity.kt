@@ -176,8 +176,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             true
         }
 
-    private val currentFragment: Fragment
-        get() = supportFragmentManager.findFragmentById(R.id.content_frame)!!
+    private val currentFragment: Fragment?
+        get() = supportFragmentManager.findFragmentById(R.id.content_frame)
 
     internal val activity: Context
         get() = this
@@ -317,6 +317,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 ACCOUNT_EDIT,
                 KYC_STARTED -> {
                     // Reset state in case of changing currency etc
+                    removeFragmentByTag(DashboardFragment::class.java.simpleName)
                     startDashboardFragment()
 
                     // Pass this result to balance fragment
@@ -359,8 +360,10 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     private fun launchDashboardFlow(action: AssetAction, currency: String?) {
         currency?.let {
+            gotoDashboard()
+            removeFragmentByTag(DashboardFragment::class.java.simpleName)
             val fragment = DashboardFragment.newInstance(action, it)
-            replaceContentFragment(fragment)
+            showFragment(fragment)
         }
     }
 
@@ -547,6 +550,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     @SuppressLint("CheckResult")
     override fun startTransactionFlowWithTarget(targets: Collection<CryptoTarget>) {
+        val currentFragment = this.currentFragment ?: return
         if (targets.size > 1) {
             disambiguateSendScan(targets)
         } else {
@@ -640,7 +644,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         toolbar.title = getString(R.string.transfer)
 
         val transferFragment = TransferFragment.newInstance(viewToShow)
-        replaceContentFragment(transferFragment)
+        showFragment(transferFragment)
     }
 
     private fun startSwapFlow(sourceAccount: CryptoAccount? = null, destinationAccount: CryptoAccount? = null) {
@@ -648,7 +652,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             setCurrentTabItem(R.id.nav_swap)
             toolbar.title = getString(R.string.common_swap)
             val swapFragment = SwapFragment.newInstance()
-            replaceContentFragment(swapFragment)
+            showFragment(swapFragment)
         } else if (sourceAccount != null) {
             txLauncher.startFlow(
                 activity = this,
@@ -668,8 +672,9 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     private fun startDashboardFragment() {
         runOnUiThread {
             val fragment = DashboardFragment.newInstance()
-            replaceContentFragment(fragment)
+            showFragment(fragment)
             setCurrentTabItem(R.id.nav_home)
+            toolbar.title = getString(R.string.dashboard_title)
         }
     }
 
@@ -706,7 +711,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     private fun startActivitiesFragment(account: BlockchainAccount? = null) {
         setCurrentTabItem(R.id.nav_activity)
         val fragment = ActivitiesFragment.newInstance(account)
-        replaceContentFragment(fragment)
+        showFragment(fragment)
         toolbar.title = ""
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
     }
@@ -722,11 +727,32 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     override fun shouldIgnoreDeepLinking() =
         (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
 
-    private fun replaceContentFragment(fragment: Fragment) {
-        val fragmentManager = supportFragmentManager
-        fragmentManager.beginTransaction()
-            .replace(R.id.content_frame, fragment, fragment.javaClass.simpleName)
-            .commitAllowingStateLoss()
+    private fun removeFragmentByTag(tag: String) {
+        supportFragmentManager.findFragmentByTag(tag)?.let { fragment ->
+            supportFragmentManager.beginTransaction().remove(fragment).commitNowAllowingStateLoss()
+        }
+    }
+
+    private fun showFragment(fragment: Fragment) {
+        val transaction = supportFragmentManager.beginTransaction()
+        val primaryFragment = supportFragmentManager.primaryNavigationFragment
+        primaryFragment?.let {
+            transaction.hide(it)
+        }
+
+        val tag = fragment.javaClass.simpleName
+        var tempFragment = supportFragmentManager.findFragmentByTag(tag)
+        
+        if (tempFragment == null) {
+            tempFragment = fragment
+            transaction.add(R.id.content_frame, tempFragment, tag)
+        } else {
+            transaction.show(tempFragment)
+        }
+
+        transaction.setPrimaryNavigationFragment(tempFragment)
+        transaction.setReorderingAllowed(true)
+        transaction.commitNowAllowingStateLoss()
     }
 
     /*** Silently switch the current tab in the tab_bar */
@@ -765,9 +791,9 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override fun launchSimpleBuySell(viewType: BuySellFragment.BuySellViewType, asset: AssetInfo?) {
         setCurrentTabItem(R.id.nav_buy_and_sell)
-
+        toolbar.title = getString(R.string.buy_and_sell)
         val buySellFragment = BuySellFragment.newInstance(asset, viewType)
-        replaceContentFragment(buySellFragment)
+        showFragment(buySellFragment)
     }
 
     override fun performAssetActionFor(action: AssetAction, account: BlockchainAccount) =
@@ -888,7 +914,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override fun launchFiatDeposit(currency: String) {
         runOnUiThread {
-            gotoDashboard()
             launchDashboardFlow(AssetAction.FiatDeposit, currency)
         }
     }
