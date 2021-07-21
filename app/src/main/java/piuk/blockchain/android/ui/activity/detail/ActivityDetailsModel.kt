@@ -55,8 +55,9 @@ data class TransactionId(val txId: String) : ActivityDetailsType(), Copyable {
     override val filed: String
         get() = txId
 }
+
 data class BuyCryptoWallet(val crypto: AssetInfo) : ActivityDetailsType()
-data class RecurringBuyFrequency(val frequency: RecurringBuyFrequency) : ActivityDetailsType()
+data class RecurringBuyFrequency(val frequency: RecurringBuyFrequency, val nextPayment: Date) : ActivityDetailsType()
 data class SellCryptoWallet(val currency: String) : ActivityDetailsType()
 data class BuyPaymentMethod(val paymentDetails: PaymentDetails) : ActivityDetailsType()
 data class SwapReceiveAmount(val receivedAmount: Money) : ActivityDetailsType()

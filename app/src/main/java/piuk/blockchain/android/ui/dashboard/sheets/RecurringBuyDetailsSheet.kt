@@ -10,8 +10,9 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyState
+import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.notifications.analytics.LaunchOrigin
-import com.blockchain.utils.toFormattedDate
+import com.blockchain.utils.capitalizeFirstChar
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetRecurringBuyInfoBinding
 import piuk.blockchain.android.simplebuy.CheckoutAdapterDelegate
@@ -27,8 +28,11 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsModel
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsState
 import piuk.blockchain.android.ui.dashboard.assetdetails.ClearSelectedRecurringBuy
 import piuk.blockchain.android.ui.dashboard.assetdetails.DeleteRecurringBuy
-import piuk.blockchain.android.ui.dashboard.assetdetails.GetPaymentDetails
 import piuk.blockchain.android.ui.dashboard.assetdetails.ReturnToPreviousStep
+import piuk.blockchain.android.ui.dashboard.assetdetails.GetPaymentDetails
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.util.Date
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 
 class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
@@ -106,15 +110,18 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
                 }
                 newState.errorState == AssetDetailsError.RECURRING_BUY_DELETE -> {
                     ToastCustom.makeText(
-                        requireContext(), getString(R.string.recurring_buy_cancelled_error_toast), Toast.LENGTH_LONG,
+                        requireContext(), getString(R.string.recurring_buy_cancelled_error_toast),
+                        Toast.LENGTH_LONG,
                         ToastCustom.TYPE_ERROR
                     )
                 }
                 else ->
                     with(binding) {
-                        rbSheetTitle.text = getString(R.string.recurring_buy_sheet_title, it.asset.ticker)
+                        rbSheetTitle.text = getString(R.string.recurring_buy_sheet_title_1)
                         rbSheetHeader.setDetails(
-                            it.amount.toStringWithSymbol(),
+                            getString(R.string.recurring_buy_header,
+                                it.amount.toStringWithSymbol(),
+                                it.asset.ticker),
                             ""
                         )
                         it.renderListItems()
@@ -155,11 +162,12 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
             SimpleBuyCheckoutItem.ComplexCheckoutItem(
                 getString(R.string.recurring_buy_frequency_label_1),
                 recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext()),
-                recurringBuyFrequency.toHumanReadableRecurringDate(requireContext())
+                recurringBuyFrequency.toHumanReadableRecurringDate(requireContext(),
+                    ZonedDateTime.ofInstant(nextPaymentDate.toInstant(), ZoneId.systemDefault()))
             ),
             SimpleBuyCheckoutItem.SimpleCheckoutItem(
-                getString(R.string.recurring_buy_info_purchase_label),
-                nextPaymentDate.toFormattedDate()
+                getString(R.string.recurring_buy_info_purchase_label_1),
+                nextPaymentDate.toFormattedDateWithoutYear()
             ),
             SimpleBuyCheckoutItem.SimpleCheckoutItem(
                 getString(R.string.common_total),
@@ -168,6 +176,13 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
             )
         )
         listAdapter.notifyDataSetChanged()
+    }
+
+    fun getFormattedDateForRbs(nextPaymentDate: Date): String {
+        val zonedDateTime = ZonedDateTime.ofInstant(nextPaymentDate.toInstant(), ZoneId.systemDefault())
+        return "${zonedDateTime.dayOfWeek.toString().capitalizeFirstChar()}, " +
+            "${zonedDateTime.month.toString().capitalizeFirstChar()} " +
+            "${zonedDateTime.dayOfMonth}"
     }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogSheetRecurringBuyInfoBinding =

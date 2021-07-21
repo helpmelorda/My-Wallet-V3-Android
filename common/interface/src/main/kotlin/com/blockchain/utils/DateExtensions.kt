@@ -5,8 +5,10 @@ import java.math.BigInteger
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -58,6 +60,19 @@ fun ZonedDateTime.to12HourFormat(): String {
 fun ZonedDateTime.isLastDayOfTheMonth(): Boolean {
     val nextDay = this.plusDays(1)
     return this.month != nextDay.month
+}
+
+/**
+ * Takes a [Date] object and converts it to ZonedDateTime, ie Fri, July 23.
+ *
+ * @return A formatted [String] object.
+ */
+fun Date.toFormattedDateWithoutYear(): String {
+    val zonedDateTime = ZonedDateTime.ofInstant(this.toInstant(), ZoneId.systemDefault())
+    return "${zonedDateTime.dayOfWeek.getDisplayName(TextStyle.SHORT,
+        Locale.getDefault()).toString().capitalizeFirstChar()}, " +
+        "${zonedDateTime.month.toString().capitalizeFirstChar()} " +
+        "${zonedDateTime.dayOfMonth}"
 }
 
 /**

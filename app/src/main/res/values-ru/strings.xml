@@ -1863,10 +1863,6 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="recurring_buy_label">Частота</string>
     <string name="recurring_buy_one_time_short">Один раз</string>
     <string name="recurring_buy_one_time">Одноразовая покупка</string>
-    <string name="recurring_buy_daily">Каждый день</string>
-    <string name="recurring_buy_weekly">Каждую неделю</string>
-    <string name="recurring_buy_bi_weekly">Каждые 2 недели</string>
-    <string name="recurring_buy_monthly">Каждый месяц</string>
     <string name="recurring_buy_frequency_label">Повторяющийся</string>
     <string name="recurring_buy_frequency_subtitle">%1$s</string>
     <string name="recurring_buy_frequency_subtitle_each_day">около %s</string>
@@ -1931,13 +1927,9 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="dashboard_title_recurring_buy">Не знаете, какое время для покупки самое подходящее?</string>
     <string name="dashboard_recurring_buy_description">Вычислить наиболее выгодное время для сделок довольно трудно, поэтому многие инвесторы используют усреднение долларовой стоимости.</string>
     <string name="dashboard_recurring_buy_learn_more">Узнать больше →</string>
-    <string name="dashboard_recurring_buy_item_title">Купить %1$s в %2$s %3$s</string>
     <string name="dashboard_recurring_buy_item_label">Купить следующим: %1$s</string>
     <string name="dashboard_recurring_buy_item_label_error">Недостаточный баланс. Пополните счет</string>
     <string name="dashboard_recurring_buy_title">Повторяющиеся покупки</string>
-    <string name="recurring_buy_info_cta">Отменить повторяющуюся покупку</string>
-    <string name="recurring_buy_sheet_title">Повторяющаяся покупка %1$s</string>
-    <string name="recurring_buy_info_purchase_label">Следующее приобретение</string>
     <string name="recurring_buy_cancelled_toast">Повторяющаяся покупка отменена</string>
     <string name="recurring_buy_cancelled_error_toast">Ой! При отмене повторяющейся покупки возникла проблема. Пожалуйста, повторите попытку позже.</string>
     <string name="recurring_buy_cancel_dialog_desc">Вы уверены, что хотите отменить повторяющуюся покупку?</string>
@@ -1948,7 +1940,6 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="recurring_buy_funds_label">Учетная запись %s</string>
     <string name="recurring_buy_short_error">Не удалось</string>
     <string name="recurring_buy_insufficient_funds_short_error">Ошибка. Недостаточный баланс</string>
-    <string name="recurring_buy_insufficient_funds_error">Ваш платежный инструмент содержит недостаточно средств. Пополните счет, чтобы завершить повторяющуюся покупку.</string>
     <string name="recurring_buy_internal_server_error">При покупке произошла ошибка. Мы повторим попытку в ближайшее время.</string>
     <string name="recurring_buy_final_attempt_error">При покупке произошла ошибка. <annotation link="contact_support_link">Обратитесь в службу поддержки</annotation> для получения дополнительной информации.</string>
     <string name="recurring_buy_beneficiary_error">Ваш платежный инструмент не активен. Выберите другое средство для оплаты.</string>

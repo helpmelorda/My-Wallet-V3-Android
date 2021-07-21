@@ -20,6 +20,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth
 import com.blockchain.utils.to12HourFormat
 import com.bumptech.glide.Glide
@@ -61,7 +62,6 @@ import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.time.ZonedDateTime
-import java.util.Locale
 
 class SimpleBuyCryptoFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyBuyCryptoBinding>(),
@@ -645,16 +645,15 @@ class SimpleBuyCryptoFragment :
 fun RecurringBuyFrequency.toHumanReadableRecurringBuy(context: Context): String {
     return when (this) {
         RecurringBuyFrequency.ONE_TIME -> context.getString(R.string.recurring_buy_one_time_short)
-        RecurringBuyFrequency.DAILY -> context.getString(R.string.recurring_buy_daily)
-        RecurringBuyFrequency.WEEKLY -> context.getString(R.string.recurring_buy_weekly)
-        RecurringBuyFrequency.BI_WEEKLY -> context.getString(R.string.recurring_buy_bi_weekly)
-        RecurringBuyFrequency.MONTHLY -> context.getString(R.string.recurring_buy_monthly)
+        RecurringBuyFrequency.DAILY -> context.getString(R.string.recurring_buy_daily_1)
+        RecurringBuyFrequency.WEEKLY -> context.getString(R.string.recurring_buy_weekly_1)
+        RecurringBuyFrequency.BI_WEEKLY -> context.getString(R.string.recurring_buy_bi_weekly_1)
+        RecurringBuyFrequency.MONTHLY -> context.getString(R.string.recurring_buy_monthly_1)
         else -> context.getString(R.string.common_unknown)
     }
 }
 
-fun RecurringBuyFrequency.toHumanReadableRecurringDate(context: Context): String {
-    val dateTime = ZonedDateTime.now()
+fun RecurringBuyFrequency.toHumanReadableRecurringDate(context: Context, dateTime: ZonedDateTime): String {
     return when (this) {
         RecurringBuyFrequency.DAILY -> {
             context.getString(
@@ -665,7 +664,7 @@ fun RecurringBuyFrequency.toHumanReadableRecurringDate(context: Context): String
         RecurringBuyFrequency.BI_WEEKLY, RecurringBuyFrequency.WEEKLY -> {
             context.getString(
                 R.string.recurring_buy_frequency_subtitle,
-                dateTime.dayOfWeek.toString().toLowerCase(Locale.getDefault()).capitalize(Locale.getDefault())
+                dateTime.dayOfWeek.toString().capitalizeFirstChar()
             )
         }
         RecurringBuyFrequency.MONTHLY -> {

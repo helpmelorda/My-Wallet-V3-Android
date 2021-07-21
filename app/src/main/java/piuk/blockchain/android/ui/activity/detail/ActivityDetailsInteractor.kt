@@ -19,7 +19,6 @@ import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.AssetFilter
@@ -115,7 +114,7 @@ class ActivityDetailsInteractor(
             Created(recurringBuy.createDate),
             TotalCostAmount(cacheTransaction.fundedFiat),
             FeeAmount(FiatValue.fromMinor(cacheTransaction.fee.currencyCode, 0)),
-            RecurringBuyFrequency(recurringBuy.recurringBuyFrequency),
+            RecurringBuyFrequency(recurringBuy.recurringBuyFrequency, recurringBuy.nextPaymentDate),
             NextPayment(recurringBuy.nextPaymentDate)
         )
         return when (cacheTransaction.paymentMethodType) {
@@ -253,7 +252,7 @@ class ActivityDetailsInteractor(
             Amount(item.sendingValue)
         )
 
-        return Singles.zip(
+        return Single.zip(
             item.depositNetworkFee,
             buildReceivingLabel(item)
         ) { depositFee: Money, toItem: To ->
