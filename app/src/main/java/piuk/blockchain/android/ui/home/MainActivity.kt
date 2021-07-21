@@ -741,7 +741,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
         val tag = fragment.javaClass.simpleName
         var tempFragment = supportFragmentManager.findFragmentByTag(tag)
-        
+
         if (tempFragment == null) {
             tempFragment = fragment
             transaction.add(R.id.content_frame, tempFragment, tag)
