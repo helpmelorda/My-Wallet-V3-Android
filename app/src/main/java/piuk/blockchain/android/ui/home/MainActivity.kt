@@ -479,8 +479,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     }
 
     private fun resetUi() {
-        toolbar.title = ""
-
         // Set selected appropriately.
         with(binding.bottomNavigation) {
             val currentItem = when (currentFragment) {

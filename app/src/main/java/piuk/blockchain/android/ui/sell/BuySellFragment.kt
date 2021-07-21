@@ -179,7 +179,6 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
     private fun renderBuySellUi(hasPendingBuy: Boolean) {
         with(binding) {
             tabLayout.setupWithViewPager(pager)
-            activity?.setupToolbar(R.string.buy_and_sell)
 
             if (pager.adapter == null) {
                 pager.adapter = pagerAdapter
@@ -246,6 +245,9 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
 
     override fun onResume() {
         super.onResume()
+
+        if (isHidden) return
+
         subscribeForNavigation()
     }
 
