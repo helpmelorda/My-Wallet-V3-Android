@@ -1,8 +1,7 @@
 package piuk.blockchain.android.ui.activity.detail
 
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.RecurringBuyErrorState
-import com.blockchain.nabu.datamanagers.RecurringBuyTransactionState
+import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import info.blockchain.balance.AssetInfo
@@ -84,22 +83,22 @@ class LoadRecurringBuyDetailsHeaderDataIntent(
         return oldState.copy(
             recurringBuyId = recurringBuyItem.txId,
             transactionType = TransactionSummary.TransactionType.RECURRING_BUY,
-            amount = if (recurringBuyItem.destinationMoney.isPositive) {
-                recurringBuyItem.destinationMoney
+            amount = if (recurringBuyItem.value.isPositive) {
+                recurringBuyItem.value
             } else {
-                recurringBuyItem.originMoney
+                recurringBuyItem.fundedFiat
             },
-            isPending = recurringBuyItem.transactionState == RecurringBuyTransactionState.PENDING,
-            isPendingExecution = recurringBuyItem.transactionState == RecurringBuyTransactionState.PENDING,
-            isError = recurringBuyItem.transactionState == RecurringBuyTransactionState.FAILED,
+            isPending = recurringBuyItem.transactionState.isPending(),
+            isPendingExecution = recurringBuyItem.transactionState == OrderState.PENDING_EXECUTION,
+            isError = recurringBuyItem.transactionState.hasFailed(),
             isFeeTransaction = false,
             confirmations = 0,
             totalConfirmations = 0,
-            recurringBuyError = recurringBuyItem.failureReason ?: RecurringBuyErrorState.UNKNOWN,
+            recurringBuyError = recurringBuyItem.failureReason ?: RecurringBuyFailureReason.UNKNOWN,
             transactionRecurringBuyState = recurringBuyItem.transactionState,
-            recurringBuyState = recurringBuyItem.recurringBuyState,
+//            recurringBuyState = recurringBuyItem.recurringBuyState,
             recurringBuyPaymentMethodType = recurringBuyItem.paymentMethodType,
-            recurringBuyOriginCurrency = recurringBuyItem.originMoney.currencyCode
+            recurringBuyOriginCurrency = recurringBuyItem.fundedFiat.currencyCode
         )
     }
 }

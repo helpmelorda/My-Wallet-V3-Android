@@ -2,6 +2,7 @@ package com.blockchain.nabu.models.responses.simplebuy
 
 import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
+import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.models.responses.nabu.Address
 import java.util.Date
@@ -88,7 +89,9 @@ data class BuySellOrderResponse(
     val expiresAt: String,
     val updatedAt: String,
     val side: String,
-    val depositPaymentId: String?
+    val depositPaymentId: String?,
+    val recurringBuyId: String?,
+    val failureReason: String?
 ) {
     companion object {
         const val PENDING_DEPOSIT = "PENDING_DEPOSIT"
@@ -104,6 +107,11 @@ data class BuySellOrderResponse(
         const val APPROVAL_ERROR_DECLINED = "BANK_TRANSFER_PAYMENT_DECLINED"
         const val APPROVAL_ERROR_REJECTED = "BANK_TRANSFER_PAYMENT_REJECTED"
         const val APPROVAL_ERROR_EXPIRED = "BANK_TRANSFER_PAYMENT_EXPIRED"
+
+        const val FAILED_INSUFFICIENT_FUNDS = "FAILED_INSUFFICIENT_FUNDS"
+        const val FAILED_INTERNAL_ERROR = "FAILED_INTERNAL_ERROR"
+        const val FAILED_BENEFICIARY_BLOCKED = "FAILED_BENEFICIARY_BLOCKED"
+        const val FAILED_BAD_FILL = "FAILED_BAD_FILL"
     }
 }
 
@@ -244,3 +252,12 @@ data class SimpleBuyConfirmationAttributes(
 data class EveryPayAttrs(private val customerUrl: String)
 
 typealias BuyOrderListResponse = List<BuySellOrderResponse>
+
+private fun OrderState.isPending(): Boolean =
+    this == OrderState.PENDING_CONFIRMATION ||
+        this == OrderState.PENDING_EXECUTION ||
+        this == OrderState.AWAITING_FUNDS
+
+private fun OrderState.hasFailed(): Boolean = this == OrderState.FAILED
+
+private fun OrderState.isFinished(): Boolean = this == OrderState.FINISHED

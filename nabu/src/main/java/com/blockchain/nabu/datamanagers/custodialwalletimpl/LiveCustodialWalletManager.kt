@@ -31,8 +31,8 @@ import com.blockchain.nabu.datamanagers.PartnerCredentials
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
-import com.blockchain.nabu.datamanagers.RecurringBuyTransaction
 import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
 import com.blockchain.nabu.datamanagers.TransactionErrorMapper
 import com.blockchain.nabu.datamanagers.TransactionState
@@ -93,7 +93,6 @@ import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
 import com.blockchain.nabu.models.responses.simplebuy.toRecurringBuy
 import com.blockchain.nabu.models.responses.simplebuy.toRecurringBuyOrder
-import com.blockchain.nabu.models.responses.simplebuy.toRecurringBuyTransaction
 import com.blockchain.nabu.models.responses.swap.CreateOrderRequest
 import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
@@ -723,20 +722,14 @@ class LiveCustodialWalletManager(
             Single.just(emptyList())
         }
 
-    override fun getRecurringBuyOrders(): Single<List<RecurringBuyTransaction>> =
-        if (features.isFeatureEnabled(GatedFeature.RECURRING_BUYS)) {
-            authenticator.authenticate { sessionToken ->
-                nabuService.getRecurringBuysTransactions(
-                    sessionToken
-                ).map { list ->
-                    list.map {
-                        it.toRecurringBuyTransaction(assetCatalogue)
-                    }
+    override fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy> {
+        return authenticator.authenticate { sessionToken ->
+            nabuService.getRecurringBuyForId(sessionToken, recurringBuyId)
+                .map {
+                    it.first().toRecurringBuy(assetCatalogue)
                 }
-            }
-        } else {
-            Single.just(emptyList())
         }
+    }
 
     override fun cancelRecurringBuy(id: String): Completable =
         authenticator.authenticateCompletable { sessionToken ->
@@ -1519,27 +1512,32 @@ enum class CardStatus {
 }
 
 private fun BuySellOrderResponse.type() =
-    when (side) {
-        "BUY" -> OrderType.BUY
-        "SELL" -> OrderType.SELL
+    when {
+        side == "BUY" && this.recurringBuyId != null -> OrderType.RECURRING_BUY
+        side == "BUY" -> OrderType.BUY
+        side == "SELL" -> OrderType.SELL
         else -> throw IllegalStateException("Unsupported order type")
     }
 
 enum class OrderType {
     BUY,
-    SELL
+    SELL,
+    RECURRING_BUY
 }
 
 private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue): BuySellOrder {
-    val fiatCurrency = if (type() == OrderType.BUY) inputCurrency else outputCurrency
+    val fiatCurrency = if (type() == OrderType.SELL) outputCurrency else inputCurrency
     val cryptoCurrency =
-        assetCatalogue.fromNetworkTicker(if (type() == OrderType.BUY) outputCurrency else inputCurrency)
-            ?: throw UnknownFormatConversionException("Unknown Crypto currency: $inputCurrency")
-    val fiatAmount =
-        if (type() == OrderType.BUY) inputQuantity.toLongOrDefault(0) else outputQuantity.toLongOrDefault(0)
-
+        assetCatalogue.fromNetworkTicker(
+            if (type() == OrderType.SELL) inputCurrency else outputCurrency
+        ) ?: throw UnknownFormatConversionException("Unknown Crypto currency: $inputCurrency")
+    val fiatAmount = if (type() == OrderType.SELL) {
+        outputQuantity.toLongOrDefault(0)
+    } else {
+        inputQuantity.toLongOrDefault(0)
+    }
     val cryptoAmount =
-        (if (type() == OrderType.BUY) outputQuantity.toBigInteger() else inputQuantity.toBigInteger())
+        if (type() == OrderType.SELL) inputQuantity.toBigInteger() else outputQuantity.toBigInteger()
 
     return BuySellOrder(
         id = id,
@@ -1570,9 +1568,24 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
         attributes = attributes,
         type = type(),
         depositPaymentId = depositPaymentId.orEmpty(),
-        approvalErrorStatus = attributes?.status?.toApprovalError() ?: ApprovalErrorStatus.NONE
+        approvalErrorStatus = attributes?.status?.toApprovalError() ?: ApprovalErrorStatus.NONE,
+        failureReason = failureReason?.toRecurringBuyError(),
+        recurringBuyId = recurringBuyId
     )
 }
+
+fun String.toRecurringBuyError() =
+    when (this) {
+        BuySellOrderResponse.FAILED_INSUFFICIENT_FUNDS ->
+            RecurringBuyFailureReason.INSUFFICIENT_FUNDS
+        BuySellOrderResponse.FAILED_INTERNAL_ERROR ->
+            RecurringBuyFailureReason.INTERNAL_SERVER_ERROR
+        BuySellOrderResponse.FAILED_BENEFICIARY_BLOCKED ->
+            RecurringBuyFailureReason.BLOCKED_BENEFICIARY_ID
+        BuySellOrderResponse.FAILED_BAD_FILL ->
+            RecurringBuyFailureReason.FAILED_BAD_FILL
+        else -> RecurringBuyFailureReason.UNKNOWN
+    }
 
 private fun String.toApprovalError(): ApprovalErrorStatus =
     when (this) {

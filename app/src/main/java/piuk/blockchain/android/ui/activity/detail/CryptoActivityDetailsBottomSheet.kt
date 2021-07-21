@@ -16,8 +16,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.InterestState
-import com.blockchain.nabu.datamanagers.RecurringBuyErrorState
-import com.blockchain.nabu.datamanagers.RecurringBuyTransactionState
+import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.notifications.analytics.ActivityAnalytics
@@ -251,7 +251,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
 
     private fun ActivityDetailState.recurringBuyHasFailedAndCanBeFixedByAddingFunds(): Boolean {
         return this.recurringBuyPaymentMethodType == PaymentMethodType.FUNDS &&
-            this.recurringBuyError == RecurringBuyErrorState.INSUFFICIENT_FUNDS &&
+            this.recurringBuyError == RecurringBuyFailureReason.INSUFFICIENT_FUNDS &&
             this.recurringBuyState == RecurringBuyState.ACTIVE
     }
 
@@ -261,8 +261,8 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
     }
 
     private fun setErrorMessageAndLinks(
-        errorState: RecurringBuyErrorState,
-        transactionState: RecurringBuyTransactionState
+        failureReason: RecurringBuyFailureReason,
+        transactionState: OrderState
     ) {
         val linksMap = mapOf<String, Uri>(
             "contact_support_link" to Uri.parse(URL_BLOCKCHAIN_SUPPORT_PORTAL)
@@ -270,7 +270,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
 
         val errorExplanation = StringUtils.getStringWithMappedAnnotations(
             requireContext(),
-            toErrorMessage(errorState, transactionState),
+            toErrorMessage(failureReason, transactionState),
             linksMap
         )
         binding.errorReason.apply {
@@ -325,20 +325,20 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
     }
 
     private fun toErrorMessage(
-        errorState: RecurringBuyErrorState,
-        transactionState: RecurringBuyTransactionState
-    ) = when (errorState) {
-        RecurringBuyErrorState.INTERNAL_SERVER_ERROR ->
-            if (transactionState == RecurringBuyTransactionState.PENDING) {
+        failureReason: RecurringBuyFailureReason,
+        transactionState: OrderState
+    ) = when (failureReason) {
+        RecurringBuyFailureReason.INTERNAL_SERVER_ERROR ->
+            if (transactionState.isPending()) {
                 // Pending: transaction has failed but will retry after 1 hour
                 R.string.recurring_buy_internal_server_error
             } else {
                 R.string.recurring_buy_final_attempt_error
             }
-        RecurringBuyErrorState.TRADING_LIMITS_EXCEED -> R.string.recurring_buy_limits_exceed_error
-        RecurringBuyErrorState.INSUFFICIENT_FUNDS -> R.string.recurring_buy_insufficient_funds_error_1
-        RecurringBuyErrorState.BLOCKED_BENEFICIARY_ID -> R.string.recurring_buy_beneficiary_error
-        RecurringBuyErrorState.UNKNOWN -> R.string.recurring_buy_generic_error
+        RecurringBuyFailureReason.INSUFFICIENT_FUNDS -> R.string.recurring_buy_insufficient_funds_error_1
+        RecurringBuyFailureReason.BLOCKED_BENEFICIARY_ID -> R.string.recurring_buy_beneficiary_error
+        RecurringBuyFailureReason.FAILED_BAD_FILL,
+        RecurringBuyFailureReason.UNKNOWN -> R.string.recurring_buy_generic_error
     }
 
     private fun renderCompletedPendingOrFailed(
@@ -382,7 +382,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                     )
                     showPendingPill()
                 }
-                confirmations >= totalConfirmations -> {
+                totalConfirmations != 0 && confirmations >= totalConfirmations -> {
                     showCompletePill()
                     logAnalyticsForComplete(transactionType, isFeeTransaction)
                 }

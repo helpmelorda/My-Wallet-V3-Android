@@ -2,12 +2,12 @@ package piuk.blockchain.android.ui.activity.detail
 
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.InterestState
-import info.blockchain.balance.AssetInfo
-import com.blockchain.nabu.datamanagers.RecurringBuyErrorState
-import com.blockchain.nabu.datamanagers.RecurringBuyTransactionState
+import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
@@ -88,8 +88,8 @@ data class ActivityDetailState(
     val isError: Boolean = false,
     val hasDeleteError: Boolean = false,
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
-    val transactionRecurringBuyState: RecurringBuyTransactionState = RecurringBuyTransactionState.UNKNOWN,
-    val recurringBuyError: RecurringBuyErrorState = RecurringBuyErrorState.UNKNOWN,
+    val transactionRecurringBuyState: OrderState = OrderState.UNINITIALISED,
+    val recurringBuyError: RecurringBuyFailureReason = RecurringBuyFailureReason.UNKNOWN,
     val descriptionState: DescriptionState = DescriptionState.NOT_SET,
     val recurringBuyId: String? = "",
     val recurringBuyPaymentMethodType: PaymentMethodType? = null,
@@ -206,6 +206,17 @@ class ActivityDetailsModel(
         }
     }
 
+    private fun deleteRecurringBuy(id: String) =
+        interactor.deleteRecurringBuy(id)
+            .subscribeBy(
+                onComplete = {
+                    process(RecurringBuyDeletedSuccessfully)
+                },
+                onError = {
+                    process(RecurringBuyDeleteError)
+                }
+            )
+
     private fun loadNonCustodialActivityDetails(intent: LoadActivityDetailsIntent) =
         interactor.getNonCustodialActivityDetails(
             asset = intent.asset,
@@ -230,29 +241,22 @@ class ActivityDetailsModel(
                 })
         } ?: process(ActivityDetailsLoadFailedIntent)
 
-    private fun deleteRecurringBuy(id: String) =
-        interactor.deleteRecurringBuy(id)
-            .subscribeBy(
-                onComplete = {
-                    process(RecurringBuyDeletedSuccessfully)
-                },
-                onError = {
-                    process(RecurringBuyDeleteError)
-                }
-            )
-
     private fun loadRecurringBuyTransactionDetails(intent: LoadActivityDetailsIntent) =
         interactor.getRecurringBuyTransactionCacheDetails(
             txHash = intent.txHash
-        )?.let {
-            process(LoadRecurringBuyDetailsHeaderDataIntent(it))
-            interactor.loadRecurringBuyItems(it).subscribeBy(
-                onSuccess = { activityList ->
-                    process(ListItemsLoadedIntent(activityList))
-                },
-                onError = {
-                    process(ListItemsFailedToLoadIntent)
-                })
+        )?.let { cacheTransaction ->
+            process(LoadRecurringBuyDetailsHeaderDataIntent(cacheTransaction))
+            interactor.loadRecurringBuysById(intent.txHash)
+                .map { cacheTransaction to it }
+                .flatMap { (cacheTransaction, recurringBuy) ->
+                    interactor.loadRecurringBuyItems(cacheTransaction, recurringBuy)
+                }.subscribeBy(
+                    onSuccess = { activityList ->
+                        process(ListItemsLoadedIntent(activityList))
+                    },
+                    onError = {
+                        process(ListItemsFailedToLoadIntent)
+                    })
         } ?: process(ActivityDetailsLoadFailedIntent)
 
     private fun loadCustodialInterestActivityDetails(intent: LoadActivityDetailsIntent) =

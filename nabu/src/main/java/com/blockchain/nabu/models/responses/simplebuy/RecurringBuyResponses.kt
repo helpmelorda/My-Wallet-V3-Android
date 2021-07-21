@@ -1,9 +1,6 @@
 package com.blockchain.nabu.models.responses.simplebuy
 
-import com.blockchain.nabu.datamanagers.RecurringBuyErrorState
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
-import com.blockchain.nabu.datamanagers.RecurringBuyTransaction
-import com.blockchain.nabu.datamanagers.RecurringBuyTransactionState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.toPaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
@@ -11,10 +8,9 @@ import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
 import java.util.Date
-import java.util.UnknownFormatConversionException
 
 data class RecurringBuyEligibilityResponse(
     val eligibleMethods: List<String>
@@ -44,21 +40,18 @@ data class RecurringBuyResponse(
     }
 }
 
-fun RecurringBuyResponse.toRecurringBuy(assetCatalogue: AssetCatalogue): RecurringBuy? {
-    val asset = assetCatalogue.fromNetworkTicker(destinationCurrency)
-    return asset?.let {
-        RecurringBuy(
-            id = id,
-            state = state.toRecurringBuyState(),
-            recurringBuyFrequency = period.toRecurringBuyFrequency(),
-            nextPaymentDate = nextPayment.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
-            paymentMethodType = paymentMethod.toPaymentMethodType(),
-            amount = FiatValue.fromMinor(inputCurrency, inputValue.toLong()),
-            asset = it,
-            createDate = insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
-            paymentMethodId = paymentMethodId
-        )
-    }
+fun RecurringBuyResponse.toRecurringBuy(assetCatalogue: AssetCatalogue): RecurringBuy {
+    return RecurringBuy(
+        id = id,
+        state = state.toRecurringBuyState(),
+        recurringBuyFrequency = period.toRecurringBuyFrequency(),
+        nextPaymentDate = nextPayment.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
+        paymentMethodType = paymentMethod.toPaymentMethodType(),
+        amount = FiatValue.fromMinor(inputCurrency, inputValue.toLong()),
+        asset = assetCatalogue.fromNetworkTicker(destinationCurrency) ?: CryptoCurrency.BTC,
+        createDate = insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
+        paymentMethodId = paymentMethodId
+    )
 }
 
 private fun String.toRecurringBuyState() =
@@ -78,80 +71,4 @@ private fun String.toRecurringBuyFrequency(): RecurringBuyFrequency =
         RecurringBuyResponse.BI_WEEKLY -> RecurringBuyFrequency.BI_WEEKLY
         RecurringBuyResponse.MONTHLY -> RecurringBuyFrequency.MONTHLY
         else -> RecurringBuyFrequency.UNKNOWN
-    }
-
-data class RecurringBuyTransactionResponse(
-    val id: String,
-    val recurringBuyId: String,
-    val transactionState: String,
-    val recurringBuyState: String,
-    val failureReason: String?,
-    val originValue: String,
-    val originCurrency: String,
-    val destinationValue: String?,
-    val destinationCurrency: String,
-    val paymentMethod: String,
-    val paymentMethodId: String?,
-    val nextPayment: String,
-    val period: String,
-    val fee: String?,
-    val insertedAt: String
-) {
-    companion object {
-        const val COMPLETED = "COMPLETE"
-        const val CREATED = "CREATED"
-        const val PENDING = "PENDING"
-        const val FAILED = "FAILED"
-        const val FAILED_INSUFFICIENT_FUNDS = "Insufficient funds"
-        const val FAILED_INTERNAL_ERROR = "Internal server error"
-        const val FAILED_BENEFICIARY_BLOCKED = "Beneficiary missed/blocked"
-        const val FAILED_LIMITS_EXCEED = "User trading limits exceeded"
-    }
-}
-
-fun RecurringBuyTransactionResponse.toRecurringBuyTransaction(assetCatalogue: AssetCatalogue): RecurringBuyTransaction {
-    val asset = assetCatalogue.fromNetworkTicker(destinationCurrency)
-        ?: throw UnknownFormatConversionException("Unknown Crypto currency: $destinationCurrency")
-
-    return RecurringBuyTransaction(
-        id = id,
-        recurringBuyId = recurringBuyId,
-        transactionState = transactionState.toRecurringBuyActivityState(),
-        recurringBuyState = recurringBuyState.toRecurringBuyState(),
-        failureReason = failureReason?.toRecurringBuyError(),
-        destinationMoney = destinationValue?.let {
-            CryptoValue.fromMinor(
-                asset, destinationValue.toBigInteger()
-            )
-        } ?: CryptoValue.zero(asset),
-        originMoney = FiatValue.fromMinor(originCurrency, originValue.toLong()),
-        paymentMethodId = paymentMethodId,
-        paymentMethod = paymentMethod.toPaymentMethodType(),
-        fee = fee?.let { FiatValue.fromMinor(originCurrency, fee.toLong()) } ?: FiatValue.zero(originCurrency),
-        period = period.toRecurringBuyFrequency(),
-        nextPayment = nextPayment.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
-        insertedAt = insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date()
-    )
-}
-
-fun String.toRecurringBuyActivityState() =
-    when (this) {
-        RecurringBuyTransactionResponse.COMPLETED -> RecurringBuyTransactionState.COMPLETED
-        RecurringBuyTransactionResponse.PENDING,
-        RecurringBuyTransactionResponse.CREATED -> RecurringBuyTransactionState.PENDING
-        RecurringBuyTransactionResponse.FAILED -> RecurringBuyTransactionState.FAILED
-        else -> RecurringBuyTransactionState.UNKNOWN
-    }
-
-fun String.toRecurringBuyError() =
-    when (this) {
-        RecurringBuyTransactionResponse.FAILED_INSUFFICIENT_FUNDS ->
-            RecurringBuyErrorState.INSUFFICIENT_FUNDS
-        RecurringBuyTransactionResponse.FAILED_INTERNAL_ERROR ->
-            RecurringBuyErrorState.INTERNAL_SERVER_ERROR
-        RecurringBuyTransactionResponse.FAILED_BENEFICIARY_BLOCKED ->
-            RecurringBuyErrorState.BLOCKED_BENEFICIARY_ID
-        RecurringBuyTransactionResponse.FAILED_LIMITS_EXCEED ->
-            RecurringBuyErrorState.TRADING_LIMITS_EXCEED
-        else -> RecurringBuyErrorState.UNKNOWN
     }
