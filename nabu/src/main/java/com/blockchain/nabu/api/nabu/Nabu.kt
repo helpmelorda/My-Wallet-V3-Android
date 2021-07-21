@@ -53,7 +53,6 @@ import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyEligibilityResponse
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyResponse
-import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyTransactionResponse
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
@@ -547,17 +546,15 @@ internal interface Nabu {
         @Query("currency") assetTicker: String? = null
     ): Single<List<RecurringBuyResponse>>
 
+    @GET(NABU_RECURRING_BUY_LIST)
+    fun getRecurringBuyById(
+        @Header("authorization") authorization: String,
+        @Query("id") recurringBuyId: String
+    ): Single<List<RecurringBuyResponse>>
+
     @DELETE("$NABU_RECURRING_BUY/{id}/cancel")
     fun cancelRecurringBuy(
         @Header("authorization") authorization: String,
         @Path("id") id: String
     ): Completable
-
-    @GET(NABU_RECURRING_BUY_TRANSACTIONS)
-    fun fetchRecurringBuysTransactions(
-        @Header("authorization") authorization: String,
-        @Query("recurringBuyId") recurringBuyId: String? = null,
-        @Query("currency") assetTicker: String? = null,
-        @Query("limit") limit: Int? = null
-    ): Single<List<RecurringBuyTransactionResponse>>
 }

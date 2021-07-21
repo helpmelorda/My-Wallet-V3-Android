@@ -58,6 +58,7 @@ android {
         // Flag to hide or show the Contacts feature
         buildConfigBoolean "LOG_KOIN_STARTUP", false
         buildConfigBoolean "SKIP_VERIFF_KYC", false
+        buildConfigBoolean "INTERNAL", true
 
         buildConfigString "SHAPE_SHIFT_API_KEY", buildProperties.secrets['shapeShiftApiKey']
 
@@ -123,6 +124,7 @@ android {
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['prodSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
             buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['prodLoginLink']
+            buildConfigBoolean "INTERNAL", false
 
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
             if (ciVersionCode != null) {
@@ -163,12 +165,7 @@ android {
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
             if (ciVersionCode != null) {
                 versionCode = ciVersionCode.toInteger()
-                versionName = ciVersionCode
-                versionNameSuffix = ".$ciVersionCode"
-            } else {
-                versionCode = 1
-                versionName = 1
-                versionNameSuffix = ".local"
+                versionNameSuffix = ".${ciVersionCode}_alpha"
             }
         }
 

@@ -56,7 +56,7 @@
             android:drawablePadding="@dimen/small_margin"
             android:paddingTop="@dimen/very_small_margin"
             android:paddingBottom="@dimen/very_small_margin"
-            android:text="@string/recurring_buy_daily" />
+            android:text="@string/recurring_buy_daily_1" />
 
         <RadioButton
             android:id="@+id/rb_weekly"
@@ -69,7 +69,7 @@
             android:drawablePadding="@dimen/small_margin"
             android:paddingTop="@dimen/very_small_margin"
             android:paddingBottom="@dimen/very_small_margin"
-            android:text="@string/recurring_buy_weekly" />
+            android:text="@string/recurring_buy_weekly_1" />
 
         <RadioButton
             android:id="@+id/rb_bi_weekly"
@@ -82,7 +82,7 @@
             android:drawablePadding="@dimen/small_margin"
             android:paddingTop="@dimen/very_small_margin"
             android:paddingBottom="@dimen/very_small_margin"
-            android:text="@string/recurring_buy_bi_weekly" />
+            android:text="@string/recurring_buy_bi_weekly_1" />
 
         <RadioButton
             android:id="@+id/rb_monthly"
@@ -95,7 +95,7 @@
             android:drawablePadding="@dimen/small_margin"
             android:paddingTop="@dimen/very_small_margin"
             android:paddingBottom="@dimen/very_small_margin"
-            android:text="@string/recurring_buy_monthly" />
+            android:text="@string/recurring_buy_monthly_1" />
     </RadioGroup>
 
     <Button

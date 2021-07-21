@@ -15,7 +15,6 @@ import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuy
-import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.nabu.models.responses.interest.InterestActivityItemResponse
@@ -49,7 +48,18 @@ enum class OrderState {
     PENDING_EXECUTION, // Funds received, but crypto not yet released (don't know if we'll need this?)
     FINISHED,
     CANCELED,
-    FAILED
+    FAILED;
+
+    fun isPending(): Boolean =
+        this == PENDING_CONFIRMATION ||
+            this == PENDING_EXECUTION ||
+            this == AWAITING_FUNDS
+
+    fun hasFailed(): Boolean = this == FAILED
+
+    fun isFinished(): Boolean = this == FINISHED
+
+    fun isCancelled(): Boolean = this == CANCELED
 }
 
 interface CustodialWalletManager {
@@ -144,8 +154,6 @@ interface CustodialWalletManager {
     fun getAllOutstandingOrders(): Single<List<BuySellOrder>>
 
     fun getAllOrdersFor(asset: AssetInfo): Single<BuyOrderList>
-
-    fun getRecurringBuyOrders(): Single<RecurringBuyTransactions>
 
     fun getBuyOrder(orderId: String): Single<BuySellOrder>
 
@@ -295,7 +303,9 @@ interface CustodialWalletManager {
 
     fun getRecurringBuysForAsset(assetTicker: String): Single<List<RecurringBuy>>
 
-    fun cancelRecurringBuy(id: String): Completable
+    fun getRecurringBuyForId(assetTicker: String): Single<RecurringBuy>
+
+    fun cancelRecurringBuy(recurringBuyId: String): Completable
 }
 
 data class InterestActivityItem(
@@ -369,7 +379,9 @@ data class BuySellOrder(
     val attributes: PaymentAttributes? = null,
     val type: OrderType,
     val depositPaymentId: String,
-    val approvalErrorStatus: ApprovalErrorStatus = ApprovalErrorStatus.NONE
+    val approvalErrorStatus: ApprovalErrorStatus = ApprovalErrorStatus.NONE,
+    val failureReason: RecurringBuyFailureReason? = null,
+    val recurringBuyId: String? = null
 )
 
 enum class ApprovalErrorStatus {
@@ -382,7 +394,6 @@ enum class ApprovalErrorStatus {
 }
 
 typealias BuyOrderList = List<BuySellOrder>
-typealias RecurringBuyTransactions = List<RecurringBuyTransaction>
 
 data class OrderInput(private val symbol: String, private val amount: String? = null)
 
@@ -443,18 +454,11 @@ enum class TransactionState {
     FAILED
 }
 
-enum class RecurringBuyTransactionState {
-    PENDING,
-    FAILED,
-    COMPLETED,
-    UNKNOWN
-}
-
-enum class RecurringBuyErrorState {
+enum class RecurringBuyFailureReason {
     INSUFFICIENT_FUNDS,
     BLOCKED_BENEFICIARY_ID,
     INTERNAL_SERVER_ERROR,
-    TRADING_LIMITS_EXCEED,
+    FAILED_BAD_FILL,
     UNKNOWN
 }
 
@@ -834,20 +838,4 @@ data class SimplifiedDueDiligenceUserState(
 
 data class RecurringBuyOrder(
     val state: RecurringBuyState = RecurringBuyState.UNINITIALISED
-)
-
-data class RecurringBuyTransaction(
-    val id: String,
-    val recurringBuyId: String,
-    val transactionState: RecurringBuyTransactionState,
-    val recurringBuyState: RecurringBuyState,
-    val failureReason: RecurringBuyErrorState?,
-    val originMoney: FiatValue,
-    val destinationMoney: CryptoValue,
-    val paymentMethod: PaymentMethodType,
-    val paymentMethodId: String?,
-    val fee: FiatValue,
-    val period: RecurringBuyFrequency,
-    val nextPayment: Date,
-    val insertedAt: Date
 )

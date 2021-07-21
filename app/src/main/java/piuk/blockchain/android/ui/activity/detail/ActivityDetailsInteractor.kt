@@ -9,6 +9,7 @@ import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.LinkedBank
+import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
@@ -18,7 +19,6 @@ import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.AssetFilter
@@ -106,32 +106,34 @@ class ActivityDetailsInteractor(
     fun deleteRecurringBuy(id: String) = custodialWalletManager.cancelRecurringBuy(id)
 
     fun loadRecurringBuyItems(
-        summaryItem: RecurringBuyActivitySummaryItem
+        cacheTransaction: RecurringBuyActivitySummaryItem,
+        recurringBuy: RecurringBuy
     ): Single<List<ActivityDetailsType>> {
         val list = mutableListOf(
-            TransactionId(summaryItem.txId),
-            Created(summaryItem.insertedAt),
-            TotalCostAmount(summaryItem.originMoney),
-            FeeAmount(FiatValue.fromMinor(summaryItem.fee.currencyCode, 0)),
-            RecurringBuyFrequency(summaryItem.period),
-            NextPayment(summaryItem.nextPayment)
+            TransactionId(cacheTransaction.txId),
+            Created(recurringBuy.createDate),
+            TotalCostAmount(cacheTransaction.fundedFiat),
+            FeeAmount(FiatValue.fromMinor(cacheTransaction.fee.currencyCode, 0)),
+            RecurringBuyFrequency(recurringBuy.recurringBuyFrequency, recurringBuy.nextPaymentDate),
+            NextPayment(recurringBuy.nextPaymentDate)
         )
-        return when (summaryItem.paymentMethodType) {
-            PaymentMethodType.PAYMENT_CARD -> custodialWalletManager.getCardDetails(summaryItem.paymentMethodId)
+        return when (cacheTransaction.paymentMethodType) {
+            PaymentMethodType.PAYMENT_CARD -> custodialWalletManager.getCardDetails(cacheTransaction.paymentMethodId)
                 .map { paymentMethod ->
-                    addPaymentDetailsToList(list, paymentMethod, summaryItem)
+                    addPaymentDetailsToList(list, paymentMethod, cacheTransaction)
                     list.toList()
                 }.onErrorReturn {
-                    addPaymentDetailsToList(list, null, summaryItem)
+                    addPaymentDetailsToList(list, null, cacheTransaction)
                     list.toList()
                 }
-            PaymentMethodType.BANK_TRANSFER -> custodialWalletManager.getLinkedBank(summaryItem.paymentMethodId).map {
-                it.toPaymentMethod()
-            }.map { paymentMethod ->
-                addPaymentDetailsToList(list, paymentMethod, summaryItem)
+            PaymentMethodType.BANK_TRANSFER -> custodialWalletManager.getLinkedBank(cacheTransaction.paymentMethodId)
+                .map {
+                    it.toPaymentMethod()
+                }.map { paymentMethod ->
+                addPaymentDetailsToList(list, paymentMethod, cacheTransaction)
                 list.toList()
             }.onErrorReturn {
-                addPaymentDetailsToList(list, null, summaryItem)
+                addPaymentDetailsToList(list, null, cacheTransaction)
                 list.toList()
             }
             else -> {
@@ -139,7 +141,7 @@ class ActivityDetailsInteractor(
                     BuyPaymentMethod(
                         PaymentDetails(
                             paymentMethodId = PaymentMethod.FUNDS_PAYMENT_ID,
-                            label = summaryItem.originMoney.currencyCode
+                            label = cacheTransaction.fundedFiat.currencyCode
                         )
                     )
                 )
@@ -250,7 +252,7 @@ class ActivityDetailsInteractor(
             Amount(item.sendingValue)
         )
 
-        return Singles.zip(
+        return Single.zip(
             item.depositNetworkFee,
             buildReceivingLabel(item)
         ) { depositFee: Money, toItem: To ->
@@ -352,6 +354,9 @@ class ActivityDetailsInteractor(
         } ?: list.add(BuyPaymentMethod(PaymentDetails(summaryItem.paymentMethodId)))
     }
 
+    fun loadRecurringBuysById(recurringBuyId: String) =
+        custodialWalletManager.getRecurringBuyForId(recurringBuyId)
+
     fun getCustodialTradingActivityDetails(
         asset: AssetInfo,
         txHash: String
@@ -388,7 +393,9 @@ class ActivityDetailsInteractor(
     fun getRecurringBuyTransactionCacheDetails(
         txHash: String
     ): RecurringBuyActivitySummaryItem? =
-        assetActivityRepository.findCachedItemById(txHash) as? RecurringBuyActivitySummaryItem
+        assetActivityRepository.findCachedItemById(
+            txHash
+        ) as? RecurringBuyActivitySummaryItem
 
     fun getFiatActivityDetails(
         currency: String,

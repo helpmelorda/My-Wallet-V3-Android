@@ -1809,10 +1809,6 @@ Sus fondos estarán disponibles para ser retirados una vez que la transferencia 
     <string name="recurring_buy_label">Frecuencia</string>
     <string name="recurring_buy_one_time_short">Puntual</string>
     <string name="recurring_buy_one_time">Compra única</string>
-    <string name="recurring_buy_daily">Cada día</string>
-    <string name="recurring_buy_weekly">Cada semana</string>
-    <string name="recurring_buy_bi_weekly">Cada 2 semanas</string>
-    <string name="recurring_buy_monthly">Cada mes</string>
     <string name="recurring_buy_frequency_label">Periódica</string>
     <string name="recurring_buy_frequency_subtitle">el %1$s</string>
     <string name="recurring_buy_frequency_subtitle_each_day">alrededor de %s</string>
@@ -1877,13 +1873,9 @@ Su %1$s estará disponible en su cuenta de \"%2$s\" en 2 días.</string>
     <string name="dashboard_title_recurring_buy">¿No sabe muy bien cuándo comprar?</string>
     <string name="dashboard_recurring_buy_description">Predecir el mercado es difícil, motivo por el cual muchos inversores usan el dólar para calcular los costes medios.</string>
     <string name="dashboard_recurring_buy_learn_more">Más información →</string>
-    <string name="dashboard_recurring_buy_item_title">Comprar %1$s en %2$s %3$s</string>
     <string name="dashboard_recurring_buy_item_label">Siguiente compra: %1$s</string>
     <string name="dashboard_recurring_buy_item_label_error">Saldo bajo. Agregue fondos</string>
     <string name="dashboard_recurring_buy_title">Compras periódicas</string>
-    <string name="recurring_buy_info_cta">Cancelar compra periódica</string>
-    <string name="recurring_buy_sheet_title">Compra periódica de %1$s</string>
-    <string name="recurring_buy_info_purchase_label">Siguiente compra</string>
     <string name="recurring_buy_cancelled_toast">Compra periódica cancelada</string>
     <string name="recurring_buy_cancelled_error_toast">¡Vaya! Hubo un problema al cancelar su compra periódica. Inténtelo de nuevo más tarde.</string>
     <string name="recurring_buy_cancel_dialog_desc">¿Seguro que quiere cancelar esta compra periódica?</string>
@@ -1894,7 +1886,6 @@ Su %1$s estará disponible en su cuenta de \"%2$s\" en 2 días.</string>
     <string name="recurring_buy_funds_label">Cuenta de %s</string>
     <string name="recurring_buy_short_error">Ha fallado</string>
     <string name="recurring_buy_insufficient_funds_short_error">Error. Saldo bajo.</string>
-    <string name="recurring_buy_insufficient_funds_error">Su método de pago no tiene suficientes fondos. Agregue más para completar la compra periódica.</string>
     <string name="recurring_buy_internal_server_error">Se ha producido un error con su compra. En breve, lo volveremos a intentar.</string>
     <string name="recurring_buy_final_attempt_error">Se ha producido un error con su compra. Para obtener más información, <annotation link="contact_support_link">contacte con el equipo de asistencia</annotation>.</string>
     <string name="recurring_buy_beneficiary_error">Su método de pago seleccionado no está activo. Use otro.</string>

@@ -8,7 +8,6 @@ import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.RecurringBuyTransaction
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
@@ -18,7 +17,6 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.AssetAction
@@ -113,10 +111,10 @@ class CustodialTradingAccount(
             .map { it }
 
     override val activity: Single<ActivitySummaryList>
-        get() = custodialWalletManager.getAllOrdersFor(asset).mapList { orderToSummary(it) }
-            .zipWith(custodialWalletManager.getRecurringBuyOrders().mapList { orderToSummary(it) })
-            .flatMap { (buySellList, recurringBuyList) ->
-                appendTradeActivity(custodialWalletManager, asset, buySellList + recurringBuyList)
+        get() = custodialWalletManager.getAllOrdersFor(asset)
+            .mapList { orderToSummary(it) }
+            .flatMap { buySellList ->
+                appendTradeActivity(custodialWalletManager, asset, buySellList)
             }
             .flatMap {
                 appendTransferActivity(custodialWalletManager, asset, it)
@@ -205,66 +203,66 @@ class CustodialTradingAccount(
         )
 
     private fun orderToSummary(order: BuySellOrder): ActivitySummaryItem =
-        if (order.type == OrderType.BUY) {
-            CustodialTradingActivitySummaryItem(
-                exchangeRates = exchangeRates,
-                asset = order.crypto.currency,
-                value = order.crypto,
-                fundedFiat = order.fiat,
-                txId = order.id,
-                timeStampMs = order.created.time,
-                status = order.state,
-                fee = order.fee ?: FiatValue.zero(order.fiat.currencyCode),
-                account = this,
-                type = order.type,
-                paymentMethodId = order.paymentMethodId,
-                paymentMethodType = order.paymentMethodType,
-                depositPaymentId = order.depositPaymentId
-            )
-        } else {
-            TradeActivitySummaryItem(
-                exchangeRates = exchangeRates,
-                txId = order.id,
-                timeStampMs = order.created.time,
-                sendingValue = order.crypto,
-                sendingAccount = this,
-                sendingAddress = null,
-                receivingAddress = null,
-                state = order.state.toCustodialOrderState(),
-                direction = TransferDirection.INTERNAL,
-                receivingValue = order.orderValue ?: throw IllegalStateException(
-                    "Order missing receivingValue"
-                ),
-                depositNetworkFee = Single.just(CryptoValue.zero(order.crypto.currency)),
-                withdrawalNetworkFee = order.fee ?: FiatValue.zero(order.fiat.currencyCode),
-                currencyPair = CurrencyPair.CryptoToFiatCurrencyPair(
-                    order.crypto.currency, order.fiat.currencyCode
-                ),
-                fiatValue = order.fiat,
-                fiatCurrency = order.fiat.currencyCode
-            )
+        when (order.type) {
+            OrderType.RECURRING_BUY -> {
+                RecurringBuyActivitySummaryItem(
+                    exchangeRates = exchangeRates,
+                    asset = order.crypto.currency,
+                    value = order.crypto,
+                    fundedFiat = order.fiat,
+                    txId = order.id,
+                    timeStampMs = order.created.time,
+                    transactionState = order.state,
+                    fee = order.fee ?: FiatValue.zero(order.fiat.currencyCode),
+                    account = this,
+                    type = order.type,
+                    paymentMethodId = order.paymentMethodId,
+                    paymentMethodType = order.paymentMethodType,
+                    failureReason = order.failureReason,
+                    recurringBuyId = order.recurringBuyId
+                )
+            }
+            OrderType.BUY -> {
+                CustodialTradingActivitySummaryItem(
+                    exchangeRates = exchangeRates,
+                    asset = order.crypto.currency,
+                    value = order.crypto,
+                    fundedFiat = order.fiat,
+                    txId = order.id,
+                    timeStampMs = order.created.time,
+                    status = order.state,
+                    fee = order.fee ?: FiatValue.zero(order.fiat.currencyCode),
+                    account = this,
+                    type = order.type,
+                    paymentMethodId = order.paymentMethodId,
+                    paymentMethodType = order.paymentMethodType,
+                    depositPaymentId = order.depositPaymentId
+                )
+            }
+            else -> {
+                TradeActivitySummaryItem(
+                    exchangeRates = exchangeRates,
+                    txId = order.id,
+                    timeStampMs = order.created.time,
+                    sendingValue = order.crypto,
+                    sendingAccount = this,
+                    sendingAddress = null,
+                    receivingAddress = null,
+                    state = order.state.toCustodialOrderState(),
+                    direction = TransferDirection.INTERNAL,
+                    receivingValue = order.orderValue ?: throw IllegalStateException(
+                        "Order missing receivingValue"
+                    ),
+                    depositNetworkFee = Single.just(CryptoValue.zero(order.crypto.currency)),
+                    withdrawalNetworkFee = order.fee ?: FiatValue.zero(order.fiat.currencyCode),
+                    currencyPair = CurrencyPair.CryptoToFiatCurrencyPair(
+                        order.crypto.currency, order.fiat.currencyCode
+                    ),
+                    fiatValue = order.fiat,
+                    fiatCurrency = order.fiat.currencyCode
+                )
+            }
         }
-
-    private fun orderToSummary(order: RecurringBuyTransaction): ActivitySummaryItem =
-        RecurringBuyActivitySummaryItem(
-            exchangeRates = exchangeRates,
-            asset = order.destinationMoney.currency,
-            txId = order.id,
-            timeStampMs = order.insertedAt.time,
-            account = this,
-            value = order.originMoney,
-            destinationMoney = order.destinationMoney,
-            recurringBuyState = order.recurringBuyState,
-            transactionState = order.transactionState,
-            failureReason = order.failureReason,
-            nextPayment = order.nextPayment,
-            insertedAt = order.insertedAt,
-            period = order.period,
-            paymentMethodId = order.paymentMethodId.orEmpty(),
-            paymentMethodType = order.paymentMethod,
-            fee = order.fee,
-            originMoney = order.originMoney
-        )
 
     // Stop gap filter, until we finalise which item we wish to display to the user.
     // TODO: This can be done via the API when it's settled

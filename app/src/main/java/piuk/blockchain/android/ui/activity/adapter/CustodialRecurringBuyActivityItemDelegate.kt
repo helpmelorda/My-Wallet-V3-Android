@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.nabu.datamanagers.RecurringBuyErrorState
-import com.blockchain.nabu.datamanagers.RecurringBuyTransactionState
+import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
@@ -53,16 +53,15 @@ private class CustodialRecurringBuyActivityViewHolder(
     ) {
         val context = binding.root.context
         with(binding) {
-            when (tx.transactionState) {
-                RecurringBuyTransactionState.PENDING,
-                RecurringBuyTransactionState.COMPLETED -> {
+            when {
+                tx.transactionState.isPending() || tx.transactionState.isFinished() -> {
                     icon.setImageResource(R.drawable.ic_tx_recurring_buy)
                     icon.setAssetIconColoursWithTint(tx.asset)
                 }
                 else -> icon.setTransactionHasFailed()
             }
 
-            txType.text = context.resources.getString(R.string.tx_title_buy, tx.asset)
+            txType.text = context.resources.getString(R.string.tx_title_buy, tx.asset.ticker)
             statusDate.setTxStatus(tx)
             setTextColours(tx.transactionState)
 
@@ -74,24 +73,23 @@ private class CustodialRecurringBuyActivityViewHolder(
         }
     }
 
-    private fun setTextColours(txStatus: RecurringBuyTransactionState) {
+    private fun setTextColours(transactionState: OrderState) {
         val context = binding.root.context
         with(binding) {
-            when (txStatus) {
-                RecurringBuyTransactionState.COMPLETED -> {
+            when {
+                transactionState.isFinished() -> {
                     txType.setTextColor(ContextCompat.getColor(context, R.color.black))
                     statusDate.setTextColor(ContextCompat.getColor(context, R.color.grey_600))
                     assetBalanceFiat.setTextColor(ContextCompat.getColor(context, R.color.grey_600))
                     assetBalanceCrypto.setTextColor(ContextCompat.getColor(context, R.color.black))
                 }
-                RecurringBuyTransactionState.FAILED -> {
+                transactionState.hasFailed() -> {
                     txType.setTextColor(ContextCompat.getColor(context, R.color.black))
                     statusDate.setTextColor(ContextCompat.getColor(context, R.color.red_600))
                     assetBalanceCrypto.setTextColor(ContextCompat.getColor(context, R.color.grey_600))
                     assetBalanceFiat.gone()
                 }
-                RecurringBuyTransactionState.PENDING,
-                RecurringBuyTransactionState.UNKNOWN -> {
+                else -> {
                     txType.setTextColor(ContextCompat.getColor(context, R.color.grey_400))
                     statusDate.setTextColor(ContextCompat.getColor(context, R.color.grey_400))
                     assetBalanceCrypto.setTextColor(ContextCompat.getColor(context, R.color.grey_400))
@@ -103,37 +101,37 @@ private class CustodialRecurringBuyActivityViewHolder(
 
     private fun RecurringBuyActivitySummaryItem.setFiatAndCryptoText() {
         with(binding) {
-            when (transactionState) {
-                RecurringBuyTransactionState.COMPLETED -> {
-                    assetBalanceFiat.text = value.toStringWithSymbol()
-                    assetBalanceCrypto.text = destinationMoney.toStringWithSymbol()
-                }
-                RecurringBuyTransactionState.FAILED,
-                RecurringBuyTransactionState.PENDING,
-                RecurringBuyTransactionState.UNKNOWN -> {
+            when {
+                transactionState.isFinished() -> {
+                    assetBalanceFiat.text = fundedFiat.toStringWithSymbol()
                     assetBalanceCrypto.text = value.toStringWithSymbol()
+                }
+                transactionState.isPending() || transactionState.hasFailed() || transactionState.isCancelled() -> {
+                    assetBalanceCrypto.text = fundedFiat.toStringWithSymbol()
                 }
             }
         }
     }
 
     private fun TextView.setTxStatus(tx: RecurringBuyActivitySummaryItem) {
-        text = when (tx.transactionState) {
-            RecurringBuyTransactionState.COMPLETED -> Date(tx.timeStampMs).toFormattedDate()
-            RecurringBuyTransactionState.PENDING -> context.getString(R.string.recurring_buy_activity_pending)
-            RecurringBuyTransactionState.FAILED -> tx.failureReason?.toShortErrorMessage(context)
-            RecurringBuyTransactionState.UNKNOWN -> ""
+        text = when {
+            tx.transactionState.isFinished() -> Date(tx.timeStampMs).toFormattedDate()
+            tx.transactionState.isPending() -> context.getString(R.string.recurring_buy_activity_pending)
+            tx.transactionState.hasFailed() -> tx.failureReason?.toShortErrorMessage(context)
+                ?: RecurringBuyFailureReason.UNKNOWN.toShortErrorMessage(context)
+            tx.transactionState.isCancelled() -> context.getString(R.string.activity_state_canceled)
+            else -> ""
         }
     }
 
-    private fun RecurringBuyErrorState.toShortErrorMessage(context: Context): String =
+    private fun RecurringBuyFailureReason.toShortErrorMessage(context: Context): String =
         when (this) {
-            RecurringBuyErrorState.INSUFFICIENT_FUNDS -> context.getString(
+            RecurringBuyFailureReason.INSUFFICIENT_FUNDS -> context.getString(
                 R.string.recurring_buy_insufficient_funds_short_error
             )
-            RecurringBuyErrorState.INTERNAL_SERVER_ERROR,
-            RecurringBuyErrorState.TRADING_LIMITS_EXCEED,
-            RecurringBuyErrorState.BLOCKED_BENEFICIARY_ID,
-            RecurringBuyErrorState.UNKNOWN -> context.getString(R.string.recurring_buy_short_error)
+            RecurringBuyFailureReason.INTERNAL_SERVER_ERROR,
+            RecurringBuyFailureReason.BLOCKED_BENEFICIARY_ID,
+            RecurringBuyFailureReason.FAILED_BAD_FILL,
+            RecurringBuyFailureReason.UNKNOWN -> context.getString(R.string.recurring_buy_short_error)
         }
 }

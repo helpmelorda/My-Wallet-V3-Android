@@ -1920,10 +1920,6 @@ Banka transferiniz %3$s tarihinde tamamlandıktan sonra para çekme işlemi ger�
     <string name="recurring_buy_label">Sıklık</string>
     <string name="recurring_buy_one_time_short">Tek sefer</string>
     <string name="recurring_buy_one_time">Tek seferlik satın alma</string>
-    <string name="recurring_buy_daily">Her gün</string>
-    <string name="recurring_buy_weekly">Her hafta</string>
-    <string name="recurring_buy_bi_weekly">İki haftada bir</string>
-    <string name="recurring_buy_monthly">Her ay</string>
     <string name="recurring_buy_frequency_label">Yinelenen</string>
     <string name="recurring_buy_frequency_subtitle">%1$s tarihinde</string>
     <string name="recurring_buy_frequency_subtitle_each_day">%s civarında</string>
@@ -1989,13 +1985,9 @@ Banka transferiniz %3$s tarihinde tamamlandıktan sonra para çekme işlemi ger�
     <string name="dashboard_title_recurring_buy">Ne zaman satın alacağınızdan emin değil misiniz?</string>
     <string name="dashboard_recurring_buy_description">Piyasayı doğru zamanı yakalamak zor olduğundan birçok yatırımcı ortalama dolar maliyeti kullanıyor.</string>
     <string name="dashboard_recurring_buy_learn_more">Daha fazla bilgi edin →</string>
-    <string name="dashboard_recurring_buy_item_title">%2$s %3$s cinsinden %1$s satın al</string>
     <string name="dashboard_recurring_buy_item_label">Sonraki satın alma: %1$s</string>
     <string name="dashboard_recurring_buy_item_label_error">Düşük bakiye. Para Ekleyin</string>
     <string name="dashboard_recurring_buy_title">Yinelenen satın alma işlemleri</string>
-    <string name="recurring_buy_info_cta">Yinelenen Satın Alma İşlemini İptal Et</string>
-    <string name="recurring_buy_sheet_title">Yinelenen %1$s Satın Alma İşlemi</string>
-    <string name="recurring_buy_info_purchase_label">Sonra Satın Alma</string>
     <string name="recurring_buy_cancelled_toast">Yinelenen satın alma işlemi iptal edildi</string>
     <string name="recurring_buy_cancelled_error_toast">Hay aksi! Yinelenen satın alma işleminizi iptal ederken bir sorun oluştu. Lütfen daha sonra tekrar deneyin.</string>
     <string name="recurring_buy_cancel_dialog_desc">Bu Yinelenen Satın Alma İşlemini iptal etmek istediğinizden emin misiniz?</string>
@@ -2006,7 +1998,6 @@ Banka transferiniz %3$s tarihinde tamamlandıktan sonra para çekme işlemi ger�
     <string name="recurring_buy_funds_label">%s Hesabı</string>
     <string name="recurring_buy_short_error">Başarısız oldu</string>
     <string name="recurring_buy_insufficient_funds_short_error">Başarısız oldu. Bakiye Düşük</string>
-    <string name="recurring_buy_insufficient_funds_error">Ödeme yönteminizde yeterli para bulunmuyor. Yinelenen satın alma işleminin tamamlanması daha fazla para ekleyin.</string>
     <string name="recurring_buy_internal_server_error">Satın alma işleminizde bir hata oluştu. Az sonra tekrar deneyeceğiniz.</string>
     <string name="recurring_buy_final_attempt_error">Satın alma işleminizde bir hata oluştu. Daha fazla bilgi için <annotation link="contact_support_link">destek ekibiyle iletişime geçin.</annotation></string>
     <string name="recurring_buy_beneficiary_error">Seçtiğiniz ödemi yöntemi aktif değil. Lütfen başkasını kullanın.</string>

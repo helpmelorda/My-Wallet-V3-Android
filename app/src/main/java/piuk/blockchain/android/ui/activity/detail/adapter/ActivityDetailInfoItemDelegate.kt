@@ -39,6 +39,8 @@ import piuk.blockchain.android.ui.activity.detail.Value
 import piuk.blockchain.android.ui.activity.detail.XlmMemo
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import piuk.blockchain.android.util.visible
 
 class ActivityDetailInfoItemDelegate<in T>(
@@ -141,7 +143,9 @@ private class InfoItemViewHolder(
             is NextPayment -> infoType.date.toFormattedString()
             is RecurringBuyFrequency -> "${
                 infoType.frequency.toHumanReadableRecurringBuy(context)
-            } ${infoType.frequency.toHumanReadableRecurringDate(context)}"
+            } ${infoType.frequency.toHumanReadableRecurringDate(context,
+                ZonedDateTime.ofInstant(infoType.nextPayment.toInstant(),
+                ZoneId.systemDefault()))}"
             is Amount -> infoType.value.toStringWithSymbol()
             is Fee -> infoType.feeValue?.toStringWithSymbol() ?: context.getString(
                 R.string.activity_details_fee_load_fail

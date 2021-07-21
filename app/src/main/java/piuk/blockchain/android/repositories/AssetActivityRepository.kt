@@ -120,6 +120,9 @@ class AssetActivityRepository(
             it.asset == asset && it.txId == txHash
         }
 
+    fun findCachedItemById(txHash: String): ActivitySummaryItem? =
+        transactionCache.find { it.txId == txHash }
+
     fun findCachedTradeItem(asset: AssetInfo, txHash: String): TradeActivitySummaryItem? =
         transactionCache.filterIsInstance<TradeActivitySummaryItem>().find {
             when (it.currencyPair) {
@@ -132,11 +135,6 @@ class AssetActivityRepository(
     fun findCachedItem(currency: String, txHash: String): FiatActivitySummaryItem? =
         transactionCache.filterIsInstance<FiatActivitySummaryItem>().find {
             it.currency == currency && it.txId == txHash
-        }
-
-    fun findCachedItemById(txHash: String): ActivitySummaryItem? =
-        transactionCache.find {
-            it.txId == txHash
         }
 
     private fun requestNetwork(refreshRequested: Boolean): Maybe<ActivitySummaryList> {

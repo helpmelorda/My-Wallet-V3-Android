@@ -698,24 +698,20 @@ class NabuService(
         assetTicker = assetTicker
     ).wrapErrorMessage()
 
+    fun getRecurringBuyForId(
+        sessionToken: NabuSessionTokenResponse,
+        recurringBuyId: String
+    ) = service.getRecurringBuyById(
+        authorization = sessionToken.authHeader,
+        recurringBuyId = recurringBuyId
+    ).wrapErrorMessage()
+
     fun cancelRecurringBuy(
         sessionToken: NabuSessionTokenResponse,
         id: String
     ) = service.cancelRecurringBuy(
         authorization = sessionToken.authHeader,
         id = id
-    ).wrapErrorMessage()
-
-    fun getRecurringBuysTransactions(
-        sessionToken: NabuSessionTokenResponse,
-        recurringBuyId: String? = null,
-        currency: String? = null,
-        limit: Int? = null
-    ) = service.fetchRecurringBuysTransactions(
-        authorization = sessionToken.authHeader,
-        recurringBuyId = recurringBuyId,
-        assetTicker = currency,
-        limit = limit
     ).wrapErrorMessage()
 
     companion object {
