@@ -48,10 +48,9 @@
     <dimen name="buy_sell_payment_button_text_size">16sp</dimen>
     <dimen name="buy_sell_payment_button_margin">16dp</dimen>
 
-    <!-- Override AHBottomNavigation dimens for smaller icons -->
-    <dimen name="bottom_navigation_margin_top_active">8dp</dimen>
-    <dimen name="bottom_navigation_margin_top_inactive">8dp</dimen>
-    <dimen name="bottom_navigation_icon">18dp</dimen>
-    <dimen name="bottom_navigation_height">53dp</dimen>
-    <dimen name="bottom_navigation_margin_bottom">10dp</dimen>
+    <!-- Override BottomNavigation dimens for smaller icons -->
+    <dimen name="design_bottom_navigation_icon_size">18dp</dimen>
+    <dimen name="design_bottom_navigation_margin">12dp</dimen>
+    <dimen name="design_bottom_navigation_text_size">10sp</dimen>
+    <dimen name="design_bottom_navigation_active_text_size">10sp</dimen>
 </resources>

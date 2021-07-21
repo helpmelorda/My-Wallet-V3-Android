@@ -327,7 +327,6 @@ dependencies {
 
     // Views
     implementation Libraries.countryPicker
-    implementation Libraries.bottomNav
     implementation Libraries.circleIndicator
     implementation Libraries.charts
     implementation Libraries.sparkline
