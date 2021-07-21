@@ -1808,7 +1808,8 @@
     <!-- Transaction Flow confirmation screen -->
     <string name="confirm_status_msg_insufficient_funds">You have insufficient funds in this account to process this transaction</string>
     <string name="confirm_status_msg_insufficient_gas">You do not have enough ETH to process this transaction.</string>
-    <string name="confirm_status_msg_option_invalid">Please ensure you`ve agreed to our Terms.</string>
+    <string name="confirm_status_msg_option_invalid">Please ensure you\'ve agreed to our Terms.</string>
+    <string name="confirm_status_memo_invalid">Please add a memo.</string>
     <string name="confirm_status_msg_invoice_expired">BitPay Invoice Expired</string>
     <string name="confirm_status_msg_unexpected_error">An unexpected error has occurred. Please try again.</string>
     <string name="pending_swap_info_message">You have 1 swap pending. Once that clears, you can make a new swap.</string>
