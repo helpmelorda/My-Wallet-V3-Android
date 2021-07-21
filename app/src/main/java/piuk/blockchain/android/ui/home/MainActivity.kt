@@ -177,7 +177,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         }
 
     private val currentFragment: Fragment?
-        get() = supportFragmentManager.findFragmentById(R.id.content_frame)
+        get() = supportFragmentManager.primaryNavigationFragment
 
     internal val activity: Context
         get() = this
