@@ -329,6 +329,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                     if (resultCode == RESULT_FIRST_USER) {
                         data?.let { intent ->
                             val account = intent.extras?.getAccount(InterestDashboardActivity.ACTIVITY_ACCOUNT)
+                            removeFragmentByTag(ActivitiesFragment::class.java.simpleName)
                             startActivitiesFragment(account)
                         }
                     }

@@ -401,9 +401,7 @@ class DashboardFragment :
 
     override fun onResume() {
         super.onResume()
-
         if (isHidden) return
-
         compositeDisposable += actionEvent.subscribe {
             initOrUpdateAssets()
         }

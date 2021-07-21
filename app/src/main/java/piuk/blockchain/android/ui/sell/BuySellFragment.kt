@@ -245,9 +245,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
 
     override fun onResume() {
         super.onResume()
-
         if (isHidden) return
-
         subscribeForNavigation()
     }
 
