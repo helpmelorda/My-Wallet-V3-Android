@@ -57,7 +57,6 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
             rbSheetBack.setOnClickListener {
                 returnToPreviousSheet()
             }
-
             rbSheetCancel.setOnClickListener {
                 sendAnalyticsForRecurringBuyCancelClicked(cacheState)
 

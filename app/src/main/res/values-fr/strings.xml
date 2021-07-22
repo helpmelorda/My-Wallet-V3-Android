@@ -837,7 +837,6 @@ En déposant des fonds sur ce compte, vous acceptez les <annotation link="modula
     <string name="send_scan_qr_code">Scanner le code QR</string>
     <string name="send_again">Envoyer à nouveau</string>
     <string name="checkout_item_send_to">Envoyer à</string>
-    <string name="recurring_buy_details_total_cost">Coût total</string>
     <string name="send_confirmation_tx_fee">Frais de transaction</string>
     <string name="transfer_amount">Montant du transfert</string>
     <string name="common_try_again">Réessayer</string>
@@ -962,7 +961,6 @@ Confirmations</string>
     <string name="activity_details_label_pending_execution">En attente d\'exécution</string>
     <string name="activity_details_buy_sending_to">Envoi à</string>
     <string name="activity_details_buy_purchase_amount">Achats</string>
-    <string name="activity_details_buy_fees">Honoraires</string>
     <string name="activity_details_buy_payment_method">Mode de paiement</string>
     <string name="activity_details_view_bank_transfer_details">Afficher les détails du virement bancaire</string>
     <string name="activity_details_buy_again">Acheter à nouveau</string>
@@ -1904,7 +1902,6 @@ Vos %1$s seront disponibles sur votre compte « %2$s » dans les 2 jours.</strin
     <string name="recurring_buy_cancel_dialog_desc">Voulez-vous vraiment annuler cet Achat récurrent ?</string>
     <string name="recurring_buy_activity_pending">En attente</string>
     <string name="recurring_buy_details_next_payment">Prochain paiement</string>
-    <string name="recurring_buy_details_fees">Honoraires</string>
     <string name="activity_details_label_btn_cash">Ajouter de l\'argent</string>
     <string name="recurring_buy_funds_label">%sCompte</string>
     <string name="recurring_buy_short_error">Échoué</string>

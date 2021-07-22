@@ -118,10 +118,10 @@ private class InfoItemViewHolder(
             is To -> context.getString(R.string.activity_details_to)
             is From -> context.getString(R.string.activity_details_from)
             is FeeForTransaction -> context.getString(R.string.activity_details_transaction_fee)
-            is BuyFee -> context.getString(R.string.activity_details_buy_fees)
+            is BuyFee -> context.getString(R.string.activity_details_buy_fee)
             is BuyPurchaseAmount -> context.getString(R.string.activity_details_buy_purchase_amount)
-            is TotalCostAmount -> context.getString(R.string.recurring_buy_details_total_cost)
-            is FeeAmount -> context.getString(R.string.recurring_buy_details_fees)
+            is TotalCostAmount -> context.getString(R.string.common_total)
+            is FeeAmount -> context.getString(R.string.recurring_buy_details_fee)
             is SellPurchaseAmount -> context.getString(R.string.common_total)
             is TransactionId -> context.getString(R.string.activity_details_buy_tx_id)
             is BuyCryptoWallet,

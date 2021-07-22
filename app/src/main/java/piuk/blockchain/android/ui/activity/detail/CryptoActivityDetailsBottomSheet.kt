@@ -19,7 +19,6 @@ import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.notifications.analytics.ActivityAnalytics
 import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.AssetCatalogue
@@ -49,6 +48,7 @@ import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
+import piuk.blockchain.android.util.visibleIf
 
 class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
     ActivityDetailsIntents,
@@ -207,6 +207,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
 
     private fun showRecurringBuyUi(state: ActivityDetailState) {
         binding.rbSheetCancel.apply {
+            visibleIf { state.recurringBuyId != null }
             binding.rbSheetCancel.setOnClickListener {
                 sendAttributeRecurringBuyCancelClicked(state)
 
@@ -252,7 +253,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
     private fun ActivityDetailState.recurringBuyHasFailedAndCanBeFixedByAddingFunds(): Boolean {
         return this.recurringBuyPaymentMethodType == PaymentMethodType.FUNDS &&
             this.recurringBuyError == RecurringBuyFailureReason.INSUFFICIENT_FUNDS &&
-            this.recurringBuyState == RecurringBuyState.ACTIVE
+            this.transactionRecurringBuyState != OrderState.FAILED
     }
 
     private fun launchDepositFlow(originCurrency: String) {
