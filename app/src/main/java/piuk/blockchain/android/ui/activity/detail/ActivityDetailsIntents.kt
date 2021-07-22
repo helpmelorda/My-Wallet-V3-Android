@@ -81,7 +81,7 @@ class LoadRecurringBuyDetailsHeaderDataIntent(
 ) : ActivityDetailsIntents() {
     override fun reduce(oldState: ActivityDetailState): ActivityDetailState {
         return oldState.copy(
-            recurringBuyId = recurringBuyItem.txId,
+            recurringBuyId = recurringBuyItem.recurringBuyId,
             transactionType = TransactionSummary.TransactionType.RECURRING_BUY,
             amount = if (recurringBuyItem.value.isPositive) {
                 recurringBuyItem.value
@@ -96,7 +96,6 @@ class LoadRecurringBuyDetailsHeaderDataIntent(
             totalConfirmations = 0,
             recurringBuyError = recurringBuyItem.failureReason ?: RecurringBuyFailureReason.UNKNOWN,
             transactionRecurringBuyState = recurringBuyItem.transactionState,
-//            recurringBuyState = recurringBuyItem.recurringBuyState,
             recurringBuyPaymentMethodType = recurringBuyItem.paymentMethodType,
             recurringBuyOriginCurrency = recurringBuyItem.fundedFiat.currencyCode
         )

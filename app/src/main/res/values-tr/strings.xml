@@ -923,7 +923,6 @@ Bu hesaba para yatırarak bankacılık işlemlerindeki iş ortağımız <annotat
     <string name="send_scan_qr_code">QR Kodu Tara</string>
     <string name="send_again">Tekrar gönderin</string>
     <string name="checkout_item_send_to">Buraya gönderildi:</string>
-    <string name="recurring_buy_details_total_cost">Toplam tutar</string>
     <string name="send_confirmation_tx_fee">İşlem ücreti</string>
     <string name="transfer_amount">Transfer Tutarı</string>
     <string name="common_try_again">Tekrar deneyin</string>
@@ -1048,7 +1047,6 @@ Onay</string>
     <string name="activity_details_label_pending_execution">Bekleyen İşlem</string>
     <string name="activity_details_buy_sending_to">Gönderiliyor</string>
     <string name="activity_details_buy_purchase_amount">Satın Alınıyor</string>
-    <string name="activity_details_buy_fees">harç</string>
     <string name="activity_details_buy_payment_method">Ödeme Yöntemi</string>
     <string name="activity_details_view_bank_transfer_details">Banka Havalesi Ayrıntılarını Görüntüleme</string>
     <string name="activity_details_buy_again">Tekrar Satın Al</string>
@@ -1993,7 +1991,6 @@ Banka transferiniz %3$s tarihinde tamamlandıktan sonra para çekme işlemi ger�
     <string name="recurring_buy_cancel_dialog_desc">Bu Yinelenen Satın Alma İşlemini iptal etmek istediğinizden emin misiniz?</string>
     <string name="recurring_buy_activity_pending">Bekliyor</string>
     <string name="recurring_buy_details_next_payment">Sonraki Ödeme</string>
-    <string name="recurring_buy_details_fees">harç</string>
     <string name="activity_details_label_btn_cash">Nakit Ekle</string>
     <string name="recurring_buy_funds_label">%s Hesabı</string>
     <string name="recurring_buy_short_error">Başarısız oldu</string>

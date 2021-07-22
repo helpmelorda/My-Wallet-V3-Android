@@ -25,6 +25,7 @@
     <string name="common_ok">OK</string>
     <string name="common_cancel">Cancel</string>
     <string name="common_total">Total</string>
+    <string name="common_remove">Remove</string>
     <string name="common_deposit">Deposit</string>
     <string name="common_transfer">Transfer</string>
     <string name="common_error">Something went wrong, please try again</string>
@@ -1488,7 +1489,7 @@
     <string name="activity_details_buy_tx_id">Transaction ID</string>
     <string name="activity_details_buy_sending_to">Sending to</string>
     <string name="activity_details_buy_purchase_amount">Purchasing</string>
-    <string name="activity_details_buy_fees">Fees</string>
+    <string name="activity_details_buy_fee">Fee</string>
     <string name="activity_details_buy_payment_method">Payment Method</string>
     <string name="activity_details_swap_for">For</string>
     <string name="activity_details_view_bank_transfer_details">View Bank Transfer Details</string>
@@ -2160,7 +2161,6 @@
     <string name="dashboard_recurring_buy_item_label">Next buy on %s</string>
     <string name="dashboard_recurring_buy_item_label_error">Low balance. Add Funds</string>
     <string name="dashboard_recurring_buy_title">Recurring buys</string>
-    <string name="recurring_buy_info_cta_1">Remove</string>
     <string name="recurring_buy_sheet_title_1">Recurring Buy</string>
     <string name="recurring_buy_header">%1$s of %2$s</string>
     <string name="recurring_buy_info_purchase_label_1">Next Buy</string>
@@ -2170,8 +2170,7 @@
     <string name="recurring_buy_activity_pending">Pending</string>
     <string name="recurring_buy_details_next_payment">Next Payment</string>
     <string name="recurring_buy_details_recurring">Recurring</string>
-    <string name="recurring_buy_details_total_cost">Total Cost</string>
-    <string name="recurring_buy_details_fees">Fees</string>
+    <string name="recurring_buy_details_fee">Fee</string>
     <string name="activity_details_label_btn_cash">Add Cash</string>
     <string name="recurring_buy_funds_label">%s Account</string>
     <string name="recurring_buy_short_error">Failed</string>
