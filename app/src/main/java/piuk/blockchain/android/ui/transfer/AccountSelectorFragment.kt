@@ -18,6 +18,7 @@ import piuk.blockchain.android.databinding.FragmentTransferAccountSelectorBindin
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.account.StatusDecorator
+import piuk.blockchain.android.util.ActivityIndicator
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 
@@ -51,6 +52,7 @@ abstract class AccountSelectorFragment : Fragment() {
     fun initialiseAccountSelectorWithHeader(
         statusDecorator: StatusDecorator,
         onAccountSelected: (BlockchainAccount) -> Unit,
+        activityIndicator: ActivityIndicator? = null,
         @StringRes title: Int,
         @StringRes label: Int,
         @DrawableRes icon: Int
@@ -60,6 +62,7 @@ abstract class AccountSelectorFragment : Fragment() {
 
         with(binding.accountSelectorAccountList) {
             this.onAccountSelected = onAccountSelected
+            this.activityIndicator = activityIndicator
             initialise(
                 accounts(),
                 statusDecorator,

@@ -17,12 +17,14 @@ import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccou
 import piuk.blockchain.android.ui.transfer.AccountSelectorFragment
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
+import piuk.blockchain.android.util.AppUtil
 
 class TransferReceiveFragment : AccountSelectorFragment() {
 
     private val disposables = CompositeDisposable()
     private val upsellManager: KycUpgradePromptManager by scopedInject()
     private val analytics: Analytics by inject()
+    private val appUtil: AppUtil by inject()
 
     override val fragmentAction: AssetAction
         get() = AssetAction.Receive
@@ -42,6 +44,7 @@ class TransferReceiveFragment : AccountSelectorFragment() {
                 DefaultCellDecorator()
             },
             onAccountSelected = ::doOnAccountSelected,
+            activityIndicator = appUtil.activityIndicator,
             title = R.string.transfer_receive_crypto_title,
             label = R.string.transfer_receive_crypto_label,
             icon = R.drawable.ic_receive_blue_circle
