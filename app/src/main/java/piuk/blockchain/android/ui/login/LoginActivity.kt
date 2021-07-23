@@ -25,6 +25,7 @@ import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.start.ManualPairingActivity
+import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
@@ -74,6 +75,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             continueButton.setOnClickListener {
                 binding.loginEmailText.text?.let { emailInputText ->
                     if (emailInputText.isNotBlank()) {
+                        ViewUtils.hideKeyboard(this@LoginActivity)
                         verifyReCaptcha(emailInputText.toString())
                     }
                 }
@@ -164,11 +166,12 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     private fun updateUI(newState: LoginState) {
         with(binding) {
             progressBar.visibleIf { newState.isLoading }
-            loginOrLabel.visibleIf { !newState.isTypingEmail && !newState.isLoading }
-            loginOrSeparatorLeft.visibleIf { !newState.isTypingEmail && !newState.isLoading }
-            loginOrSeparatorRight.visibleIf { !newState.isTypingEmail && !newState.isLoading }
-            // TODO enable Google auth once ready
-            continueButton.visibleIf { newState.isTypingEmail }
+            // TODO enable Google auth once ready along with the OR label
+            continueButton.visibleIf {
+                newState.isTypingEmail ||
+                newState.currentStep == LoginStep.SEND_EMAIL ||
+                    newState.currentStep == LoginStep.VERIFY_DEVICE
+            }
             continueButton.isEnabled = newState.isTypingEmail && emailRegex.matches(newState.email)
         }
     }
