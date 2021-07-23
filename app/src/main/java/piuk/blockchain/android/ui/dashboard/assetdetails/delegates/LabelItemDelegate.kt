@@ -11,6 +11,7 @@ import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsItem
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.visible
 
 class LabelItemDelegate(private val token: CryptoAsset) : AdapterDelegate<AssetDetailsItem> {
     override fun isForViewType(items: List<AssetDetailsItem>, position: Int): Boolean =
@@ -35,10 +36,13 @@ private class LabelViewHolder(
     fun bind(token: CryptoAsset) {
         with(binding) {
             when {
-                token.asset.isCustodialOnly -> context.getString(
-                    R.string.custodial_only_asset_label,
-                    token.asset.ticker
-                )
+                token.asset.isCustodialOnly -> {
+                    root.visible()
+                    assetLabelDescription.text = context.getString(
+                        R.string.custodial_only_asset_label,
+                        token.asset.ticker
+                    )
+                }
                 else -> root.gone()
             }
         }
