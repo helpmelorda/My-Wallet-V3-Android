@@ -1481,6 +1481,7 @@
     <string name="activity_details_title_recurring_buy">Recurring Buy</string>
     <string name="activity_details_title_withdraw">Withdrawal</string>
     <string name="activity_details_label_confirming">Confirming</string>
+    <string name="activity_details_label_cancelled">Cancelled</string>
     <string name="activity_details_label_waiting_on_funds">Waiting on Funds</string>
     <string name="activity_details_label_confirmations">%1$d of %2$d\nConfirmations</string>
     <string name="activity_details_title_fee">Gas Fee</string>
