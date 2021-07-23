@@ -89,8 +89,6 @@ dependencies {
     testImplementation Libraries.koinTest
     testImplementation Libraries.hamcrestJunit
     testImplementation Libraries.kotlinJunit
-    testImplementation Libraries.okHttpMock
-    testImplementation Libraries.mockWebServer
     testImplementation(Libraries.mockitoKotlin) {
         ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
     }
