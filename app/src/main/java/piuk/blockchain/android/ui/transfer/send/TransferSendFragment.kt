@@ -20,13 +20,11 @@ import piuk.blockchain.android.ui.transactionflow.analytics.SendAnalyticsEvent
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transfer.AccountSelectorFragment
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
-import piuk.blockchain.android.util.AppUtil
 
 class TransferSendFragment : AccountSelectorFragment(), DialogFlow.FlowHost {
 
     private val analytics: Analytics by inject()
     private val txLauncher: TransactionLauncher by inject()
-    private val appUtil: AppUtil by inject()
 
     override val fragmentAction: AssetAction
         get() = AssetAction.Send
@@ -50,7 +48,6 @@ class TransferSendFragment : AccountSelectorFragment(), DialogFlow.FlowHost {
         initialiseAccountSelectorWithHeader(
             statusDecorator = ::statusDecorator,
             onAccountSelected = ::doOnAccountSelected,
-            activityIndicator = appUtil.activityIndicator,
             title = R.string.transfer_send_crypto_title,
             label = R.string.transfer_send_crypto_label,
             icon = R.drawable.ic_send_blue_circle

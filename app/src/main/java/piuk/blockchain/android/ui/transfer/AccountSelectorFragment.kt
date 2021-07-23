@@ -10,6 +10,7 @@ import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import com.blockchain.koin.scopedInject
 import io.reactivex.rxjava3.core.Single
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BlockchainAccount
@@ -18,7 +19,7 @@ import piuk.blockchain.android.databinding.FragmentTransferAccountSelectorBindin
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.account.StatusDecorator
-import piuk.blockchain.android.util.ActivityIndicator
+import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 
@@ -30,6 +31,7 @@ abstract class AccountSelectorFragment : Fragment() {
 
     private val coincore: Coincore by scopedInject()
     private val accountsSorting: AccountsSorting by scopedInject()
+    private val appUtil: AppUtil by inject()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,7 +54,6 @@ abstract class AccountSelectorFragment : Fragment() {
     fun initialiseAccountSelectorWithHeader(
         statusDecorator: StatusDecorator,
         onAccountSelected: (BlockchainAccount) -> Unit,
-        activityIndicator: ActivityIndicator? = null,
         @StringRes title: Int,
         @StringRes label: Int,
         @DrawableRes icon: Int
@@ -62,7 +63,7 @@ abstract class AccountSelectorFragment : Fragment() {
 
         with(binding.accountSelectorAccountList) {
             this.onAccountSelected = onAccountSelected
-            this.activityIndicator = activityIndicator
+            this.activityIndicator = appUtil.activityIndicator
             initialise(
                 accounts(),
                 statusDecorator,
