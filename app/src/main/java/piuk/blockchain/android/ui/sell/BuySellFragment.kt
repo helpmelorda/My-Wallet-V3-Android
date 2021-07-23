@@ -119,7 +119,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
                         renderNotEligibleUi()
                     }
                 }
-                is BuySellIntroAction.StarBuyWithSelectedAsset -> {
+                is BuySellIntroAction.StartBuyWithSelectedAsset -> {
                     renderBuySellUi(action.hasPendingBuy)
                     if (!action.hasPendingBuy && !hasReturnedFromBuyActivity) {
                         hasReturnedFromBuyActivity = false
