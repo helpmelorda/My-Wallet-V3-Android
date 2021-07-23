@@ -4,7 +4,6 @@
     <string name="app_name" translatable="false">Blockchain</string>
     <string name="alpha_app_name" translatable="false">Blockchain Alpha</string>
     <string name="staging_app_name" translatable="false">BlockStaging</string>
-    <string name="dev_app_name" translatable="false">BlockDev</string>
     <string name="debug_app_shortcut">BC Debug Opts</string>
     <string name="debug_app_shortcut_short">BC Opts</string>
     <string name="common_company_name" translatable="false">Blockchain.com</string>
