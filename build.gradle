@@ -12,11 +12,9 @@ buildscript {
     }
     dependencies {
         classpath Libraries.androidGradlePlugin
-        classpath Libraries.coveralls
         classpath Libraries.googleServicesPlugin
         classpath Libraries.kotlinGradlePlugin
         classpath Libraries.kotlinSerializationPlugin
-        classpath Libraries.jacoco
         classpath Libraries.navigationControllerSafeArgsPlugin
         classpath Libraries.firebaseCrashlyticsPlugin
         classpath Libraries.buildProperties
@@ -55,5 +53,3 @@ subprojects {
         }
     }
 }
-
-apply from: 'quality/jacocoRootReport.gradle'
