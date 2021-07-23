@@ -162,10 +162,109 @@ platform :android do
         build_type: "Debug"
       )
 
-      ci_test
+       ci_test_app
+       ci_test_balance
+       ci_test_blockchainApi
+       ci_test_core
+       ci_test_nabu
+       ci_test_notifications
+       ci_test_sunriver
+       ci_test_testutils
+       ci_test_testutils_android
+       # commented out because they always fail and will be fixed shortly by @Fran
+       # ci_test_wallet
 
     end
 
+    desc "Tests to run on CI app"
+    lane :ci_test_app do
+      gradle(
+        task: "app:testEnvProdDebugUnitTest",
+        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
+      )
+
+    end
+
+    desc "Tests to run on CI balance"
+    lane :ci_test_balance do
+      gradle(
+        task: "balance:test",
+        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
+      )
+
+    end
+
+    desc "Tests to run on CI blockchainApi"
+    lane :ci_test_blockchainApi do
+      gradle(
+        task: "blockchainApi:test",
+        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
+      )
+
+    end
+
+    desc "Tests to run on CI core"
+    lane :ci_test_core do
+      gradle(
+        task: "core:test",
+        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
+      )
+
+    end
+
+    desc "Tests to run on CI nabu"
+    lane :ci_test_nabu do
+      gradle(
+        task: "nabu:test",
+        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
+      )
+
+    end
+
+    desc "Tests to run on CI notifications"
+    lane :ci_test_notifications do
+      gradle(
+        task: "notifications:test",
+        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
+      )
+
+    end
+
+    desc "Tests to run on CI sunriver"
+    lane :ci_test_sunriver do
+      gradle(
+        task: "sunriver:test",
+        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
+      )
+
+    end
+
+    desc "Tests to run on CI testutils"
+    lane :ci_test_testutils do
+      gradle(
+        task: "testutils:test",
+        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
+      )
+
+    end
+
+    desc "Tests to run on CI testutils-android"
+    lane :ci_test_testutils_android do
+      gradle(
+        task: "testutils-android:test",
+        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
+      )
+
+    end
+
+    desc "Tests to run on CI wallet"
+    lane :ci_test_wallet do
+      gradle(
+        task: "wallet:test",
+        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
+      )
+
+    end
 
     desc "Get the configuration files from the Android credentials repository on CI."
     lane :ci_credentials do

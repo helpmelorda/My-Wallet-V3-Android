@@ -9,7 +9,6 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.google.gms.google-services'
 
-
 buildProperties {
     secrets {
         using(file('secrets.properties')) | file('secretsDefaults.properties')

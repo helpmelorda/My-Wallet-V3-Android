@@ -15,7 +15,6 @@ object Versions {
     const val androidPlugin = "4.2.1"
     const val kotlin = "1.5.0"
     const val googleServicesPlugin = "4.3.3"
-    const val coveralls = "2.8.2"
     const val buildProperties = "0.4"
     const val ktlint = "0.27.0"
     const val kotlinJvmTarget = "1.8"
@@ -126,7 +125,6 @@ object Versions {
     const val robolectric = "4.3"
     const val json = "20140107"
     const val espresso = "3.2.0"
-    const val jacoco = "0.8.7"
     const val androidxTesting = "1.3.0"
 }
 
@@ -138,7 +136,6 @@ object Libraries {
     const val kotlinSerializationPlugin = "org.jetbrains.kotlin:kotlin-serialization:${Versions.kotlin}"
     const val kotlin = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}"
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
-    const val coveralls = "org.kt3k.gradle.plugin:coveralls-gradle-plugin:${Versions.coveralls}"
     const val googleServicesPlugin = "com.google.gms:google-services:${Versions.googleServicesPlugin}"
     const val buildProperties = "com.novoda:gradle-build-properties-plugin:${Versions.buildProperties}"
     const val ktlint = "com.github.shyiko:ktlint:${Versions.ktlint}"
@@ -278,5 +275,4 @@ object Libraries {
     const val retrofitMock = "com.squareup.retrofit2:retrofit-mock:${Versions.retrofit}"
     const val okHttpMock = "com.squareup.okhttp3:mockwebserver:${Versions.okHttp}"
     const val mockWebServer = "com.github.fabric8io:mockwebserver:${Versions.mockWebServer}"
-    const val jacoco = "org.jacoco:org.jacoco.core:${Versions.jacoco}"
 }
