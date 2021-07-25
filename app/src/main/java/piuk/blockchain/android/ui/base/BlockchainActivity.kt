@@ -96,8 +96,8 @@ abstract class BlockchainActivity : ToolBarActivity() {
             }
     }
 
-    protected open fun showLoading() {}
-    protected open fun hideLoading() {}
+    open fun showLoading() {}
+    open fun hideLoading() {}
 
     @CallSuper
     override fun onPause() {
