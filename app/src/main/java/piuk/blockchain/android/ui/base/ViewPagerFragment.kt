@@ -10,7 +10,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.util.ActivityIndicator
 import piuk.blockchain.android.util.AppUtil
 
-open class ViewPagerFragment: Fragment() {
+open class ViewPagerFragment : Fragment() {
 
     protected var activityIndicator = ActivityIndicator()
 
@@ -42,5 +42,4 @@ open class ViewPagerFragment: Fragment() {
         blockchainActivity?.hideLoading()
         disposable.clear()
     }
-
 }
