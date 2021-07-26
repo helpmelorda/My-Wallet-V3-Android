@@ -2,15 +2,17 @@ package com.blockchain.nabu.datamanagers.repositories.interest
 
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.nabu.Authenticator
+import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProviderImpl.Companion.ELIGIBLE
+import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProviderImpl.Companion.INVALID_ADDRESS
+import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProviderImpl.Companion.TIER_TOO_LOW
+import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProviderImpl.Companion.UNSUPPORTED_REGION
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 
 enum class IneligibilityReason {
-    INVALID_USER,
     REGION,
     KYC_TIER,
-    BLOCKED,
     OTHER,
     NONE
 }
@@ -41,6 +43,13 @@ class InterestEligibilityProviderImpl(
                         }
                 }
         }
+
+    companion object {
+        const val UNSUPPORTED_REGION = "UNSUPPORTED_REGION"
+        const val TIER_TOO_LOW = "TIER_TOO_LOW"
+        const val INVALID_ADDRESS = "INVALID_ADDRESS"
+        const val ELIGIBLE = "NONE"
+    }
 }
 
 data class AssetInterestEligibility(
@@ -58,11 +67,11 @@ data class Eligibility(
 }
 
 private fun String.toReason(): IneligibilityReason =
-    try {
-        when {
-            this.isEmpty() -> IneligibilityReason.NONE
-            else -> IneligibilityReason.valueOf(this)
-        }
-    } catch (t: IllegalArgumentException) {
-        IneligibilityReason.OTHER
+    when {
+        this.isEmpty() -> IneligibilityReason.NONE
+        this == ELIGIBLE -> IneligibilityReason.NONE
+        this == UNSUPPORTED_REGION -> IneligibilityReason.REGION
+        this == INVALID_ADDRESS -> IneligibilityReason.REGION
+        this == TIER_TOO_LOW -> IneligibilityReason.KYC_TIER
+        else -> IneligibilityReason.OTHER
     }
