@@ -761,6 +761,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             transaction.show(tempFragment)
         }
 
+        hideLoading()
         transaction.setPrimaryNavigationFragment(tempFragment)
         transaction.commitNowAllowingStateLoss()
     }
