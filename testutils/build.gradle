@@ -3,6 +3,12 @@ apply plugin: 'kotlin'
 sourceCompatibility = Versions.javaCompatibilityVersion
 targetCompatibility = Versions.javaCompatibilityVersion
 
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = Versions.kotlinJvmTarget
+    }
+}
+
 dependencies {
     implementation project(':balance')
 

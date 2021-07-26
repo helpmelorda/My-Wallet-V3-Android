@@ -5,8 +5,8 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.koin.scopedInject
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.databinding.ViewCheckoutSwapHeaderBinding

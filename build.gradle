@@ -9,6 +9,7 @@ buildscript {
         google()
         maven { url "https://jitpack.io" }
         jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath Libraries.androidGradlePlugin

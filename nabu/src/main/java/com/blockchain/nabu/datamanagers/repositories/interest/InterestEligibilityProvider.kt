@@ -1,11 +1,10 @@
 package com.blockchain.nabu.datamanagers.repositories.interest
 
-import com.blockchain.nabu.Authenticator
 import com.blockchain.api.services.NabuUserService
+import com.blockchain.nabu.Authenticator
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
-import java.lang.IllegalArgumentException
 
 enum class IneligibilityReason {
     INVALID_USER,

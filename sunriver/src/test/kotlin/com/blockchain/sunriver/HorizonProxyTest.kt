@@ -19,11 +19,13 @@ import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
 import org.amshove.kluent.`should throw`
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.koin.core.context.startKoin
-import org.koin.test.AutoCloseKoinTest
+import org.koin.core.context.stopKoin
+import org.koin.test.KoinTest
 import org.stellar.sdk.CreateAccountOperation
 import org.stellar.sdk.KeyPair
 import org.stellar.sdk.Memo
@@ -33,7 +35,7 @@ import org.stellar.sdk.responses.operations.CreateAccountOperationResponse
 import org.stellar.sdk.responses.operations.PaymentOperationResponse
 import java.util.Locale
 
-class HorizonProxyTest : AutoCloseKoinTest() {
+class HorizonProxyTest : KoinTest {
 
     private val server = DefaultMockServer()
 
@@ -56,6 +58,11 @@ class HorizonProxyTest : AutoCloseKoinTest() {
             ))
         }
         server.requestCount
+    }
+
+    @After
+    fun cleanup() {
+        stopKoin()
     }
 
     @Test

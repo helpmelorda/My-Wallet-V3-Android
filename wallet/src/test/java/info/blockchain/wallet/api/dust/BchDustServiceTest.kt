@@ -8,15 +8,17 @@ import com.blockchain.testutils.rxInit
 import com.blockchain.api.blockchainApiModule
 import info.blockchain.wallet.ApiCode
 import io.fabric8.mockwebserver.DefaultMockServer
+import org.junit.After
 import org.amshove.kluent.`should be equal to`
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.koin.core.context.startKoin
-import org.koin.test.AutoCloseKoinTest
+import org.koin.core.context.stopKoin
+import org.koin.test.KoinTest
 import org.koin.test.inject
 
-class BchDustServiceTest : AutoCloseKoinTest() {
+class BchDustServiceTest : KoinTest {
 
     private val server = DefaultMockServer()
 
@@ -41,6 +43,11 @@ class BchDustServiceTest : AutoCloseKoinTest() {
                 walletApiServiceTestModule(server)
             ))
         }
+    }
+
+    @After
+    fun cleanup() {
+        stopKoin()
     }
 
     @Test

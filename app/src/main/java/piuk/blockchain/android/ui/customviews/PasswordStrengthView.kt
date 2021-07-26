@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.customviews
 
-import android.animation.ObjectAnimator
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -39,7 +38,10 @@ class PasswordStrengthView(context: Context, attrs: AttributeSet) : ConstraintLa
     )
 
     init {
-        binding.passStrengthBar.max = 100
+        with(binding.passStrengthBar) {
+            max = 100
+            interpolator = DecelerateInterpolator()
+        }
     }
 
     fun updatePassword(password: String) {
@@ -56,16 +58,7 @@ class PasswordStrengthView(context: Context, attrs: AttributeSet) : ConstraintLa
 
     private fun setStrengthProgress(score: Int) {
         with(binding.passStrengthBar) {
-            ObjectAnimator.ofInt(
-                this,
-                "progress",
-                this.progress,
-                score * 10
-            ).apply {
-                duration = 300
-                interpolator = DecelerateInterpolator()
-                start()
-            }
+            setProgress(score * 10, true)
         }
     }
 

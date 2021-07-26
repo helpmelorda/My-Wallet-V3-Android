@@ -14,7 +14,7 @@ import info.blockchain.balance.total
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AssetFilter
 import piuk.blockchain.android.coincore.FiatAccount

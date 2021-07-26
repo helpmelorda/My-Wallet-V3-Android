@@ -15,7 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.blockchain.logging.CrashLogger
-import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.utils.PrefsUtil

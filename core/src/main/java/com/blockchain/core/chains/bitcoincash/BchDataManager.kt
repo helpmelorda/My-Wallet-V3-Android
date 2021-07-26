@@ -1,13 +1,14 @@
 package com.blockchain.core.chains.bitcoincash
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.logging.CrashLogger
 import com.blockchain.wallet.DefaultLabels
-import com.blockchain.api.services.NonCustodialBitcoinService
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.BitcoinCashWallet
 import info.blockchain.wallet.bch.BchMainNetParams
+import info.blockchain.wallet.bch.CashAddress
 import info.blockchain.wallet.coin.GenericMetadataAccount
 import info.blockchain.wallet.coin.GenericMetadataWallet
 import info.blockchain.wallet.crypto.DeterministicAccount
@@ -15,7 +16,6 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.Derivation
 import info.blockchain.wallet.payload.data.XPubs
-import info.blockchain.wallet.bch.CashAddress
 import info.blockchain.wallet.payload.model.Utxo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -31,7 +31,6 @@ import piuk.blockchain.androidcore.utils.annotations.WebRequest
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
-import java.lang.IllegalStateException
 import java.math.BigInteger
 
 class BchDataManager(
