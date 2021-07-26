@@ -15,32 +15,32 @@ open class ViewPagerFragment: Fragment() {
     protected var activityIndicator = ActivityIndicator()
 
     private val appUtil: AppUtil by inject()
-    private val compositeDisposable = CompositeDisposable()
-    private var mActivity: BlockchainActivity? = null
+    private val disposable = CompositeDisposable()
+    private var blockchainActivity: BlockchainActivity? = null
 
     override fun onResume() {
         super.onResume()
-        if (mActivity == null) return
-        compositeDisposable += activityIndicator.loading
+        if (blockchainActivity == null) return
+        disposable += activityIndicator.loading
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy {
                 if (it == true) {
-                    mActivity?.showLoading()
+                    blockchainActivity?.showLoading()
                 } else {
-                    mActivity?.hideLoading()
+                    blockchainActivity?.hideLoading()
                 }
             }
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        mActivity = context as? BlockchainActivity
+        blockchainActivity = context as? BlockchainActivity
     }
 
     override fun onPause() {
         super.onPause()
-        mActivity?.hideLoading()
-        compositeDisposable.clear()
+        blockchainActivity?.hideLoading()
+        disposable.clear()
     }
 
 }

@@ -37,6 +37,7 @@ import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.databinding.SellIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.BuySellType
 import piuk.blockchain.android.simplebuy.BuySellViewedEvent
+import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
@@ -46,9 +47,10 @@ import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.android.util.visible
 
-class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
+class SellIntroFragment : ViewPagerFragment(), DialogFlow.FlowHost {
     interface SellIntroHost {
         fun onSellFinished()
         fun onSellInfoClicked()
@@ -87,6 +89,7 @@ class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.accountsList.activityIndicator = activityIndicator
         loadSellDetails()
     }
 
@@ -98,6 +101,7 @@ class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
                 binding.sellEmpty.gone()
             }
             .observeOn(AndroidSchedulers.mainThread())
+            .trackProgress(activityIndicator)
             .subscribeBy(onSuccess = { (kyc, eligible) ->
                 when {
                     kyc.isApprovedFor(KycTierLevel.GOLD) && eligible -> {
@@ -213,6 +217,7 @@ class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
             compositeDisposable += supportedCryptoCurrencies()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .trackProgress(activityIndicator)
                 .subscribeBy(onSuccess = { supportedCryptos ->
                     val introHeaderView = IntroHeaderView(requireContext())
                     introHeaderView.setDetails(
