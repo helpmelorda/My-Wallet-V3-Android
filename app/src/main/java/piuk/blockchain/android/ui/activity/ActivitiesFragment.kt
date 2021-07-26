@@ -27,6 +27,7 @@ import piuk.blockchain.android.databinding.FragmentActivitiesBinding
 import piuk.blockchain.android.ui.activity.adapter.ActivitiesDelegateAdapter
 import piuk.blockchain.android.ui.activity.detail.CryptoActivityDetailsBottomSheet
 import piuk.blockchain.android.ui.activity.detail.FiatActivityDetailsBottomSheet
+import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
@@ -88,8 +89,7 @@ class ActivitiesFragment :
 
         switchView(newState)
 
-        binding.swipe.isRefreshing = newState.isLoading
-
+        renderLoader(newState)
         renderAccountDetails(newState)
         renderTransactionList(newState)
 
@@ -218,6 +218,16 @@ class ActivitiesFragment :
                 displayList.addAll(this)
             }
             activityAdapter.notifyDataSetChanged()
+        }
+    }
+
+    private fun renderLoader(newState: ActivitiesState) {
+        val blockchainActivity = activity as? BlockchainActivity ?: return
+        binding.swipe.isRefreshing = false
+        if (newState.isLoading) {
+            blockchainActivity.showLoading()
+        } else {
+            blockchainActivity.hideLoading()
         }
     }
 
