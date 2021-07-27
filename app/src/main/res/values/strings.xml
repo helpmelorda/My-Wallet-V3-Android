@@ -885,8 +885,11 @@
     <string name="cloud_backup_card_body">You can now backup your wallet securely to the cloud. You can opt-out of backups in your wallet settings.</string>
     <string name="cloud_backup_card_cta">Learn More</string>
 
-    <!-- Buy Bitcoin announcement -->
+    <!-- Pax Renamed announcement -->
+    <string name="pax_renamed_card_title"> USD Digital is Now Paxos Standard</string>
+    <string name="pax_renamed_card_body">We’ve updated the naming of USD Digital (USD-D) to Paxos Standard (PAX). USD Digital was built using the Paxos standard. If you held USD-D, your funds are not affected.</string>
 
+    <!-- Buy Bitcoin announcement -->
     <string name="buy_crypto_card_title">Buy Crypto</string>
     <string name="buy_crypto_card_body">We can help you buy in just a few simple steps.</string>
     <string name="buy_crypto_card_sdd_body">Select the crypto you want to buy, verify your identity and buy instantly.</string>

@@ -62,6 +62,9 @@ const val CHECKOUT_REFUND_POLICY = "https://support.blockchain.com/hc/en-us/arti
 const val SECOND_PASSWORD_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360000882646"
 const val RESET_2FA = "https://login.blockchain.com/#/reset-2fa"
 
+const val PAX_RENAMED_LEARN_MORE =
+    "https://support.blockchain.com/hc/en-us/articles/360040777891-USD-Digital-is-now-Paxos-Standard"
+
 // TODO James needs to provide link
 const val DOLLAR_COST_AVERAGING =
     "https://support.blockchain.com/hc/en-us/articles/4403064398484"

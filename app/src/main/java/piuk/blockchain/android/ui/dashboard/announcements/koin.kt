@@ -17,6 +17,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.InterestAvailable
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycIncompleteAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycMoreInfoAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycResubmissionAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.PaxRenamedAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RegisterBiometricsAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RegisteredForAirdropMiniAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SellIntroAnnouncement
@@ -58,6 +59,12 @@ val dashboardAnnouncementsModule = module {
                 userIdentity = get()
             )
         }
+
+        factory {
+            PaxRenamedAnnouncement(
+                dismissRecorder = get()
+            )
+        }.bind(AnnouncementRule::class)
 
         factory {
             KycResubmissionAnnouncement(
