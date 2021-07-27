@@ -83,7 +83,9 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
         analytics.logEvent(BuySellViewedEvent())
     }
 
-    private fun subscribeForNavigation() {
+    private fun subscribeForNavigation(showLoader: Boolean = true) {
+        val activityIndicator = if (showLoader) appUtil.activityIndicator else null
+
         compositeDisposable += simpleBuySync.performSync()
             .onErrorComplete()
             .toSingleDefault(false)
@@ -94,7 +96,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
             .doOnSubscribe {
                 binding.buySellEmpty.gone()
             }
-            .trackProgress(appUtil.activityIndicator)
+            .trackProgress(activityIndicator)
             .subscribeBy(
                 onSuccess = {
                     renderBuySellFragments(it)
@@ -140,6 +142,13 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
                     )
                 )
             }
+        }
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden) {
+            subscribeForNavigation(showLoader = false)
         }
     }
 

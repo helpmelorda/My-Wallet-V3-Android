@@ -92,7 +92,7 @@ class AccountList @JvmOverloads constructor(
         loadItems(source)
     }
 
-    fun loadItems(source: Single<List<BlockchainAccount>>) {
+    fun loadItems(source: Single<List<BlockchainAccount>>, showLoader: Boolean = true) {
         disposables += source
             .observeOn(uiScheduler)
             .doOnSubscribe {

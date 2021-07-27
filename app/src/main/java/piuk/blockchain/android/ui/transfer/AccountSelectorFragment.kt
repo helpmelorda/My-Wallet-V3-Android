@@ -73,10 +73,15 @@ abstract class AccountSelectorFragment : Fragment() {
         _binding = null
     }
 
-    fun refreshItems() {
-        binding.accountSelectorAccountList.loadItems(
-            accounts()
-        )
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden) {
+            refreshItems()
+        }
+    }
+
+    fun refreshItems(showLoader: Boolean = true) {
+        binding.accountSelectorAccountList.loadItems(accounts(), showLoader)
     }
 
     private fun accounts(): Single<List<BlockchainAccount>> =
