@@ -83,7 +83,9 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
         analytics.logEvent(BuySellViewedEvent())
     }
 
-    private fun subscribeForNavigation() {
+    private fun subscribeForNavigation(showLoader: Boolean = true) {
+        val activityIndicator = if (showLoader) appUtil.activityIndicator else null
+
         compositeDisposable += simpleBuySync.performSync()
             .onErrorComplete()
             .toSingleDefault(false)
@@ -94,7 +96,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
             .doOnSubscribe {
                 binding.buySellEmpty.gone()
             }
-            .trackProgress(appUtil.activityIndicator)
+            .trackProgress(activityIndicator)
             .subscribeBy(
                 onSuccess = {
                     renderBuySellFragments(it)
@@ -143,6 +145,13 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
         }
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden) {
+            subscribeForNavigation(showLoader = false)
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == SB_ACTIVITY && resultCode == Activity.RESULT_CANCELED) {
@@ -179,7 +188,6 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
     private fun renderBuySellUi(hasPendingBuy: Boolean) {
         with(binding) {
             tabLayout.setupWithViewPager(pager)
-            activity?.setupToolbar(R.string.buy_and_sell)
 
             if (pager.adapter == null) {
                 pager.adapter = pagerAdapter
@@ -246,6 +254,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
 
     override fun onResume() {
         super.onResume()
+        if (isHidden) return
         subscribeForNavigation()
     }
 

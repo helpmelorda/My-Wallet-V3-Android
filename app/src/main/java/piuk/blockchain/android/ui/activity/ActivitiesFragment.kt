@@ -256,12 +256,6 @@ class ActivitiesFragment :
         activityAdapter.items = displayList
     }
 
-    private fun setupToolbar() {
-        activity.supportActionBar?.let {
-            activity.setupToolbar(it, R.string.activities_title)
-        }
-    }
-
     private fun setupAccountSelect() {
         binding.accountSelectBtn.setOnClickListener {
             model.process(ShowAccountSelectionIntent)
@@ -282,11 +276,6 @@ class ActivitiesFragment :
             R.color.blue_400,
             R.color.blue_200
         )
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setupToolbar()
     }
 
     override fun onPause() {
@@ -325,6 +314,15 @@ class ActivitiesFragment :
     // SlidingModalBottomDialog.Host
     override fun onSheetClosed() {
         model.process(ClearBottomSheetIntent)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden) {
+            state?.account?.let {
+                model.process(AccountSelectedIntent(it, true))
+            }
+        }
     }
 
     companion object {

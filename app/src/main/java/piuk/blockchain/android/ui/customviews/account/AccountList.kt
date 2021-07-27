@@ -95,13 +95,14 @@ class AccountList @JvmOverloads constructor(
         loadItems(source)
     }
 
-    fun loadItems(source: Single<List<BlockchainAccount>>) {
+    fun loadItems(source: Single<List<BlockchainAccount>>, showLoader: Boolean = true) {
+        val loader = if (showLoader) activityIndicator else null
         disposables += source
             .observeOn(uiScheduler)
             .doOnSubscribe {
                 onListLoading()
             }
-            .trackProgress(activityIndicator)
+            .trackProgress(loader)
             .subscribeBy(
                 onSuccess = {
                     (adapter as? AccountsDelegateAdapter)?.items = it.map { account ->

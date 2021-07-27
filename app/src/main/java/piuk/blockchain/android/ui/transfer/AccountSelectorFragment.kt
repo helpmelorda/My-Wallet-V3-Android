@@ -74,10 +74,12 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         _binding = null
     }
 
-    fun refreshItems() {
-        binding.accountSelectorAccountList.loadItems(
-            accounts()
-        )
+    override fun onResumeFragment() {
+        refreshItems(showLoader = false)
+    }
+
+    fun refreshItems(showLoader: Boolean = true) {
+        binding.accountSelectorAccountList.loadItems(accounts(), showLoader)
     }
 
     private fun accounts(): Single<List<BlockchainAccount>> =
