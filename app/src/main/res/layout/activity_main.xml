@@ -74,10 +74,15 @@
             app:menu="@menu/menu_nav_drawer" />
     </androidx.drawerlayout.widget.DrawerLayout>
 
-    <ProgressBar
+    <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_gravity="center"
-        android:visibility="gone" />
+        app:lottie_autoPlay="true"
+        app:lottie_repeatMode="restart"
+        android:visibility="gone"
+        app:lottie_loop="true"
+        app:lottie_imageAssetsFolder="lottie/loader.json"
+        app:lottie_fileName="lottie/loader.json" />
 </FrameLayout>

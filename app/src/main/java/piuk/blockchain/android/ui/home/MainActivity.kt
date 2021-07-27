@@ -416,10 +416,12 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override fun showLoading() {
         binding.progress.visible()
+        binding.progress.playAnimation()
     }
 
     override fun hideLoading() {
         binding.progress.gone()
+        binding.progress.pauseAnimation()
     }
 
     override fun launchThePitLinking(linkId: String) {
