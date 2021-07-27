@@ -420,6 +420,13 @@ class DashboardFragment :
         initOrUpdateAssets()
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden) {
+            model.process(RefreshAllIntent)
+        }
+    }
+
     private fun initOrUpdateAssets() {
         if (displayList.isEmpty()) {
             model.process(GetAvailableAssets)

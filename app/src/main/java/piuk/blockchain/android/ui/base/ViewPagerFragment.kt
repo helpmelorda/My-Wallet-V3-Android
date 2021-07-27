@@ -12,14 +12,18 @@ import piuk.blockchain.android.util.AppUtil
 
 open class ViewPagerFragment : Fragment() {
 
-    protected var activityIndicator = ActivityIndicator()
+    protected var activityIndicator: ActivityIndicator = ActivityIndicator()
 
     private val appUtil: AppUtil by inject()
     private val disposable = CompositeDisposable()
     private var blockchainActivity: BlockchainActivity? = null
+    private var isFirstLoad = true
 
     override fun onResume() {
         super.onResume()
+        isFirstLoad = false
+        if (!isFirstLoad) onResumeFragment()
+
         if (blockchainActivity == null) return
         disposable += activityIndicator.loading
             .observeOn(AndroidSchedulers.mainThread())
@@ -42,4 +46,6 @@ open class ViewPagerFragment : Fragment() {
         blockchainActivity?.hideLoading()
         disposable.clear()
     }
+
+    open fun onResumeFragment() {}
 }

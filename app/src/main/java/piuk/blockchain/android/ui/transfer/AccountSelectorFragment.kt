@@ -74,11 +74,8 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         _binding = null
     }
 
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        if (!hidden) {
-            refreshItems()
-        }
+    override fun onResumeFragment() {
+        refreshItems(showLoader = false)
     }
 
     fun refreshItems(showLoader: Boolean = true) {

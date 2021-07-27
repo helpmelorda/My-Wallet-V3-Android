@@ -88,11 +88,12 @@ class SellIntroFragment : ViewPagerFragment(), DialogFlow.FlowHost {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.accountsList.activityIndicator = activityIndicator
         loadSellDetails()
     }
 
-    private fun loadSellDetails() {
+    private fun loadSellDetails(showLoader: Boolean = true) {
+        binding.accountsList.activityIndicator = if (showLoader) activityIndicator else null
+
         compositeDisposable += tierService.tiers()
             .zipWith(eligibilityProvider.isEligibleForSimpleBuy(forceRefresh = true))
             .subscribeOn(Schedulers.io())
@@ -100,7 +101,7 @@ class SellIntroFragment : ViewPagerFragment(), DialogFlow.FlowHost {
                 binding.sellEmpty.gone()
             }
             .observeOn(AndroidSchedulers.mainThread())
-            .trackProgress(activityIndicator)
+            .trackProgress(binding.accountsList.activityIndicator)
             .subscribeBy(onSuccess = { (kyc, eligible) ->
                 when {
                     kyc.isApprovedFor(KycTierLevel.GOLD) && eligible -> {
@@ -216,7 +217,7 @@ class SellIntroFragment : ViewPagerFragment(), DialogFlow.FlowHost {
             compositeDisposable += supportedCryptoCurrencies()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .trackProgress(activityIndicator)
+                .trackProgress(binding.accountsList.activityIndicator)
                 .subscribeBy(onSuccess = { supportedCryptos ->
                     val introHeaderView = IntroHeaderView(requireContext())
                     introHeaderView.setDetails(
@@ -291,6 +292,10 @@ class SellIntroFragment : ViewPagerFragment(), DialogFlow.FlowHost {
                 supportedPairs.pairs.filter { fiats.contains(it.fiatCurrency) }
                     .map { it.cryptoCurrency }
             }
+    }
+
+    override fun onResumeFragment() {
+        loadSellDetails(false)
     }
 
     override fun onDestroyView() {

@@ -306,6 +306,15 @@ class ActivitiesFragment :
         model.process(ClearBottomSheetIntent)
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden) {
+            state?.account?.let {
+                model.process(AccountSelectedIntent(it, true))
+            }
+        }
+    }
+
     companion object {
         private const val PARAM_ACCOUNT = "PARAM_ACCOUNT"
 
