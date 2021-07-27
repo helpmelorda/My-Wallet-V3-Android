@@ -56,7 +56,7 @@ class BuySellFlowNavigator(
         supportedFiats: List<String>
     ) = if (currencySupported) {
         selectedAsset?.let {
-            BuySellIntroAction.StarBuyWithSelectedAsset(it, state.hasPendingBuy())
+            BuySellIntroAction.StartBuyWithSelectedAsset(it, state.hasPendingBuy())
         } ?: kotlin.run {
             BuySellIntroAction.DisplayBuySellIntro(
                 isGoldButNotEligible = isGoldButNotEligible,
@@ -74,6 +74,6 @@ private fun SimpleBuyState.hasPendingBuy(): Boolean =
 sealed class BuySellIntroAction {
     data class NavigateToCurrencySelection(val supportedCurrencies: List<String>) : BuySellIntroAction()
     data class DisplayBuySellIntro(val isGoldButNotEligible: Boolean, val hasPendingBuy: Boolean) : BuySellIntroAction()
-    data class StarBuyWithSelectedAsset(val selectedAsset: AssetInfo, val hasPendingBuy: Boolean) :
+    data class StartBuyWithSelectedAsset(val selectedAsset: AssetInfo, val hasPendingBuy: Boolean) :
         BuySellIntroAction()
 }

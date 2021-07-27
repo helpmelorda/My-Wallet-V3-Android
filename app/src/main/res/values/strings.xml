@@ -4,7 +4,6 @@
     <string name="app_name" translatable="false">Blockchain</string>
     <string name="alpha_app_name" translatable="false">Blockchain Alpha</string>
     <string name="staging_app_name" translatable="false">BlockStaging</string>
-    <string name="dev_app_name" translatable="false">BlockDev</string>
     <string name="debug_app_shortcut">BC Debug Opts</string>
     <string name="debug_app_shortcut_short">BC Opts</string>
     <string name="common_company_name" translatable="false">Blockchain.com</string>
@@ -886,8 +885,11 @@
     <string name="cloud_backup_card_body">You can now backup your wallet securely to the cloud. You can opt-out of backups in your wallet settings.</string>
     <string name="cloud_backup_card_cta">Learn More</string>
 
-    <!-- Buy Bitcoin announcement -->
+    <!-- Pax Renamed announcement -->
+    <string name="pax_renamed_card_title"> USD Digital is Now Paxos Standard</string>
+    <string name="pax_renamed_card_body">We’ve updated the naming of USD Digital (USD-D) to Paxos Standard (PAX). USD Digital was built using the Paxos standard. If you held USD-D, your funds are not affected.</string>
 
+    <!-- Buy Bitcoin announcement -->
     <string name="buy_crypto_card_title">Buy Crypto</string>
     <string name="buy_crypto_card_body">We can help you buy in just a few simple steps.</string>
     <string name="buy_crypto_card_sdd_body">Select the crypto you want to buy, verify your identity and buy instantly.</string>
@@ -1481,6 +1483,7 @@
     <string name="activity_details_title_recurring_buy">Recurring Buy</string>
     <string name="activity_details_title_withdraw">Withdrawal</string>
     <string name="activity_details_label_confirming">Confirming</string>
+    <string name="activity_details_label_cancelled">Cancelled</string>
     <string name="activity_details_label_waiting_on_funds">Waiting on Funds</string>
     <string name="activity_details_label_confirmations">%1$d of %2$d\nConfirmations</string>
     <string name="activity_details_title_fee">Gas Fee</string>

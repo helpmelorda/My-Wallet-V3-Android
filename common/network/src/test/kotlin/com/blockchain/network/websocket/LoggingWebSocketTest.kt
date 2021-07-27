@@ -8,13 +8,15 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import io.reactivex.rxjava3.core.Observable
 
 import org.amshove.kluent.`should be`
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 import org.koin.dsl.module
-import org.koin.test.AutoCloseKoinTest
+import org.koin.test.KoinTest
 
-class LoggingWebSocketTest : AutoCloseKoinTest() {
+class LoggingWebSocketTest : KoinTest {
 
     private val logger = mock<Logger>()
 
@@ -30,6 +32,11 @@ class LoggingWebSocketTest : AutoCloseKoinTest() {
                 }
             ))
         }
+    }
+
+    @After
+    fun cleanup() {
+        stopKoin()
     }
 
     @Test
@@ -96,7 +103,7 @@ class LoggingWebSocketTest : AutoCloseKoinTest() {
     }
 }
 
-class LoggingWebSocketWithNullLoggerTest : AutoCloseKoinTest() {
+class LoggingWebSocketWithNullLoggerTest : KoinTest {
 
     @Before
     fun setup() {
@@ -109,6 +116,11 @@ class LoggingWebSocketWithNullLoggerTest : AutoCloseKoinTest() {
                 }
             ))
         }
+    }
+
+    @After
+    fun cleanup() {
+        stopKoin()
     }
 
     @Test

@@ -132,7 +132,8 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                     newState.confirmations,
                     newState.totalConfirmations,
                     newState.transactionType,
-                    newState.isFeeTransaction
+                    newState.isFeeTransaction,
+                    newState.transactionRecurringBuyState
                 )
 
                 showTransactionTypeUi(newState)
@@ -180,7 +181,8 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
             TransactionSummary.TransactionType.INTEREST_EARNED,
             TransactionSummary.TransactionType.DEPOSIT,
             TransactionSummary.TransactionType.WITHDRAW -> showInterestUi(state)
-            else -> { }
+            else -> {
+            }
         }
     }
 
@@ -348,7 +350,8 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         confirmations: Int,
         totalConfirmations: Int,
         transactionType: TransactionSummary.TransactionType?,
-        isFeeTransaction: Boolean
+        isFeeTransaction: Boolean,
+        orderState: OrderState
     ) {
         binding.apply {
             when {
@@ -383,7 +386,11 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                     )
                     showPendingPill()
                 }
-                totalConfirmations != 0 && confirmations >= totalConfirmations -> {
+                orderState.isCancelled() -> {
+                    status.text = getString(R.string.activity_details_label_cancelled)
+                    showPendingPill()
+                }
+                confirmations >= totalConfirmations -> {
                     showCompletePill()
                     logAnalyticsForComplete(transactionType, isFeeTransaction)
                 }

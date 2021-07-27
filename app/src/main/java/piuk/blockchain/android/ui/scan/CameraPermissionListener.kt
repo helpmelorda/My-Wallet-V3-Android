@@ -5,8 +5,8 @@ import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.single.BasePermissionListener
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 class CameraPermissionListener(
     private val granted: () -> Unit,

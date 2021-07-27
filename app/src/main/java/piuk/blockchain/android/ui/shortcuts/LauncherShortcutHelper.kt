@@ -8,18 +8,18 @@ import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.blockchain.notifications.analytics.Logging
+import com.blockchain.notifications.analytics.launcherShortcutEvent
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
-import org.koin.core.KoinComponent
-import org.koin.core.get
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.shortcuts.receive.ReceiveQrActivity
+import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.android.util.AndroidUtils
-import com.blockchain.notifications.analytics.launcherShortcutEvent
-import com.blockchain.notifications.analytics.Logging
 
 class LauncherShortcutHelper(
     private val ctx: Context
@@ -99,21 +99,21 @@ class LauncherShortcutHelper(
             ctx,
             SHORTCUT_ID_QR
         ).setShortLabel(ctx.getString(R.string.shortcut_receive_qr_short))
-        .setLongLabel(ctx.getString(R.string.shortcut_receive_qr_long))
-        .setIcon(
-            Icon.createWithResource(
-                ctx,
-                R.drawable.ic_receive_scan
+            .setLongLabel(ctx.getString(R.string.shortcut_receive_qr_long))
+            .setIcon(
+                Icon.createWithResource(
+                    ctx,
+                    R.drawable.ic_receive_scan
+                )
             )
-        )
-        .setIntent(
-            Intent(ctx, ReceiveQrActivity::class.java).apply {
-                action = Intent.ACTION_VIEW
-                putExtra(ReceiveQrActivity.INTENT_EXTRA_ADDRESS, receiveAddress)
-                putExtra(ReceiveQrActivity.INTENT_EXTRA_LABEL, receiveAccountName)
-            }
-        )
-        .build()
+            .setIntent(
+                Intent(ctx, ReceiveQrActivity::class.java).apply {
+                    action = Intent.ACTION_VIEW
+                    putExtra(ReceiveQrActivity.INTENT_EXTRA_ADDRESS, receiveAddress)
+                    putExtra(ReceiveQrActivity.INTENT_EXTRA_LABEL, receiveAccountName)
+                }
+            )
+            .build()
 
     fun logShortcutUsed(shortcutId: String) {
         if (AndroidUtils.is25orHigher()) {

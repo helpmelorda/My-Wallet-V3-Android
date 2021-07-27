@@ -234,10 +234,6 @@ val nabuModule = module {
             AnalyticsWalletReporter(userAnalytics = get())
         }.bind(WalletReporter::class)
 
-        factory {
-            get<Retrofit>(nabu).create(Nabu::class.java)
-        }
-
         factory { NabuTierService(get(), get()) }
             .bind(TierService::class)
             .bind(TierUpdater::class)
@@ -305,7 +301,11 @@ val nabuModule = module {
     single { NabuSessionTokenStore() }
 
     single {
-        NabuService(get(nabu))
+        NabuService(get())
+    }
+
+    factory {
+        get<Retrofit>(nabu).create(Nabu::class.java)
     }
 
     single {

@@ -182,11 +182,29 @@ internal class NabuDataManagerImpl(
             trust.setUserId(it.userId)
         }
 
-    @VisibleForTesting
+    private var sessionToken: Single<NabuSessionTokenResponse>? = null
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal fun getSessionToken(
         offlineTokenResponse: NabuOfflineTokenResponse
-    ): Single<NabuSessionTokenResponse> =
-        emailSingle.flatMap {
+    ): Single<NabuSessionTokenResponse> {
+        sessionToken?.let {
+            return it
+        } ?: kotlin.run {
+            return getSessionTokenCachedRequest(offlineTokenResponse)
+                .doFinally {
+                    sessionToken = null
+                }
+                .also {
+                    sessionToken = it
+                }
+        }
+    }
+
+    private fun getSessionTokenCachedRequest(
+        offlineTokenResponse: NabuOfflineTokenResponse
+    ): Single<NabuSessionTokenResponse> {
+        return emailSingle.flatMap {
             nabuService.getSessionToken(
                 userId = offlineTokenResponse.userId,
                 offlineToken = offlineTokenResponse.token,
@@ -195,7 +213,8 @@ internal class NabuDataManagerImpl(
                 appVersion = appVersion,
                 deviceId = prefs.deviceId
             )
-        }
+        }.cache()
+    }
 
     override fun createBasicUser(
         firstName: String,

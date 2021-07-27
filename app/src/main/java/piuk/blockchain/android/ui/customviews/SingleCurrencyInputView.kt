@@ -12,8 +12,8 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import piuk.blockchain.android.databinding.EnterFiatCryptoLayoutBinding
 import piuk.blockchain.android.ui.customviews.inputview.DecimalDigitsInputFilter
 import piuk.blockchain.android.util.AfterTextChangedWatcher
@@ -123,7 +123,8 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) : Constrain
                         newValue.predefinedAmount
                     )
                 }
-                SingleInputViewConfiguration.Undefined -> { }
+                SingleInputViewConfiguration.Undefined -> {
+                }
             }
         }
     }

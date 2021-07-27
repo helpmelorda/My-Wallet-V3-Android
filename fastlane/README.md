@@ -81,6 +81,56 @@ Export the build path to environment variables for upload. Optional flags: expor
 fastlane android ci_test
 ```
 Tests to run on CI
+### android ci_test_app
+```
+fastlane android ci_test_app
+```
+Tests to run on CI app
+### android ci_test_balance
+```
+fastlane android ci_test_balance
+```
+Tests to run on CI balance
+### android ci_test_blockchainApi
+```
+fastlane android ci_test_blockchainApi
+```
+Tests to run on CI blockchainApi
+### android ci_test_core
+```
+fastlane android ci_test_core
+```
+Tests to run on CI core
+### android ci_test_nabu
+```
+fastlane android ci_test_nabu
+```
+Tests to run on CI nabu
+### android ci_test_notifications
+```
+fastlane android ci_test_notifications
+```
+Tests to run on CI notifications
+### android ci_test_sunriver
+```
+fastlane android ci_test_sunriver
+```
+Tests to run on CI sunriver
+### android ci_test_testutils
+```
+fastlane android ci_test_testutils
+```
+Tests to run on CI testutils
+### android ci_test_testutils_android
+```
+fastlane android ci_test_testutils_android
+```
+Tests to run on CI testutils-android
+### android ci_test_wallet
+```
+fastlane android ci_test_wallet
+```
+Tests to run on CI wallet
 ### android ci_build
 ```
 fastlane android ci_build

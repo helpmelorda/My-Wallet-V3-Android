@@ -7,22 +7,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import com.blockchain.koin.scopedInject
-import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
+import com.blockchain.preferences.SimpleBuyPrefs
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAddNewCardBinding
+import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.base.setupToolbar
+import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.AfterTextChangedWatcher
 import java.util.Calendar
 import java.util.Date
 

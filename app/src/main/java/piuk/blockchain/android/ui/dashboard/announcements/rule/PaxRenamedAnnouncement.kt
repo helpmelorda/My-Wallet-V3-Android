@@ -1,31 +1,23 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.notifications.analytics.Analytics
 import io.reactivex.rxjava3.core.Single
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementRule
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
-import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
+import piuk.blockchain.android.urllinks.PAX_RENAMED_LEARN_MORE
 
-class InterestAvailableAnnouncement(
+class PaxRenamedAnnouncement(
     dismissRecorder: DismissRecorder
-) : AnnouncementRule(dismissRecorder), KoinComponent {
+) : AnnouncementRule(dismissRecorder) {
 
-    private val analytics: Analytics by inject()
     override val dismissKey = DISMISS_KEY
 
     override fun shouldShow(): Single<Boolean> {
-        if (dismissEntry.isDismissed) {
-            return Single.just(false)
-        }
-
-        return Single.just(true)
+        return Single.just(dismissEntry.isDismissed).map { !it }
     }
 
     override fun show(host: AnnouncementHost) {
@@ -34,26 +26,25 @@ class InterestAvailableAnnouncement(
                 name = name,
                 dismissRule = DismissRule.CardOneTime,
                 dismissEntry = dismissEntry,
-                titleText = R.string.interest_announcement_title,
-                bodyText = R.string.interest_announcement_description,
-                iconImage = R.drawable.ic_interest_blue_circle,
-                ctaText = R.string.interest_announcement_action,
-                ctaFunction = {
-                    analytics.logEvent(InterestAnalytics.InterestAnnouncementCta)
-                    host.dismissAnnouncementCard()
-                    host.startInterestDashboard()
-                },
+                titleText = R.string.pax_renamed_card_title,
+                bodyText = R.string.pax_renamed_card_body,
+                ctaText = R.string.learn_more,
+                iconImage = R.drawable.ic_announce_pax,
                 dismissFunction = {
                     host.dismissAnnouncementCard()
+                },
+                ctaFunction = {
+                    host.dismissAnnouncementCard()
+                    host.openBrowserLink(PAX_RENAMED_LEARN_MORE)
                 }
             )
         )
     }
 
-    override val name = "interest_available"
+    override val name = "pax_renamed"
 
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val DISMISS_KEY = "InterestAvailableAnnouncement_DISMISSED"
+        const val DISMISS_KEY = "PaxRenamedAnnouncement_DISMISSED"
     }
 }

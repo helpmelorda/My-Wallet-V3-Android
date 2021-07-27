@@ -1,9 +1,9 @@
-package com.blockchain.nabu
+package com.blockchain.nabu.util.fakefactory
 
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 
-fun getEmptySessionToken(): NabuSessionTokenResponse =
-    NabuSessionTokenResponse(
+object FakeNabuSessionTokenFactory {
+    val any = NabuSessionTokenResponse(
         "ID",
         "USER_ID",
         "TOKEN",
@@ -12,3 +12,4 @@ fun getEmptySessionToken(): NabuSessionTokenResponse =
         "INSERTED_AT",
         "UPDATED_AT"
     )
+}

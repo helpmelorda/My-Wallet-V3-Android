@@ -15,12 +15,12 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.hasOppositeSourceAndTarget
 import info.blockchain.balance.hasSameSourceAndTarget
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.subjects.PublishSubject
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.EnterFiatCryptoLayoutBinding
 import piuk.blockchain.android.ui.customviews.inputview.DecimalDigitsInputFilter

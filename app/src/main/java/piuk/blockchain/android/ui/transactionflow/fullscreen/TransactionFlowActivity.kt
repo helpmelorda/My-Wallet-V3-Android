@@ -44,6 +44,7 @@ class TransactionFlowActivity :
     }
 
     override val model: TransactionModel by transactionInject()
+
     override val alwaysDisableScreenshots: Boolean
         get() = false
 

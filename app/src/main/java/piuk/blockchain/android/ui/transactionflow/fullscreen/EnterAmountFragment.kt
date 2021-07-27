@@ -142,7 +142,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                     }
                 }
 
-                if (state.setMax) {
+                if (newState.setMax) {
                     amountSheetInput.updateValue(newState.maxSpendable)
                 }
 

@@ -329,16 +329,6 @@ platform :android do
 
     end
 
-
-    desc "Tests to run on CI"
-    lane :ci_test do
-      gradle(
-        task: "coveralls",
-        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-      )
-    end
-
-
     desc "Build to run on CI. Optional flags: copy_credentials, build_bundle (APK is default), export_build(False is default), do_sign (False is default)."
     lane :ci_build do | options |
 

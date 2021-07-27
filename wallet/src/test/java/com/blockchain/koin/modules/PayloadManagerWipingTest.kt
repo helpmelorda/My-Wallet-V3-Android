@@ -9,12 +9,19 @@ import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.PayloadManagerWiper
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should not be`
+import org.junit.After
 import org.junit.Test
 import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 import org.koin.dsl.module
-import org.koin.test.AutoCloseKoinTest
+import org.koin.test.KoinTest
 
-class PayloadManagerWipingTest : AutoCloseKoinTest() {
+class PayloadManagerWipingTest : KoinTest {
+
+    @After
+    fun cleanup() {
+        stopKoin()
+    }
 
     @Test
     fun `After wiping the payload manager, a new request for a payload manager gets a distinct instance`() {

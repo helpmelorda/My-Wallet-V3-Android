@@ -12,8 +12,9 @@ object Versions {
     const val buildTools = "29.0.2"
 
     // Build tools and languages
-    const val androidPlugin = "4.2.1"
-    const val kotlin = "1.5.0"
+    const val androidPlugin = "4.1.2"
+    const val kotlin = "1.5.20"
+
     const val googleServicesPlugin = "4.3.3"
     const val buildProperties = "0.4"
     const val ktlint = "0.27.0"
@@ -60,7 +61,8 @@ object Versions {
     const val jacksonCore = "2.12.3"
     const val kotlinJson = "1.2.1"
     const val kotlinJsonConverter = "0.8.0"
-    const val koin = "2.1.5"
+
+    const val koin = "3.1.2"
     const val rxJava = "3.0.7"
     const val rxKotlin = "3.0.1"
     const val rxAndroid = "3.0.0"
@@ -199,13 +201,15 @@ object Libraries {
     const val jacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jacksonCore}"
     const val gson = "com.google.code.gson:gson:${Versions.gson}"
     const val kotlinJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinJson}"
-    const val koin = "org.koin:koin-core:${Versions.koin}"
-    const val koinTest = "org.koin:koin-test:${Versions.koin}"
-    const val koinAndroid = "org.koin:koin-android:${Versions.koin}"
+
+    const val koin = "io.insert-koin:koin-core:${Versions.koin}"
+    const val koinAndroid = "io.insert-koin:koin-android:${Versions.koin}"
+    const val koinTest = "io.insert-koin:koin-test:${Versions.koin}"
     const val glide = "com.github.bumptech.glide:glide:${Versions.glide}"
     const val glideAnnotations = "com.github.bumptech.glide:compiler:${Versions.glide}"
     const val chuckerDebug = "com.github.chuckerteam.chucker:library:${Versions.chucker}"
     const val chuckerRelease = "com.github.chuckerteam.chucker:library-no-op:${Versions.chucker}"
+
     const val rxJava = "io.reactivex.rxjava3:rxjava:${Versions.rxJava}"
     const val rxKotlin = "io.reactivex.rxjava3:rxkotlin:${Versions.rxKotlin}"
     const val rxAndroid = "io.reactivex.rxjava3:rxandroid:${Versions.rxAndroid}"
@@ -214,6 +218,7 @@ object Libraries {
     const val rxBindingCompat = "com.jakewharton.rxbinding4:rxbinding-appcompat:${Versions.rxBinding}"
     const val rxReplayShareKotlin = "com.jakewharton.rx3:replaying-share-kotlin:${Versions.rxReplayShare}"
     const val rxRelay = "com.jakewharton.rxrelay3:rxrelay:${Versions.rxRelay}"
+
     // Utils, BTC, Ethereum
     const val bitcoinj = "org.bitcoinj:bitcoinj-core:${Versions.bitcoinj}"
     const val web3j = "org.web3j:core:${Versions.web3j}"
