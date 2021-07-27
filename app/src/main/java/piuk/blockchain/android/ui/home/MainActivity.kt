@@ -61,6 +61,7 @@ import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.dashboard.DashboardFragment
 import piuk.blockchain.android.ui.home.analytics.SideNavEvent
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
@@ -583,9 +584,21 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                             target = targetAddress
                         )
                     },
-                    onError = { Timber.e("Unable to select source account for scan") }
+                    onComplete = {
+                        Timber.d("No source accounts available for scan target")
+                        showNoAccountFromScanToast(targetAddress.asset)
+                    },
+                    onError = {
+                        Timber.e("Unable to select source account for scan")
+                        showNoAccountFromScanToast(targetAddress.asset)
+                    }
                 )
         }
+    }
+
+    private fun showNoAccountFromScanToast(asset: AssetInfo) {
+        val msg = getString(R.string.scan_no_available_account, asset.ticker)
+        toast(msg)
     }
 
     override fun showScanTargetError(error: QrScanError) {
@@ -617,6 +630,9 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             .subscribeBy(
                 onSuccess = {
                     startTransactionFlowWithTarget(listOf(it))
+                },
+                onError = {
+                    Timber.e("Failed to disambiguate scan: $it")
                 }
             )
     }

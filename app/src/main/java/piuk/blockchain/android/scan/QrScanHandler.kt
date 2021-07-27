@@ -19,6 +19,7 @@ import io.reactivex.rxjava3.subjects.MaybeSubject
 
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AddressFactory
+import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AssetFilter
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.Coincore
@@ -26,6 +27,7 @@ import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.CryptoTarget
 import piuk.blockchain.android.coincore.SingleAccountList
+import piuk.blockchain.android.coincore.filterByAction
 import piuk.blockchain.android.coincore.impl.BitPayInvoiceTarget
 import piuk.blockchain.android.data.api.bitpay.BITPAY_LIVE_BASE
 import piuk.blockchain.android.data.api.bitpay.BitPayDataManager
@@ -130,8 +132,8 @@ class QrScanResultProcessor(
                 selectList,
                 -1
             ) { dialog, which ->
-                subject.onSuccess(optionsList[which])
                 dialog.dismiss()
+                subject.onSuccess(optionsList[which])
             }
             .create()
             .show()
@@ -160,28 +162,24 @@ class QrScanResultProcessor(
         activity: BlockchainActivity,
         target: CryptoTarget
     ): Maybe<CryptoAccount> {
-        // TODO: We currently only support sending to external addresses from a non-custodial
-        // account. At some point, this will - maybe - change and we'll have to implement
-        // a 'can send from' method on coincore.
-
         val subject = MaybeSubject.create<CryptoAccount>()
 
         val asset = target.asset
         val coincore = payloadScope.get<Coincore>()
 
-        coincore[asset].accountGroup(AssetFilter.NonCustodial)
+        coincore[asset].accountGroup(AssetFilter.All)
+            .map { group -> group.accounts }
+            .defaultIfEmpty(emptyList())
+            .flatMap { list -> list.filterByAction(AssetAction.Send) }
             .subscribeBy(
-                onSuccess = {
-                    when (it.accounts.size) {
-                        1 -> subject.onSuccess(it.accounts[0] as CryptoAccount)
-                        0 -> throw IllegalStateException("No account found")
+                onSuccess = { accounts ->
+                    when (accounts.size) {
+                        1 -> subject.onSuccess(accounts[0] as CryptoAccount)
+                        0 -> subject.onComplete()
                         else -> showAccountSelectionDialog(
-                            activity, subject, Single.just(it.accounts)
+                            activity, subject, Single.just(accounts)
                         )
                     }
-                },
-                onComplete = {
-                    subject.onComplete()
                 },
                 onError = {
                     subject.onError(it)
