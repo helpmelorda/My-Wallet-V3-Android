@@ -6,17 +6,16 @@ import com.blockchain.testutils.ether
 import com.blockchain.testutils.lumens
 import com.blockchain.testutils.rxInit
 import com.blockchain.testutils.usd
-import info.blockchain.balance.AssetCatalogue
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.`should be equal to`
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import piuk.blockchain.androidcore.data.exchangerate.datastore.ExchangeRateDataStore
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import java.math.BigDecimal
 import kotlin.test.Test
 
@@ -25,7 +24,6 @@ class ExchangeRateDataManagerTest {
     private lateinit var subject: ExchangeRateDataManager
     private val exchangeRateDataStore: ExchangeRateDataStore = mock()
     private val assetCatalogue: AssetCatalogue = mock()
-    private val rxBus: RxBus = mock()
 
     @get:Rule
     val initSchedulers = rxInit {
@@ -36,8 +34,7 @@ class ExchangeRateDataManagerTest {
     fun setUp() {
         subject = ExchangeRateDataManager(
             exchangeRateDataStore = exchangeRateDataStore,
-            assetCatalogue = assetCatalogue,
-            rxBus = rxBus
+            assetCatalogue = assetCatalogue
         )
     }
 

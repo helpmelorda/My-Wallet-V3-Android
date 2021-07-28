@@ -1,6 +1,7 @@
 package piuk.blockchain.androidcore.data.exchangerate
 
 import com.blockchain.android.testutils.rxInit
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -13,18 +14,15 @@ import info.blockchain.wallet.prices.data.PriceDatum
 import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should have key`
-import com.nhaarman.mockitokotlin2.any
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 
 class ExchangeRateServiceTest {
 
     private lateinit var subject: ExchangeRateService
 
     private val historicPriceApi: PriceApi = mock()
-    private val rxBus = RxBus()
 
     @get:Rule
     val initSchedulers = rxInit {
@@ -34,7 +32,7 @@ class ExchangeRateServiceTest {
 
     @Before
     fun setUp() {
-        subject = ExchangeRateService(historicPriceApi, rxBus)
+        subject = ExchangeRateService(historicPriceApi)
     }
 
     @Test

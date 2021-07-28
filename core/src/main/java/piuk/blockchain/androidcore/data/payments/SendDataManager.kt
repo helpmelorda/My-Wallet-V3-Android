@@ -13,22 +13,17 @@ import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.bitcoinj.core.Transaction
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.data.rxjava.RxPinning
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import java.math.BigInteger
 
 class SendDataManager(
     private val paymentService: PaymentService,
-    private val lastTxUpdater: LastTxUpdater,
-    rxBus: RxBus
+    private val lastTxUpdater: LastTxUpdater
 ) {
     data class MaxAvailable(
         val maxSpendable: CryptoValue,
         val feeForMax: CryptoValue
     )
-
-    private val rxPinning: RxPinning = RxPinning(rxBus)
 
     /**
      * Submits a BTC payment to a specified Bitcoin address and returns the transaction hash if
@@ -40,11 +35,9 @@ class SendDataManager(
     fun submitBtcPayment(
         signedTx: Transaction
     ): Single<String> =
-        rxPinning.callSingle {
-            paymentService.submitBtcPayment(
-                signedTx
-            )
-        }.logLastTx()
+        paymentService.submitBtcPayment(
+            signedTx
+        ).logLastTx()
             .applySchedulers()
 
     /**
@@ -94,12 +87,10 @@ class SendDataManager(
         signedTx: Transaction,
         dustInput: DustInput
     ): Single<String> =
-        rxPinning.callSingle {
-            paymentService.submitBchPayment(
-                signedTx,
-                dustInput
-            )
-        }.logLastTx()
+        paymentService.submitBchPayment(
+            signedTx,
+            dustInput
+        ).logLastTx()
             .applySchedulers()
 
     /**
@@ -146,9 +137,7 @@ class SendDataManager(
      */
 
     fun getUnspentBtcOutputs(xpubs: XPubs): Single<List<Utxo>> =
-        rxPinning.callSingle {
-            paymentService.getUnspentBtcOutputs(xpubs)
-        }.applySchedulers()
+        paymentService.getUnspentBtcOutputs(xpubs).applySchedulers()
 
     /**
      * Returns an [Utxo] object containing all the unspent outputs for a given
@@ -159,9 +148,7 @@ class SendDataManager(
      * @return An [Observable] wrapping an [Utxo] object
      */
     fun getUnspentBchOutputs(address: String): Single<List<Utxo>> =
-        rxPinning.callSingle {
-            paymentService.getUnspentBchOutputs(address)
-        }.applySchedulers()
+        paymentService.getUnspentBchOutputs(address).applySchedulers()
 
     /**
      * Returns a [SpendableUnspentOutputs] object from a given [Utxo] object,

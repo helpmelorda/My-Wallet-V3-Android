@@ -17,6 +17,7 @@ import timber.log.Timber;
  * type that you wish to emit as an event. It is intended to be instantiated as a Singleton via
  * DI.
  */
+@Deprecated
 public class RxBus {
 
     private final Object lock1 = new Object();

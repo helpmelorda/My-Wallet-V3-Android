@@ -1,40 +1,37 @@
 package piuk.blockchain.androidcore.data.payload
 
+import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.logging.CrashLogger
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
+import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.ImportedAddress
 import info.blockchain.wallet.payload.data.Wallet
+import info.blockchain.wallet.payload.data.XPub
+import info.blockchain.wallet.payload.data.XPubs
+import info.blockchain.wallet.payload.model.Balance
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import info.blockchain.wallet.util.PrivateKeyFactory
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.TestScheduler
 import org.amshove.kluent.`should be equal to`
-import com.nhaarman.mockitokotlin2.mock
 import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.RETURNS_DEEP_STUBS
-import com.blockchain.android.testutils.rxInit
-import com.blockchain.logging.CrashLogger
-import com.blockchain.api.services.NonCustodialBitcoinService
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
-import info.blockchain.wallet.keys.SigningKey
-import info.blockchain.wallet.payload.data.XPub
-import info.blockchain.wallet.payload.data.XPubs
-import info.blockchain.wallet.payload.model.Balance
-import io.reactivex.rxjava3.core.Single
-
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import java.math.BigInteger
 import kotlin.test.assertEquals
 
@@ -48,7 +45,6 @@ class PayloadDataManagerTest {
     private val bitcoinApi: NonCustodialBitcoinService = mock()
 
     private val crashLogger: CrashLogger = mock()
-    private val rxBus = RxBus()
     private val testScheduler = TestScheduler()
 
     @Suppress("unused")
@@ -66,8 +62,7 @@ class PayloadDataManagerTest {
             bitcoinApi,
             privateKeyFactory,
             payloadManager,
-            crashLogger,
-            rxBus
+            crashLogger
         )
     }
 

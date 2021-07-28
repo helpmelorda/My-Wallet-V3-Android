@@ -26,7 +26,6 @@ import org.bitcoinj.core.Transaction
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import java.math.BigInteger
 
 class SendDataManagerTest {
@@ -34,7 +33,6 @@ class SendDataManagerTest {
     private lateinit var subject: SendDataManager
     private val mockPaymentService: PaymentService = mock()
     private val mockLastTxUpdater: LastTxUpdater = mock()
-    private val mockRxBus: RxBus = mock()
     private val targetOutputType = OutputType.P2PKH
     private val changeOutputType = OutputType.P2PKH
 
@@ -46,7 +44,7 @@ class SendDataManagerTest {
 
     @Before
     fun setUp() {
-        subject = SendDataManager(mockPaymentService, mockLastTxUpdater, mockRxBus)
+        subject = SendDataManager(mockPaymentService, mockLastTxUpdater)
     }
 
     @Test

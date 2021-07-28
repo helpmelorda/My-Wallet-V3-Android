@@ -58,6 +58,9 @@ import piuk.blockchain.androidcore.data.payload.PromptingSeedAccessAdapter
 import piuk.blockchain.androidcore.data.payments.PaymentService
 import piuk.blockchain.androidcore.data.payments.SendDataManager
 import piuk.blockchain.androidcore.data.rxjava.RxBus
+import piuk.blockchain.androidcore.data.rxjava.SSLPinningEmitter
+import piuk.blockchain.androidcore.data.rxjava.SSLPinningObservable
+import piuk.blockchain.androidcore.data.rxjava.SSLPinningSubject
 import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
 import piuk.blockchain.androidcore.data.settings.PhoneNumberUpdater
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
@@ -82,10 +85,11 @@ val coreModule = module {
 
     single { RxBus() }
 
+    single { SSLPinningSubject() }.bind(SSLPinningObservable::class).bind(SSLPinningEmitter::class)
+
     factory {
         AuthService(
-            walletApi = get(),
-            rxBus = get()
+            walletApi = get()
         )
     }
 
@@ -99,8 +103,7 @@ val coreModule = module {
                 ethAccountApi = get(),
                 ethDataStore = get(),
                 metadataManager = get(),
-                lastTxUpdater = get(),
-                rxBus = get()
+                lastTxUpdater = get()
             )
         }
 
@@ -134,7 +137,6 @@ val coreModule = module {
                 bitcoinApi = get(),
                 defaultLabels = get(),
                 metadataManager = get(),
-                rxBus = get(),
                 crashLogger = get()
             )
         }
@@ -153,7 +155,6 @@ val coreModule = module {
                 privateKeyFactory = get(),
                 bitcoinApi = get(),
                 payloadManager = get(),
-                rxBus = get(),
                 crashLogger = get()
             )
         }
@@ -196,8 +197,7 @@ val coreModule = module {
             settingsService = get(),
             settingsDataStore = get(),
             currencyPrefs = get(),
-            walletSettingsService = get(),
-            rxBus = get()
+            walletSettingsService = get()
         ) }
 
         scoped { SettingsService(get()) }
@@ -219,8 +219,7 @@ val coreModule = module {
         factory {
             ExchangeRateDataManager(
                 assetCatalogue = get(),
-                exchangeRateDataStore = get(),
-                rxBus = get()
+                exchangeRateDataStore = get()
             )
         }.bind(ExchangeRates::class)
 
@@ -231,7 +230,7 @@ val coreModule = module {
             )
         }
 
-        scoped { FeeDataManager(get(), get()) }
+        scoped { FeeDataManager(get()) }
 
         factory {
             AuthDataManager(
@@ -249,8 +248,7 @@ val coreModule = module {
         factory {
             SendDataManager(
                 paymentService = get(),
-                lastTxUpdater = get(),
-                rxBus = get()
+                lastTxUpdater = get()
             )
         }
 
@@ -261,8 +259,7 @@ val coreModule = module {
 
     factory {
         ExchangeRateService(
-            priceApi = get(),
-            rxBus = get()
+            priceApi = get()
         )
     }
 

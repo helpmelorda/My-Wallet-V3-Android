@@ -25,8 +25,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.bitcoinj.core.LegacyAddress
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.data.rxjava.RxPinning
 import piuk.blockchain.androidcore.utils.annotations.WebRequest
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import piuk.blockchain.androidcore.utils.extensions.then
@@ -39,11 +37,8 @@ class BchDataManager(
     private val bitcoinApi: NonCustodialBitcoinService,
     private val defaultLabels: DefaultLabels,
     private val metadataManager: MetadataManager,
-    private val crashLogger: CrashLogger,
-    rxBus: RxBus
+    private val crashLogger: CrashLogger
 ) {
-
-    private val rxPinning = RxPinning(rxBus)
 
     /**
      * Clears the currently stored BCH wallet from memory.
@@ -306,9 +301,7 @@ class BchDataManager(
 
         val xpubs = getActiveXpubs()
 
-        return rxPinning.call {
-            bchDataStore.bchWallet!!.updateAllBalances(xpubs, importedAddresses)
-        }.applySchedulers()
+        return bchDataStore.bchWallet!!.updateAllBalances(xpubs, importedAddresses).applySchedulers()
     }
 
     fun getAddressBalance(address: String): CryptoValue =
@@ -335,14 +328,10 @@ class BchDataManager(
         limit: Int,
         offset: Int
     ): Observable<List<TransactionSummary>> =
-        rxPinning.call<List<TransactionSummary>> {
-            Observable.fromCallable { fetchAddressTransactions(address, limit, offset) }
-        }.applySchedulers()
+        Observable.fromCallable { fetchAddressTransactions(address, limit, offset) }.applySchedulers()
 
     fun getWalletTransactions(limit: Int = 50, offset: Int = 0): Observable<List<TransactionSummary>> =
-        rxPinning.call<List<TransactionSummary>> {
-            Observable.fromCallable { fetchWalletTransactions(limit, offset) }
-        }.applySchedulers()
+        Observable.fromCallable { fetchWalletTransactions(limit, offset) }.applySchedulers()
 
     fun getAccountMetadataList(): List<GenericMetadataAccount> =
         bchDataStore.bchMetadata?.accounts ?: emptyList()

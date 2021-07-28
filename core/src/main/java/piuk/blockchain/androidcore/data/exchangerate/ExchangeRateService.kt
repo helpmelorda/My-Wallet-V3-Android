@@ -6,8 +6,6 @@ import info.blockchain.wallet.prices.TimeInterval
 import info.blockchain.wallet.prices.data.PriceDatum
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.data.rxjava.RxPinning
 import java.util.Calendar
 
 enum class TimeSpan {
@@ -24,8 +22,7 @@ enum class TimeSpan {
 
 typealias PriceSeries = List<PriceDatum>
 
-class ExchangeRateService(private val priceApi: PriceApi, rxBus: RxBus) {
-    private val rxPinning = RxPinning(rxBus)
+class ExchangeRateService(private val priceApi: PriceApi) {
 
     fun getExchangeRateMap(asset: AssetInfo): Single<Map<String, PriceDatum>> =
         priceApi.getPriceIndexes(asset.ticker)
@@ -52,14 +49,12 @@ class ExchangeRateService(private val priceApi: PriceApi, rxBus: RxBus) {
             proposedStartTime = getStartTimeForTimeSpan(TimeSpan.ALL_TIME, asset)
         }
 
-        return rxPinning.callSingle {
-            priceApi.getHistoricPriceSeries(
-                asset.ticker,
-                fiatCurrency,
-                proposedStartTime,
-                timeInterval.intervalSeconds
-            ).subscribeOn(Schedulers.io())
-        }
+        return priceApi.getHistoricPriceSeries(
+            asset.ticker,
+            fiatCurrency,
+            proposedStartTime,
+            timeInterval.intervalSeconds
+        ).subscribeOn(Schedulers.io())
     }
 
     /**

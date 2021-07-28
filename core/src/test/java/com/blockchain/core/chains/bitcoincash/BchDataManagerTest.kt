@@ -2,6 +2,7 @@
 package com.blockchain.core.chains.bitcoincash
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.logging.CrashLogger
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.any
@@ -11,13 +12,12 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import com.blockchain.api.services.NonCustodialBitcoinService
 import info.blockchain.wallet.coin.GenericMetadataAccount
 import info.blockchain.wallet.coin.GenericMetadataWallet
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.Derivation
-import info.blockchain.wallet.payload.data.WalletBody
 import info.blockchain.wallet.payload.data.Wallet
+import info.blockchain.wallet.payload.data.WalletBody
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Balance
@@ -32,7 +32,6 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import java.math.BigInteger
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -52,7 +51,6 @@ class BchDataManagerTest {
     private val bitcoinApi: NonCustodialBitcoinService = mock()
     private val defaultLabels: DefaultLabels = mock()
     private val metadataManager: MetadataManager = mock()
-    private val rxBus = RxBus()
 
     @Before
     fun setUp() {
@@ -62,8 +60,7 @@ class BchDataManagerTest {
             bitcoinApi,
             defaultLabels,
             metadataManager,
-            crashLogger,
-            rxBus
+            crashLogger
         )
     }
 
@@ -477,8 +474,7 @@ class BchDataManagerTest {
             bitcoinApi = mock(),
             defaultLabels = mock(),
             metadataManager = mock(),
-            crashLogger = mock(),
-            rxBus = mock()
+            crashLogger = mock()
         ).getBalance(xpubs)
             .test()
             .assertNoErrors()
@@ -497,8 +493,7 @@ class BchDataManagerTest {
             bitcoinApi = mock(),
             defaultLabels = mock(),
             metadataManager = mock(),
-            crashLogger = mock(),
-            rxBus = mock()
+            crashLogger = mock()
         ).getBalance(xpubs)
             .test()
             .assertNoErrors()

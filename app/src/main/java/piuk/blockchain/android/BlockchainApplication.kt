@@ -14,6 +14,8 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import com.blockchain.koin.KoinStarter
 import com.blockchain.koin.apiRetrofit
 import com.blockchain.logging.CrashLogger
+import com.blockchain.notifications.analytics.Logging
+import com.blockchain.notifications.analytics.appLaunchEvent
 import com.facebook.stetho.Stetho
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -36,15 +38,14 @@ import piuk.blockchain.android.ui.ssl.SSLVerifyActivity
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.CurrentContextAccess
 import piuk.blockchain.android.util.lifecycle.AppLifecycleListener
+import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
 import piuk.blockchain.android.util.lifecycle.LifecycleInterestedComponent
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.connectivity.ConnectionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
+import piuk.blockchain.androidcore.data.rxjava.SSLPinningObservable
 import piuk.blockchain.androidcore.utils.PrngFixer
-import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
-import com.blockchain.notifications.analytics.Logging
-import com.blockchain.notifications.analytics.appLaunchEvent
 import retrofit2.Retrofit
 import timber.log.Timber
 
@@ -55,6 +56,7 @@ open class BlockchainApplication : Application(), FrameworkInterface {
     private val loginState: AccessState by inject()
     private val lifeCycleInterestedComponent: LifecycleInterestedComponent by inject()
     private val rxBus: RxBus by inject()
+    private val sslPinningObservable: SSLPinningObservable by inject()
     private val currentContextAccess: CurrentContextAccess by inject()
     private val appUtils: AppUtil by inject()
     private val crashLogger: CrashLogger by inject()
@@ -127,21 +129,21 @@ open class BlockchainApplication : Application(), FrameworkInterface {
         // Register the notification channel if necessary
         initNotifications()
 
+        sslPinningObservable
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(onNext = ::onConnectionEvent)
+
         initRxBus()
     }
 
     @SuppressLint("CheckResult")
     private fun initRxBus() {
-        rxBus.register(ConnectionEvent::class.java)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(onNext = ::onBusConnectionEvent)
-
         rxBus.register(MetadataEvent::class.java)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onNext = ::onBusMetadataEvent)
     }
 
-    private fun onBusConnectionEvent(event: ConnectionEvent) {
+    private fun onConnectionEvent(event: ConnectionEvent) {
         SSLVerifyActivity.start(applicationContext, event)
     }
 

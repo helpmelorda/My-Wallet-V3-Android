@@ -23,8 +23,6 @@ import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.data.rxjava.RxPinning
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import timber.log.Timber
 import java.math.BigInteger
@@ -35,8 +33,7 @@ class EthDataManager(
     private val ethAccountApi: EthAccountApi,
     private val ethDataStore: EthDataStore,
     private val metadataManager: MetadataManager,
-    private val lastTxUpdater: LastTxUpdater,
-    rxBus: RxBus
+    private val lastTxUpdater: LastTxUpdater
 ) {
 
     private val internalAccountAddress: String?
@@ -44,8 +41,6 @@ class EthDataManager(
 
     val accountAddress: String
         get() = internalAccountAddress ?: throw Exception("No ETH address found")
-
-    private val rxPinning = RxPinning(rxBus)
 
     /**
      * Clears the currently stored ETH account from memory.
@@ -62,12 +57,10 @@ class EthDataManager(
      * @return An [Observable] wrapping an [CombinedEthModel]
      */
     fun fetchEthAddress(): Observable<CombinedEthModel> =
-        rxPinning.call<CombinedEthModel> {
-            ethAccountApi.getEthAddress(listOf(accountAddress))
-                .map(::CombinedEthModel)
-                .doOnNext { ethDataStore.ethAddressResponse = it }
-                .subscribeOn(Schedulers.io())
-        }
+        ethAccountApi.getEthAddress(listOf(accountAddress))
+            .map(::CombinedEthModel)
+            .doOnNext { ethDataStore.ethAddressResponse = it }
+            .subscribeOn(Schedulers.io())
 
     fun getBalance(account: String): Single<BigInteger> =
         ethAccountApi.getEthAddress(listOf(account))
@@ -137,10 +130,8 @@ class EthDataManager(
         ethAccountApi.latestBlockNumber.applySchedulers()
 
     fun isContractAddress(address: String): Single<Boolean> =
-        rxPinning.call<Boolean> {
-            ethAccountApi.getIfContract(address)
-                .applySchedulers()
-        }.singleOrError()
+        ethAccountApi.getIfContract(address)
+            .applySchedulers().singleOrError()
 
     private fun String.toLocalState() =
         when (this) {
@@ -175,9 +166,9 @@ class EthDataManager(
     ): Completable {
         require(asset.isErc20())
 
-        return rxPinning.call {
+        return Completable.defer {
             getErc20TokenData(asset).putTxNote(hash, note)
-            return@call save()
+            save()
         }.applySchedulers()
     }
 
@@ -223,10 +214,8 @@ class EthDataManager(
     )
 
     fun getTransaction(hash: String): Observable<EthTransaction> =
-        rxPinning.call<EthTransaction> {
-            ethAccountApi.getTransaction(hash)
-                .applySchedulers()
-        }
+        ethAccountApi.getTransaction(hash)
+            .applySchedulers()
 
     fun getNonce(): Single<BigInteger> =
         fetchEthAddress()
@@ -245,15 +234,13 @@ class EthDataManager(
         }
 
     fun pushEthTx(signedTxBytes: ByteArray): Observable<String> =
-        rxPinning.call<String> {
-            ethAccountApi.pushTx("0x" + String(Hex.encode(signedTxBytes)))
-                .flatMap {
-                    lastTxUpdater.updateLastTxTime()
-                        .onErrorComplete()
-                        .andThen(Observable.just(it))
-                }
-                .applySchedulers()
-        }
+        ethAccountApi.pushTx("0x" + String(Hex.encode(signedTxBytes)))
+            .flatMap {
+                lastTxUpdater.updateLastTxTime()
+                    .onErrorComplete()
+                    .andThen(Observable.just(it))
+            }
+            .applySchedulers()
 
     fun pushTx(signedTxBytes: ByteArray): Single<String> =
         pushEthTx(signedTxBytes).singleOrError()

@@ -9,20 +9,16 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.data.rxjava.RxPinning
 import retrofit2.Response
 
-class AuthService(private val walletApi: WalletApi, rxBus: RxBus) {
-
-    private val rxPinning: RxPinning = RxPinning(rxBus)
+class AuthService(private val walletApi: WalletApi) {
 
     /**
      * Returns a [WalletOptions] object, which amongst other things contains information
      * needed for determining buy/sell regions.
      */
     fun getWalletOptions(): Observable<WalletOptions> =
-        rxPinning.call<WalletOptions> { walletApi.walletOptions }
+        walletApi.walletOptions
 
     /**
      * Get encrypted copy of Payload
@@ -34,9 +30,7 @@ class AuthService(private val walletApi: WalletApi, rxBus: RxBus) {
     fun getEncryptedPayload(
         guid: String,
         sessionId: String
-    ): Observable<Response<ResponseBody>> = rxPinning.call<Response<ResponseBody>> {
-        walletApi.fetchEncryptedPayload(guid, sessionId)
-    }
+    ): Observable<Response<ResponseBody>> = walletApi.fetchEncryptedPayload(guid, sessionId)
 
     /**
      * Posts a user's 2FA code to the server. Will return an encrypted copy of the Payload if
@@ -51,9 +45,7 @@ class AuthService(private val walletApi: WalletApi, rxBus: RxBus) {
         sessionId: String,
         guid: String,
         twoFactorCode: String
-    ): Observable<ResponseBody> = rxPinning.call<ResponseBody> {
-        walletApi.submitTwoFactorCode(sessionId, guid, twoFactorCode)
-    }
+    ): Observable<ResponseBody> = walletApi.submitTwoFactorCode(sessionId, guid, twoFactorCode)
 
     /**
      * Gets a session ID from the server
@@ -61,24 +53,22 @@ class AuthService(private val walletApi: WalletApi, rxBus: RxBus) {
      * @param guid A user's GUID
      * @return An [Observable] wrapping a [String] response
      */
-    fun getSessionId(guid: String): Observable<String> = rxPinning.call<String> {
-        walletApi.getSessionId(guid)
-            .map { responseBodyResponse ->
-                val headers = responseBodyResponse.headers().get("Set-Cookie")
-                if (headers != null) {
-                    val fields = headers.split(";\\s*".toRegex()).dropLastWhile { it.isEmpty() }
-                        .toTypedArray()
-                    for (field in fields) {
-                        if (field.startsWith("SID=")) {
-                            return@map field.substring(4)
-                        }
+    fun getSessionId(guid: String): Observable<String> = walletApi.getSessionId(guid)
+        .map { responseBodyResponse ->
+            val headers = responseBodyResponse.headers().get("Set-Cookie")
+            if (headers != null) {
+                val fields = headers.split(";\\s*".toRegex()).dropLastWhile { it.isEmpty() }
+                    .toTypedArray()
+                for (field in fields) {
+                    if (field.startsWith("SID=")) {
+                        return@map field.substring(4)
                     }
-                } else {
-                    throw ApiException("Session ID not found in headers")
                 }
-                ""
+            } else {
+                throw ApiException("Session ID not found in headers")
             }
-    }
+            ""
+        }
 
     /**
      * Get the encryption password for pairing
@@ -87,9 +77,7 @@ class AuthService(private val walletApi: WalletApi, rxBus: RxBus) {
      * @return An [Observable] wrapping the pairing encryption password
      */
     fun getPairingEncryptionPassword(guid: String): Observable<ResponseBody> =
-        rxPinning.call<ResponseBody> {
-            walletApi.fetchPairingEncryptionPassword(guid)
-        }
+        walletApi.fetchPairingEncryptionPassword(guid)
 
     /**
      * Sends the access key to the server
@@ -104,7 +92,7 @@ class AuthService(private val walletApi: WalletApi, rxBus: RxBus) {
         value: String,
         pin: String
     ): Observable<Response<Status>> =
-        rxPinning.call<Response<Status>> { walletApi.setAccess(key, value, pin) }
+        walletApi.setAccess(key, value, pin)
 
     /**
      * Validates a user's PIN with the server
@@ -114,14 +102,12 @@ class AuthService(private val walletApi: WalletApi, rxBus: RxBus) {
      * @return A [Response] which may or may not contain the field "success"
      */
     fun validateAccess(key: String, pin: String): Observable<Response<Status>> =
-        rxPinning.call<Response<Status>> {
-            walletApi.validateAccess(key, pin)
-                .doOnError {
-                    if (it.message?.contains("Incorrect PIN") == true) {
-                        throw InvalidCredentialsException("Incorrect PIN")
-                    }
+        walletApi.validateAccess(key, pin)
+            .doOnError {
+                if (it.message?.contains("Incorrect PIN") == true) {
+                    throw InvalidCredentialsException("Incorrect PIN")
                 }
-        }
+            }
 
     /**
      * Returns a signed JWT for use with the buy/sell APIs.
@@ -129,9 +115,7 @@ class AuthService(private val walletApi: WalletApi, rxBus: RxBus) {
      * @return A [String] representing a signed JWT.
      */
     fun getSignedJwt(guid: String, sharedKey: String, partner: String): Single<String> =
-        rxPinning.callSingle {
-            walletApi.getSignedJsonToken(guid, sharedKey, partner)
-        }
+        walletApi.getSignedJsonToken(guid, sharedKey, partner)
 
     /**
      * Create a session ID for the given email for authorization
@@ -140,9 +124,7 @@ class AuthService(private val walletApi: WalletApi, rxBus: RxBus) {
      * @return A [Single] wrapping the result
      */
     fun createSessionId(email: String): Single<ResponseBody> =
-        rxPinning.callSingle {
-            walletApi.createSessionId(email)
-        }
+        walletApi.createSessionId(email)
 
     /**
      * Authorize the request for the given session ID
@@ -152,9 +134,7 @@ class AuthService(private val walletApi: WalletApi, rxBus: RxBus) {
      * @return A [Single] wrapping the result
      */
     fun authorizeSession(authToken: String, sessionId: String): Single<Response<ResponseBody>> =
-        rxPinning.callSingle {
-            walletApi.authorizeSession(authToken, sessionId)
-        }
+        walletApi.authorizeSession(authToken, sessionId)
 
     /**
      * Send email to verify device
@@ -165,9 +145,7 @@ class AuthService(private val walletApi: WalletApi, rxBus: RxBus) {
      * @return A [Single] wrapping the result
      */
     fun sendEmailForDeviceVerification(sessionId: String, email: String, captcha: String): Single<ResponseBody> =
-        rxPinning.callSingle {
-            walletApi.sendEmailForVerification(sessionId, email, captcha)
-        }
+        walletApi.sendEmailForVerification(sessionId, email, captcha)
 
     /**
      * Update the account model fields for mobile setup
@@ -184,9 +162,7 @@ class AuthService(private val walletApi: WalletApi, rxBus: RxBus) {
         isMobileSetup: Boolean,
         deviceType: Int
     ): Single<ResponseBody> =
-        rxPinning.callSingle {
-            walletApi.updateMobileSetup(guid, sharedKey, isMobileSetup, deviceType)
-        }
+        walletApi.updateMobileSetup(guid, sharedKey, isMobileSetup, deviceType)
 
     /**
      * Update the mnemonic backup date (calculated on the backend)
@@ -196,9 +172,7 @@ class AuthService(private val walletApi: WalletApi, rxBus: RxBus) {
      * @return A [Completable] wrapping the result
      */
     fun updateMnemonicBackup(guid: String, sharedKey: String): Completable =
-        rxPinning.call {
-            Completable.fromSingle(walletApi.updateMnemonicBackup(guid, sharedKey))
-        }
+        Completable.fromSingle(walletApi.updateMnemonicBackup(guid, sharedKey))
 
     /**
      * Verify that the cloud backup has been completed
@@ -215,7 +189,5 @@ class AuthService(private val walletApi: WalletApi, rxBus: RxBus) {
         hasCloudBackup: Boolean,
         deviceType: Int
     ): Single<ResponseBody> =
-        rxPinning.callSingle {
-            walletApi.verifyCloudBackup(guid, sharedKey, hasCloudBackup, deviceType)
-        }
+        walletApi.verifyCloudBackup(guid, sharedKey, hasCloudBackup, deviceType)
 }

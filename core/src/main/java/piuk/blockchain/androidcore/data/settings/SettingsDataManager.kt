@@ -5,9 +5,6 @@ import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
 import io.reactivex.rxjava3.core.Observable
-import okhttp3.ResponseBody
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.data.rxjava.RxPinning
 import piuk.blockchain.androidcore.data.settings.datastore.SettingsDataStore
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 
@@ -15,11 +12,8 @@ class SettingsDataManager(
     private val settingsService: SettingsService,
     private val settingsDataStore: SettingsDataStore,
     private val currencyPrefs: CurrencyPrefs,
-    private val walletSettingsService: WalletSettingsService,
-    rxBus: RxBus
+    private val walletSettingsService: WalletSettingsService
 ) {
-    private val rxPinning: RxPinning = RxPinning(rxBus)
-
     /**
      * Grabs the latest user [Settings] object from memory, or makes a web request if not
      * available.
@@ -27,7 +21,7 @@ class SettingsDataManager(
      * @return An [Observable] object wrapping a [Settings] object
      */
     fun getSettings(): Observable<Settings> =
-        rxPinning.call<Settings> { attemptFetchSettingsFromMemory() }
+        attemptFetchSettingsFromMemory()
 
     /**
      * Updates the settings object by syncing it with the server. Must be called to set up the
@@ -39,8 +33,7 @@ class SettingsDataManager(
      */
     fun initSettings(guid: String, sharedKey: String): Observable<Settings> {
         settingsService.initSettings(guid, sharedKey)
-        return rxPinning.call<Settings> { fetchSettings() }
-            .applySchedulers()
+        return fetchSettings().applySchedulers()
     }
 
     /**
@@ -49,8 +42,7 @@ class SettingsDataManager(
      * @return An [Observable] object wrapping a [Settings] object
      */
     fun fetchSettings(): Observable<Settings> =
-        rxPinning.call<Settings> { fetchSettingsFromWeb() }
-            .applySchedulers()
+        fetchSettingsFromWeb().applySchedulers()
 
     /**
      * Update the user's email and fetches an updated [Settings] object.
@@ -61,12 +53,12 @@ class SettingsDataManager(
      * @return An [Observable] object wrapping a [Settings] object
      */
     fun updateEmail(email: String): Observable<Settings> =
-        rxPinning.call<ResponseBody> { settingsService.updateEmail(email) }
+        settingsService.updateEmail(email)
             .flatMap { fetchSettings() }
             .applySchedulers()
 
     fun updateEmail(email: String, context: String?): Observable<Settings> =
-        rxPinning.call<ResponseBody> { settingsService.updateEmail(email, context) }
+        settingsService.updateEmail(email, context)
             .flatMap { fetchSettings() }
             .applySchedulers()
 
@@ -77,7 +69,7 @@ class SettingsDataManager(
      * @return An [Observable] object wrapping a [Settings] object
      */
     fun updateSms(sms: String): Observable<Settings> =
-        rxPinning.call<ResponseBody> { settingsService.updateSms(sms) }
+        settingsService.updateSms(sms)
             .flatMap { fetchSettings() }
             .applySchedulers()
 
@@ -88,7 +80,7 @@ class SettingsDataManager(
      * @return An [Observable] object wrapping a [Settings] object
      */
     fun verifySms(code: String): Observable<Settings> =
-        rxPinning.call<ResponseBody> { settingsService.verifySms(code) }
+        settingsService.verifySms(code)
             .flatMap { fetchSettings() }
             .applySchedulers()
 
@@ -99,7 +91,7 @@ class SettingsDataManager(
      * @return An [Observable] object wrapping a [Settings] object
      */
     fun updateTor(blocked: Boolean): Observable<Settings> =
-        rxPinning.call<ResponseBody> { settingsService.updateTor(blocked) }
+        settingsService.updateTor(blocked)
             .flatMap { fetchSettings() }
             .applySchedulers()
 
@@ -111,7 +103,7 @@ class SettingsDataManager(
      * @see SettingsManager for notification types
      */
     fun updateTwoFactor(authType: Int): Observable<Settings> =
-        rxPinning.call<ResponseBody> { settingsService.updateTwoFactor(authType) }
+        settingsService.updateTwoFactor(authType)
             .flatMap { fetchSettings() }
             .applySchedulers()
 
@@ -126,7 +118,7 @@ class SettingsDataManager(
     fun enableNotification(notificationType: Int, notifications: List<Int>): Observable<Settings> {
         return if (notifications.isEmpty() || notifications.contains(SettingsManager.NOTIFICATION_TYPE_NONE)) {
             // No notification type registered, enable
-            rxPinning.call<ResponseBody> { settingsService.enableNotifications(true) }
+            settingsService.enableNotifications(true)
                 .flatMap { updateNotifications(notificationType) }
                 .applySchedulers()
         } else if (notifications.size == 1 &&
@@ -136,11 +128,11 @@ class SettingsDataManager(
                     notificationType == SettingsManager.NOTIFICATION_TYPE_EMAIL)
         ) {
             // Contains another type already, send "All"
-            rxPinning.call<ResponseBody> { settingsService.enableNotifications(true) }
+            settingsService.enableNotifications(true)
                 .flatMap { updateNotifications(SettingsManager.NOTIFICATION_TYPE_ALL) }
                 .applySchedulers()
         } else {
-            rxPinning.call<ResponseBody> { settingsService.enableNotifications(true) }
+            settingsService.enableNotifications(true)
                 .flatMap { fetchSettings() }
                 .applySchedulers()
         }
@@ -157,7 +149,7 @@ class SettingsDataManager(
     fun disableNotification(notificationType: Int, notifications: List<Int>): Observable<Settings> {
         return if (notifications.isEmpty() || notifications.contains(SettingsManager.NOTIFICATION_TYPE_NONE)) {
             // No notifications anyway, return Settings
-            rxPinning.call<Settings> { fetchSettings() }
+            fetchSettings()
                 .applySchedulers()
         } else if (notifications.contains(SettingsManager.NOTIFICATION_TYPE_ALL) ||
             notifications.contains(SettingsManager.NOTIFICATION_TYPE_EMAIL) &&
@@ -174,17 +166,17 @@ class SettingsDataManager(
         } else if (notifications.size == 1) {
             if (notifications[0] == notificationType) {
                 // Remove all
-                rxPinning.call<ResponseBody> { settingsService.enableNotifications(false) }
+                settingsService.enableNotifications(false)
                     .flatMap { updateNotifications(SettingsManager.NOTIFICATION_TYPE_NONE) }
                     .applySchedulers()
             } else {
                 // Notification type not present, no need to remove it
-                rxPinning.call<Settings> { fetchSettings() }
+                fetchSettings()
                     .applySchedulers()
             }
         } else {
             // This should never be reached
-            rxPinning.call<Settings> { fetchSettings() }
+            fetchSettings()
                 .applySchedulers()
         }
     }
@@ -197,7 +189,7 @@ class SettingsDataManager(
      * @see SettingsManager for notification types
      */
     private fun updateNotifications(notificationType: Int): Observable<Settings> =
-        rxPinning.call<ResponseBody> { settingsService.updateNotifications(notificationType) }
+        settingsService.updateNotifications(notificationType)
             .flatMap { fetchSettings() }
             .applySchedulers()
 
@@ -214,7 +206,7 @@ class SettingsDataManager(
      * @return An [Observable] object wrapping a [Settings] object
      */
     fun updateFiatUnit(fiatUnit: String): Observable<Settings> =
-        rxPinning.call<ResponseBody> { settingsService.updateFiatUnit(fiatUnit) }
+        settingsService.updateFiatUnit(fiatUnit)
             .flatMap { fetchSettings() }.doOnNext {
                 currencyPrefs.selectedFiatCurrency = fiatUnit
             }

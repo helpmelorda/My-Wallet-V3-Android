@@ -809,7 +809,7 @@ val applicationModule = module {
     }
 
     single {
-        SSLVerifyUtil(rxBus = get(), connectionApi = get())
+        SSLVerifyUtil(connectionApi = get())
     }
 
     factory {

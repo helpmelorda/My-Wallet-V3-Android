@@ -10,9 +10,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.androidcore.data.exchangerate.datastore.ExchangeRateDataStore
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.data.rxjava.RxPinning
-import java.lang.IllegalStateException
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -23,13 +20,11 @@ import java.math.RoundingMode
  */
 class ExchangeRateDataManager(
     private val exchangeRateDataStore: ExchangeRateDataStore,
-    private val assetCatalogue: AssetCatalogue,
-    rxBus: RxBus
+    private val assetCatalogue: AssetCatalogue
 ) : ExchangeRates {
-    private val rxPinning = RxPinning(rxBus)
 
     fun updateTickers(): Completable =
-        rxPinning.call { exchangeRateDataStore.updateExchangeRates(assetCatalogue) }
+        exchangeRateDataStore.updateExchangeRates(assetCatalogue)
             .subscribeOn(Schedulers.io())
 
     override fun getLastPrice(cryptoAsset: AssetInfo, fiatName: String) =
