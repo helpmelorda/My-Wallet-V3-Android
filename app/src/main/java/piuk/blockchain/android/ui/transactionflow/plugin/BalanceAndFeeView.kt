@@ -125,7 +125,7 @@ class BalanceAndFeeView @JvmOverloads constructor(
                 value
             )
         } else {
-            "--"
+            customiser.enterAmountGetNoBalanceMessage(state)
         }
 
     private fun showFiatOrCryptoValues(currencyType: CurrencyType, rate: ExchangeRate, value: Money) =

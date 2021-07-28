@@ -523,7 +523,7 @@ class NabuService internal constructor (
         request
     ).map {
         when (it.code()) {
-            200 -> it.body()?.id ?: ""
+            200 -> it.body()?.id.orEmpty()
             403 -> if (it.body()?.code == TransferFundsResponse.ERROR_WITHDRAWL_LOCKED)
                 throw TransactionError.WithdrawalBalanceLocked
             else
