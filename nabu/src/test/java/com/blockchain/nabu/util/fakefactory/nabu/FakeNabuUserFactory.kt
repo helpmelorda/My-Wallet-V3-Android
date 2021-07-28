@@ -1,10 +1,10 @@
-package com.blockchain.nabu.util.fakefactory
+package com.blockchain.nabu.util.fakefactory.nabu
 
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
 
-object FakeNabuUserMotherFactory {
+object FakeNabuUserFactory {
     val satoshi = NabuUser(
         firstName = "Satoshi",
         lastName = "Nakamoto",

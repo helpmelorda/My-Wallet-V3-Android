@@ -5,13 +5,10 @@ import com.blockchain.nabu.api.wallet.RetailWallet
 import com.blockchain.nabu.models.responses.wallet.RetailJwtResponse
 import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.util.waitForCompletionWithoutErrors
-import com.blockchain.testutils.mockWebServerInit
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
-import okhttp3.mockwebserver.MockWebServer
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import retrofit2.Retrofit
 
@@ -22,12 +19,8 @@ class RetailWalletTokenServiceTest {
     private val retailWallet: RetailWallet = mock()
     private val retrofit: Retrofit = mock()
 
-    private val server: MockWebServer = MockWebServer()
     private val apiKey = "API_KEY"
     private val explorerPath = "explorerPath"
-
-    @get:Rule
-    val initMockServer = mockWebServerInit(server)
 
     @Before
     fun setUp() {

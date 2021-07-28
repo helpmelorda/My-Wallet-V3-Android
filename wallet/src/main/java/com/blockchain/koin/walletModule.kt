@@ -3,6 +3,8 @@ package com.blockchain.koin
 import info.blockchain.wallet.api.dust.BchDustService
 import info.blockchain.wallet.api.dust.DustApi
 import info.blockchain.wallet.api.dust.DustService
+import info.blockchain.wallet.ethereum.EthAccountApi
+import info.blockchain.wallet.ethereum.EthEndpoints
 import info.blockchain.wallet.metadata.MetadataService
 import info.blockchain.wallet.metadata.MetadataInteractor
 import info.blockchain.wallet.multiaddress.MultiAddressFactory
@@ -67,4 +69,9 @@ val walletModule = module {
             }
         }
     }.bind(PayloadManagerWiper::class)
+
+    factory { EthAccountApi(
+        get<Retrofit>(kotlinApiRetrofit).create(EthEndpoints::class.java),
+        get()
+    ) }
 }

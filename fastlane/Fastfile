@@ -171,8 +171,7 @@ platform :android do
        ci_test_sunriver
        ci_test_testutils
        ci_test_testutils_android
-       # commented out because they always fail and will be fixed shortly by @Fran
-       # ci_test_wallet
+       ci_test_wallet
 
     end
 

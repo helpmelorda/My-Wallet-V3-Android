@@ -1,15 +1,14 @@
 package info.blockchain.wallet.metadata
 
+import com.blockchain.nabu.util.waitForCompletionWithoutErrors
+import com.blockchain.testutils.FakeHttpExceptionFactory
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.metadata.data.MetadataResponse
-import okhttp3.OkHttpClient
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
 import retrofit2.HttpException
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
-import retrofit2.converter.jackson.JacksonConverterFactory
 
 class MetadataInteractorTest {
 
@@ -27,7 +26,6 @@ class MetadataInteractorTest {
         address = address
     )
 
-    private val mockWebServer = MockWebServer()
     private val metadataDerivation = MetadataDerivation()
     private val fakeMetadata = Metadata.newInstance(
         metaDataHDNode = metadataDerivation.deserializeMetadataNode("xprv9vM7oGsuM9zGW2tneNriS8NJF6DNrZEK" +
@@ -36,24 +34,20 @@ class MetadataInteractorTest {
         metadataDerivation = metadataDerivation
     )
 
+    private lateinit var metadataService: MetadataService
+
     @Before
     fun setUp() {
-        val metadataService = Retrofit.Builder()
-            .client(OkHttpClient.Builder().build())
-            .baseUrl(mockWebServer.url("/").toString())
-            .addConverterFactory(JacksonConverterFactory.create())
-            .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
-            .build().create(MetadataService::class.java)
-
+        metadataService = mock()
         metadataInteractor = MetadataInteractor(metadataService)
     }
 
     @Test
     fun `fetchMagic with success`() {
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setBody(fakeMetadataResponse.toJson())
+        whenever(
+            metadataService.getMetadata(address)
+        ).thenReturn(
+            Single.just(fakeMetadataResponse)
         )
 
         val test = metadataInteractor.fetchMagic(address).test()
@@ -64,12 +58,10 @@ class MetadataInteractorTest {
 
     @Test
     fun `fetchMagic failure, failure is propagated`() {
-
-        val notFoundResponse = "{\"message\":\"not_found\"}"
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(400)
-                .setBody(notFoundResponse)
+        whenever(
+            metadataService.getMetadata(address)
+        ).thenReturn(
+            Single.error(Error())
         )
         val test = metadataInteractor.fetchMagic(address).test()
 
@@ -79,12 +71,10 @@ class MetadataInteractorTest {
 
     @Test
     fun `get metadata with error 404, empty should be returned`() {
-
-        val notFoundResponse = "{\"message\":\"not_found\"}"
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(404)
-                .setBody(notFoundResponse)
+        whenever(
+            metadataService.getMetadata(fakeMetadata.address)
+        ).thenReturn(
+            Single.error(FakeHttpExceptionFactory.httpExceptionWith(404))
         )
 
         val test = metadataInteractor.loadRemoteMetadata(fakeMetadata).isEmpty.test()
@@ -95,12 +85,10 @@ class MetadataInteractorTest {
 
     @Test
     fun `get metadata with error different than 404, error should be returned`() {
-
-        val notFoundResponse = "{\"error\":\"unknown_error\"}"
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(400)
-                .setBody(notFoundResponse)
+        whenever(
+            metadataService.getMetadata(fakeMetadata.address)
+        ).thenReturn(
+            Single.error(FakeHttpExceptionFactory.httpExceptionWith(400))
         )
 
         val test = metadataInteractor.loadRemoteMetadata(fakeMetadata).test()
@@ -113,34 +101,15 @@ class MetadataInteractorTest {
 
     @Test
     fun `get metadata with success`() {
-
-        val fakeMetadataJson = fakeMetadataResponse.toJson()
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setBody(fakeMetadataJson)
+        whenever(
+            metadataService.getMetadata(fakeMetadata.address)
+        ).thenReturn(
+            Single.just(fakeMetadataResponse)
         )
 
         val test = metadataInteractor.loadRemoteMetadata(fakeMetadata).test()
-        test.assertComplete()
-        test.assertValueCount(1)
+            .waitForCompletionWithoutErrors()
+
         test.assertValueAt(0, "{\"trades\":[]}")
-    }
-
-    @Test
-    fun `get metadata with failure`() {
-
-        val notFoundResponse = "{\"error\":\"unknown_error\"}"
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(400)
-                .setBody(notFoundResponse)
-        )
-
-        val test = metadataInteractor.loadRemoteMetadata(fakeMetadata).test()
-        test.assertError {
-            it is HttpException && it.code() == 400
-        }
-        test.assertNotComplete()
     }
 }

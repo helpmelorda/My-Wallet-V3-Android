@@ -1,11 +1,12 @@
 package info.blockchain.wallet.multiaddress
 
+import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.testutils.FakeHttpExceptionFactory
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import com.blockchain.api.services.NonCustodialBitcoinService
-import com.nhaarman.mockitokotlin2.eq
 import info.blockchain.wallet.MockedResponseTest
 import info.blockchain.wallet.multiaddress.TransactionSummary.TransactionType
 import info.blockchain.wallet.payload.data.XPub
@@ -15,8 +16,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import retrofit2.Call
-import retrofit2.Response
 
 class MultiAddressFactoryTest : MockedResponseTest() {
 
@@ -33,7 +32,7 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         val resource = loadResourceContent("multiaddress/multi_address_1jH7K.txt")
         val body = parseMultiAddressResponse(resource)
 
-        val mockResponse = mockApiResponse(body)
+        val mockResponse = FakeHttpExceptionFactory.mockApiCall(body)
         whenever(
             bitcoinApi.getMultiAddress(
                 coin = any(),
@@ -73,7 +72,7 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         val resource = loadResourceContent("multiaddress/multi_address_xpub6CFg.txt")
         val body = parseMultiAddressResponse(resource)
 
-        val mockResponse = mockApiResponse(body)
+        val mockResponse = FakeHttpExceptionFactory.mockApiCall(body)
         whenever(
             bitcoinApi.getMultiAddress(
                 coin = any(),
@@ -124,7 +123,7 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         val resource = loadResourceContent("multiaddress/multi_address_all.txt")
         val body = parseMultiAddressResponse(resource)
 
-        val mockResponse = mockApiResponse(body)
+        val mockResponse = FakeHttpExceptionFactory.mockApiCall(body)
         whenever(bitcoinApi.getMultiAddress(any(), any(), any(), anyOrNull(), any(), any(), any()))
             .thenReturn(mockResponse)
 
@@ -174,7 +173,7 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         val resource = loadResourceContent("multiaddress/multi_address_1Dtk.txt")
         val body = parseMultiAddressResponse(resource)
 
-        val mockResponse = mockApiResponse(body)
+        val mockResponse = FakeHttpExceptionFactory.mockApiCall(body)
         whenever(bitcoinApi.getMultiAddress(any(), any(), any(), anyOrNull(), any(), any(), any()))
             .thenReturn(mockResponse)
 
@@ -267,7 +266,7 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         val resource = loadResourceContent("multiaddress/wallet_v3_6_m1.txt")
         val body = parseMultiAddressResponse(resource)
 
-        val mockResponse = mockApiResponse(body)
+        val mockResponse = FakeHttpExceptionFactory.mockApiCall(body)
         whenever(bitcoinApi.getMultiAddress(any(), any(), any(), anyOrNull(), any(), any(), any()))
             .thenReturn(mockResponse)
 
@@ -372,16 +371,5 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         assertTrue(
             summary.outputsMap.keys.contains("17ijgwpGsVQRzMjsdAfdmeP53kpw9yvXur")
         ) // My Bitcoin Wallet
-    }
-
-    private fun <T> mockApiResponse(responseBody: T): Call<T> {
-        val response: Response<T> = mock {
-            on { body() }.thenReturn(responseBody)
-            on { isSuccessful }.thenReturn(true)
-        }
-
-        return mock {
-            on { execute() }.thenReturn(response)
-        }
     }
 }

@@ -5,8 +5,8 @@ import com.blockchain.nabu.FakeAuthenticator
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.models.responses.nabu.TierUpdateJson
 import com.blockchain.nabu.service.NabuTierService
-import com.blockchain.nabu.util.fakefactory.FakeKycTiersFactory
-import com.blockchain.nabu.util.fakefactory.FakeNabuSessionTokenFactory
+import com.blockchain.nabu.util.fakefactory.nabu.FakeKycTiersFactory
+import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import com.blockchain.nabu.util.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever

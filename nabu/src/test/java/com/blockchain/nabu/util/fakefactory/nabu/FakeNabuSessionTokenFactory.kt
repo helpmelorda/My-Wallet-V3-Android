@@ -1,4 +1,4 @@
-package com.blockchain.nabu.util.fakefactory
+package com.blockchain.nabu.util.fakefactory.nabu
 
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 

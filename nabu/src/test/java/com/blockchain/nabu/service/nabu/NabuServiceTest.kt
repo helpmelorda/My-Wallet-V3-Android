@@ -12,10 +12,10 @@ import com.blockchain.nabu.models.responses.nabu.SupportedDocumentsResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenRequest
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.service.NabuService
-import com.blockchain.nabu.util.fakefactory.FakeAddressFactory
-import com.blockchain.nabu.util.fakefactory.FakeNabuCountryFactory
-import com.blockchain.nabu.util.fakefactory.FakeNabuSessionTokenFactory
-import com.blockchain.nabu.util.fakefactory.FakeNabuUserMotherFactory
+import com.blockchain.nabu.util.fakefactory.nabu.FakeAddressFactory
+import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuCountryFactory
+import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
+import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuUserFactory
 import com.blockchain.nabu.util.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -106,7 +106,7 @@ class NabuServiceTest {
     @Test
     fun getUser() {
         val sessionToken = FakeNabuSessionTokenFactory.any
-        val expectedUser = FakeNabuUserMotherFactory.satoshi
+        val expectedUser = FakeNabuUserFactory.satoshi
 
         whenever(
             nabu.getUser(sessionToken.authHeader)
@@ -124,7 +124,7 @@ class NabuServiceTest {
     @Test
     fun updateWalletInformation() {
         val sessionToken = FakeNabuSessionTokenFactory.any
-        val expectedUser = FakeNabuUserMotherFactory.satoshi
+        val expectedUser = FakeNabuUserFactory.satoshi
 
         whenever(
             nabu.updateWalletInformation(NabuJwt(jwt), sessionToken.authHeader)
