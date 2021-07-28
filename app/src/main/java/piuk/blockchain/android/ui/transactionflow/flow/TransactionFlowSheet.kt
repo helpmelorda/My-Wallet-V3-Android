@@ -6,12 +6,12 @@ import androidx.annotation.StringRes
 import androidx.viewbinding.ViewBinding
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
+import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.transactionInject
-import piuk.blockchain.android.ui.customviews.ToastCustom
 
 abstract class TransactionFlowSheet<T : ViewBinding> :
     MviBottomSheet<TransactionModel, TransactionIntent, TransactionState, T>() {
@@ -27,8 +27,8 @@ abstract class TransactionFlowSheet<T : ViewBinding> :
     override val host: Host
         get() = activeTransactionFlow.getFlow()
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         savedInstanceState?.let {
             dismiss()
             model.process(TransactionIntent.ResetFlow)

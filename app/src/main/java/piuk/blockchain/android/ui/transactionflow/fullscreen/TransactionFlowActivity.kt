@@ -8,6 +8,8 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
+import org.koin.core.scope.Scope
+import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BlockchainAccount
@@ -20,14 +22,13 @@ import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.transactionflow.TransactionFlowIntentMapper
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.closeTransactionScope
-import piuk.blockchain.android.ui.transactionflow.createTransactionScope
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.BackNavigationState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomisations
-import piuk.blockchain.android.ui.transactionflow.transactionInject
+import piuk.blockchain.android.ui.transactionflow.transactionFlowActivityScope
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.getTarget
 import piuk.blockchain.android.util.gone
@@ -39,11 +40,12 @@ import timber.log.Timber
 class TransactionFlowActivity :
     MviActivity<TransactionModel, TransactionIntent, TransactionState, ActivityTransactionFlowBinding>() {
 
-    init {
+    private val scope: Scope by lazy {
         openScope()
+        KoinJavaComponent.getKoin().getScope(TX_SCOPE_ID)
     }
 
-    override val model: TransactionModel by transactionInject()
+    override val model: TransactionModel by scope.inject()
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -123,7 +125,6 @@ class TransactionFlowActivity :
             TransactionStep.CLOSED -> kotlin.run {
                 compositeDisposable.clear()
                 model.destroy()
-                closeTransactionScope()
             }
             else -> kotlin.run {
                 analyticsHooks.onStepChanged(state)
@@ -215,6 +216,7 @@ class TransactionFlowActivity :
         private const val SOURCE = "SOURCE_ACCOUNT"
         private const val TARGET = "TARGET_ACCOUNT"
         private const val ACTION = "ASSET_ACTION"
+        const val TX_SCOPE_ID = "TRANSACTION_ACTIVITY_SCOPE_ID"
 
         fun newInstance(
             context: Context,
@@ -235,7 +237,10 @@ class TransactionFlowActivity :
 
         private fun openScope() =
             try {
-                createTransactionScope()
+                KoinJavaComponent.getKoin().getOrCreateScope(
+                    TX_SCOPE_ID,
+                    transactionFlowActivityScope
+                )
             } catch (e: Throwable) {
                 Timber.wtf("$e")
             }

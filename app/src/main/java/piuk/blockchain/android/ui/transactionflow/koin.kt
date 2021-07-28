@@ -36,6 +36,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.Transactio
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionProgressCustomisations
 
 val transactionFlowScope = named("TransactionScope")
+val transactionFlowActivityScope = named("TransactionActivityScope")
 
 val transactionModule = module {
 
@@ -150,6 +151,33 @@ val transactionModule = module {
         TxFlowErrorReporting(
             crashLogger = get()
         )
+    }
+
+    scope(transactionFlowActivityScope) {
+        scoped {
+            TransactionInteractor(
+                coincore = payloadScope.get(),
+                addressFactory = payloadScope.get(),
+                custodialRepository = payloadScope.get(),
+                custodialWalletManager = payloadScope.get(),
+                currencyPrefs = get(),
+                eligibilityProvider = payloadScope.get(),
+                accountsSorting = payloadScope.get(),
+                linkedBanksFactory = payloadScope.get(),
+                bankLinkingPrefs = payloadScope.get()
+            )
+        }
+
+        scoped {
+            TransactionModel(
+                initialState = TransactionState(),
+                mainScheduler = AndroidSchedulers.mainThread(),
+                interactor = get(),
+                errorLogger = get(),
+                environmentConfig = get(),
+                crashLogger = get()
+            )
+        }
     }
 
     scope(transactionFlowScope) {
