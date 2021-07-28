@@ -16,13 +16,6 @@ package com.elyeproj.loaderviewlibrary;
  * limitations under the License.
  */
 
-//
-// TODO Adding these files directly, since the library avaiable via maven is based on AndroidX, and
-// TODO we have yet to migrate. Once we do, these files and this package can be removed and the
-// TODO library referenced directly from build.gradle.
-//  See: https://github.com/elye/loaderviewlibrary for the github repo
-//
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -34,13 +27,6 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import piuk.blockchain.android.R;
-
-//
-// TODO Adding these files directly, since the library available via maven is based on AndroidX, and
-// TODO we have yet to migrate. Once we do, these files and this package can be removed and the
-// TODO library referenced directly from build.gradle.
-//  See: https://github.com/elye/loaderviewlibrary for the github repo
-//
 
 public class LoaderTextView extends AppCompatTextView implements LoaderView {
 
@@ -124,5 +110,11 @@ public class LoaderTextView extends AppCompatTextView implements LoaderView {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         loaderController.removeAnimatorUpdateListener();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        loaderController.startAnimatorUpdateListener();
     }
 }

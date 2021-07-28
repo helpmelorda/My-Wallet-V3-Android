@@ -51,6 +51,8 @@ private class BalanceCardViewHolder(
     private val assetResources: AssetResources
 ) : RecyclerView.ViewHolder(binding.root) {
 
+    private var isFirstLoad = true
+
     fun bind(state: BalanceState) {
         configurePieChart()
 
@@ -63,11 +65,14 @@ private class BalanceCardViewHolder(
 
     private fun renderLoading() {
         with(binding) {
-            totalBalance.resetLoader()
-            balanceDeltaValue.resetLoader()
-            balanceDeltaPercent.resetLoader()
+            if (isFirstLoad) {
+                totalBalance.resetLoader()
+                balanceDeltaValue.resetLoader()
+                balanceDeltaPercent.resetLoader()
+            }
         }
         populateEmptyPieChart()
+        isFirstLoad = false
     }
 
     @SuppressLint("SetTextI18n")
@@ -88,6 +93,7 @@ private class BalanceCardViewHolder(
             }
 
             populatePieChart(state)
+            isFirstLoad = true
         }
     }
 
