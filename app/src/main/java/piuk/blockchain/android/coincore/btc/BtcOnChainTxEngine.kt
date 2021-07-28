@@ -107,7 +107,7 @@ class BtcOnChainTxEngine(
         )
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> =
-        Singles.zip(
+        Single.zip(
             sourceAccount.accountBalance.map { it as CryptoValue },
             getDynamicFeePerKb(pendingTx),
             getUnspentApiResponse(btcSource.xpubs)

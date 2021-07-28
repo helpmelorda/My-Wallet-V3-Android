@@ -295,6 +295,12 @@ class TransactionFlowCustomiserImpl(
         state.action == AssetAction.Swap &&
             state.sendingAccount is NonCustodialAccount && state.selectedTarget is NonCustodialAccount
 
+    override fun enterAmountGetNoBalanceMessage(state: TransactionState): String =
+        when (state.action) {
+            AssetAction.Send -> resources.getString(R.string.enter_amount_not_enough_balance)
+            else -> "--"
+        }
+
     override fun confirmTitle(state: TransactionState): String =
         resources.getString(
             R.string.common_parametrised_confirm, when (state.action) {

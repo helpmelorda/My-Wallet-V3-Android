@@ -99,12 +99,11 @@ class EnterAmountSheet : TransactionFlowSheet<DialogTxFlowEnterAmountBinding>() 
                 lowerSlot?.update(newState)
                 upperSlot?.update(newState)
 
-                showFlashMessageIfNeeded(newState)
-
                 if (!newState.canGoBack) {
                     amountSheetBack.gone()
                 }
             }
+            showFlashMessageIfNeeded(newState)
         }
     }
 

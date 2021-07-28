@@ -16,7 +16,6 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
-
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -152,7 +151,9 @@ class TradingToOnChainTxEngineTest {
     @Test
     fun `PendingTx is correctly initialised`() {
         // Arrange
-        val sourceAccount = mockSourceAccount()
+        val totalBalance = 21.lumens()
+        val actionableBalance = 20.lumens()
+        val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
             on { asset }.thenReturn(ASSET)
         }
@@ -171,11 +172,12 @@ class TradingToOnChainTxEngineTest {
         subject.doInitialiseTx()
             .test()
             .assertValue {
-                it.amount == CryptoValue.zero(ASSET) &&
-                    it.totalBalance == CryptoValue.zero(ASSET) &&
-                    it.availableBalance == CryptoValue.zero(ASSET) &&
-                    it.feeForFullAvailable == CryptoValue.zero(ASSET) &&
-                    it.feeAmount == CryptoValue.fromMinor(ASSET, feesAndLimits.fee) &&
+                it.amount == CryptoValue.zero(txTarget.asset) &&
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance ==
+                    actionableBalance.minus(CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee)) &&
+                    it.feeForFullAvailable == CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee) &&
+                    it.feeAmount == CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee) &&
                     it.selectedFiat == SELECTED_FIAT &&
                     it.confirmations.isEmpty() &&
                     it.minLimit == CryptoValue.fromMinor(ASSET, feesAndLimits.minLimit) &&
@@ -188,10 +190,6 @@ class TradingToOnChainTxEngineTest {
             .assertComplete()
 
         verify(sourceAccount, atLeastOnce()).asset
-        verify(currencyPrefs).selectedFiatCurrency
-        verify(walletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.BUY)
-
-        noMoreInteractions(sourceAccount, txTarget)
     }
 
     @Test
@@ -204,6 +202,10 @@ class TradingToOnChainTxEngineTest {
             on { asset }.thenReturn(ASSET)
         }
 
+        val feesAndLimits = CryptoWithdrawalFeeAndLimit(minLimit = 5000.toBigInteger(), fee = BigInteger.ONE)
+        whenever(walletManager.fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.BUY))
+            .thenReturn(Single.just(feesAndLimits))
+
         subject.start(
             sourceAccount,
             txTarget,
@@ -211,17 +213,18 @@ class TradingToOnChainTxEngineTest {
         )
 
         val pendingTx = PendingTx(
-            amount = CryptoValue.zero(ASSET),
-            totalBalance = CryptoValue.zero(ASSET),
-            availableBalance = CryptoValue.zero(ASSET),
-            feeForFullAvailable = CryptoValue.zero(ASSET),
-            feeAmount = CryptoValue.zero(ASSET),
+            amount = CryptoValue.zero(txTarget.asset),
+            totalBalance = totalBalance,
+            availableBalance = actionableBalance.minus(
+                CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee)
+            ),
+            feeForFullAvailable = CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee),
+            feeAmount = CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee),
             selectedFiat = SELECTED_FIAT,
             feeSelection = FeeSelection()
         )
 
         val inputAmount = 2.lumens()
-        val expectedFee = 0.lumens()
 
         // Act
         subject.doUpdateAmount(
@@ -231,8 +234,8 @@ class TradingToOnChainTxEngineTest {
             .assertValue {
                 it.amount == inputAmount &&
                     it.totalBalance == totalBalance &&
-                    it.availableBalance == actionableBalance &&
-                    it.feeAmount == expectedFee
+                    it.availableBalance ==
+                    actionableBalance.minus(CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee))
             }
             .assertValue { verifyFeeLevels(it.feeSelection) }
             .assertComplete()
@@ -241,8 +244,6 @@ class TradingToOnChainTxEngineTest {
         verify(sourceAccount, atLeastOnce()).asset
         verify(sourceAccount).accountBalance
         verify(sourceAccount).actionableBalance
-
-        noMoreInteractions(sourceAccount, txTarget)
     }
 
     @Test(expected = IllegalArgumentException::class)

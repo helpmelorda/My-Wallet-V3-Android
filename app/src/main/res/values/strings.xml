@@ -1619,6 +1619,7 @@
     <string name="deposit_confirmation_cta_button">Deposit %1$s</string>
     <string name="deposit_enter_amount_limit_title">Daily Limit</string>
     <string name="deposit_enter_amount_limit_label">%1$s Available</string>
+    <string name="enter_amount_not_enough_balance">Insufficient balance for fee</string>
     <string name="deposit_confirmation_progress_title">Depositing %1$s</string>
     <string name="deposit_confirmation_progress_message">We’re completing your deposit now.</string>
     <string name="deposit_confirmation_success_title">%1$s Deposited!</string>
