@@ -52,7 +52,7 @@ class SwapInfoHeaderView @JvmOverloads constructor(
 
         with(binding) {
             state.pendingTx?.amount?.let { amount ->
-                sendingAmountCrypto.text = amount.toStringWithoutSymbol()
+                sendingAmountCrypto.text = amount.toStringWithSymbol()
                 state.fiatRate?.let {
                     sendingAmountFiat.text = it.convert(amount, false).toStringWithSymbol()
                 }
@@ -60,7 +60,7 @@ class SwapInfoHeaderView @JvmOverloads constructor(
 
             state.targetRate?.let { cryptoExchangeRate ->
                 val receivingAmount = cryptoExchangeRate.convert(state.amount)
-                receivingAmountCrypto.text = receivingAmount.toStringWithoutSymbol()
+                receivingAmountCrypto.text = receivingAmount.toStringWithSymbol()
                 state.pendingTx?.selectedFiat?.let { fiat ->
                     receivingAmountFiat.text = receivingAmount.toFiat(exchangeRates, fiat).toStringWithSymbol()
                 }
