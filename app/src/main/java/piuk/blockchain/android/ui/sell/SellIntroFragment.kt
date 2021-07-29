@@ -310,6 +310,6 @@ class SellIntroFragment : ViewPagerFragment(), DialogFlow.FlowHost {
 
     override fun onFlowFinished() {
         host.onSellFinished()
-        loadSellDetails()
+        loadSellDetails(showLoader = false)
     }
 }
