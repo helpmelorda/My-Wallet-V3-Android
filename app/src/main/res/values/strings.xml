@@ -811,16 +811,6 @@
     </string>
     <string name="sunriver_generic_error">Oops! We had trouble processing your airdrop. Please try again.</string>
 
-    <!--STABLECOIN-->
-
-    <!-- Airdrop Program Card -->
-
-    <!-- PAX No Transactions Screen -->
-
-    <!-- Claim Your Free Crypto Card -->
-
-    <!-- HISTORY -->
-
     <!-- CONFIRMATION -->
     <string name="morph_exchange_rate">Exchange Rate</string>
     <string name="swap_now">Swap Now</string>
@@ -887,7 +877,7 @@
 
     <!-- Pax Renamed announcement -->
     <string name="pax_renamed_card_title"> USD Digital is Now Paxos Standard</string>
-    <string name="pax_renamed_card_body">We’ve updated the naming of USD Digital (USD-D) to Paxos Standard (PAX). USD Digital was built using the Paxos standard. If you held USD-D, your funds are not affected.</string>
+    <string name="pax_renamed_card_body">We\'ve updated the name of USD Digital (USD-D) to Paxos Standard (PAX). Any held funds are not affected.</string>
 
     <!-- Buy Bitcoin announcement -->
     <string name="buy_crypto_card_title">Buy Crypto</string>
