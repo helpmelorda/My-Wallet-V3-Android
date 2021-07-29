@@ -85,6 +85,8 @@ class TradingSellTxEngine(
         return Single.just(pendingTx)
     }
 
+    override fun feeInSourceCurrency(pendingTx: PendingTx): Money = pendingTx.feeAmount
+
     override val requireSecondPassword: Boolean
         get() = false
 
