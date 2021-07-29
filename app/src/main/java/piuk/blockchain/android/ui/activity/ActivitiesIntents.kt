@@ -20,6 +20,7 @@ class AccountSelectedIntent(
         return oldState.copy(
             account = account,
             isLoading = true,
+            isRefreshRequested = isRefreshRequested,
             activityList = activitiesList
         )
     }

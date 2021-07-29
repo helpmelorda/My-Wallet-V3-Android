@@ -33,6 +33,7 @@ data class ActivitiesState(
     val account: BlockchainAccount? = null,
     val activityList: ActivitySummaryList = emptyList(),
     val isLoading: Boolean = false,
+    val isRefreshRequested: Boolean = false,
     val bottomSheet: ActivitiesSheet? = null,
     val isError: Boolean = false,
     val selectedTxId: String = "",
@@ -83,7 +84,7 @@ class ActivitiesModel(
             is SelectDefaultAccountIntent ->
                 interactor.getDefaultAccount()
                     .subscribeBy(
-                        onSuccess = { process(AccountSelectedIntent(it, true)) },
+                        onSuccess = { process(AccountSelectedIntent(it, false)) },
                         onError = { process(ActivityListUpdatedErrorIntent) }
                     )
             is CancelSimpleBuyOrderIntent -> interactor.cancelSimpleBuyOrder(intent.orderId)

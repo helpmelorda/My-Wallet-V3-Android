@@ -223,11 +223,15 @@ class ActivitiesFragment :
 
     private fun renderLoader(newState: ActivitiesState) {
         val blockchainActivity = activity as? BlockchainActivity ?: return
-        binding.swipe.isRefreshing = false
+
         if (newState.isLoading) {
-            blockchainActivity.showLoading()
+            binding.swipe.isRefreshing = newState.isRefreshRequested
+            if (!newState.isRefreshRequested) {
+                blockchainActivity.showLoading()
+            }
         } else {
             blockchainActivity.hideLoading()
+            binding.swipe.isRefreshing = false
         }
     }
 
