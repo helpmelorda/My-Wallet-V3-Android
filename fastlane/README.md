@@ -56,31 +56,6 @@ Get the configuration files from the Android credentials repository.
 fastlane android ci_run_tests
 ```
 Bundle of build, perform checks and run tests on CI.
-### android ci_credentials
-```
-fastlane android ci_credentials
-```
-Get the configuration files from the Android credentials repository on CI.
-### android ci_credentials_cleanup
-```
-fastlane android ci_credentials_cleanup
-```
-Cleanup the credentials repository
-### android ci_upload_to_appcenter
-```
-fastlane android ci_upload_to_appcenter
-```
-Upload to AppCenter.
-### android ci_export_build
-```
-fastlane android ci_export_build
-```
-Export the build path to environment variables for upload. Optional flags: export_bundle (APK is default), do_sign (False is default).
-### android ci_test
-```
-fastlane android ci_test
-```
-Tests to run on CI
 ### android ci_test_app
 ```
 fastlane android ci_test_app
@@ -91,6 +66,11 @@ Tests to run on CI app
 fastlane android ci_test_balance
 ```
 Tests to run on CI balance
+### android ci_test_common
+```
+fastlane android ci_test_common
+```
+Tests to run on CI common
 ### android ci_test_blockchainApi
 ```
 fastlane android ci_test_blockchainApi
@@ -131,6 +111,26 @@ Tests to run on CI testutils-android
 fastlane android ci_test_wallet
 ```
 Tests to run on CI wallet
+### android ci_credentials
+```
+fastlane android ci_credentials
+```
+Get the configuration files from the Android credentials repository on CI.
+### android ci_credentials_cleanup
+```
+fastlane android ci_credentials_cleanup
+```
+Cleanup the credentials repository
+### android ci_upload_to_appcenter
+```
+fastlane android ci_upload_to_appcenter
+```
+Upload to AppCenter.
+### android ci_export_build
+```
+fastlane android ci_export_build
+```
+Export the build path to environment variables for upload. Optional flags: export_bundle (APK is default), do_sign (False is default).
 ### android ci_build
 ```
 fastlane android ci_build
@@ -144,6 +144,6 @@ Checks to run on CI
 
 ----
 
-This README.md is auto-generated and will be re-generated every time [fastlane](https://fastlane.tools) is run.
+This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
 More information about fastlane can be found on [fastlane.tools](https://fastlane.tools).
 The documentation of fastlane can be found on [docs.fastlane.tools](https://docs.fastlane.tools).

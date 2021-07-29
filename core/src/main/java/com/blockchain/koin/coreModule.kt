@@ -2,6 +2,7 @@ package com.blockchain.koin
 
 import android.preference.PreferenceManager
 import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.chains.bitcoincash.BchDataStore
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
@@ -9,6 +10,7 @@ import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.datamanagers.DataManagerPayloadDecrypt
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
+import com.blockchain.logging.Logger
 import com.blockchain.logging.NullLogger
 import com.blockchain.logging.TimberLogger
 import com.blockchain.metadata.MetadataRepository
@@ -40,7 +42,6 @@ import piuk.blockchain.androidcore.data.access.AccessStateImpl
 import piuk.blockchain.androidcore.data.access.LogoutTimer
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.auth.AuthService
-import com.blockchain.core.chains.bitcoincash.BchDataStore
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
@@ -314,11 +315,12 @@ val coreModule = module {
     }
 
     single {
-        if (BuildConfig.DEBUG)
+        if (BuildConfig.DEBUG) {
             TimberLogger()
-        else
+        } else {
             NullLogger
-    }
+        }
+    }.bind(Logger::class)
 
     single {
         AccessStateImpl(

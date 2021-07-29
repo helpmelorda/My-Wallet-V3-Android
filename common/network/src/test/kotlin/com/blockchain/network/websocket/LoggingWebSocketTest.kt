@@ -6,31 +6,31 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import io.reactivex.rxjava3.core.Observable
-
 import org.amshove.kluent.`should be`
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
+import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 
 class LoggingWebSocketTest : KoinTest {
 
-    private val logger = mock<Logger>()
+    private val logging = mock<Logger>()
 
     @Before
     fun setup() {
         startKoin {
-            // load Koin modules
-            modules(listOf(
+            allowOverride(override = true)
+            modules(
                 module {
                     single {
-                        logger
-                    }
+                        logging
+                    }.bind(Logger::class)
                 }
-            ))
+            )
         }
     }
 
@@ -47,8 +47,8 @@ class LoggingWebSocketTest : KoinTest {
 
         socket.send("Hello")
 
-        verify(logger).v("WebSocket X send Hello")
-        verifyNoMoreInteractions(logger)
+        verify(logging).v("WebSocket X send Hello")
+        verifyNoMoreInteractions(logging)
         verify(underlyingSocket).send("Hello")
     }
 
@@ -61,8 +61,8 @@ class LoggingWebSocketTest : KoinTest {
             .responses
             .test()
 
-        verify(logger).v("WebSocket Y receive A response")
-        verifyNoMoreInteractions(logger)
+        verify(logging).v("WebSocket Y receive A response")
+        verifyNoMoreInteractions(logging)
     }
 
     @Test
@@ -74,8 +74,8 @@ class LoggingWebSocketTest : KoinTest {
             .connectionEvents
             .test()
 
-        verify(logger).d("WebSocket Z Connected")
-        verifyNoMoreInteractions(logger)
+        verify(logging).d("WebSocket Z Connected")
+        verifyNoMoreInteractions(logging)
     }
 
     @Test
@@ -85,8 +85,8 @@ class LoggingWebSocketTest : KoinTest {
             .debugLog("Z")
             .open()
 
-        verify(logger).d("WebSocket Z Open called")
-        verifyNoMoreInteractions(logger)
+        verify(logging).d("WebSocket Z Open called")
+        verifyNoMoreInteractions(logging)
         verify(underlyingSocket).open()
     }
 
@@ -97,8 +97,8 @@ class LoggingWebSocketTest : KoinTest {
             .debugLog("Z")
             .close()
 
-        verify(logger).d("WebSocket Z Close called")
-        verifyNoMoreInteractions(logger)
+        verify(logging).d("WebSocket Z Close called")
+        verifyNoMoreInteractions(logging)
         verify(underlyingSocket).close()
     }
 }
@@ -111,8 +111,8 @@ class LoggingWebSocketWithNullLoggerTest : KoinTest {
             modules(listOf(
                 module {
                     single {
-                        NullLogger as Logger
-                    }
+                        NullLogger
+                    }.bind(Logger::class)
                 }
             ))
         }

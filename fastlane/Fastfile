@@ -164,6 +164,7 @@ platform :android do
 
        ci_test_app
        ci_test_balance
+       ci_test_common
        ci_test_blockchainApi
        ci_test_core
        ci_test_nabu
@@ -188,6 +189,19 @@ platform :android do
     lane :ci_test_balance do
       gradle(
         task: "balance:test",
+        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
+      )
+
+    end
+
+    desc "Tests to run on CI common"
+    lane :ci_test_common do
+      gradle(
+        task: "common:network:test",
+        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
+      )
+      gradle(
+        task: "common:interface:test",
         flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
       )
 
