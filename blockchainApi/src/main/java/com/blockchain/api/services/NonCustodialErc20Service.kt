@@ -62,11 +62,11 @@ private fun Erc20TokenBalanceDto.toErc20TokenBalance(
 
 private fun Erc20TransferDto.toErc20Transfer() =
     Erc20Transfer(
-        logIndex,
-        txHash,
-        value,
-        fromAddress,
-        toAddress,
-        blockNumber,
-        timestamp
+        logIndex = logIndex,
+        transactionHash = txHash,
+        value = value,
+        from = fromAddress,
+        to = toAddress,
+        blockNumber = blockNumber,
+        timestamp = timestamp
     )

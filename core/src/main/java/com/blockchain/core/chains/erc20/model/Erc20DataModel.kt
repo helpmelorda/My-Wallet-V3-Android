@@ -14,10 +14,10 @@ data class Erc20HistoryEvent(
     val fee: Single<CryptoValue>
 ) {
     fun isFromAccount(accountHash: String): Boolean =
-        accountHash == from
+        accountHash.compareTo(from, ignoreCase = true) == 0
 
     fun isToAccount(accountHash: String): Boolean =
-        accountHash == to
+        accountHash.compareTo(to, ignoreCase = true) == 0
 }
 
 typealias Erc20HistoryList = List<Erc20HistoryEvent>
