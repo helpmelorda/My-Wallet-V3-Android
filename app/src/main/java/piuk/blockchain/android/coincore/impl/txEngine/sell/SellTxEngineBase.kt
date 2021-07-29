@@ -69,10 +69,14 @@ abstract class SellTxEngineBase(
             if (pendingTx.amount <= balance) {
                 if (pendingTx.maxLimit != null && pendingTx.minLimit != null) {
                     when {
-                        pendingTx.amount + pendingTx.feeAmount < pendingTx.minLimit -> throw TxValidationFailure(
+                        pendingTx.amount + feeInSourceCurrency(
+                            pendingTx
+                        ) < pendingTx.minLimit -> throw TxValidationFailure(
                             ValidationState.UNDER_MIN_LIMIT
                         )
-                        pendingTx.amount + pendingTx.feeAmount > pendingTx.maxLimit -> throw TxValidationFailure(
+                        pendingTx.amount - feeInSourceCurrency(
+                            pendingTx
+                        ) > pendingTx.maxLimit -> throw TxValidationFailure(
                             ValidationState.OVER_MAX_LIMIT
                         )
                         else -> Completable.complete()
@@ -85,6 +89,10 @@ abstract class SellTxEngineBase(
             }
         }
     }
+
+    // The fee for on chain transaction for erc20 tokens is 0 for the corresponding erc20 token.
+    // The fee for those transactions is paid in ETH and the tx validation happens in the Erc20OnChainEngine
+    abstract fun feeInSourceCurrency(pendingTx: PendingTx): Money
 
     private fun buildNewFee(feeAmount: Money, exchangeAmount: Money): TxConfirmationValue? {
         return if (!feeAmount.isZero) {
@@ -170,7 +178,7 @@ abstract class SellTxEngineBase(
                     to = userFiat,
                     _rate = pricedQuote.price.toBigDecimal()
                 )
-                    addOrRefreshConfirmations(pendingTx, pricedQuote, latestQuoteExchangeRate)
+                addOrRefreshConfirmations(pendingTx, pricedQuote, latestQuoteExchangeRate)
             }
 
     protected fun createSellOrder(pendingTx: PendingTx): Single<CustodialOrder> =

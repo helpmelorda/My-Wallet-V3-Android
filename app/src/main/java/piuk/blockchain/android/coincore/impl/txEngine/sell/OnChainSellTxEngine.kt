@@ -5,6 +5,7 @@ import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.service.TierService
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.FeeLevel
 import piuk.blockchain.android.coincore.FeeSelection
@@ -79,6 +80,10 @@ class OnChainSellTxEngine(
             }
             else -> throw Exception("Not supported")
         }
+
+    override fun feeInSourceCurrency(pendingTx: PendingTx): Money =
+        if (sourceAsset.isErc20()) CryptoValue.zero(sourceAsset)
+        else pendingTx.feeAmount
 
     override fun doValidateAmount(pendingTx: PendingTx): Single<PendingTx> =
         engine.doValidateAmount(pendingTx)
