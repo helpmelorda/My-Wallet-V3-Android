@@ -6,9 +6,7 @@ import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
 import com.blockchain.nabu.service.NabuService
-import com.blockchain.rx.TimedCacheRequest
 import io.reactivex.rxjava3.core.Single
-import timber.log.Timber
 
 interface RecurringBuyEligibilityProvider {
     fun getRecurringBuyEligibility(): Single<List<PaymentMethodType>>
@@ -42,18 +40,5 @@ class RecurringBuyEligibilityProviderImpl(
 class RecurringBuyRepository(
     private val recurringBuyEligibilityProvider: RecurringBuyEligibilityProvider
 ) {
-
-    private val cache = TimedCacheRequest(
-        cacheLifetimeSeconds = CACHE_LIFETIME,
-        refreshFn = {
-            recurringBuyEligibilityProvider.getRecurringBuyEligibility()
-                .doOnSuccess { Timber.d("Recurring buy eligibility response: $it") }
-        }
-    )
-
-    fun getRecurringBuyEligibleMethods() = cache.getCachedSingle()
-
-    companion object {
-        private const val CACHE_LIFETIME = 7200L // 2 hours
-    }
+    fun getRecurringBuyEligibleMethods() = recurringBuyEligibilityProvider.getRecurringBuyEligibility()
 }

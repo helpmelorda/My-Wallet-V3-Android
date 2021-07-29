@@ -30,12 +30,11 @@ import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import piuk.blockchain.android.util.setOnClickListenerDebounced
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.time.ZonedDateTime
 
 class SimpleBuyCheckoutFragment :

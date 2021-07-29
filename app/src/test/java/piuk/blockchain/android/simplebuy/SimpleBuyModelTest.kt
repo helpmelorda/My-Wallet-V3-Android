@@ -84,6 +84,7 @@ class SimpleBuyModelTest {
         crashLogger = mock(),
         serializer = serializer,
         isFirstTimeBuyerUseCase = mock(),
+        getNextPaymentDateUseCase = mock(),
         featureFlagApi = mock()
     )
 

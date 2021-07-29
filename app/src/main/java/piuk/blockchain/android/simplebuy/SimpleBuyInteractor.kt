@@ -117,8 +117,11 @@ class SimpleBuyInteractor(
             SimpleBuyIntent.OrderCreated(it)
         }
 
-    fun createRecurringBuyOrder(state: SimpleBuyState): Single<RecurringBuyOrder> {
-        return if (isRecurringBuyEnabled && state.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
+    fun createRecurringBuyOrder(
+        state: SimpleBuyState,
+        recurringBuyFrequency: RecurringBuyFrequency
+    ): Single<RecurringBuyOrder> {
+        return if (isRecurringBuyEnabled && recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
             val asset = state.selectedCryptoAsset
             require(asset != null) { "createRecurringBuyOrder selected crypto is null" }
             require(state.order.amount != null) { "createRecurringBuyOrder amount is null" }
@@ -132,7 +135,7 @@ class SimpleBuyInteractor(
                     inputCurrency = amount?.currencyCode.toString(),
                     destinationCurrency = asset.ticker,
                     paymentMethod = paymentMethod.paymentMethodType.name,
-                    period = state.recurringBuyFrequency.name,
+                    period = recurringBuyFrequency.name,
                     beneficiaryId = paymentMethod.id
                 )
             )

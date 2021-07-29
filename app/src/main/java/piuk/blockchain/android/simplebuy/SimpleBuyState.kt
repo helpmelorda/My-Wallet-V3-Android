@@ -23,6 +23,7 @@ import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.io.Serializable
 import java.math.BigInteger
+import java.time.ZonedDateTime
 import java.util.Date
 
 /**
@@ -53,6 +54,7 @@ data class SimpleBuyState constructor(
     val recurringBuyFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
     val showRecurringBuyFirstTimeFlow: Boolean = false,
+    @Transient val nextPaymentDates: Map<RecurringBuyFrequency, ZonedDateTime> = emptyMap(),
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
     @Transient val errorState: ErrorState? = null,
     @Transient val exchangePriceWithDelta: ExchangePriceWithDelta? = null,

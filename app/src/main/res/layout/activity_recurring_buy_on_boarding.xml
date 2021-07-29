@@ -101,6 +101,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/standard_margin"
         android:text="@string/recurring_buy_cta_1"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/indicator"
         app:layout_constraintVertical_bias="1" />

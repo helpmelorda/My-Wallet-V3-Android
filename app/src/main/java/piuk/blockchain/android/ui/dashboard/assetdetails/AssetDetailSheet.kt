@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -189,8 +188,14 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
 
     private fun openOnboardingForRecurringBuy() {
         analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreClicked(LaunchOrigin.CURRENCY_PAGE))
-        val intent = Intent(requireActivity(), RecurringBuyOnboardingActivity::class.java)
-        startActivity(intent)
+        startActivity(
+            RecurringBuyOnboardingActivity.newInstance(
+                context = requireContext(),
+                fromCoinView = true,
+                asset = asset
+            )
+        )
+        dismiss()
     }
 
     private fun onRecurringBuyClicked(recurringBuy: RecurringBuy) {

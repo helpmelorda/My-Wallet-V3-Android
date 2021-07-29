@@ -249,7 +249,10 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                 }
             }
         }
-        setErrorMessageAndLinks(state.recurringBuyError, state.transactionRecurringBuyState)
+
+        state.recurringBuyError?.let {
+            setErrorMessageAndLinks(it, state.transactionRecurringBuyState)
+        }
     }
 
     private fun ActivityDetailState.recurringBuyHasFailedAndCanBeFixedByAddingFunds(): Boolean {

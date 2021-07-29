@@ -90,7 +90,7 @@ data class ActivityDetailState(
     val hasDeleteError: Boolean = false,
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
     val transactionRecurringBuyState: OrderState = OrderState.UNINITIALISED,
-    val recurringBuyError: RecurringBuyFailureReason = RecurringBuyFailureReason.UNKNOWN,
+    val recurringBuyError: RecurringBuyFailureReason? = null,
     val descriptionState: DescriptionState = DescriptionState.NOT_SET,
     val recurringBuyId: String? = "",
     val recurringBuyPaymentMethodType: PaymentMethodType? = null,

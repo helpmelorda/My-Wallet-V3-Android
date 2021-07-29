@@ -96,8 +96,12 @@ import piuk.blockchain.android.ui.pairingcode.PairingState
 import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
 import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
-import piuk.blockchain.android.ui.recurringbuy.data.TradeRepositoryImpl
-import piuk.blockchain.android.ui.recurringbuy.domain.TradeRepository
+import piuk.blockchain.android.ui.recurringbuy.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
+import piuk.blockchain.android.ui.recurringbuy.data.GetNextPaymentDateListToFrequencyDateMapper
+import piuk.blockchain.android.ui.recurringbuy.data.TradeDataManagerImpl
+import piuk.blockchain.android.ui.recurringbuy.data.TradeMapper
+import piuk.blockchain.android.ui.recurringbuy.domain.TradeDataManager
+import piuk.blockchain.android.ui.recurringbuy.domain.usecases.GetNextPaymentDateUseCase
 import piuk.blockchain.android.ui.recurringbuy.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.ui.reset.ResetAccountModel
 import piuk.blockchain.android.ui.reset.ResetAccountState
@@ -509,22 +513,39 @@ val applicationModule = module {
                 environmentConfig = get(),
                 crashLogger = get(),
                 isFirstTimeBuyerUseCase = get(),
+                getNextPaymentDateUseCase = get(),
                 featureFlagApi = get()
             )
         }
 
         factory {
             IsFirstTimeBuyerUseCase(
-                tradeRepository = get()
+                tradeDataManager = get()
             )
         }
 
         factory {
-            TradeRepositoryImpl(
-                tradeService = get(),
-                authenticator = get()
+            GetNextPaymentDateUseCase(
+                tradeDataManager = get()
             )
-        }.bind(TradeRepository::class)
+        }
+
+        factory {
+            TradeDataManagerImpl(
+                tradeService = get(),
+                authenticator = get(),
+                accumulatedInPeriodMapper = get(),
+                nextPaymentDateMapper = get()
+            )
+        }.bind(TradeDataManager::class)
+
+        factory {
+            GetAccumulatedInPeriodToIsFirstTimeBuyerMapper()
+        }.bind(TradeMapper::class)
+
+        factory {
+            GetNextPaymentDateListToFrequencyDateMapper()
+        }.bind(TradeMapper::class)
 
         factory {
             SimpleBuyPrefsSerializerImpl(

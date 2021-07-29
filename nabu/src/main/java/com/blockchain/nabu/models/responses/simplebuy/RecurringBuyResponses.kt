@@ -64,7 +64,7 @@ private fun String.toRecurringBuyState() =
 fun RecurringBuyResponse.toRecurringBuyOrder(): RecurringBuyOrder =
     RecurringBuyOrder(state = this.state.toRecurringBuyState())
 
-private fun String.toRecurringBuyFrequency(): RecurringBuyFrequency =
+fun String.toRecurringBuyFrequency(): RecurringBuyFrequency =
     when (this) {
         RecurringBuyResponse.DAILY -> RecurringBuyFrequency.DAILY
         RecurringBuyResponse.WEEKLY -> RecurringBuyFrequency.WEEKLY

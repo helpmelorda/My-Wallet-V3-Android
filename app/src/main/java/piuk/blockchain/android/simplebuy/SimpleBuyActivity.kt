@@ -228,17 +228,27 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
         startActivity(BankAuthActivity.newInstance(errorState, BankAuthSource.SIMPLE_BUY, this))
     }
 
-    override fun goToSetupFirstRecurringBuy() {
+    override fun goToSetupFirstRecurringBuy(addToBackStack: Boolean) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(R.id.content_frame, RecurringBuyFirstTimeBuyerFragment())
+            .apply {
+                if (addToBackStack) {
+                    addToBackStack(SimpleBuyPaymentFragment::class.simpleName)
+                }
+            }
             .commitAllowingStateLoss()
     }
 
-    override fun goToFirstRecurringBuyCreated() {
+    override fun goToFirstRecurringBuyCreated(addToBackStack: Boolean) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(R.id.content_frame, RecurringBuySuccessfulFragment())
+            .apply {
+                if (addToBackStack) {
+                    addToBackStack(SimpleBuyPaymentFragment::class.simpleName)
+                }
+            }
             .commitAllowingStateLoss()
     }
 

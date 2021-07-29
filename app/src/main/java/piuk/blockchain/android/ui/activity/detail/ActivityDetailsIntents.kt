@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.activity.detail
 
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import info.blockchain.balance.AssetInfo
@@ -94,7 +93,7 @@ class LoadRecurringBuyDetailsHeaderDataIntent(
             isFeeTransaction = false,
             confirmations = 0,
             totalConfirmations = 0,
-            recurringBuyError = recurringBuyItem.failureReason ?: RecurringBuyFailureReason.UNKNOWN,
+            recurringBuyError = recurringBuyItem.failureReason,
             transactionRecurringBuyState = recurringBuyItem.transactionState,
             recurringBuyPaymentMethodType = recurringBuyItem.paymentMethodType,
             recurringBuyOriginCurrency = recurringBuyItem.fundedFiat.currencyCode

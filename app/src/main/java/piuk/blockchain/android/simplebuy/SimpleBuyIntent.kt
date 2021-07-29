@@ -20,6 +20,7 @@ import piuk.blockchain.android.cards.EverypayAuthOptions
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.sell.ExchangePriceWithDelta
 import java.math.BigInteger
+import java.time.ZonedDateTime
 
 sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
@@ -365,6 +366,31 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
+    object LoadNextPaymentDates : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(
+                isLoading = true,
+                nextPaymentDates = emptyMap())
+    }
+
+    class NextPaymentDatesLoaded(
+        private val nextPaymentMap:
+        Map<RecurringBuyFrequency, ZonedDateTime>
+    ) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(
+                isLoading = false,
+                nextPaymentDates = nextPaymentMap)
+    }
+
+    object LoadNextPaymentDatesFailed : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(
+                isLoading = false,
+                nextPaymentDates = emptyMap()
+            )
+    }
+
     object AppRatingShown : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(showRating = false)
@@ -460,7 +486,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(recurringBuyFrequency = recurringBuyFrequency)
     }
 
-    class RecurringBuySelectedFirstTimeFlow(private val recurringBuyFrequency: RecurringBuyFrequency) :
+    class RecurringBuySelectedFirstTimeFlow(val recurringBuyFrequency: RecurringBuyFrequency) :
         SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(recurringBuyFrequency = recurringBuyFrequency)
