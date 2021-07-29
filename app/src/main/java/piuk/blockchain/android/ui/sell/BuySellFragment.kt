@@ -242,9 +242,9 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
         TYPE_SELL
     }
 
-    override fun onSheetClosed() = subscribeForNavigation()
+    override fun onSheetClosed() = subscribeForNavigation(showLoader = false)
 
-    override fun onSellFinished() = subscribeForNavigation()
+    override fun onSellFinished() = subscribeForNavigation(showLoader = false)
 
     override fun onSellInfoClicked() = navigator().goToTransfer()
 
