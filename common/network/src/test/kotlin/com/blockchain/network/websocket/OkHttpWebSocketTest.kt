@@ -1,68 +1,66 @@
 package com.blockchain.network.websocket
 
-import com.blockchain.network.initRule
-import io.fabric8.mockwebserver.DefaultMockServer
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import okhttp3.OkHttpClient
-import org.amshove.kluent.`should be equal to`
-import org.junit.Rule
+import okhttp3.WebSocket
 import org.junit.Test
 
 class OkHttpWebSocketTest {
 
-    private val server = DefaultMockServer()
+    private val options = Options(url = "https://blockchain.info/service")
+    private val client: OkHttpClient = mock()
+    private val socket: WebSocket = mock()
 
-    @get:Rule
-    private val initMockServer = server.initRule()
-
-    private val okHttpClient: OkHttpClient = OkHttpClient.Builder().build()
+    private val subject = OkHttpWebSocket(client, options, null)
 
     @Test
-    fun `can send and receive one message`() {
-        server.expect().get().withPath("/service")
-            .andUpgradeToWebSocket()
-            .open()
-            .expect("subscribe").andEmit("SUBSCRIBED").once()
-            .done()
-            .once()
+    fun `can send one message`() {
+        val message = "message"
 
-        val waiter = MessageWaiter(1)
-        okHttpClient.newBlockchainWebSocket(
-            getOptions("/service"),
-            waiter
-        ).apply {
-            val test = responses.test()
+        whenever(client.newWebSocket(any(), any())).thenReturn(socket)
+
+        subject.apply {
             open()
-            send("subscribe")
-            waiter.waitForAllMessages()
-            test.values() `should be equal to` listOf("SUBSCRIBED")
+            send(message)
         }
+
+        verify(socket).send(message)
+        verifyNoMoreInteractions(socket)
     }
 
     @Test
-    fun `can send and receive two messages`() {
-        server.expect().get().withPath("/service2")
-            .andUpgradeToWebSocket()
-            .open()
-            .expect("subscribeA").andEmit("SUBSCRIBED_A").once()
-            .expect("subscribeB").andEmit("SUBSCRIBED_B").once()
-            .done()
-            .once()
+    fun `can close`() {
 
-        val waiter = MessageWaiter(2)
-        okHttpClient.newBlockchainWebSocket(
-            getOptions("/service2"),
-            waiter
-        ).apply {
-            val test = responses.test()
+        whenever(client.newWebSocket(any(), any())).thenReturn(socket)
+
+        subject.apply {
             open()
-            send("subscribeA")
-            send("subscribeB")
-            waiter.waitForAllMessages()
-            test.values() `should be equal to` listOf("SUBSCRIBED_A", "SUBSCRIBED_B")
+            close()
         }
+
+        verify(socket).close(1000, "Unnamed WebSocket deliberately stopped")
+        verifyNoMoreInteractions(socket)
     }
 
-    private fun getOptions(path: String): Options {
-        return Options(url = server.url(path), origin = "https://blockchain.info")
+    @Test
+    fun `can send two messages`() {
+        val messageA = "messageA"
+        val messageB = "messageB"
+
+        whenever(client.newWebSocket(any(), any())).thenReturn(socket)
+
+        subject.apply {
+            open()
+            send(messageA)
+            send(messageB)
+        }
+
+        verify(socket).send(messageA)
+        verify(socket).send(messageB)
+        verifyNoMoreInteractions(socket)
     }
 }

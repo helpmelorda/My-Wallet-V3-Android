@@ -34,7 +34,7 @@ fun OkHttpClient.newBlockchainWebSocket(
  */
 private const val STATUS_CODE_NORMAL_CLOSURE = 1000
 
-private class OkHttpWebSocket(
+class OkHttpWebSocket(
     private val client: OkHttpClient,
     private val options: Options,
     private val listener: WebSocket.Listener<String>?
