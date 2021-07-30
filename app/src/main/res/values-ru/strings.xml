@@ -108,8 +108,8 @@
     <string name="restore_failed">Не удалось восстановить кошелек. Попробуйте еще раз</string>
     <string name="restoring_wallet">Восстановление кошелька.</string>
     <string name="kyc_email_hint_unfocused">Ваш адрес электронной почты</string>
+    <string name="new_account_cta_text">следующий</string>
     <string name="you_agree_terms_of_service">Создавая учетную запись, вы соглашаетесь с <annotation link="terms">Условиями обслуживания</annotation> и <annotation link="privacy">Политикой конфиденциальности</annotation> Blockchain.</string>
-    <string name="new_account_cta_text">Продолжить</string>
     <string name="new_account_title">Создайте учетную запись</string>
     <string name="strength_weak">слабый</string>
     <string name="strength_medium">регулярное</string>
@@ -1505,6 +1505,7 @@ Blockchain:
     <string name="pin_max_strikes">%1$d неудачных попытки PIN-кода. Пожалуйста, введите пароль.</string>
     <string name="recovery_passphrase_1">Фраза для восстановления секретного закрытого ключа</string>
     <string name="invalid_recovery_phrase_1">Фраза для восстановления секретного закрытого ключа недействительна. Попробуйте еще раз</string>
+    <string name="sign_up_email">Адрес эл.почты</string>
     <string name="password_disclaimer">Я понимаю, что Blockchain.com не может восстановить мой пароль по запросу. Если я потеряю доступ к своему кошельку, я должен(-а) использовать свою <annotation link="backup">секретную фразу</annotation> для доступа к средствам.</string>
     <string name="transfer_funds_description_1">Импортированные адреса не восстанавливаются вашей фразой для восстановления секретного закрытого ключа. Чтобы обезопасить эти средства, мы рекомендуем перевести их на ваш кошелек Blockchain.com, не связанный с хранением.</string>
     <string name="pairing_code_instructions_alert">Никогда никому не сообщайте QR-код для сопряжения своего мобильного устройства. Любой, кто может просмотреть этот QR-код, может вывести средства.

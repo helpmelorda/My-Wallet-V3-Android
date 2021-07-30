@@ -111,7 +111,7 @@
     <string name="restoring_wallet">A restaurar a carteira.</string>
     <string name="kyc_email_hint_unfocused">O seu e-mail</string>
     <string name="you_agree_terms_of_service">Ao criar uma conta, o utilizador concorda com os <annotation link="terms">Termos de Serviço</annotation> e a <annotation link="privacy">Política de Privacidade</annotation> da Blockchain.</string>
-    <string name="new_account_cta_text">Continuar</string>
+    <string name="new_account_cta_text">Próximo</string>
     <string name="new_account_title">Criar uma conta</string>
     <string name="strength_weak">Fraco</string>
     <string name="strength_medium">Regular</string>
@@ -1558,6 +1558,7 @@ Nota: não poderá Enviar ou Levantar estes fundos da sua Carteira durante os pr
     <string name="pin_max_strikes">%1$d tentativas de PIN falhadas. Indique a palavra-passe.</string>
     <string name="recovery_passphrase_1">Frase de Recuperação de Chave Privada Secreta</string>
     <string name="invalid_recovery_phrase_1">Frase de Recuperação de Chave Privada Secreta inválida. Tente novamente</string>
+    <string name="sign_up_email">E-mail</string>
     <string name="password_disclaimer">Entendo que a Blockchain.com não pode recuperar minha palavra-passe por mim. Se eu perder o acesso à minha Carteira, devo utilizar a minha <annotation link="backup">Frase Secreta</annotation> para aceder aos meus fundos.</string>
     <string name="transfer_funds_description_1">Os endereços importados não são copiados pela sua Frase de Recuperação de Chave Privada Secreta. Para assegurar estes fundos, nós
         recomendamos a transferência destes saldos para a sua Wallet Blockchain.com não custodial.

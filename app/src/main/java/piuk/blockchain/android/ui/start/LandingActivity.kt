@@ -19,12 +19,14 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import org.koin.android.ext.android.inject
+import org.koin.core.component.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
+import piuk.blockchain.android.ui.createwallet.NewCreateWalletActivity
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
 import piuk.blockchain.android.util.copyHashOnLongClick
 import piuk.blockchain.android.ui.customviews.toast
@@ -94,7 +96,8 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                         }
                         btnRecover.apply {
                             if (isAccountRecoveryEnabled &&
-                                internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY)) {
+                                internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY)
+                            ) {
                                 text = getString(R.string.restore_wallet_cta)
                                 setOnClickListener { launchSSOAccountRecoveryFlow() }
                             } else {
@@ -114,7 +117,13 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         }
     }
 
-    private fun launchCreateWalletActivity() = CreateWalletActivity.start(this)
+    private fun launchCreateWalletActivity() {
+        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ACCOUNT_SCREEN)) {
+            NewCreateWalletActivity.start(this)
+        } else {
+            CreateWalletActivity.start(this)
+        }
+    }
 
     private fun launchLoginActivity() =
         startActivity(Intent(this, LoginActivity::class.java))

@@ -110,8 +110,7 @@
     <string name="restore_failed">Cüzdan kurtarma başarısız oldu. Lütfen tekrar deneyin</string>
     <string name="restoring_wallet">Cüzdan kurtarılıyor</string>
     <string name="kyc_email_hint_unfocused">E-posta Adresiniz</string>
-    <string name="you_agree_terms_of_service">Bir hesap oluşturarak Blockchain\'in <annotation link="terms">Hizmet Şartları</annotation> ve <annotation link="privacy">Gizlilik Politikasını</annotation> kabul etmiş olursunuz.</string>
-    <string name="new_account_cta_text">Devam et</string>
+    <string name="new_account_cta_text">Sonraki</string>
     <string name="new_account_title">Hesap Oluştur</string>
     <string name="strength_weak">Güçsüz</string>
     <string name="strength_medium">Düzenli</string>
@@ -1558,6 +1557,7 @@ Not: Gelecek %1$s gün bu paraları Cüzdanınızdan Gönderemeyecek veya Çekem
     <string name="pin_max_strikes">%1$d başarısız PIN denemesi. Lütfen şifrenizi girin.</string>
     <string name="recovery_passphrase_1">Gizli Özel Anahtar Kurtarma İfadesi</string>
     <string name="invalid_recovery_phrase_1">Geçersiz Gizli Özel Anahtar Kurtarma İfadesi. Lütfen tekrar deneyin</string>
+    <string name="sign_up_email">E-posta</string>
     <string name="password_disclaimer">Blockchain.com\'un parolamı benim için kurtaramayacağını anlıyorum. Cüzdanıma erişimi kaybedersem, parama erişmek için <annotation link="backup"> Gizli İfademi </annotation> kullanmalıyım.</string>
     <string name="transfer_funds_description_1">İçe aktarılan adresler Gizli Özel Anahtar Yedekleme İfadeniz tarafından yedeklenmez. Bu fonları güvence altına almak için
  bu bakiyeleri yedeklemenize eklemek için aktarmanızı öneririz.

@@ -102,8 +102,8 @@
     <string name="restore_failed">Échec de restauration du portefeuille. Veuillez réessayer.</string>
     <string name="restoring_wallet">Restauration du Portefeuille</string>
     <string name="kyc_email_hint_unfocused">Votre adresse électronique</string>
+    <string name="new_account_cta_text">Prochain</string>
     <string name="you_agree_terms_of_service">En créant un compte, vous acceptez les <annotation link="terms">Conditions d\'utilisation</annotation> et la <annotation link="privacy">Politique de confidentialité</annotation> de Blockchain.</string>
-    <string name="new_account_cta_text">Continuer</string>
     <string name="new_account_title">Créer un compte</string>
     <string name="strength_weak">Faible</string>
     <string name="strength_medium">Ordinaire</string>
@@ -1469,6 +1469,7 @@ Remarque : Vous ne pourrez pas envoyer ou retirer ces fonds de votre Portefeuill
     <string name="pin_max_strikes">%1$d tentatives de PIN échouées. Veuillez fournir un mot de passe.</string>
     <string name="recovery_passphrase_1">Phrase de récupération de clé privée secrète</string>
     <string name="invalid_recovery_phrase_1">Phrase secrète de récupération de clé erronée. Veuillez réessayer</string>
+    <string name="sign_up_email">Email</string>
     <string name="password_disclaimer">Je comprends que Blockchain.com ne peut pas récupérer mon mot de passe pour moi. Si je perds l\'accès à mon portefeuille, je dois utiliser ma <annotation link="backup">phrase secrète</annotation> pour accéder à mes fonds.</string>
     <string name="transfer_funds_description_1">Les adresses importées ne sont pas sauvegardées par votre phrase secrète de récupération de clé. Pour sécuriser ces fonds, nous
                         recommandons de transférer ces soldes vers votre portefeuille Blockchain.com non-gardien.</string>
