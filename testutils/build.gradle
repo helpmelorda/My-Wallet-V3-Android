@@ -21,7 +21,6 @@ dependencies {
     implementation Libraries.moshi
     implementation Libraries.retrofitRxMoshiConverter
     implementation Libraries.retrofitRxJavaAdapter
-    implementation Libraries.mockWebServer
     implementation(Libraries.mockitoKotlin) {
         ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
     }

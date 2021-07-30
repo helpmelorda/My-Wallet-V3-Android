@@ -55,7 +55,6 @@ object Versions {
     const val chucker = "3.4.0"
     const val retrofit = "2.9.0"
     const val okHttp = "4.9.0"
-    const val mockWebServer = "v0.1.8"
     const val moshi = "1.8.0"
     const val gson = "2.8.5"
     const val jacksonCore = "2.12.3"
@@ -279,5 +278,4 @@ object Libraries {
     const val espresso = "androidx.test.espresso:espresso-core:${Versions.espresso}"
     const val retrofitMock = "com.squareup.retrofit2:retrofit-mock:${Versions.retrofit}"
     const val okHttpMock = "com.squareup.okhttp3:mockwebserver:${Versions.okHttp}"
-    const val mockWebServer = "com.github.fabric8io:mockwebserver:${Versions.mockWebServer}"
 }

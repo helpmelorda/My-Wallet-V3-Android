@@ -6,6 +6,7 @@ import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmSecretAccess
 import com.blockchain.sunriver.datamanager.XlmMetaDataInitializer
 import org.koin.dsl.module
+import org.stellar.sdk.Server
 
 val sunriverModule = module {
 
@@ -26,7 +27,7 @@ val sunriverModule = module {
             xlmHorizonDefUrl = getProperty("HorizonURL"))
         }
 
-        factory { HorizonProxy() }
+        factory { HorizonProxy { Server(it) } }
 
         scoped { XlmMetaDataInitializer(get(), get(), get(), get()) }
     }
