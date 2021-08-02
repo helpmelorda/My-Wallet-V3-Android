@@ -408,7 +408,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         confirmations: Int,
         totalConfirmations: Int
     ) {
-        if (confirmations != totalConfirmations) {
+        if (totalConfirmations > 0 && confirmations != totalConfirmations) {
             binding.apply {
                 confirmationLabel.text =
                     getString(
