@@ -412,7 +412,7 @@ val applicationModule = module {
                 emailVerifiedLinkHelper = get(),
                 thePitDeepLinkParser = get(),
                 openBankingDeepLinkParser = get(),
-                blockchainLinkParser = get()
+                blockchainDeepLinkParser = get()
             )
         }
 
