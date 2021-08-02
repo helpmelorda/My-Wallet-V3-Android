@@ -110,7 +110,6 @@
     <string name="restore_failed">Falha ao restaurar a carteira. Tente novamente</string>
     <string name="restoring_wallet">A restaurar a carteira.</string>
     <string name="kyc_email_hint_unfocused">O seu e-mail</string>
-    <string name="you_agree_terms_of_service">Ao criar uma conta, o utilizador concorda com os <annotation link="terms">Termos de Serviço</annotation> e a <annotation link="privacy">Política de Privacidade</annotation> da Blockchain.</string>
     <string name="new_account_cta_text">Próximo</string>
     <string name="new_account_title">Criar uma conta</string>
     <string name="strength_weak">Fraco</string>

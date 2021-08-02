@@ -13,5 +13,5 @@ enum class GatedFeature(val readableName: String, val enabledForCompanyInternalB
     RECURRING_BUYS("Enable recurring buys", true),
     ACCOUNT_RECOVERY("Enable New Account Recovery Flow"),
     FULL_SCREEN_TXS("Enable full screen tx flow"),
-    NEW_ACCOUNT_SCREEN("Enable new account screen"),
+    LOCALISATION_SIGN_UP("Enable localisation sign up screen"),
 }

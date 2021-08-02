@@ -11,6 +11,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.transition.TransitionManager
+import com.blockchain.api.nabu.data.GeolocationResponse
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.urllinks.URL_BACKUP_INFO
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
@@ -254,6 +255,10 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
                 presenter.createOrRestoreWallet(email, password1, recoveryPhrase)
             }
         }
+    }
+
+    override fun setGeolocationInCountrySpinner(geolocation: GeolocationResponse) {
+        // do nothing
     }
 
     companion object {

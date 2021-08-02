@@ -19,7 +19,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import org.koin.android.ext.android.inject
-import org.koin.core.component.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
@@ -118,7 +117,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
     }
 
     private fun launchCreateWalletActivity() {
-        if (internalFlags.isFeatureEnabled(GatedFeature.NEW_ACCOUNT_SCREEN)) {
+        if (internalFlags.isFeatureEnabled(GatedFeature.LOCALISATION_SIGN_UP)) {
             NewCreateWalletActivity.start(this)
         } else {
             CreateWalletActivity.start(this)

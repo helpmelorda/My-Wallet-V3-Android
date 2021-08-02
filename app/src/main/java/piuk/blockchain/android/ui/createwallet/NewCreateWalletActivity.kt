@@ -11,6 +11,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.transition.TransitionManager
+import com.blockchain.api.nabu.data.GeolocationResponse
 import com.blockchain.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
@@ -72,6 +73,8 @@ class NewCreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPr
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         applyConstraintSet.clone(binding.mainConstraintLayout)
+
+        presenter.getUserGeolocation()
 
         initializeCountrySpinner()
         initializeStatesSpinner()
@@ -246,6 +249,24 @@ class NewCreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPr
 
     override fun getDefaultAccountName(): String = defaultLabels.getDefaultNonCustodialWalletLabel()
 
+    override fun setGeolocationInCountrySpinner(geolocation: GeolocationResponse) {
+        if (countryPickerItem == null) {
+            val countryGeo = CountryPickerItem(geolocation.countryCode)
+            onItemPicked(countryGeo)
+        }
+        if (statePickerItem == null) {
+            geolocation.state?.let { stateCode ->
+                val stateGeo = createStateItemFromIsoCode(stateCode)
+                onItemPicked(stateGeo)
+            }
+        }
+    }
+
+    private fun createStateItemFromIsoCode(isoCode: String): StatePickerItem {
+        val stateItem = US.values().first { it.iSOAbbreviation == isoCode }
+        return StatePickerItem(stateItem.ANSIAbbreviation, stateItem.unabbreviated)
+    }
+
     override fun enforceFlagSecure() = true
 
     private fun onNextClicked() {
@@ -253,8 +274,13 @@ class NewCreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPr
             val email = emailAddress.text.toString().trim()
             val password1 = walletPass.text.toString()
             val password2 = walletPassConfirm.text.toString()
+            val countryCode = countryPickerItem?.code
+            val stateCode = statePickerItem?.code
 
-            if (walletPasswordCheckbox.isChecked && presenter.validateCredentials(email, password1, password2)) {
+            if (walletPasswordCheckbox.isChecked &&
+                presenter.validateCredentials(email, password1, password2) &&
+                presenter.validateGeoLocation(countryCode, stateCode)
+            ) {
                 presenter.createOrRestoreWallet(email, password1, recoveryPhrase)
             }
         }
@@ -263,13 +289,17 @@ class NewCreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPr
     override fun onItemPicked(item: PickerItem) {
         when (item) {
             is CountryPickerItem -> {
-                binding.country.setText(item.label)
                 countryPickerItem = item
-                changeStatesSpinnerVisibility(item.code == CODE_US)
+                runOnUiThread {
+                    binding.country.setText(item.label)
+                    changeStatesSpinnerVisibility(item.code == CODE_US)
+                }
             }
             is StatePickerItem -> {
-                binding.state.setText(item.label)
                 statePickerItem = item
+                runOnUiThread {
+                    binding.state.setText(item.label)
+                }
             }
         }
         ViewUtils.hideKeyboard(this)
@@ -284,7 +314,7 @@ class NewCreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPr
     }
 
     companion object {
-        private val CODE_US = "US"
+        const val CODE_US = "US"
         const val RECOVERY_PHRASE = "RECOVERY_PHRASE"
 
         fun start(context: Context) {

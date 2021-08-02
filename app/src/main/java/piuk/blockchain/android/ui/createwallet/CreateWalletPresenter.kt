@@ -2,15 +2,19 @@ package piuk.blockchain.android.ui.createwallet
 
 import android.app.LauncherActivity
 import androidx.annotation.StringRes
+import com.blockchain.api.nabu.data.GeolocationResponse
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
+import com.blockchain.notifications.analytics.Logging
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.wallet.util.PasswordUtil
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
+import piuk.blockchain.android.domain.usecases.GetUserGeolocationUseCase
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.base.View
+import piuk.blockchain.android.ui.createwallet.NewCreateWalletActivity.Companion.CODE_US
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.androidcore.data.access.AccessState
@@ -18,7 +22,6 @@ import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrngFixer
-import com.blockchain.notifications.analytics.Logging
 import timber.log.Timber
 import kotlin.math.roundToInt
 
@@ -29,6 +32,7 @@ interface CreateWalletView : View {
     fun showProgressDialog(message: Int)
     fun dismissProgressDialog()
     fun getDefaultAccountName(): String
+    fun setGeolocationInCountrySpinner(geolocation: GeolocationResponse)
 }
 
 class CreateWalletPresenter(
@@ -40,11 +44,23 @@ class CreateWalletPresenter(
     private val analytics: Analytics,
     private val walletPrefs: WalletStatus,
     private val environmentConfig: EnvironmentConfig,
-    private val formatChecker: FormatChecker
+    private val formatChecker: FormatChecker,
+    private val getGeolocationUseCase: GetUserGeolocationUseCase
 ) : BasePresenter<CreateWalletView>() {
 
     override fun onViewReady() {
         // No-op
+    }
+
+    fun getUserGeolocation() {
+        getGeolocationUseCase(Unit).subscribeBy(
+            onSuccess = { geolocation ->
+                view.setGeolocationInCountrySpinner(geolocation)
+            },
+            onError = {
+                Timber.e(it.localizedMessage)
+            }
+        )
     }
 
     fun validateCredentials(email: String, password1: String, password2: String): Boolean =
@@ -63,6 +79,19 @@ class CreateWalletPresenter(
             }
             !PasswordUtil.getStrength(password1).roundToInt().isStrongEnough() -> {
                 view.warnWeakPassword(email, password1); false
+            }
+            else -> true
+        }
+
+    fun validateGeoLocation(countryCode: String? = null, stateCode: String? = null): Boolean =
+        when {
+            countryCode.isNullOrBlank() -> {
+                view.showError(R.string.country_not_selected)
+                false
+            }
+            countryCode == CODE_US && stateCode.isNullOrBlank() -> {
+                view.showError(R.string.state_not_selected)
+                false
             }
             else -> true
         }

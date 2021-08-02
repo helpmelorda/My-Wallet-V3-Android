@@ -56,7 +56,7 @@ internal class RecoverFundsActivity : BaseMvpActivity<RecoverFundsView, RecoverF
     }
 
     override fun gotoCredentialsActivity(recoveryPhrase: String) {
-        if (internalFeatureFlagApi.isFeatureEnabled(GatedFeature.NEW_ACCOUNT_SCREEN)) {
+        if (internalFeatureFlagApi.isFeatureEnabled(GatedFeature.LOCALISATION_SIGN_UP)) {
             val intent = Intent(this, NewCreateWalletActivity::class.java)
             intent.putExtra(NewCreateWalletActivity.RECOVERY_PHRASE, recoveryPhrase)
         } else {

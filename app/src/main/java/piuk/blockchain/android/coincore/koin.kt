@@ -18,7 +18,7 @@ import piuk.blockchain.android.coincore.impl.txEngine.TransferQuotesEngine
 import piuk.blockchain.android.coincore.loader.AssetCatalogueImpl
 import piuk.blockchain.android.coincore.loader.AssetRemoteFeatureLookup
 import piuk.blockchain.android.coincore.xlm.XlmAsset
-import piuk.blockchain.android.repositories.AssetActivityRepository
+import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 
 val coincoreModule = module {
 

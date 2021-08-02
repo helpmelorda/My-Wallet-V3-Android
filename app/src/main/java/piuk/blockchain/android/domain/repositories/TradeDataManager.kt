@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.recurringbuy.domain
+package piuk.blockchain.android.domain.repositories
 
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import io.reactivex.rxjava3.core.Single

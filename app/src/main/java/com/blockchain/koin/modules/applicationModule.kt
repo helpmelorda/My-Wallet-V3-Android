@@ -96,13 +96,16 @@ import piuk.blockchain.android.ui.pairingcode.PairingState
 import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
 import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
-import piuk.blockchain.android.ui.recurringbuy.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
-import piuk.blockchain.android.ui.recurringbuy.data.GetNextPaymentDateListToFrequencyDateMapper
-import piuk.blockchain.android.ui.recurringbuy.data.TradeDataManagerImpl
-import piuk.blockchain.android.ui.recurringbuy.data.TradeMapper
-import piuk.blockchain.android.ui.recurringbuy.domain.TradeDataManager
-import piuk.blockchain.android.ui.recurringbuy.domain.usecases.GetNextPaymentDateUseCase
-import piuk.blockchain.android.ui.recurringbuy.domain.usecases.IsFirstTimeBuyerUseCase
+import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
+import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
+import piuk.blockchain.android.data.TradeDataManagerImpl
+import piuk.blockchain.android.data.Mapper
+import piuk.blockchain.android.data.NabuUserDataManagerImpl
+import piuk.blockchain.android.domain.repositories.NabuUserDataManager
+import piuk.blockchain.android.domain.repositories.TradeDataManager
+import piuk.blockchain.android.domain.usecases.GetNextPaymentDateUseCase
+import piuk.blockchain.android.domain.usecases.GetUserGeolocationUseCase
+import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.ui.reset.ResetAccountModel
 import piuk.blockchain.android.ui.reset.ResetAccountState
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -176,12 +179,14 @@ val applicationModule = module {
             SecondPasswordDialog(contextAccess = get(), payloadManager = get())
         }.bind(SecondPasswordHandler::class)
 
-        factory { KycStatusHelper(
-            nabuDataManager = get(),
-            nabuToken = get(),
-            settingsDataManager = get(),
-            tierService = get()
-        ) }
+        factory {
+            KycStatusHelper(
+                nabuDataManager = get(),
+                nabuToken = get(),
+                settingsDataManager = get(),
+                tierService = get()
+            )
+        }
 
         scoped {
             CredentialsWiper(
@@ -300,7 +305,8 @@ val applicationModule = module {
                 analytics = get(),
                 walletPrefs = get(),
                 environmentConfig = get(),
-                formatChecker = get()
+                formatChecker = get(),
+                getGeolocationUseCase = get()
             )
         }
 
@@ -531,6 +537,12 @@ val applicationModule = module {
         }
 
         factory {
+            GetUserGeolocationUseCase(
+                nabuUserDataManager = get()
+            )
+        }
+
+        factory {
             TradeDataManagerImpl(
                 tradeService = get(),
                 authenticator = get(),
@@ -541,11 +553,17 @@ val applicationModule = module {
 
         factory {
             GetAccumulatedInPeriodToIsFirstTimeBuyerMapper()
-        }.bind(TradeMapper::class)
+        }.bind(Mapper::class)
 
         factory {
             GetNextPaymentDateListToFrequencyDateMapper()
-        }.bind(TradeMapper::class)
+        }.bind(Mapper::class)
+
+        factory {
+            NabuUserDataManagerImpl(
+                nabuUserService = get()
+            )
+        }.bind(NabuUserDataManager::class)
 
         factory {
             SimpleBuyPrefsSerializerImpl(

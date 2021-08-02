@@ -1,4 +1,4 @@
-package piuk.blockchain.android.repositories
+package piuk.blockchain.android.domain.repositories
 
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.TransactionType
@@ -6,7 +6,6 @@ import com.blockchain.nabu.datamanagers.repositories.ExpiringRepository
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.ActivitySummaryList

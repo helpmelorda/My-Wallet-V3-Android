@@ -1447,7 +1447,6 @@ Nota: no podrá enviar ni retirar estos fondos desde su monedero en los próximo
     <string name="pin_max_strikes">%1$d intentos de PIN fallidos. Introduzca la contraseña.</string>
     <string name="recovery_passphrase_1">Frase secreta de recuperación de la clave privada</string>
     <string name="invalid_recovery_phrase_1">Frase secreta de recuperación de la clave privada no válida. Inténtelo de nuevo</string>
-    <string name="sign_up_email">Correo electrónico</string>
     <string name="password_disclaimer">Entiendo que Blockchain.com no puede recuperar mi contraseña por mí. Si pierdo el acceso a mi billetera, debo utilizar mi <annotation link="backup">frase secreta</annotation> para acceder a mis fondos.</string>
     <string name="transfer_funds_description_1">Las direcciones importadas no están respaldadas por su frase secreta de recuperación de la clave privada. Para asegurar estos fondos,
         recomendamos transferir estos saldos a su billetera sin custodia de Blockchain.com.

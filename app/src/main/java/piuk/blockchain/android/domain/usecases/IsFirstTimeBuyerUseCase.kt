@@ -1,8 +1,8 @@
-package piuk.blockchain.android.ui.recurringbuy.domain.usecases
+package piuk.blockchain.android.domain.usecases
 
 import com.blockchain.usecases.UseCase
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.ui.recurringbuy.domain.TradeDataManager
+import piuk.blockchain.android.domain.repositories.TradeDataManager
 
 class IsFirstTimeBuyerUseCase(
     private val tradeDataManager: TradeDataManager
