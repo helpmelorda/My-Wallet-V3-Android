@@ -32,17 +32,53 @@ class BlockchainDeepLinkParserTest {
     }
 
     @Test
+    fun `VERIFY_EMAIL_URL URI returns BlockchainLinkState VerifyEmail`() {
+        val uri = Uri.parse(VERIFY_EMAIL_URL)
+        Assert.assertEquals(subject.mapUri(uri), BlockchainLinkState.VerifyEmail)
+    }
+
+    @Test
+    fun `Fingerprint URI returns BlockchainLinkState SetupFingerprint`() {
+        val uri = Uri.parse(FINGERPRINT_URL)
+        Assert.assertEquals(subject.mapUri(uri), BlockchainLinkState.SetupFingerprint)
+    }
+
+
+    @Test
+    fun `Interest URI returns BlockchainLinkState Interest`() {
+        val uri = Uri.parse(INTEREST_URL)
+        Assert.assertEquals(subject.mapUri(uri), BlockchainLinkState.Interest)
+    }
+
+
+    @Test
+    fun `Receive URI returns BlockchainLinkState Receive`() {
+        val uri = Uri.parse(RECEIVE_URL)
+        Assert.assertEquals(subject.mapUri(uri), BlockchainLinkState.Receive)
+    }
+
+
+    @Test
+    fun `Send URI returns BlockchainLinkState SetupFingerprint`() {
+        val uri = Uri.parse(SEND_URL)
+        Assert.assertEquals(subject.mapUri(uri), BlockchainLinkState.Send)
+    }
+
+
+    @Test
     fun `Empty URI returns NoUri`() {
         val uri = Uri.parse("")
         Assert.assertEquals(subject.mapUri(uri), BlockchainLinkState.NoUri)
     }
 
     companion object {
-        private const val SWAP_URL =
-            "blockchain://flow/swap"
-        private const val BUY_URL =
-            "blockchain://flow/buy"
-        private const val TWOFA_URL =
-            "blockchain://flow/twofa"
+        private const val SWAP_URL = "blockchain://flow/swap"
+        private const val BUY_URL = "blockchain://flow/buy"
+        private const val TWOFA_URL = "blockchain://flow/twofa"
+        private const val FINGERPRINT_URL = "blockchain://flow/setupfingerprint"
+        private const val VERIFY_EMAIL_URL = "blockchain://flow/verifyemail"
+        private const val INTEREST_URL = "blockchain://flow/interest"
+        private const val RECEIVE_URL = "blockchain://flow/receive"
+        private const val SEND_URL = "blockchain://flow/send"
     }
 }
