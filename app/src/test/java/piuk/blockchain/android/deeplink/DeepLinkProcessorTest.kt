@@ -105,7 +105,7 @@ private fun givenUriExpect(uri: String, expected: LinkState) {
         sunriverDeepLinkHelper = SunriverDeepLinkHelper(mock()),
         thePitDeepLinkParser = ThePitDeepLinkParser(),
         openBankingDeepLinkParser = OpenBankingDeepLinkParser(),
-        blockchainLinkParser = BlockchainDeepLinkParser()
+        blockchainDeepLinkParser = BlockchainDeepLinkParser()
     ).getLink(i)
         .test()
         .assertNoErrors()
