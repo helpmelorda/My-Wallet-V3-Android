@@ -34,7 +34,7 @@ import piuk.blockchain.android.data.biometrics.CryptographyManager
 import piuk.blockchain.android.data.biometrics.CryptographyManagerImpl
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
-import piuk.blockchain.android.deeplink.BlockchainLinkParser
+import piuk.blockchain.android.deeplink.BlockchainDeepLinkParser
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.EmailVerificationDeepLinkHelper
 import piuk.blockchain.android.deeplink.OpenBankingDeepLinkParser
@@ -399,7 +399,7 @@ val applicationModule = module {
         }
 
         factory {
-            BlockchainLinkParser()
+            BlockchainDeepLinkParser()
         }
 
         factory { EmailVerificationDeepLinkHelper() }

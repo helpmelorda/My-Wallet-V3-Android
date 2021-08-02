@@ -601,7 +601,8 @@ class MainPresenter internal constructor(
             is BlockchainLinkState.Activities -> view?.launchAssetAction(AssetAction.ViewActivity)
             is BlockchainLinkState.Buy -> view?.launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, link.ticker)
             is BlockchainLinkState.SimpleBuy -> view?.launchSimpleBuy(link.ticker)
-            is BlockchainLinkState.KycCampaign -> view?.launchKyc(valueOf<CampaignType>(link.campaignType.capitalizeFirstChar()) ?: CampaignType.None)
+            is BlockchainLinkState.KycCampaign ->
+                view?.launchKyc(valueOf<CampaignType>(link.campaignType.capitalizeFirstChar()) ?: CampaignType.None)
         }
     }
 }

@@ -804,7 +804,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         launchKyc(CampaignType.None)
     }
 
-    //region HomeNavigator Interface
+    // region HomeNavigator Interface
     override fun launchDashboard() {
         setCurrentTabItem(R.id.nav_home)
     }
@@ -936,7 +936,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     override fun launchPendingVerificationScreen(campaignType: CampaignType) {
         KycStatusActivity.start(this, campaignType)
     }
-    //endregion
+    // endregion
 
     companion object {
 

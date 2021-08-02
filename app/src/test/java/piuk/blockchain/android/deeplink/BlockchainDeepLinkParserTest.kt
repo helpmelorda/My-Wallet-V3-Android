@@ -11,7 +11,7 @@ import piuk.blockchain.android.BlockchainTestApplication
 @Config(sdk = [24], application = BlockchainTestApplication::class)
 @RunWith(RobolectricTestRunner::class)
 class BlockchainDeepLinkParserTest {
-    private val subject = BlockchainLinkParser()
+    private val subject = BlockchainDeepLinkParser()
 
     @Test
     fun `Swap URI returns BlockchainLinkState Swap`() {
@@ -43,13 +43,11 @@ class BlockchainDeepLinkParserTest {
         Assert.assertEquals(subject.mapUri(uri), BlockchainLinkState.SetupFingerprint)
     }
 
-
     @Test
     fun `Interest URI returns BlockchainLinkState Interest`() {
         val uri = Uri.parse(INTEREST_URL)
         Assert.assertEquals(subject.mapUri(uri), BlockchainLinkState.Interest)
     }
-
 
     @Test
     fun `Receive URI returns BlockchainLinkState Receive`() {
@@ -57,14 +55,12 @@ class BlockchainDeepLinkParserTest {
         Assert.assertEquals(subject.mapUri(uri), BlockchainLinkState.Receive)
     }
 
-
     @Test
     fun `Send URI returns BlockchainLinkState SetupFingerprint`() {
         val uri = Uri.parse(SEND_URL)
         Assert.assertEquals(subject.mapUri(uri), BlockchainLinkState.Send)
     }
-
-
+    
     @Test
     fun `Empty URI returns NoUri`() {
         val uri = Uri.parse("")
