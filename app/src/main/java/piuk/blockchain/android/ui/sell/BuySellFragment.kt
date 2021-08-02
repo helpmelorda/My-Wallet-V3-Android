@@ -128,7 +128,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
                         startActivityForResult(
                             SimpleBuyActivity.newInstance(
                                 context = activity as Context,
-                                asset = action.selectedAsset,
+                                ticker = action.selectedAsset.ticker,
                                 launchFromNavigationBar = true
                             ), SB_ACTIVITY
                         )
@@ -225,16 +225,16 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
         private const val SB_ACTIVITY = 321
 
         fun newInstance(
-            asset: AssetInfo?,
+            ticker: String?,
             viewType: BuySellViewType = BuySellViewType.TYPE_BUY
         ) = BuySellFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable(VIEW_TYPE, viewType)
-                    asset?.let {
-                        putString(SELECTED_ASSET, it.ticker)
-                    }
+            arguments = Bundle().apply {
+                putSerializable(VIEW_TYPE, viewType)
+                ticker?.let {
+                    putString(SELECTED_ASSET, it)
                 }
             }
+        }
     }
 
     enum class BuySellViewType {
@@ -246,7 +246,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
 
     override fun onSellFinished() = subscribeForNavigation(showLoader = false)
 
-    override fun onSellInfoClicked() = navigator().goToTransfer()
+    override fun onSellInfoClicked() = navigator().launchTransfer()
 
     override fun onSellListEmptyCta() {
         binding.pager.setCurrentItem(BuySellViewType.TYPE_BUY.ordinal, true)

@@ -21,9 +21,9 @@ interface HomeScreenFragment {
 }
 
 interface HomeNavigator {
-    fun gotoDashboard()
+    fun launchDashboard()
 
-    fun tryTolaunchSwap(
+    fun launchSwap(
         sourceAccount: CryptoAccount? = null,
         targetAccount: CryptoAccount? = null
     )
@@ -37,24 +37,20 @@ interface HomeNavigator {
     fun launchSetupFingerprintLogin()
     fun launchReceive()
     fun launchSend()
-    fun performAssetActionFor(action: AssetAction, account: BlockchainAccount)
-
-    fun launchSimpleBuySell(
+    fun launchBuySell(
         viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,
-        asset: AssetInfo? = null
+        ticker: String? = null
     )
-
+    fun launchSimpleBuy(ticker: String)
+    fun launchInterestDashboard()
+    fun launchFiatDeposit(currency: String)
+    fun launchTransfer()
     fun launchOpenBankingLinking(bankLinkingInfo: BankLinkingInfo)
     fun launchSimpleBuyFromDeepLinkApproval()
-    fun handlePaymentForCancelledOrder(state: SimpleBuyState)
-    fun showOpenBankingDeepLinkError()
+    fun launchPendingVerificationScreen(campaignType: CampaignType)
 
-    fun goToTransfer()
-
+    fun performAssetActionFor(action: AssetAction, account: BlockchainAccount)
     fun resumeSimpleBuyKyc()
-    fun startSimpleBuy(asset: AssetInfo)
-    fun startInterestDashboard()
-    fun launchFiatDeposit(currency: String)
 }
 
 abstract class HomeScreenMviFragment<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E : ViewBinding> :

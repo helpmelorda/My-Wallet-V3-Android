@@ -506,7 +506,7 @@ class DashboardFragment :
 
         override fun startSwap() {
             analytics.logEvent(SwapAnalyticsEvents.SwapClickedEvent(LaunchOrigin.DASHBOARD_PROMO))
-            navigator().tryTolaunchSwap()
+            navigator().launchSwap()
         }
 
         override fun startPitLinking() = navigator().launchThePitLinking()
@@ -536,7 +536,7 @@ class DashboardFragment :
         }
 
         override fun startSimpleBuy(asset: AssetInfo) {
-            navigator().startSimpleBuy(asset)
+            navigator().launchSimpleBuy(asset.ticker)
         }
 
         override fun startBuy() {
@@ -545,7 +545,7 @@ class DashboardFragment :
                     origin = LaunchOrigin.DASHBOARD_PROMO, type = BuySellType.BUY
                 )
             )
-            navigator().launchSimpleBuySell()
+            navigator().launchBuySell()
         }
 
         override fun startSell() {
@@ -554,7 +554,7 @@ class DashboardFragment :
                     origin = LaunchOrigin.DASHBOARD_PROMO, type = BuySellType.SELL
                 )
             )
-            navigator().launchSimpleBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)
+            navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)
         }
 
         override fun startSend() {
@@ -567,7 +567,7 @@ class DashboardFragment :
         }
 
         override fun startInterestDashboard() {
-            navigator().startInterestDashboard()
+            navigator().launchInterestDashboard()
         }
 
         override fun showFiatFundsKyc() {
@@ -665,11 +665,11 @@ class DashboardFragment :
     }
 
     override fun goToInterestDashboard() {
-        navigator().startInterestDashboard()
+        navigator().launchInterestDashboard()
     }
 
     override fun goToBuy(asset: AssetInfo) {
-        navigator().launchSimpleBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset)
+        navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset.ticker)
     }
 
     override fun startBackupForTransfer() {

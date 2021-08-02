@@ -42,7 +42,7 @@ class TransferSendFragment : AccountSelectorFragment(), DialogFlow.FlowHost {
         ) {
             analytics.logEvent(TransferAnalyticsEvent.NoBalanceCtaClicked)
             analytics.logEvent(BuySellClicked(origin = LaunchOrigin.SEND, type = BuySellType.BUY))
-            (activity as? HomeNavigator)?.launchSimpleBuySell()
+            (activity as? HomeNavigator)?.launchBuySell()
         }
 
         initialiseAccountSelectorWithHeader(

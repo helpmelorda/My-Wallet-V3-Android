@@ -62,6 +62,8 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import com.blockchain.notifications.analytics.Logging
 import com.blockchain.notifications.analytics.secondPasswordEvent
+import piuk.blockchain.android.deeplink.BlockchainLinkState
+import piuk.blockchain.android.ui.sell.BuySellFragment
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -79,13 +81,14 @@ interface MainView : MvpView, HomeNavigator {
     fun clearAllDynamicShortcuts()
     fun showHomebrewDebugMenu()
     fun enableSwapButton(isEnabled: Boolean)
-    fun launchPendingVerificationScreen(campaignType: CampaignType)
     fun shouldIgnoreDeepLinking(): Boolean
     fun displayDialog(@StringRes title: Int, @StringRes message: Int)
 
     fun startTransactionFlowWithTarget(targets: Collection<CryptoTarget>)
     fun showScanTargetError(error: QrScanError)
+    fun showOpenBankingDeepLinkError()
 
+    fun handlePaymentForCancelledOrder(state: SimpleBuyState)
     fun handleApprovalDepositComplete(orderValue: FiatValue, estimatedTransactionCompletionTime: String)
     fun handleApprovalDepositInProgress(amount: FiatValue)
     fun handleApprovalDepositError(currency: String)
@@ -93,7 +96,7 @@ interface MainView : MvpView, HomeNavigator {
     fun handleBuyApprovalError()
 
     fun launchUpsellAssetAction(upsell: KycUpgradePromptManager.Type, action: AssetAction, account: BlockchainAccount)
-    fun launchAssetAction(action: AssetAction, account: BlockchainAccount)
+    fun launchAssetAction(action: AssetAction, account: BlockchainAccount? = null)
 }
 
 class MainPresenter internal constructor(
@@ -213,6 +216,18 @@ class MainPresenter internal constructor(
             )
     }
 
+    fun handleDeepLink(uri: Uri) {
+        try {
+            compositeDisposable += deepLinkProcessor.getLink(uri.toString())
+                .subscribeBy(
+                    onError = { Timber.e(it) },
+                    onSuccess = { dispatchDeepLink(it) }
+                )
+        } catch (t: Throwable) {
+            Timber.d("Invalid link cannot be processed - ignoring")
+        }
+    }
+
     private fun dispatchDeepLink(linkState: LinkState) {
         when (linkState) {
             is LinkState.SunriverDeepLink -> handleSunriverDeepLink(linkState)
@@ -220,6 +235,7 @@ class MainPresenter internal constructor(
             is LinkState.KycDeepLink -> handleKycDeepLink(linkState)
             is LinkState.ThePitDeepLink -> handleThePitDeepLink(linkState)
             is LinkState.OpenBankingLink -> handleOpenBankingDeepLink(linkState)
+            is LinkState.BlockchainLink -> handleBlockchainDeepLink(linkState)
             else -> {
             }
         }
@@ -567,5 +583,18 @@ class MainPresenter internal constructor(
                     Timber.e("Upsell manager failure")
                 }
             )
+    }
+
+    private fun handleBlockchainDeepLink(linkState: LinkState.BlockchainLink) {
+        val link = linkState.link
+        when (link) {
+            BlockchainLinkState.Swap -> view?.launchSwap()
+            BlockchainLinkState.TwoFa -> view?.launchSetup2Fa()
+            is BlockchainLinkState.Sell -> view?.launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL, link.ticker)
+            is BlockchainLinkState.Activities -> view?.launchAssetAction(AssetAction.ViewActivity)
+            is BlockchainLinkState.Buy -> view?.launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, link.ticker)
+            is BlockchainLinkState.SimpleBuy -> view?.launchSimpleBuy(link.ticker)
+            BlockchainLinkState.NoUri -> Timber.e("Invalid deep link")
+        }
     }
 }

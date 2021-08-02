@@ -272,14 +272,14 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
         fun newInstance(
             context: Context,
-            asset: AssetInfo? = null,
+            ticker: String? = null,
             launchFromNavigationBar: Boolean = false,
             launchKycResume: Boolean = false,
             preselectedPaymentMethodId: String? = null,
             launchFromApprovalDeepLink: Boolean = false
         ) = Intent(context, SimpleBuyActivity::class.java).apply {
             putExtra(STARTED_FROM_NAVIGATION_KEY, launchFromNavigationBar)
-            putExtra(ASSET_KEY, asset?.ticker)
+            putExtra(ASSET_KEY, ticker)
             putExtra(STARTED_FROM_KYC_RESUME, launchKycResume)
             putExtra(PRESELECTED_PAYMENT_METHOD, preselectedPaymentMethodId)
             putExtra(STARTED_FROM_APPROVAL_KEY, launchFromApprovalDeepLink)
