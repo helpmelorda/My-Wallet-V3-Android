@@ -2,12 +2,10 @@ package piuk.blockchain.android.ui.home
 
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
-import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.base.mvi.MviModel

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.annotation.StringRes
 import com.blockchain.extensions.exhaustive
+import com.blockchain.extensions.valueOf
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -62,6 +63,7 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import com.blockchain.notifications.analytics.Logging
 import com.blockchain.notifications.analytics.secondPasswordEvent
+import com.blockchain.utils.capitalizeFirstChar
 import piuk.blockchain.android.deeplink.BlockchainLinkState
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import timber.log.Timber
@@ -586,15 +588,20 @@ class MainPresenter internal constructor(
     }
 
     private fun handleBlockchainDeepLink(linkState: LinkState.BlockchainLink) {
-        val link = linkState.link
-        when (link) {
+        when (val link = linkState.link) {
+            BlockchainLinkState.NoUri -> Timber.e("Invalid deep link")
             BlockchainLinkState.Swap -> view?.launchSwap()
             BlockchainLinkState.TwoFa -> view?.launchSetup2Fa()
+            BlockchainLinkState.VerifyEmail -> view?.launchVerifyEmail()
+            BlockchainLinkState.SetupFingerprint -> view?.launchSetupFingerprintLogin()
+            BlockchainLinkState.Interest -> view?.launchInterestDashboard()
+            BlockchainLinkState.Receive -> view?.launchReceive()
+            BlockchainLinkState.Send -> view?.launchSend()
             is BlockchainLinkState.Sell -> view?.launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL, link.ticker)
             is BlockchainLinkState.Activities -> view?.launchAssetAction(AssetAction.ViewActivity)
             is BlockchainLinkState.Buy -> view?.launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, link.ticker)
             is BlockchainLinkState.SimpleBuy -> view?.launchSimpleBuy(link.ticker)
-            BlockchainLinkState.NoUri -> Timber.e("Invalid deep link")
+            is BlockchainLinkState.KycCampaign -> view?.launchKyc(valueOf<CampaignType>(link.campaignType.capitalizeFirstChar()) ?: CampaignType.None)
         }
     }
 }
