@@ -60,7 +60,7 @@ class BlockchainDeepLinkParserTest {
         val uri = Uri.parse(SEND_URL)
         Assert.assertEquals(subject.mapUri(uri), BlockchainLinkState.Send)
     }
-    
+
     @Test
     fun `Empty URI returns NoUri`() {
         val uri = Uri.parse("")

@@ -4,7 +4,7 @@ import android.net.Uri
 import piuk.blockchain.android.kyc.ignoreFragment
 
 class BlockchainDeepLinkParser {
-    private fun getQueryParameters(uri: Uri, stateClass: Class<*>): Map<String, String>  {
+    private fun getQueryParameters(uri: Uri, stateClass: Class<*>): Map<String, String> {
         val hashMap = hashMapOf<String, String>()
         for (prop in stateClass.declaredFields) {
             uri.ignoreFragment().getQueryParameter(prop.name)?.let {
