@@ -32,7 +32,7 @@ class BlockchainDeepLinkParserTest {
     }
 
     @Test
-    fun `VERIFY_EMAIL_URL URI returns BlockchainLinkState VerifyEmail`() {
+    fun `Verify Email URI returns BlockchainLinkState VerifyEmail`() {
         val uri = Uri.parse(VERIFY_EMAIL_URL)
         Assert.assertEquals(subject.mapUri(uri), BlockchainLinkState.VerifyEmail)
     }

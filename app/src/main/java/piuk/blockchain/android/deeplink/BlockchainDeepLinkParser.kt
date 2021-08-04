@@ -16,49 +16,64 @@ class BlockchainDeepLinkParser {
 
     fun mapUri(uri: Uri): BlockchainLinkState {
         return when (uri.ignoreFragment().path) {
-            "/swap" -> {
+            SWAP_URL -> {
                 BlockchainLinkState.Swap
             }
-            "/activities" -> {
+            ACTIVITIES_URL -> {
                 BlockchainLinkState.Activities
             }
-            "/buy" -> {
+            BUY_URL -> {
                 val queries = getQueryParameters(uri, BlockchainLinkState.Buy::class.java)
                 BlockchainLinkState.Buy(ticker = queries["ticker"])
             }
-            "/sell" -> {
+            SELL_URL -> {
                 val queries = getQueryParameters(uri, BlockchainLinkState.Sell::class.java)
                 BlockchainLinkState.Sell(ticker = queries["ticker"])
             }
-            "/simplebuy" -> {
+            SIMPLE_BUY_URL -> {
                 val queries = getQueryParameters(uri, BlockchainLinkState.SimpleBuy::class.java)
                 val ticker = queries["ticker"] ?: return BlockchainLinkState.NoUri
                 BlockchainLinkState.SimpleBuy(ticker = ticker)
             }
-            "/kyc" -> {
+            KYC_URL -> {
                 val queries = getQueryParameters(uri, BlockchainLinkState.KycCampaign::class.java)
                 BlockchainLinkState.KycCampaign(campaignType = queries["campaignType"].orEmpty())
             }
-            "/twofa" -> {
+            TWO_FA_URL -> {
                 BlockchainLinkState.TwoFa
             }
-            "/verifyemail" -> {
+            VERIFY_EMAIL_URL -> {
                 BlockchainLinkState.VerifyEmail
             }
-            "/setupfingerprint" -> {
+            SETUP_FINGERPRINT_URL -> {
                 BlockchainLinkState.SetupFingerprint
             }
-            "/interest" -> {
+            INTEREST_URL -> {
                 BlockchainLinkState.Interest
             }
-            "/receive" -> {
+            RECEIVE_URL -> {
                 BlockchainLinkState.Receive
             }
-            "/send" -> {
+            SEND_URL -> {
                 BlockchainLinkState.Send
             }
             else -> BlockchainLinkState.NoUri
         }
+    }
+
+    companion object {
+        const val SWAP_URL = "/swap"
+        const val ACTIVITIES_URL = "/activities"
+        const val BUY_URL = "/buy"
+        const val SELL_URL = "/sell"
+        const val SIMPLE_BUY_URL = "/simplebuy"
+        const val KYC_URL = "/kyc"
+        const val TWO_FA_URL = "/twofa"
+        const val VERIFY_EMAIL_URL = "/verifyemail"
+        const val SETUP_FINGERPRINT_URL = "/setupfingerprint"
+        const val INTEREST_URL = "/interest"
+        const val RECEIVE_URL = "/receive"
+        const val SEND_URL = "/send"
     }
 }
 
