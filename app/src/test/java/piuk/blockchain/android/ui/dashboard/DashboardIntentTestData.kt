@@ -65,7 +65,7 @@ val testBtcState = CryptoAssetState(
 val testFiatBalance = FiatValue.fromMajor(FIAT_CURRENCY, 1000.toBigDecimal())
 
 @Mock
-private val fiatAccount : FiatAccount = mock()
+private val fiatAccount: FiatAccount = mock()
 val fiatAssetState_1 = FiatAssetState()
 val fiatAssetState_2 = FiatAssetState(listOf(FiatBalanceInfo(testFiatBalance, testFiatBalance, fiatAccount)))
 

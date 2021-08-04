@@ -102,5 +102,4 @@ class DashboardStateTest {
             (-1000).toBigDecimal()
         ), -20.0), subject.delta)
     }
-
 }
