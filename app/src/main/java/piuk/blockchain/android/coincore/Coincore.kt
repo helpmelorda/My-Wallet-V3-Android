@@ -40,12 +40,18 @@ class Coincore internal constructor(
 
     fun init(): Completable =
         assetCatalogue.initialise(fixedAssets.map { it.asset }.toSet())
+            .doOnSubscribe { crashLogger.logEvent("Coincore init start") }
             .flatMap { assetLoader.loadDynamicAssets(it) }
             .map { fixedAssets + it }
             .doOnSuccess { assetList -> assetMap = assetList.associateBy { it.asset } }
             .flatMapCompletable { assetList -> initAssets(assetList) }
+            .doOnComplete {
+                crashLogger.logEvent("Coincore init complete")
+            }
             .doOnError {
-                Timber.e("Coincore initialisation failed! $it")
+                val msg = "Coincore initialisation failed! $it"
+                crashLogger.logEvent(msg)
+                Timber.e(msg)
             }
 
     private fun initAssets(assetList: List<CryptoAsset>): Completable =

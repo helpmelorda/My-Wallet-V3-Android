@@ -45,7 +45,7 @@ class Prerequisites(
                 exchangeRates.prefetchCache(
                     assetList = coincore.activeCryptoAssets(),
                     fiatList = SUPPORTED_API_FIAT
-                ).logAndCompleteOnError(PRICE_CACHE_PREFETCH)
+                ).logOnError(PRICE_CACHE_PREFETCH)
             }
             .then {
                 simpleBuySync.performSync()

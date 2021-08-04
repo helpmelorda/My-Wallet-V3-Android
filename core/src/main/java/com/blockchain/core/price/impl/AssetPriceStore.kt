@@ -63,7 +63,6 @@ class AssetPriceStore(
                     cryptoTickerList = allBase.toSet(),
                     fiat = fiat
                 ).doOnSuccess { prices -> updateCachedData(prices, fiat) }
-                    .doOnError { Timber.d("Nope") }
             }
         ) { /* Empty */ }
         .doOnError {
