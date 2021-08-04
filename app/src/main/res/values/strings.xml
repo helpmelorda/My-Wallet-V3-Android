@@ -50,6 +50,7 @@
     <string name="common_unknown">Unknown</string>
     <string name="common_wallets">Wallets</string>
     <string name="common_go_back">Go Back</string>
+    <string name="common_reset_password">Reset Password</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -2115,14 +2116,18 @@
     <string name="enter_recovery_phrase_hint">Enter your secret recovery phrase</string>
     <string name="recovery_phrase_word_count_error">The Recovery Phrase must be exactly 12 words</string>
     <string name="reset_account_notice">Can’t find your recovery phrase? <annotation link="reset_account">Reset your account</annotation></string>
-    <string name="reset_kyc_notice">For your security, you may have to re-verify your identity before accessing your trading or interest account.\n<annotation link="learn_more">Learn more</annotation></string>
+    <string name="reset_kyc_notice">For your security, you may have to re-verify your identity before accessing your trading or interest account.</string>
     <string name="reset_kyc_failed">Restoring account failed. Please try again.</string>
-    <string name="reset_account_title">Reset Account?</string>
+    <string name="reset_account_title">Reset Your Account?</string>
     <string name="reset_account_description">Resetting will restore your Trading, Interest, and Exchange accounts.</string>
     <string name="reset_account_cta">Reset Account</string>
     <string name="retry_recovery_phrase_cta">Retry Recovery Phrase</string>
-    <string name="reset_account_warning_title">Resetting Account may result in lost funds</string>
+    <string name="reset_account_warning_title">Resetting Account May Result In Lost Funds</string>
     <string name="reset_account_warning_description">This means that if you lose your recovery phrase, you will lose access to your Private Key Wallet funds. You can always restore your Private Key Wallet funds later if you find your recovery phrase.</string>
+    <string name="reset_password_optional_label">Would you like to reset your password? You can always do this later in Settings.</string>
+    <string name="reset_password_hint">New Password</string>
+    <string name="reset_password_confirm_hint">Confirm New Password</string>
+    <string name="reset_password_optional_title">Reset Password?</string>
     <string name="restore_wallet_cta">Restore Wallet</string>
 
     <!-- Recurring buy screens -->

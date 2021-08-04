@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.recover
 
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,10 +9,12 @@ import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityAccountRecoveryBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
+import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.reset.ResetAccountFragment
+import piuk.blockchain.android.ui.reset.password.ResetPasswordFragment
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.visibleIf
 
@@ -24,6 +25,10 @@ class AccountRecoveryActivity :
 
     override val alwaysDisableScreenshots: Boolean
         get() = true
+
+    private val email: String by lazy {
+        intent.getStringExtra(ResetPasswordFragment.EMAIL) ?: ""
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +44,15 @@ class AccountRecoveryActivity :
                 showSeedPhraseInputError(R.string.invalid_recovery_phrase_1)
             AccountRecoveryStatus.WORD_COUNT_ERROR ->
                 showSeedPhraseInputError(R.string.recovery_phrase_word_count_error)
-            AccountRecoveryStatus.RECOVERY_SUCCESSFUL -> start<PinEntryActivity>(this)
+            AccountRecoveryStatus.RECOVERY_SUCCESSFUL -> {
+                if (email.isNotEmpty()) {
+                    // Go to the reset password screen when we have an email
+                    launchResetPasswordFlow(newState.seedPhrase)
+                } else {
+                    // Launch pin-entry otherwise
+                    start<PinEntryActivity>(this)
+                }
+            }
             AccountRecoveryStatus.RECOVERY_FAILED ->
                 toast(R.string.restore_failed, ToastCustom.TYPE_ERROR)
             AccountRecoveryStatus.RESET_KYC_FAILED ->
@@ -58,6 +71,7 @@ class AccountRecoveryActivity :
 
     private fun initControls() {
         with(binding) {
+            backButton.setOnClickListener { finish() }
             recoveryPhaseText.apply {
                 addTextChangedListener(object : TextWatcher {
                     override fun afterTextChanged(s: Editable) {
@@ -70,24 +84,18 @@ class AccountRecoveryActivity :
                     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
                 })
             }
-            // TODO add URLs
             resetAccountLabel.apply {
+                visibleIf { email.isNotEmpty() }
                 text = StringUtils.getStringWithMappedAnnotations(
                     context = this@AccountRecoveryActivity,
                     stringId = R.string.reset_account_notice,
                     linksMap = emptyMap(),
-                    onClick = { launchAccountResetFlow() }
+                    onClick = { launchResetAccountFlow() }
                 )
                 movementMethod = LinkMovementMethod.getInstance()
             }
-            resetKycLabel.apply {
-                text = StringUtils.getStringWithMappedAnnotations(
-                    context = this@AccountRecoveryActivity,
-                    stringId = R.string.reset_kyc_notice,
-                    linksMap = mapOf("learn_more" to Uri.EMPTY)
-                )
-                movementMethod = LinkMovementMethod.getInstance()
-            }
+            resetKycLabel.text = getString(R.string.reset_kyc_notice)
+
             verifyButton.setOnClickListener {
                 model.process(
                     AccountRecoveryIntents.VerifySeedPhrase(
@@ -98,14 +106,34 @@ class AccountRecoveryActivity :
         }
     }
 
-    private fun launchAccountResetFlow() {
+    private fun launchResetAccountFlow() {
         supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
             .replace(
                 binding.fragmentContainer.id,
-                ResetAccountFragment(),
+                ResetAccountFragment.newInstance(
+                    email = email,
+                    recoveryToken = intent.getStringExtra(ResetPasswordFragment.RECOVERY_TOKEN) ?: ""
+                ),
                 ResetAccountFragment::class.simpleName
             )
             .addToBackStack(ResetAccountFragment::class.simpleName)
+            .commitAllowingStateLoss()
+    }
+
+    private fun launchResetPasswordFlow(recoveryPhrase: String) {
+        supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
+            .replace(
+                binding.fragmentContainer.id,
+                ResetPasswordFragment.newInstance(
+                    isResetMandatory = false,
+                    email = email,
+                    recoveryPhrase = recoveryPhrase
+                ),
+                ResetPasswordFragment::class.simpleName
+            )
+            .addToBackStack(ResetPasswordFragment::class.simpleName)
             .commitAllowingStateLoss()
     }
 

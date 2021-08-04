@@ -65,7 +65,7 @@ platform :android do
 
       if options[:test_name]
 
-        if options[:module] != "app"
+        if options[:module] && options[:module] != "app"
 
           gradle(
             task: ":" + options[:module] + ":test",
@@ -85,7 +85,7 @@ platform :android do
 
       else
 
-        if options[:module] != "app"
+        if options[:module] && options[:module] != "app"
 
           gradle(
             task: ":" + options[:module] + ":test",

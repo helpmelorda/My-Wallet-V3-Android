@@ -15,6 +15,8 @@ import com.blockchain.nabu.models.responses.nabu.ApplicantIdRequest
 import com.blockchain.nabu.models.responses.nabu.NabuBasicUser
 import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
 import com.blockchain.nabu.models.responses.nabu.NabuJwt
+import com.blockchain.nabu.models.responses.nabu.NabuRecoverAccountRequest
+import com.blockchain.nabu.models.responses.nabu.NabuRecoverAccountResponse
 import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.RecordCountryRequest
@@ -188,6 +190,19 @@ class NabuService internal constructor (
     ): Completable = nabu.submitVerification(
         ApplicantIdRequest(sessionToken.userId),
         sessionToken.authHeader
+    ).wrapErrorMessage()
+
+    internal fun recoverAccount(
+        offlineToken: NabuOfflineTokenResponse,
+        jwt: String,
+        recoveryToken: String
+    ): Single<NabuRecoverAccountResponse> = nabu.recoverAccount(
+        offlineToken.userId,
+        NabuRecoverAccountRequest(
+            jwt = jwt,
+            recoveryToken = recoveryToken
+        ),
+        authorization = "Bearer ${offlineToken.token}"
     ).wrapErrorMessage()
 
     internal fun recoverUser(

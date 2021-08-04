@@ -106,8 +106,6 @@ import piuk.blockchain.android.domain.repositories.TradeDataManager
 import piuk.blockchain.android.domain.usecases.GetNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.GetUserGeolocationUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
-import piuk.blockchain.android.ui.reset.ResetAccountModel
-import piuk.blockchain.android.ui.reset.ResetAccountState
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
@@ -374,15 +372,6 @@ val applicationModule = module {
                 metadataInteractor = get(),
                 metadataDerivation = MetadataDerivation(),
                 nabuDataManager = get()
-            )
-        }
-
-        factory {
-            ResetAccountModel(
-                initialState = ResetAccountState(),
-                mainScheduler = AndroidSchedulers.mainThread(),
-                environmentConfig = get(),
-                crashLogger = get()
             )
         }
 
