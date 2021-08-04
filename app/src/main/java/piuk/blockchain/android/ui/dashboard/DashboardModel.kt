@@ -141,18 +141,7 @@ data class DashboardState(
     }
 
     override val fiatBalance: Money? by unsafeLazy {
-        val cryptoAssetBalance = cryptoAssetFiatBalances()
-        val fiatAssetBalance = fiatAssets?.totalBalance
-
-        if (cryptoAssetBalance != null) {
-            if (fiatAssetBalance != null) {
-                cryptoAssetBalance + fiatAssetBalance
-            } else {
-                cryptoAssetBalance
-            }
-        } else {
-            fiatAssetBalance
-        }
+        addFiatBalance(cryptoAssetFiatBalances())
     }
 
     private fun cryptoAssetFiatBalances() = assets.values
@@ -161,10 +150,26 @@ data class DashboardState(
         .ifEmpty { null }?.total()
 
     private val fiatBalance24h: Money? by unsafeLazy {
-        assets.values
-            .filter { !it.isLoading && it.fiatBalance24h != null }
-            .map { it.fiatBalance24h!! }
-            .ifEmpty { null }?.total()
+        addFiatBalance(cryptoAssetFiatBalances24h())
+    }
+
+    private fun cryptoAssetFiatBalances24h() = assets.values
+        .filter { !it.isLoading && it.fiatBalance24h != null }
+        .map { it.fiatBalance24h!! }
+        .ifEmpty { null }?.total()
+
+    private fun addFiatBalance(balance: Money?): Money? {
+        val fiatAssetBalance = fiatAssets?.totalBalance
+
+        return if (balance != null) {
+            if (fiatAssetBalance != null) {
+                balance + fiatAssetBalance
+            } else {
+                balance
+            }
+        } else {
+            fiatAssetBalance
+        }
     }
 
     override val delta: Pair<Money, Double>? by unsafeLazy {
