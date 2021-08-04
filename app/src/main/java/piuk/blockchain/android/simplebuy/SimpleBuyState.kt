@@ -1,5 +1,6 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.BuySellPair
 import com.blockchain.nabu.datamanagers.CustodialQuote
 import com.blockchain.nabu.datamanagers.OrderState
@@ -13,13 +14,11 @@ import info.blockchain.balance.AssetInfo
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import piuk.blockchain.android.cards.EverypayAuthOptions
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.android.ui.sell.ExchangePriceWithDelta
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.io.Serializable
 import java.math.BigInteger
@@ -111,21 +110,19 @@ data class SimpleBuyState constructor(
             minPaymentMethodLimit ?: minUserLimit ?: FiatValue.zero(fiatCurrency)
     }
 
-    fun maxCryptoAmount(exchangeRateDataManager: ExchangeRateDataManager): Money? =
-        selectedCryptoAsset?.let { asset ->
-            ExchangeRate.FiatToCrypto(
-                from = fiatCurrency,
-                to = selectedCryptoAsset,
-                rate = exchangeRateDataManager.getLastPrice(asset, fiatCurrency)
+    fun maxCryptoAmount(exchangeRates: ExchangeRatesDataManager): Money? =
+        selectedCryptoAsset?.let {
+            exchangeRates.getLastFiatToCryptoRate(
+                sourceFiat = fiatCurrency,
+                targetCrypto = selectedCryptoAsset
             ).convert(maxFiatAmount)
         }
 
-    fun minCryptoAmount(exchangeRateDataManager: ExchangeRateDataManager): Money? =
-        selectedCryptoAsset?.let { asset ->
-            ExchangeRate.FiatToCrypto(
-                from = fiatCurrency,
-                to = selectedCryptoAsset,
-                rate = exchangeRateDataManager.getLastPrice(asset, fiatCurrency)
+    fun minCryptoAmount(exchangeRates: ExchangeRatesDataManager): Money? =
+        selectedCryptoAsset?.let {
+            exchangeRates.getLastFiatToCryptoRate(
+                sourceFiat = fiatCurrency,
+                targetCrypto = selectedCryptoAsset
             ).convert(minFiatAmount)
         }
 

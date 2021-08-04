@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.InterestActivityItem
@@ -23,7 +24,6 @@ import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.TradeActivitySummaryItem
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.TxSourceState
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.utils.extensions.mapList
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -31,7 +31,7 @@ internal class CryptoInterestAccount(
     override val asset: AssetInfo,
     override val label: String,
     private val custodialWalletManager: CustodialWalletManager,
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     @Suppress("unused")
     private val features: InternalFeatureFlagApi
 ) : CryptoAccountBase(), InterestAccount {

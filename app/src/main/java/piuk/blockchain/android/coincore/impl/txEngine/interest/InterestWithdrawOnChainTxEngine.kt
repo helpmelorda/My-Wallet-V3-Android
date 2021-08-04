@@ -19,6 +19,8 @@ import piuk.blockchain.android.coincore.TxConfirmationValue
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.TxValidationFailure
 import piuk.blockchain.android.coincore.ValidationState
+import piuk.blockchain.android.coincore.toCrypto
+import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.coincore.updateTxValidity
 
 class InterestWithdrawOnChainTxEngine(
@@ -44,7 +46,7 @@ class InterestWithdrawOnChainTxEngine(
                 PendingTx(
                     amount = CryptoValue.zero(sourceAsset),
                     minLimit = CryptoValue.fromMinor(sourceAsset, minLimits.minLimit),
-                    maxLimit = maxLimits.maxWithdrawalAmount,
+                    maxLimit = maxLimits.maxWithdrawalFiatValue.toCrypto(exchangeRates, sourceAsset),
                     feeSelection = FeeSelection(),
                     selectedFiat = userFiat,
                     availableBalance = balance,
@@ -96,7 +98,7 @@ class InterestWithdrawOnChainTxEngine(
                     ),
                     TxConfirmationValue.NetworkFee(
                         pendingTx.feeAmount,
-                        pendingTx.feeAmount.toFiat(exchangeRates, userFiat),
+                        pendingTx.feeAmount.toUserFiat(exchangeRates),
                         sourceAsset
                     ),
                     (txTarget as? CryptoTarget)?.memo?.let {
@@ -110,8 +112,8 @@ class InterestWithdrawOnChainTxEngine(
                         totalWithFee = (pendingTx.amount as CryptoValue).plus(
                             pendingTx.feeAmount as CryptoValue
                         ),
-                        exchange = pendingTx.amount.toFiat(exchangeRates, userFiat)
-                            .plus(pendingTx.feeAmount.toFiat(exchangeRates, userFiat))
+                        exchange = pendingTx.amount.toUserFiat(exchangeRates)
+                            .plus(pendingTx.feeAmount.toUserFiat(exchangeRates))
                     )
                 )
             )

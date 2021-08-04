@@ -28,8 +28,6 @@ abstract class Money : Serializable {
 
     abstract fun toZero(): Money
 
-    abstract fun toFiat(exchangeRates: ExchangeRates, fiatCurrency: String): Money
-
     // Format for display
     abstract fun toStringWithSymbol(): String
     abstract fun toStringWithoutSymbol(): String

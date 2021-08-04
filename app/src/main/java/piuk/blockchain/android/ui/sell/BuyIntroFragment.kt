@@ -6,16 +6,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.percentageDelta
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.BuySellPairs
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
-import info.blockchain.balance.percentageDelta
-import info.blockchain.wallet.prices.TimeAgo
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -75,7 +74,7 @@ class BuyIntroFragment : ViewPagerFragment() {
                     }
                     Single.zip(enabledPairs.map {
                         coinCore[it.cryptoCurrency].exchangeRate().zipWith(
-                            coinCore[it.cryptoCurrency].historicRate(TimeAgo.ONE_DAY.epoch)
+                            coinCore[it.cryptoCurrency].exchangeRateYesterday()
                         ).map { (currentPrice, price24h) ->
                             PriceHistory(
                                 currentExchangeRate = currentPrice as ExchangeRate.CryptoToFiat,

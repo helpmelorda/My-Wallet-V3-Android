@@ -1,8 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine.swap
 
-import com.blockchain.android.testutils.rxInit
-import com.blockchain.featureflags.InternalFeatureFlagApi
-import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -13,7 +11,6 @@ import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import com.blockchain.nabu.service.TierService
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
@@ -30,15 +27,10 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-
 import org.amshove.kluent.shouldEqual
-import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
-import org.junit.Rule
 import org.junit.Test
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.FeeLevel
 import piuk.blockchain.android.coincore.FeeSelection
@@ -50,33 +42,16 @@ import piuk.blockchain.android.coincore.bch.BchCryptoWalletAccount
 import piuk.blockchain.android.coincore.btc.BtcAddress
 import piuk.blockchain.android.coincore.btc.BtcCryptoWalletAccount
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
-import piuk.blockchain.android.coincore.impl.injectMocks
 import piuk.blockchain.android.coincore.impl.txEngine.OnChainTxEngineBase
 import piuk.blockchain.android.coincore.impl.txEngine.PricedQuote
 import piuk.blockchain.android.coincore.impl.txEngine.TransferQuotesEngine
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 
-class OnChainSwapEngineTest {
-
-    @get:Rule
-    val initSchedulers = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
-    }
+class OnChainSwapEngineTest : CoincoreTestBase() {
 
     private val walletManager: CustodialWalletManager = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
     private val kycTierService: TierService = mock()
-    private val internalFeatureFlagApi: InternalFeatureFlagApi = mock()
-
-    private val exchangeRates: ExchangeRateDataManager = mock {
-        on { getLastPrice(SRC_ASSET, SELECTED_FIAT) }.thenReturn(EXCHANGE_RATE)
-    }
-
-    private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
-    }
 
     private val onChainEngine: OnChainTxEngineBase = mock {
         on { sourceAsset }.thenReturn(SRC_ASSET)
@@ -91,20 +66,16 @@ class OnChainSwapEngineTest {
 
     @Before
     fun setup() {
-        injectMocks(
-            module {
-                scope(payloadScopeQualifier) {
-                    factory {
-                        currencyPrefs
-                    }
-                }
-            }
-        )
-    }
+        initMocks()
 
-    @After
-    fun teardown() {
-        stopKoin()
+        whenever(exchangeRates.getLastCryptoToUserFiatRate(SRC_ASSET))
+            .thenReturn(
+                ExchangeRate.CryptoToFiat(
+                    from = SRC_ASSET,
+                    to = TEST_USER_FIAT,
+                    rate = EXCHANGE_RATE
+                )
+            )
     }
 
     @Test
@@ -200,7 +171,7 @@ class OnChainSwapEngineTest {
     fun `inputs fail validation when target account incorrect`() {
         val sourceAccount = mockSourceAccount()
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency }.thenReturn(SELECTED_FIAT)
+            on { fiatCurrency }.thenReturn(TEST_USER_FIAT)
         }
 
         // Act
@@ -301,7 +272,7 @@ class OnChainSwapEngineTest {
                     it.totalBalance == totalBalance &&
                     it.availableBalance == availableBalance &&
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
-                    it.selectedFiat == SELECTED_FIAT &&
+                    it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
                     it.minLimit == expectedMinLimit &&
                     it.maxLimit == MAX_GOLD_LIMIT_ASSET &&
@@ -320,7 +291,7 @@ class OnChainSwapEngineTest {
         verifyLimitsFetched()
         verify(quotesEngine).pricedQuote
         verify(quotesEngine, atLeastOnce()).getLatestQuote()
-        verify(exchangeRates).getLastPrice(SRC_ASSET, SELECTED_FIAT)
+        verify(exchangeRates).getLastCryptoToUserFiatRate(SRC_ASSET)
         verify(onChainEngine).doInitialiseTx()
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -368,7 +339,7 @@ class OnChainSwapEngineTest {
                     it.totalBalance == totalBalance &&
                     it.availableBalance == availableBalance &&
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
-                    it.selectedFiat == SELECTED_FIAT &&
+                    it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
                     it.minLimit == expectedMinLimit &&
                     it.maxLimit == MAX_GOLD_LIMIT_ASSET &&
@@ -387,7 +358,7 @@ class OnChainSwapEngineTest {
         verifyLimitsFetched()
         verify(quotesEngine).pricedQuote
         verify(quotesEngine, atLeastOnce()).getLatestQuote()
-        verify(exchangeRates).getLastPrice(SRC_ASSET, SELECTED_FIAT)
+        verify(exchangeRates).getLastCryptoToUserFiatRate(SRC_ASSET)
         verify(onChainEngine).doInitialiseTx()
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -424,7 +395,7 @@ class OnChainSwapEngineTest {
                     it.totalBalance == CryptoValue.zero(SRC_ASSET) &&
                     it.availableBalance == CryptoValue.zero(SRC_ASSET) &&
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
-                    it.selectedFiat == SELECTED_FIAT &&
+                    it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
                     it.minLimit == null &&
                     it.maxLimit == null &&
@@ -476,7 +447,7 @@ class OnChainSwapEngineTest {
             availableBalance = CryptoValue.zero(SRC_ASSET),
             feeForFullAvailable = CryptoValue.zero(SRC_ASSET),
             feeAmount = CryptoValue.zero(SRC_ASSET),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = expectedFeeLevel,
                 availableLevels = expectedFeeLevelOptions,
@@ -544,7 +515,7 @@ class OnChainSwapEngineTest {
             availableBalance = availableBalance,
             feeForFullAvailable = fullFee,
             feeAmount = initialFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = EXPECTED_FEE_LEVEL,
                 availableLevels = EXPECTED_FEE_OPTIONS,
@@ -606,7 +577,7 @@ class OnChainSwapEngineTest {
             availableBalance = availableBalance,
             feeForFullAvailable = totalBalance - availableBalance,
             feeAmount = CryptoValue.zero(SRC_ASSET),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = setOf(FeeLevel.Regular, FeeLevel.Priority, FeeLevel.Custom),
@@ -620,7 +591,7 @@ class OnChainSwapEngineTest {
         val kycTiers: KycTiers = mock()
         whenever(kycTierService.tiers()).thenReturn(Single.just(kycTiers))
 
-        whenever(walletManager.getProductTransferLimits(SELECTED_FIAT, Product.TRADE, TransferDirection.ON_CHAIN))
+        whenever(walletManager.getProductTransferLimits(TEST_USER_FIAT, Product.TRADE, TransferDirection.ON_CHAIN))
             .thenReturn(
                 Single.just(
                     TransferLimits(
@@ -634,7 +605,7 @@ class OnChainSwapEngineTest {
 
     private fun verifyLimitsFetched() {
         verify(kycTierService).tiers()
-        verify(walletManager).getProductTransferLimits(SELECTED_FIAT, Product.TRADE, TransferDirection.ON_CHAIN)
+        verify(walletManager).getProductTransferLimits(TEST_USER_FIAT, Product.TRADE, TransferDirection.ON_CHAIN)
     }
 
     private fun verifyOnChainEngineStarted(srcAccount: CryptoAccount) {
@@ -674,7 +645,6 @@ class OnChainSwapEngineTest {
     }
 
     companion object {
-        private const val SELECTED_FIAT = "INR"
         private val SRC_ASSET = CryptoCurrency.BTC
         private val TGT_ASSET = CryptoCurrency.XLM
         private val FEE_ASSET = CryptoCurrency.BTC
@@ -687,9 +657,9 @@ class OnChainSwapEngineTest {
         private val EXPECTED_FEE_OPTIONS = setOf(FeeLevel.Priority)
         private val INITIAL_QUOTE_PRICE = CryptoValue.fromMajor(CryptoCurrency.BTC, 10.toBigDecimal())
 
-        private val MIN_GOLD_LIMIT = FiatValue.fromMajor(SELECTED_FIAT, 100.toBigDecimal())
-        private val MAX_GOLD_ORDER = FiatValue.fromMajor(SELECTED_FIAT, 500.toBigDecimal())
-        private val MAX_GOLD_LIMIT = FiatValue.fromMajor(SELECTED_FIAT, 2000.toBigDecimal())
+        private val MIN_GOLD_LIMIT = FiatValue.fromMajor(TEST_USER_FIAT, 100.toBigDecimal())
+        private val MAX_GOLD_ORDER = FiatValue.fromMajor(TEST_USER_FIAT, 500.toBigDecimal())
+        private val MAX_GOLD_LIMIT = FiatValue.fromMajor(TEST_USER_FIAT, 2000.toBigDecimal())
 
         private val MIN_GOLD_LIMIT_ASSET = CryptoValue.fromMajor(SRC_ASSET, 50.toBigDecimal())
         private val MAX_GOLD_ORDER_ASSET = CryptoValue.fromMajor(SRC_ASSET, 250.toBigDecimal())

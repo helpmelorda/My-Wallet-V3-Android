@@ -35,6 +35,8 @@ import piuk.blockchain.android.coincore.copyAndPut
 import piuk.blockchain.android.coincore.impl.txEngine.BitPayClientEngine
 import piuk.blockchain.android.coincore.impl.txEngine.EngineTransaction
 import piuk.blockchain.android.coincore.impl.txEngine.OnChainTxEngineBase
+import piuk.blockchain.android.coincore.toFiat
+import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.coincore.updateTxValidity
 import piuk.blockchain.android.ui.transactionflow.flow.FeeInfo
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -230,7 +232,7 @@ class BtcOnChainTxEngine(
                     sendingFeeInfo = if (!pendingTx.feeAmount.isZero) {
                         FeeInfo(
                             pendingTx.feeAmount,
-                            pendingTx.feeAmount.toFiat(exchangeRates, userFiat),
+                            pendingTx.feeAmount.toUserFiat(exchangeRates),
                             sourceAsset
                         )
                     } else null,
@@ -240,8 +242,8 @@ class BtcOnChainTxEngine(
                     totalWithFee = (pendingTx.amount as CryptoValue).plus(
                         pendingTx.feeAmount as CryptoValue
                     ),
-                    exchange = pendingTx.amount.toFiat(exchangeRates, userFiat)
-                        .plus(pendingTx.feeAmount.toFiat(exchangeRates, userFiat))
+                    exchange = pendingTx.amount.toUserFiat(exchangeRates)
+                        .plus(pendingTx.feeAmount.toUserFiat(exchangeRates))
                 ),
                 TxConfirmationValue.Description(),
                 if (isLargeTransaction(pendingTx)) {
@@ -257,7 +259,7 @@ class BtcOnChainTxEngine(
     //  * the Tx size is over 1kB AND
     //  * the ratio of fee/amount is over 1%
     private fun isLargeTransaction(pendingTx: PendingTx): Boolean {
-        val fiatValue = pendingTx.feeAmount.toFiat(exchangeRates, LARGE_TX_FIAT)
+        val fiatValue = pendingTx.feeAmount.toFiat(LARGE_TX_FIAT, exchangeRates)
 
         val outputs = listOf(
             btcDataManager.getAddressOutputType(btcTarget.address),

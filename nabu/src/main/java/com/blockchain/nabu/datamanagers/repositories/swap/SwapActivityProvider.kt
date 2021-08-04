@@ -1,6 +1,5 @@
 package com.blockchain.nabu.datamanagers.repositories.swap
 
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.TransferDirection
@@ -14,7 +13,6 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 
 interface SwapActivityProvider {
     fun getSwapActivity(): Single<List<TradeTransactionItem>>
@@ -23,9 +21,7 @@ interface SwapActivityProvider {
 class SwapActivityProviderImpl(
     private val assetCatalogue: AssetCatalogue,
     private val authenticator: Authenticator,
-    private val nabuService: NabuService,
-    private val currencyPrefs: CurrencyPrefs,
-    private val exchangeRates: ExchangeRateDataManager
+    private val nabuService: NabuService
 ) : SwapActivityProvider {
     override fun getSwapActivity(): Single<List<TradeTransactionItem>> =
         authenticator.authenticate { sessionToken ->
@@ -37,7 +33,7 @@ class SwapActivityProviderImpl(
                 ) ?: return@mapNotNull null
 
                 val apiFiat = FiatValue.fromMinor(it.fiatCurrency, it.fiatValue.toLong())
-                val localFiat = apiFiat.toFiat(exchangeRates, currencyPrefs.selectedFiatCurrency)
+
                 TradeTransactionItem(
                     txId = it.kind.depositTxHash ?: it.id,
                     timeStampMs = it.createdAt.fromIso8601ToUtc()?.toLocalTime()?.time
@@ -50,8 +46,7 @@ class SwapActivityProviderImpl(
                     receivingValue = pair.toDestinationMoney(it.priceFunnel.outputMoney.toBigInteger()),
                     withdrawalNetworkFee = pair.toDestinationMoney(it.priceFunnel.networkFee.toBigInteger()),
                     currencyPair = pair,
-                    fiatValue = localFiat,
-                    fiatCurrency = currencyPrefs.selectedFiatCurrency
+                    apiFiatValue = apiFiat
                 )
             }.filter {
                 it.state.displayableState
@@ -79,6 +74,5 @@ data class TradeTransactionItem(
     val receivingValue: Money,
     val withdrawalNetworkFee: Money,
     val currencyPair: CurrencyPair,
-    val fiatValue: FiatValue,
-    val fiatCurrency: String
+    val apiFiatValue: FiatValue
 )

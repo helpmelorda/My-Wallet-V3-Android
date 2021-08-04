@@ -1,13 +1,12 @@
 package piuk.blockchain.android.coincore
 
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.HistoricalRateList
+import com.blockchain.core.price.HistoricalTimeSpan
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.ExchangeRate
-import info.blockchain.wallet.prices.TimeInterval
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.exchangerate.PriceSeries
-import piuk.blockchain.androidcore.data.exchangerate.TimeSpan
 
 enum class AssetFilter {
     All,
@@ -84,8 +83,11 @@ interface CryptoAsset : Asset {
 
     // Fetch exchange rate to user's selected/display fiat
     fun exchangeRate(): Single<ExchangeRate>
+    fun exchangeRateYesterday(): Single<ExchangeRate>
     fun historicRate(epochWhen: Long): Single<ExchangeRate>
-    fun historicRateSeries(period: TimeSpan, interval: TimeInterval): Single<PriceSeries>
+
+    fun historicRateSeries(period: HistoricalTimeSpan): Single<HistoricalRateList>
+    fun lastDayTrend(): Single<HistoricalRateList>
 
     // Temp feature accessors - this will change, but until it's building these have to be somewhere
     val isCustodialOnly: Boolean

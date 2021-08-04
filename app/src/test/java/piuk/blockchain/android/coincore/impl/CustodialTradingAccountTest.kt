@@ -1,6 +1,7 @@
 package piuk.blockchain.android.coincore.impl
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.nhaarman.mockitokotlin2.mock
@@ -15,7 +16,6 @@ import org.junit.Test
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.identity.Feature
 import piuk.blockchain.android.identity.UserIdentity
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 
 class CustodialTradingAccountTest {
 
@@ -35,7 +35,7 @@ class CustodialTradingAccountTest {
         colour = "000000"
     )
 
-    private val exchangeRates: ExchangeRateDataManager = mock()
+    private val exchangeRates: ExchangeRatesDataManager = mock()
     private val custodialManager: CustodialWalletManager = mock()
     private val identity: UserIdentity = mock()
     private val features: InternalFeatureFlagApi = mock()

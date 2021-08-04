@@ -1,14 +1,14 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.HistoricalRate
+import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
-import info.blockchain.wallet.prices.TimeInterval
-import info.blockchain.wallet.prices.data.PriceDatum
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import junit.framework.Assert.assertEquals
@@ -19,7 +19,6 @@ import org.junit.Test
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.AssetFilter
 import piuk.blockchain.android.coincore.CryptoAsset
-import piuk.blockchain.androidcore.data.exchangerate.TimeSpan
 import java.util.Locale
 
 class AssetDetailsInteractorTest {
@@ -30,27 +29,26 @@ class AssetDetailsInteractorTest {
         computationTrampoline()
     }
 
-    private lateinit var interactor: AssetDetailsInteractor
-
     private val totalGroup: AccountGroup = mock()
     private val nonCustodialGroup: AccountGroup = mock()
     private val custodialGroup: AccountGroup = mock()
     private val interestGroup: AccountGroup = mock()
     private val interestRate: Double = 5.0
     private val interestEnabled: Boolean = true
-    private val asset: CryptoAsset = mock()
-    private val featureFlagMock: FeatureFlag = mock()
+    private val asset: CryptoAsset = mock {
+        on { accountGroup(AssetFilter.All) }.thenReturn(Maybe.just(totalGroup))
+        on { accountGroup(AssetFilter.NonCustodial) }.thenReturn(Maybe.just(nonCustodialGroup))
+        on { accountGroup(AssetFilter.Custodial) }.thenReturn(Maybe.just(custodialGroup))
+        on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.just(interestGroup))
+    }
+    private val featureFlagMock: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(interestEnabled))
+    }
+
+    private val subject = AssetDetailsInteractor(featureFlagMock, mock(), mock(), mock())
 
     @Before
     fun setUp() {
-        interactor = AssetDetailsInteractor(featureFlagMock, mock(), mock(), mock())
-
-        whenever(asset.accountGroup(AssetFilter.All)).thenReturn(Maybe.just(totalGroup))
-        whenever(asset.accountGroup(AssetFilter.NonCustodial)).thenReturn(Maybe.just(nonCustodialGroup))
-        whenever(asset.accountGroup(AssetFilter.Custodial)).thenReturn(Maybe.just(custodialGroup))
-        whenever(asset.accountGroup(AssetFilter.Interest)).thenReturn(Maybe.just(interestGroup))
-        whenever(featureFlagMock.enabled).thenReturn(Single.just(interestEnabled))
-
         Locale.setDefault(Locale.US)
     }
 
@@ -109,7 +107,7 @@ class AssetDetailsInteractorTest {
         whenever(interestGroup.accounts).thenReturn(listOf(mock()))
         whenever(interestGroup.isFunded).thenReturn(true)
 
-        val v = interactor.loadAssetDetails(asset)
+        val v = subject.loadAssetDetails(asset)
             .test()
             .values()
 
@@ -134,7 +132,7 @@ class AssetDetailsInteractorTest {
         whenever(interestGroup.accountBalance).thenReturn(Single.just(interestCrypto))
         whenever(asset.interestRate()).thenReturn(Single.just(interestRate))
 
-        val testObserver = interactor.loadAssetDetails(asset)
+        val testObserver = subject.loadAssetDetails(asset)
             .test()
 
         testObserver.assertNoValues()
@@ -154,7 +152,7 @@ class AssetDetailsInteractorTest {
         whenever(custodialGroup.accountBalance).thenReturn(Single.just(custodialCrypto))
         whenever(asset.interestRate()).thenReturn(Single.just(interestRate))
 
-        val testObserver = interactor.loadAssetDetails(asset)
+        val testObserver = subject.loadAssetDetails(asset)
             .test()
         testObserver.assertNoValues()
     }
@@ -165,35 +163,37 @@ class AssetDetailsInteractorTest {
 
         whenever(asset.exchangeRate()).thenReturn(Single.just(price))
 
-        val testObserver = interactor.loadExchangeRate(asset).test()
+        val testObserver = subject.loadExchangeRate(asset).test()
         testObserver.assertValue("$56,478.99").assertValueCount(1)
     }
 
     @Test
     fun `historic prices are returned properly`() {
-        whenever(asset.historicRateSeries(TimeSpan.DAY, TimeInterval.FIFTEEN_MINUTES))
-            .thenReturn(Single.just(listOf(
-                PriceDatum(5556, 2.toDouble(), volume24h = 0.toDouble()),
-                PriceDatum(587, 22.toDouble(), volume24h = 0.toDouble()),
-                PriceDatum(6981, 23.toDouble(), volume24h = 4.toDouble())
-            )))
+        val ratesList = listOf(
+            HistoricalRate(5556, 2.toDouble()),
+            HistoricalRate(587, 22.toDouble()),
+            HistoricalRate(6981, 23.toDouble())
+        )
 
-        val testObserver = interactor.loadHistoricPrices(asset, TimeSpan.DAY).test()
+        whenever(asset.historicRateSeries(HistoricalTimeSpan.DAY))
+            .thenReturn(Single.just(ratesList))
 
-        testObserver.assertValue(listOf(
-            PriceDatum(5556, 2.toDouble(), volume24h = 0.toDouble()),
-            PriceDatum(587, 22.toDouble(), volume24h = 0.toDouble()),
-            PriceDatum(6981, 23.toDouble(), volume24h = 4.toDouble())
-        )).assertValueCount(1)
+        subject.loadHistoricPrices(asset, HistoricalTimeSpan.DAY)
+            .test()
+            .assertValue { it == ratesList }
+            .assertValueCount(1)
+            .assertNoErrors()
     }
 
     @Test
     fun `when historic prices api returns error, empty list should be returned`() {
-        whenever(asset.historicRateSeries(TimeSpan.DAY, TimeInterval.FIFTEEN_MINUTES))
+        whenever(asset.historicRateSeries(HistoricalTimeSpan.DAY))
             .thenReturn(Single.error(Throwable()))
 
-        val testObserver = interactor.loadHistoricPrices(asset, TimeSpan.DAY).test()
-
-        testObserver.assertValue(emptyList()).assertValueCount(1)
+        subject.loadHistoricPrices(asset, HistoricalTimeSpan.DAY)
+            .test()
+            .assertValue { it.isEmpty() }
+            .assertValueCount(1)
+            .assertNoErrors()
     }
 }

@@ -1,9 +1,6 @@
 package piuk.blockchain.android.coincore.erc20
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.gwei
 import com.blockchain.testutils.numberToBigDecimal
@@ -20,12 +17,8 @@ import info.blockchain.wallet.api.data.FeeLimits
 import info.blockchain.wallet.api.data.FeeOptions
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 import piuk.blockchain.android.coincore.BlockchainAccount
 import kotlin.test.assertEquals
 import piuk.blockchain.android.coincore.CryptoAddress
@@ -34,19 +27,11 @@ import piuk.blockchain.android.coincore.FeeSelection
 import piuk.blockchain.android.coincore.PendingTx
 import piuk.blockchain.android.coincore.TransactionTarget
 import piuk.blockchain.android.coincore.ValidationState
-import piuk.blockchain.android.coincore.impl.injectMocks
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 @Suppress("UnnecessaryVariable")
-class Erc20OnChainTxEngineTest {
-
-    @get:Rule
-    val initSchedulers = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
-    }
+class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
     private val erc20DataManager: Erc20DataManager = mock {
     }
@@ -59,11 +44,6 @@ class Erc20OnChainTxEngineTest {
     private val walletPreferences: WalletStatus = mock {
         on { getFeeTypeForAsset(ASSET) }.thenReturn(FeeLevel.Regular.ordinal)
     }
-    private val exchangeRates: ExchangeRateDataManager = mock()
-
-    private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
-    }
 
     private val subject = Erc20OnChainTxEngine(
         erc20DataManager = erc20DataManager,
@@ -74,20 +54,7 @@ class Erc20OnChainTxEngineTest {
 
     @Before
     fun setup() {
-        injectMocks(
-            module {
-                scope(payloadScopeQualifier) {
-                    factory {
-                        currencyPrefs
-                    }
-                }
-            }
-        )
-    }
-
-    @After
-    fun teardown() {
-        stopKoin()
+        initMocks()
     }
 
     @Test
@@ -187,7 +154,7 @@ class Erc20OnChainTxEngineTest {
                 it.totalBalance == CryptoValue.zero(ASSET) &&
                 it.availableBalance == CryptoValue.zero(ASSET) &&
                 it.feeAmount == CryptoValue.zero(FEE_ASSET) &&
-                it.selectedFiat == SELECTED_FIAT &&
+                it.selectedFiat == TEST_USER_FIAT &&
                 it.confirmations.isEmpty() &&
                 it.minLimit == null &&
                 it.maxLimit == null &&
@@ -230,7 +197,7 @@ class Erc20OnChainTxEngineTest {
             availableBalance = CryptoValue.zero(ASSET),
             feeForFullAvailable = CryptoValue.zero(ASSET),
             feeAmount = CryptoValue.zero(ASSET),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -293,7 +260,7 @@ class Erc20OnChainTxEngineTest {
             availableBalance = CryptoValue.zero(CryptoCurrency.ETHER),
             feeForFullAvailable = CryptoValue.zero(CryptoCurrency.ETHER),
             feeAmount = CryptoValue.zero(CryptoCurrency.ETHER),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Priority,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -358,7 +325,7 @@ class Erc20OnChainTxEngineTest {
             availableBalance = availableBalance,
             feeForFullAvailable = regularFee,
             feeAmount = regularFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -426,7 +393,7 @@ class Erc20OnChainTxEngineTest {
             availableBalance = availableBalance,
             feeForFullAvailable = fullFee,
             feeAmount = regularFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS
@@ -472,7 +439,7 @@ class Erc20OnChainTxEngineTest {
             availableBalance = availableBalance,
             feeForFullAvailable = fullFee,
             feeAmount = regularFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS
@@ -518,7 +485,7 @@ class Erc20OnChainTxEngineTest {
             availableBalance = availableBalance,
             feeForFullAvailable = fullFee,
             feeAmount = regularFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -605,7 +572,6 @@ class Erc20OnChainTxEngineTest {
         private const val GAS_LIMIT_CONTRACT = 5000L
         private const val FEE_PRIORITY = 5L
         private const val FEE_REGULAR = 2L
-        private const val SELECTED_FIAT = "INR"
 
         private val EXPECTED_AVAILABLE_FEE_LEVELS = setOf(FeeLevel.Regular, FeeLevel.Priority)
     }

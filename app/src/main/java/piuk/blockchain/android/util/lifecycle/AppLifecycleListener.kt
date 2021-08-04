@@ -4,7 +4,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 
-class AppLifecycleListener(private val lifecycleInterestedComponent: LifecycleInterestedComponent) : LifecycleObserver {
+class AppLifecycleListener(
+    private val lifecycleInterestedComponent: LifecycleInterestedComponent
+) : LifecycleObserver {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun onMoveToForeground() {

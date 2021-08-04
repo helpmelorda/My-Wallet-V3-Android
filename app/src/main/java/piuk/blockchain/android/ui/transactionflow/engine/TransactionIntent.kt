@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BlockchainAccount

@@ -1,9 +1,6 @@
 package piuk.blockchain.android.coincore.bch
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.chains.bitcoincash.BchDataManager
-import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.bitcoinCash
 import com.blockchain.testutils.satoshiCash
@@ -23,12 +20,8 @@ import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 import piuk.blockchain.android.coincore.BlockchainAccount
 import kotlin.test.assertEquals
 import piuk.blockchain.android.coincore.CryptoAddress
@@ -37,20 +30,12 @@ import piuk.blockchain.android.coincore.FeeSelection
 import piuk.blockchain.android.coincore.PendingTx
 import piuk.blockchain.android.coincore.TransactionTarget
 import piuk.blockchain.android.coincore.ValidationState
-import piuk.blockchain.android.coincore.impl.injectMocks
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
 
-class BchOnChainTxEngineTest {
-
-    @get:Rule
-    val initSchedulers = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
-    }
+class BchOnChainTxEngineTest : CoincoreTestBase() {
 
     private val bchDataManager: BchDataManager = mock()
     private val payloadDataManager: PayloadDataManager = mock {
@@ -70,11 +55,6 @@ class BchOnChainTxEngineTest {
     private val walletPreferences: WalletStatus = mock {
         on { getFeeTypeForAsset(ASSET) }.thenReturn(FeeLevel.Regular.ordinal)
     }
-    private val exchangeRates: ExchangeRateDataManager = mock()
-
-    private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
-    }
 
     private val subject = BchOnChainTxEngine(
         bchDataManager = bchDataManager,
@@ -87,20 +67,7 @@ class BchOnChainTxEngineTest {
 
     @Before
     fun setup() {
-        injectMocks(
-            module {
-                scope(payloadScopeQualifier) {
-                    factory {
-                        currencyPrefs
-                    }
-                }
-            }
-        )
-    }
-
-    @After
-    fun teardown() {
-        stopKoin()
+        initMocks()
     }
 
     @Test
@@ -207,15 +174,16 @@ class BchOnChainTxEngineTest {
                     it.totalBalance == CryptoValue.zero(ASSET) &&
                     it.availableBalance == CryptoValue.zero(ASSET) &&
                     it.feeAmount == CryptoValue.zero(ASSET) &&
-                    it.selectedFiat == SELECTED_FIAT &&
+                    it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
                     it.minLimit == null &&
                     it.maxLimit == null &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }
-            .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
-            .assertNoErrors()
+            .assertValue {
+                verifyFeeLevels(it.feeSelection, FeeLevel.Regular)
+            }.assertNoErrors()
             .assertComplete()
 
         verify(currencyPrefs).selectedFiatCurrency
@@ -289,7 +257,7 @@ class BchOnChainTxEngineTest {
             availableBalance = CryptoValue.zero(ASSET),
             feeForFullAvailable = CryptoValue.zero(ASSET),
             feeAmount = CryptoValue.zero(ASSET),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -358,7 +326,7 @@ class BchOnChainTxEngineTest {
             availableBalance = totalSweepable,
             feeForFullAvailable = totalFee,
             feeAmount = totalFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS
@@ -404,7 +372,7 @@ class BchOnChainTxEngineTest {
             availableBalance = totalSweepable,
             feeForFullAvailable = totalFee,
             feeAmount = totalFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS
@@ -450,7 +418,7 @@ class BchOnChainTxEngineTest {
             availableBalance = totalSweepable,
             feeForFullAvailable = totalFee,
             feeAmount = totalFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS
@@ -496,7 +464,7 @@ class BchOnChainTxEngineTest {
             availableBalance = totalSweepable,
             feeForFullAvailable = totalFee,
             feeAmount = totalFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -557,7 +525,6 @@ class BchOnChainTxEngineTest {
         private const val TARGET_ADDRESS = "VALID_BCH_ADDRESS"
         private const val FEE_REGULAR = 5L
         private const val FEE_PRIORITY = 11L
-        private const val SELECTED_FIAT = "INR"
 
         private val TARGET_OUTPUT_TYPE = OutputType.P2PKH
         private val CHANGE_OUTPUT_TYPE = OutputType.P2PKH

@@ -364,8 +364,7 @@ class Erc20DataManagerTest {
 
         const val TX_HASH = "0xfd7d583fa54bf55f6cfbfec97c0c55cc6af8c121b71addb7d06a9e1e305ae8ff"
 
-        @Suppress("ClassName")
-        private object ERC20_TOKEN : CryptoCurrency(
+        private val ERC20_TOKEN = object : CryptoCurrency(
             ticker = "DUMMY",
             name = "Dummies",
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
@@ -374,6 +373,6 @@ class Erc20DataManagerTest {
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
             colour = "#123456"
-        )
+        ) { }
     }
 }

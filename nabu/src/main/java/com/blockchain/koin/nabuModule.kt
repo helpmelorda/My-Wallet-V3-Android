@@ -151,8 +151,7 @@ val nabuModule = module {
                 assetCatalogue = get(),
                 nabuService = get(),
                 authenticator = get(),
-                currencyPrefs = get(),
-                exchangeRates = get()
+                currencyPrefs = get()
             )
         }.bind(InterestLimitsProvider::class)
 
@@ -199,9 +198,7 @@ val nabuModule = module {
             SwapActivityProviderImpl(
                 assetCatalogue = get(),
                 nabuService = get(),
-                authenticator = get(),
-                currencyPrefs = get(),
-                exchangeRates = get()
+                authenticator = get()
             )
         }.bind(SwapActivityProvider::class)
 

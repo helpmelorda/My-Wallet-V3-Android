@@ -1,6 +1,7 @@
 package piuk.blockchain.android.coincore.fiat
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.CustodialAssetWalletsBalancesRepository
@@ -14,7 +15,6 @@ import org.junit.Rule
 import piuk.blockchain.android.coincore.impl.CryptoInterestAccount
 import piuk.blockchain.android.coincore.impl.CryptoNonCustodialAccount
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 
 class FiatAssetTransferTest {
 
@@ -27,7 +27,7 @@ class FiatAssetTransferTest {
 
     private val labels: DefaultLabels = mock()
     private val custodialAssetWalletsBalancesRepository: CustodialAssetWalletsBalancesRepository = mock()
-    private val exchangeRateDataManager: ExchangeRateDataManager = mock()
+    private val exchangeRateDataManager: ExchangeRatesDataManager = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
 

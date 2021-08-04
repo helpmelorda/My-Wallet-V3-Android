@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.activity.detail
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
@@ -24,7 +25,6 @@ import piuk.blockchain.android.coincore.CustodialTradingActivitySummaryItem
 import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import java.util.Date
 
 class ActivityDetailsModelTest {
@@ -34,7 +34,7 @@ class ActivityDetailsModelTest {
     private val interactor: ActivityDetailsInteractor = mock()
 
     private data class NonCustodialTestClass(
-        override val exchangeRates: ExchangeRateDataManager = mock(),
+        override val exchangeRates: ExchangeRatesDataManager = mock(),
         override val asset: AssetInfo = mock(),
         override val txId: String = "123",
         override val timeStampMs: Long = 1L,

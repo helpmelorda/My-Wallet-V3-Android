@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.btc
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
@@ -7,14 +8,13 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 internal class BtcActivitySummaryItem(
     private val transactionSummary: TransactionSummary,
     private val payloadDataManager: PayloadDataManager,
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val account: CryptoAccount
 ) : NonCustodialActivitySummaryItem() {
 

@@ -58,7 +58,7 @@ class OnChainSwapTxEngine(
             }.flatMap { quote ->
                 engine.doInitialiseTx()
                     .flatMap {
-                        updateLimits(it, quote)
+                        updateLimits(userFiat, it, quote)
                     }
             }.map { px ->
                 px.copy(

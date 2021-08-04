@@ -80,16 +80,6 @@ data class FiatValue private constructor(
             .trim()
             .removeComma()
 
-    override fun toFiat(
-        exchangeRates: ExchangeRates,
-        fiatCurrency: String
-    ) = fromMajor(fiatCurrency,
-        exchangeRates.getLastPriceOfFiat(
-            sourceFiat = this.currencyCode,
-            targetFiat = fiatCurrency
-        ) * this.toBigDecimal()
-    )
-
     override fun add(other: Money): FiatValue {
         require(other is FiatValue)
         return FiatValue(currencyCode, amount + other.amount)

@@ -1,10 +1,16 @@
-package info.blockchain.balance
+package com.blockchain.core.price
 
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
+import info.blockchain.balance.ValueTypeMismatchException
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.Currency
 
-sealed class ExchangeRate(val rate: BigDecimal) {
+sealed class ExchangeRate {
+    abstract val rate: BigDecimal
 
     abstract fun convert(value: Money, round: Boolean = true): Money
     abstract fun price(): Money
@@ -13,8 +19,8 @@ sealed class ExchangeRate(val rate: BigDecimal) {
     class CryptoToCrypto(
         val from: AssetInfo,
         val to: AssetInfo,
-        rate: BigDecimal
-    ) : ExchangeRate(rate) {
+        override val rate: BigDecimal
+    ) : ExchangeRate() {
         fun applyRate(cryptoValue: CryptoValue): CryptoValue {
             validateCurrency(from, cryptoValue.currency)
             return CryptoValue.fromMajor(
@@ -44,8 +50,8 @@ sealed class ExchangeRate(val rate: BigDecimal) {
     data class CryptoToFiat(
         val from: AssetInfo,
         val to: String,
-        private val _rate: BigDecimal
-    ) : ExchangeRate(_rate) {
+        override val rate: BigDecimal
+    ) : ExchangeRate() {
         fun applyRate(cryptoValue: CryptoValue, round: Boolean = false): FiatValue {
             validateCurrency(from, cryptoValue.currency)
             return FiatValue.fromMajor(
@@ -76,8 +82,8 @@ sealed class ExchangeRate(val rate: BigDecimal) {
     class FiatToCrypto(
         val from: String,
         val to: AssetInfo,
-        rate: BigDecimal
-    ) : ExchangeRate(rate) {
+        override val rate: BigDecimal
+    ) : ExchangeRate() {
         fun applyRate(fiatValue: FiatValue): CryptoValue {
             validateCurrency(from, fiatValue.currencyCode)
             return CryptoValue.fromMajor(
@@ -107,8 +113,8 @@ sealed class ExchangeRate(val rate: BigDecimal) {
     class FiatToFiat(
         val from: String,
         val to: String,
-        rate: BigDecimal
-    ) : ExchangeRate(rate) {
+        override val rate: BigDecimal
+    ) : ExchangeRate() {
         fun applyRate(fiatValue: FiatValue): FiatValue {
             validateCurrency(from, fiatValue.currencyCode)
             return FiatValue.fromMajor(

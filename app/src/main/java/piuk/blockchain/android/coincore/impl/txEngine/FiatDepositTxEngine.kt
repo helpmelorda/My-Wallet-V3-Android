@@ -33,9 +33,6 @@ class FiatDepositTxEngine(
         check(txTarget is FiatAccount)
     }
 
-    override val userFiat: String
-        get() = (txTarget as FiatAccount).fiatCurrency
-
     override fun doInitialiseTx(): Single<PendingTx> {
         check(sourceAccount is BankAccount)
         check(txTarget is FiatAccount)

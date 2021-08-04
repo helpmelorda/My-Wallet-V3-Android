@@ -1,6 +1,7 @@
 package piuk.blockchain.android.coincore.xlm
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -13,8 +14,6 @@ import com.nhaarman.mockitokotlin2.mock
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.thepit.PitLinking
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 
@@ -32,14 +31,13 @@ class XlmAssetUriParseTest {
     private val xlmFeesFetcher: XlmFeesFetcher = mock()
     private val walletOptionsDataManager: WalletOptionsDataManager = mock()
     private val custodialManager: CustodialWalletManager = mock()
-    private val exchangeRates: ExchangeRateDataManager = mock()
-    private val historicRates: ExchangeRateService = mock()
+    private val exchangeRates: ExchangeRatesDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val labels: DefaultLabels = mock()
     private val pitLinking: PitLinking = mock()
     private val crashLogger: CrashLogger = mock()
     private val walletPreferences: WalletStatus = mock()
-    private val features: InternalFeatureFlagApi = com.nhaarman.mockitokotlin2.mock()
+    private val features: InternalFeatureFlagApi = mock()
 
     private val subject = XlmAsset(
         payloadManager = payloadManager,
@@ -48,7 +46,6 @@ class XlmAssetUriParseTest {
         walletOptionsDataManager = walletOptionsDataManager,
         custodialManager = custodialManager,
         exchangeRates = exchangeRates,
-        historicRates = historicRates,
         currencyPrefs = currencyPrefs,
         labels = labels,
         pitLinking = pitLinking,

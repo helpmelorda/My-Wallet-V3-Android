@@ -2,6 +2,7 @@ package com.blockchain.api
 
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.analytics.AnalyticsApiInterface
+import com.blockchain.api.assetprice.AssetPriceApiInterface
 import com.blockchain.api.bitcoin.BitcoinApi
 import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.wallet.WalletApiInterface
@@ -9,6 +10,7 @@ import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.custodial.CustodialBalanceApi
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.AnalyticsService
+import com.blockchain.api.services.AssetPriceService
 import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.api.services.NonCustodialBitcoinService
@@ -87,6 +89,14 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(blockchainApi).create(EthereumApiInterface::class.java)
         NonCustodialErc20Service(
+            api,
+            getProperty("api-code")
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(blockchainApi).create(AssetPriceApiInterface::class.java)
+        AssetPriceService(
             api,
             getProperty("api-code")
         )

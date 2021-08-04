@@ -1,9 +1,10 @@
 package piuk.blockchain.android.ui.dashboard
 
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.FiatAccount
@@ -13,7 +14,6 @@ import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.androidcore.data.exchangerate.PriceSeries
 import java.math.BigInteger
 
 sealed class DashboardIntent : MviIntent<DashboardState>
@@ -156,7 +156,7 @@ class PriceUpdate(
 
 class PriceHistoryUpdate(
     val asset: AssetInfo,
-    private val historicPrices: PriceSeries
+    private val historicPrices: HistoricalRateList
 ) : DashboardIntent() {
     override fun reduce(oldState: DashboardState): DashboardState {
         val oldAsset = oldState.assets[asset]
@@ -167,10 +167,9 @@ class PriceHistoryUpdate(
 
     private fun updateAsset(
         old: CryptoAssetState,
-        historicPrices: PriceSeries
+        historicPrices: HistoricalRateList
     ): CryptoAssetState {
-        val trend = historicPrices.filter { it.price != null }.map { it.price!!.toFloat() }
-
+        val trend = historicPrices.map { it.rate.toFloat() }
         return old.copy(priceTrend = trend)
     }
 }

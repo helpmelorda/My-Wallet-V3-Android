@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.xlm
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -26,8 +27,6 @@ import piuk.blockchain.android.coincore.impl.CryptoAssetBase
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import java.net.URLEncoder
@@ -39,8 +38,7 @@ internal class XlmAsset(
     private val xlmFeesFetcher: XlmFeesFetcher,
     private val walletOptionsDataManager: WalletOptionsDataManager,
     custodialManager: CustodialWalletManager,
-    exchangeRates: ExchangeRateDataManager,
-    historicRates: ExchangeRateService,
+    exchangeRates: ExchangeRatesDataManager,
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
     pitLinking: PitLinking,
@@ -51,7 +49,6 @@ internal class XlmAsset(
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
-    historicRates,
     currencyPrefs,
     labels,
     custodialManager,

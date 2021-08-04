@@ -43,7 +43,7 @@ class TradingToTradingSwapTxEngine(
                             selectedFiat = userFiat
                         )
                     ).flatMap {
-                        updateLimits(it, pricedQuote)
+                        updateLimits(userFiat, it, pricedQuote)
                     }
                 }
             }.handlePendingOrdersError(

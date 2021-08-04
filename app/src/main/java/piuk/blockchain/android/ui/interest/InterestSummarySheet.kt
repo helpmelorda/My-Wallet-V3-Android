@@ -5,15 +5,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.core.price.ExchangeRates
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.notifications.analytics.LaunchOrigin
-import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRates
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Singles
@@ -27,6 +26,7 @@ import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.InterestAccount
 import piuk.blockchain.android.coincore.SingleAccount
+import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.databinding.DialogSheetInterestDetailsBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
@@ -60,8 +60,8 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
     private val disposables = CompositeDisposable()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val exchangeRates: ExchangeRates by scopedInject()
-    private val currencyPrefs: CurrencyPrefs by scopedInject()
     private val coincore: Coincore by scopedInject()
+    @Suppress("unused")
     private val features: InternalFeatureFlagApi by inject()
 
     private val listAdapter: InterestSummaryAdapter by lazy { InterestSummaryAdapter() }
@@ -174,7 +174,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
         composite.balance.run {
             binding.apply {
                 interestDetailsCryptoValue.text = toStringWithSymbol()
-                interestDetailsFiatValue.text = toFiat(exchangeRates, currencyPrefs.selectedFiatCurrency)
+                interestDetailsFiatValue.text = toUserFiat(exchangeRates)
                     .toStringWithSymbol()
             }
         }

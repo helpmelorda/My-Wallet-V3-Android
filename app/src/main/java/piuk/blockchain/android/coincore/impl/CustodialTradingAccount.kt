@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CryptoTransaction
@@ -31,9 +32,9 @@ import piuk.blockchain.android.coincore.TradingAccount
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.TxSourceState
 import piuk.blockchain.android.coincore.takeEnabledIf
+import piuk.blockchain.android.coincore.toFiat
 import piuk.blockchain.android.identity.Feature
 import piuk.blockchain.android.identity.UserIdentity
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.utils.extensions.mapList
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
@@ -41,7 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class CustodialTradingAccount(
     override val asset: AssetInfo,
     override val label: String,
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     val custodialWalletManager: CustodialWalletManager,
     val isNoteSupported: Boolean = false,
     private val identity: UserIdentity,
@@ -199,7 +200,7 @@ class CustodialTradingAccount(
             txHash = txHash,
             state = state,
             type = type,
-            fiatValue = (amount as CryptoValue).toFiat(exchangeRates, currency)
+            fiatValue = amount.toFiat(currency, exchangeRates) as FiatValue
         )
 
     private fun orderToSummary(order: BuySellOrder): ActivitySummaryItem =

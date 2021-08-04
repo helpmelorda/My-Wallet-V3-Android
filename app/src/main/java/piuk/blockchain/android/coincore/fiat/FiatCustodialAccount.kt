@@ -1,12 +1,13 @@
 package piuk.blockchain.android.coincore.fiat
 
+import com.blockchain.core.price.ExchangeRates
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.repositories.CustodialAssetWalletsBalancesRepository
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
-import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.total
@@ -23,7 +24,7 @@ import piuk.blockchain.android.coincore.FiatActivitySummaryItem
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.TxSourceState
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
+import piuk.blockchain.android.coincore.toFiat
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal class FiatCustodialAccount(
@@ -32,7 +33,7 @@ internal class FiatCustodialAccount(
     override val isDefault: Boolean = false,
     private val custodialAssetWalletsBalancesRepository: CustodialAssetWalletsBalancesRepository,
     private val custodialWalletManager: CustodialWalletManager,
-    private val exchangesRatesDataManager: ExchangeRateDataManager
+    private val exchangesRatesDataManager: ExchangeRatesDataManager
 ) : FiatAccount {
     private val hasFunds = AtomicBoolean(false)
 
@@ -113,7 +114,7 @@ internal class FiatCustodialAccount(
     }
 
     override fun fiatBalance(fiatCurrency: String, exchangeRates: ExchangeRates): Single<Money> =
-        accountBalance.map { it.toFiat(exchangeRates, fiatCurrency) }
+        accountBalance.map { it.toFiat(fiatCurrency, exchangeRates) }
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.error(NotImplementedError("Send to fiat not supported"))

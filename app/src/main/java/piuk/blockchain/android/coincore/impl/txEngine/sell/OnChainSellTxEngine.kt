@@ -45,12 +45,12 @@ class OnChainSellTxEngine(
             }.flatMap { quote ->
                 engine.doInitialiseTx()
                     .flatMap {
-                        updateLimits(it, quote)
+                        updateLimits(target.fiatCurrency, it, quote)
                     }
             }.map { px ->
                 px.copy(
                     feeSelection = defaultFeeSelection(px),
-                    selectedFiat = userFiat
+                    selectedFiat = target.fiatCurrency
                 )
             }.handlePendingOrdersError(
                 PendingTx(
@@ -59,7 +59,7 @@ class OnChainSellTxEngine(
                     availableBalance = CryptoValue.zero(sourceAsset),
                     feeForFullAvailable = CryptoValue.zero(sourceAsset),
                     feeAmount = CryptoValue.zero(sourceAsset),
-                    selectedFiat = userFiat,
+                    selectedFiat = target.fiatCurrency,
                     feeSelection = FeeSelection()
                 )
             )

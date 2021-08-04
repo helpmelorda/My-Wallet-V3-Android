@@ -1,10 +1,8 @@
 package piuk.blockchain.android.coincore.impl.txEngine.interest
 
-import com.blockchain.android.testutils.rxInit
-import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
-import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -12,39 +10,21 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-
-import com.nhaarman.mockitokotlin2.mock
 import org.amshove.kluent.shouldEqual
-import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.TransactionTarget
 import piuk.blockchain.android.coincore.ValidationState
 import piuk.blockchain.android.coincore.btc.BtcCryptoWalletAccount
 import piuk.blockchain.android.coincore.impl.CryptoInterestAccount
-import piuk.blockchain.android.coincore.impl.injectMocks
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 
-class InterestDepositTradingEngineTest {
-
-    @get:Rule
-    val initSchedulers = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
-    }
-
-    private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
-    }
-    private val exchangeRates: ExchangeRateDataManager = mock()
+class InterestDepositTradingEngineTest : CoincoreTestBase() {
 
     private fun mockTransactionTarget() = mock<CryptoInterestAccount> {
         on { asset }.thenReturn(ASSET)
@@ -56,21 +36,27 @@ class InterestDepositTradingEngineTest {
 
     @Before
     fun setUp() {
-        injectMocks(
-            module {
-                scope(payloadScopeQualifier) {
-                    factory {
-                        currencyPrefs
-                    }
-                }
-            }
-        )
-        subject = InterestDepositTradingEngine(custodialWalletManager)
-    }
+        initMocks()
 
-    @After
-    fun teardown() {
-        stopKoin()
+        whenever(exchangeRates.getLastCryptoToUserFiatRate(ASSET))
+            .thenReturn(
+                ExchangeRate.CryptoToFiat(
+                    from = ASSET,
+                    to = TEST_USER_FIAT,
+                    rate = ASSET_TO_USER_FIAT_RATE
+                )
+            )
+
+        whenever(exchangeRates.getLastCryptoToFiatRate(ASSET, TEST_API_FIAT))
+            .thenReturn(
+                ExchangeRate.CryptoToFiat(
+                    from = ASSET,
+                    to = TEST_API_FIAT,
+                    rate = ASSET_TO_API_FIAT_RATE
+                )
+            )
+
+        subject = InterestDepositTradingEngine(custodialWalletManager)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -126,7 +112,8 @@ class InterestDepositTradingEngineTest {
         )
 
         val limits = mock<InterestLimits> {
-            on { minDepositAmount }.thenReturn(MIN_DEPOSIT_AMOUNT)
+            on { minDepositFiatValue }.thenReturn(MIN_DEPOSIT_AMOUNT_FIAT)
+            on { cryptoCurrency }.thenReturn(ASSET)
         }
 
         whenever(custodialWalletManager.getInterestLimits(ASSET)).thenReturn(Maybe.just(limits))
@@ -139,9 +126,9 @@ class InterestDepositTradingEngineTest {
                     it.totalBalance == CryptoValue.zero(ASSET) &&
                     it.availableBalance == CryptoValue.zero(ASSET) &&
                     it.feeAmount == CryptoValue.zero(ASSET) &&
-                    it.selectedFiat == SELECTED_FIAT &&
+                    it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == MIN_DEPOSIT_AMOUNT &&
+                    it.minLimit == MIN_DEPOSIT_AMOUNT_CRYPTO &&
                     it.maxLimit == null &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
@@ -154,6 +141,7 @@ class InterestDepositTradingEngineTest {
         verify(custodialWalletManager).getInterestLimits(ASSET)
         verify(currencyPrefs).selectedFiatCurrency
         verify(sourceAccount).accountBalance
+        verify(exchangeRates).getLastCryptoToFiatRate(ASSET, TEST_API_FIAT)
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -207,7 +195,10 @@ class InterestDepositTradingEngineTest {
     companion object {
         private val ASSET = CryptoCurrency.BTC
         private val WRONG_ASSET = CryptoCurrency.XLM
-        private const val SELECTED_FIAT = "USD"
-        private val MIN_DEPOSIT_AMOUNT = CryptoValue.fromMajor(ASSET, 10.toBigDecimal())
+
+        private val ASSET_TO_API_FIAT_RATE = 10.toBigDecimal()
+        private val ASSET_TO_USER_FIAT_RATE = 5.toBigDecimal()
+        private val MIN_DEPOSIT_AMOUNT_FIAT = FiatValue.fromMajor(TEST_API_FIAT, 10.toBigDecimal())
+        private val MIN_DEPOSIT_AMOUNT_CRYPTO = CryptoValue.fromMajor(ASSET, 1.toBigDecimal())
     }
 }

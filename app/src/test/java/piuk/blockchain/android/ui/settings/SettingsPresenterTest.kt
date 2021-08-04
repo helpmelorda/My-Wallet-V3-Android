@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.EligiblePaymentMethodType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -24,8 +25,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
-
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -41,7 +40,6 @@ import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.tiers
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.Email
 import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
@@ -75,7 +73,7 @@ class SettingsPresenterTest {
     private val accessState: AccessState = mock()
 
     private val notificationTokenManager: NotificationTokenManager = mock()
-    private val exchangeRateDataManager: ExchangeRateDataManager = mock()
+    private val exchangeRates: ExchangeRatesDataManager = mock()
     private val kycStatusHelper: KycStatusHelper = mock()
     private val emailSyncUpdater: EmailSyncUpdater = mock()
     private val pitLinking: PitLinking = mock()
@@ -103,7 +101,7 @@ class SettingsPresenterTest {
             accessState = accessState,
             custodialWalletManager = custodialWalletManager,
             notificationTokenManager = notificationTokenManager,
-            exchangeRateDataManager = exchangeRateDataManager,
+            exchangeRates = exchangeRates,
             kycStatusHelper = kycStatusHelper,
             pitLinking = pitLinking,
             analytics = analytics,

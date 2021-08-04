@@ -1,11 +1,12 @@
 package piuk.blockchain.android.ui.dashboard
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.percentageDelta
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
@@ -205,7 +206,9 @@ data class CryptoAssetState(
         price24h?.let { p -> balance?.let { p.convert(it) } }
     }
 
-    val priceDelta: Double by unsafeLazy { price.percentageDelta(price24h) }
+    val priceDelta: Double by unsafeLazy {
+        price.percentageDelta(price24h)
+    }
 
     val isLoading: Boolean by unsafeLazy {
         balance == null || price == null || price24h == null

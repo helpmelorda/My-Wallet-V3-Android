@@ -76,7 +76,9 @@ class ActivitiesModel(
                         onComplete = {
                             // do nothing
                         },
-                        onError = { process(ActivityListUpdatedErrorIntent) }
+                        onError = {
+                            process(ActivityListUpdatedErrorIntent)
+                        }
                     )
 
                 fetchSubscription

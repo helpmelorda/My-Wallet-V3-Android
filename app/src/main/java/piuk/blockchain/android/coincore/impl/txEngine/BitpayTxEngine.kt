@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.CryptoCurrency
@@ -28,7 +29,6 @@ import piuk.blockchain.android.data.api.bitpay.BitPayDataManager
 import piuk.blockchain.android.data.api.bitpay.analytics.BitPayEvent
 import piuk.blockchain.android.data.api.bitpay.models.BitPayTransaction
 import piuk.blockchain.android.data.api.bitpay.models.BitPaymentRequest
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import rx.Subscription
 import timber.log.Timber
@@ -84,7 +84,7 @@ class BitpayTxEngine(
     override fun start(
         sourceAccount: BlockchainAccount,
         txTarget: TransactionTarget,
-        exchangeRates: ExchangeRateDataManager,
+        exchangeRates: ExchangeRatesDataManager,
         refreshTrigger: RefreshTrigger
     ) {
         super.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)

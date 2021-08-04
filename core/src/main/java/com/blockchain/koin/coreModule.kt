@@ -31,7 +31,6 @@ import com.blockchain.sunriver.XlmHorizonUrlFetcher
 import com.blockchain.sunriver.XlmTransactionTimeoutFetcher
 import com.blockchain.wallet.SeedAccess
 import com.blockchain.wallet.SeedAccessWithoutPrompt
-import info.blockchain.balance.ExchangeRates
 import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.util.PrivateKeyFactory
 import org.koin.dsl.bind
@@ -42,11 +41,13 @@ import piuk.blockchain.androidcore.data.access.AccessStateImpl
 import piuk.blockchain.androidcore.data.access.LogoutTimer
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.auth.AuthService
+import com.blockchain.core.price.ExchangeRates
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.price.impl.AssetPriceStore
+import com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl
+import com.blockchain.core.price.impl.SparklineCallCache
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
-import piuk.blockchain.androidcore.data.exchangerate.datastore.ExchangeRateDataStore
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.metadata.MoshiMetadataRepositoryAdapter
@@ -217,20 +218,6 @@ val coreModule = module {
         }.bind(XlmTransactionTimeoutFetcher::class)
             .bind(XlmHorizonUrlFetcher::class)
 
-        factory {
-            ExchangeRateDataManager(
-                assetCatalogue = get(),
-                exchangeRateDataStore = get()
-            )
-        }.bind(ExchangeRates::class)
-
-        scoped {
-            ExchangeRateDataStore(
-                exchangeRateService = get(),
-                prefs = get()
-            )
-        }
-
         scoped { FeeDataManager(get()) }
 
         factory {
@@ -259,8 +246,24 @@ val coreModule = module {
     }
 
     factory {
-        ExchangeRateService(
-            priceApi = get()
+        SparklineCallCache(
+            priceService = get()
+        )
+    }
+
+    single {
+        ExchangeRatesDataManagerImpl(
+            priceStore = get(),
+            sparklineCall = get(),
+            assetPriceService = get(),
+            currencyPrefs = get()
+        )
+    }.bind(ExchangeRatesDataManager::class)
+        .bind(ExchangeRates::class)
+
+    factory {
+        AssetPriceStore(
+            assetPriceService = get()
         )
     }
 

@@ -269,7 +269,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             selectDrawerItem(menuItem)
             true
         }
-        presenter.updateTicker()
 
         if (!handlingResult) {
             resetUi()

@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.InterestState
@@ -18,7 +19,6 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.JavaHashCode
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import kotlin.math.sign
@@ -26,18 +26,17 @@ import kotlin.math.sign
 abstract class CryptoActivitySummaryItem : ActivitySummaryItem() {
     abstract val asset: AssetInfo
     override fun totalFiatWhenExecuted(selectedFiat: String): Single<Money> =
-        exchangeRates.getHistoricPrice(
-            value = value,
-            fiat = selectedFiat,
-            timeInSeconds = timeStampMs / 1000 // API uses seconds
+        exchangeRates.getHistoricRate(
+            fromAsset = asset,
+            secSinceEpoch = timeStampMs / 1000 // API uses seconds
         ).map {
-            it
+            it.convert(value)
         }
 }
 
 class FiatActivitySummaryItem(
     val currency: String,
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val txId: String,
     override val timeStampMs: Long,
     override val value: Money,
@@ -56,7 +55,7 @@ class FiatActivitySummaryItem(
 }
 
 abstract class ActivitySummaryItem : Comparable<ActivitySummaryItem> {
-    protected abstract val exchangeRates: ExchangeRateDataManager
+    protected abstract val exchangeRates: ExchangeRatesDataManager
 
     abstract val txId: String
     abstract val timeStampMs: Long
@@ -64,7 +63,7 @@ abstract class ActivitySummaryItem : Comparable<ActivitySummaryItem> {
     abstract val value: Money
 
     fun fiatValue(selectedFiat: String): Money =
-        value.toFiat(exchangeRates, selectedFiat)
+        value.toFiat(selectedFiat, exchangeRates)
 
     abstract fun totalFiatWhenExecuted(selectedFiat: String): Single<Money>
 
@@ -76,7 +75,7 @@ abstract class ActivitySummaryItem : Comparable<ActivitySummaryItem> {
 }
 
 data class TradeActivitySummaryItem(
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val txId: String,
     override val timeStampMs: Long,
     val sendingValue: Money,
@@ -102,7 +101,7 @@ data class TradeActivitySummaryItem(
 }
 
 data class RecurringBuyActivitySummaryItem(
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val asset: AssetInfo,
     override val txId: String,
     override val timeStampMs: Long,
@@ -121,7 +120,7 @@ data class RecurringBuyActivitySummaryItem(
 }
 
 data class CustodialInterestActivitySummaryItem(
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val asset: AssetInfo,
     override val txId: String,
     override val timeStampMs: Long,
@@ -140,7 +139,7 @@ data class CustodialInterestActivitySummaryItem(
 }
 
 data class CustodialTradingActivitySummaryItem(
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val asset: AssetInfo,
     override val txId: String,
     override val timeStampMs: Long,
@@ -158,7 +157,7 @@ data class CustodialTradingActivitySummaryItem(
 
 data class CustodialTransferActivitySummaryItem(
     override val asset: AssetInfo,
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val txId: String,
     override val timeStampMs: Long,
     override val value: Money,

@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
@@ -59,7 +60,6 @@ import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.time.ZonedDateTime
 
@@ -71,7 +71,7 @@ class SimpleBuyCryptoFragment :
     ChangeCurrencyHost {
 
     override val model: SimpleBuyModel by scopedInject()
-    private val exchangeRateDataManager: ExchangeRateDataManager by scopedInject()
+    private val exchangeRates: ExchangeRatesDataManager by scopedInject()
     private val assetResources: AssetResources by inject()
     private val assetCatalogue: AssetCatalogue by inject()
     private val features: InternalFeatureFlagApi by inject()
@@ -522,7 +522,7 @@ class SimpleBuyCryptoFragment :
                     else
                         resources.getString(
                             R.string.maximum_buy,
-                            state.maxCryptoAmount(exchangeRateDataManager)?.toStringWithSymbol()
+                            state.maxCryptoAmount(exchangeRates)?.toStringWithSymbol()
                         )
                 )
             }
@@ -533,7 +533,7 @@ class SimpleBuyCryptoFragment :
                     else
                         resources.getString(
                             R.string.minimum_buy,
-                            state.minCryptoAmount(exchangeRateDataManager)?.toStringWithSymbol()
+                            state.minCryptoAmount(exchangeRates)?.toStringWithSymbol()
                         )
                 )
             }

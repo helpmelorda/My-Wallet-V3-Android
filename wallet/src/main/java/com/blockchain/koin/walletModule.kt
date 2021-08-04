@@ -13,10 +13,6 @@ import info.blockchain.wallet.payload.BalanceManagerBch
 import info.blockchain.wallet.payload.BalanceManagerBtc
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.PayloadManagerWiper
-import info.blockchain.wallet.prices.CurrentPriceApi
-import info.blockchain.wallet.prices.PriceApi
-import info.blockchain.wallet.prices.PriceEndpoints
-import info.blockchain.wallet.prices.toCachedIndicativeFiatPriceService
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -35,23 +31,12 @@ val walletModule = module {
     }
 
     factory {
-        PriceApi(
-            endpoints = get(),
-            apiCode = get()
-        )
-    }.bind(CurrentPriceApi::class)
-
-    factory {
         MetadataInteractor(
             metadataService = get()
         )
     }
 
     single { get<Retrofit>(apiRetrofit).create(MetadataService::class.java) }
-
-    single { get<Retrofit>(kotlinApiRetrofit).create(PriceEndpoints::class.java) }
-
-    factory { get<CurrentPriceApi>().toCachedIndicativeFiatPriceService() }
 
     factory {
         BchDustService(

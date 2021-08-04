@@ -37,40 +37,39 @@ class AssetActivityRepository(
         return Maybe.concat(
             cacheMaybe,
             requestNetwork(isRefreshRequested)
-        )
-            .toObservable()
-            .map { list ->
-                list.filter { item ->
-                    when (account) {
-                        is AccountGroup -> {
-                            account.includes(item.account)
-                        }
-                        is CryptoInterestAccount -> {
-                            account.asset == (item as? CustodialInterestActivitySummaryItem)?.asset
-                        }
-                        else -> {
-                            account == item.account
-                        }
+        ).toObservable()
+        .map { list ->
+            list.filter { item ->
+                when (account) {
+                    is AccountGroup -> {
+                        account.includes(item.account)
+                    }
+                    is CryptoInterestAccount -> {
+                        account.asset == (item as? CustodialInterestActivitySummaryItem)?.asset
+                    }
+                    else -> {
+                        account == item.account
                     }
                 }
-            }.map { filteredList ->
-                if (account is AllWalletsAccount) {
-                    reconcileTransfersAndBuys(filteredList)
-                } else {
-                    filteredList
-                }.sorted()
-            }.map { filteredList ->
-                if (account is AllWalletsAccount) {
-                    reconcileCustodialAndInterestTxs(filteredList)
-                } else {
-                    filteredList
-                }.sorted()
-            }.map { list ->
-                Timber.d("Activity list size: ${list.size}")
-                val pruned = list.distinct()
-                Timber.d("Activity list pruned size: ${pruned.size}")
-                pruned
             }
+        }.map { filteredList ->
+            if (account is AllWalletsAccount) {
+                reconcileTransfersAndBuys(filteredList)
+            } else {
+                filteredList
+            }.sorted()
+        }.map { filteredList ->
+            if (account is AllWalletsAccount) {
+                reconcileCustodialAndInterestTxs(filteredList)
+            } else {
+                filteredList
+            }.sorted()
+        }.map { list ->
+            Timber.d("Activity list size: ${list.size}")
+            val pruned = list.distinct()
+            Timber.d("Activity list pruned size: ${pruned.size}")
+            pruned
+        }
     }
 
     private fun reconcileTransfersAndBuys(list: ActivitySummaryList): List<ActivitySummaryItem> {

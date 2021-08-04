@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.annotations.CommonCode
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.ActivityAnalytics
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -42,7 +43,6 @@ import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.setAssetIconColoursNoTint
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.data.events.ActionEvent
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
@@ -69,7 +69,7 @@ class ActivitiesFragment :
     private val disposables = CompositeDisposable()
     private val rxBus: RxBus by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
-    private val exchangeRates: ExchangeRateDataManager by scopedInject()
+    private val exchangeRates: ExchangeRatesDataManager by scopedInject()
     private val assetResources: AssetResources by inject()
 
     private val actionEvent by unsafeLazy {

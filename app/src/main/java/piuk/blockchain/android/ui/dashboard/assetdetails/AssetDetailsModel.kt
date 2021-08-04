@@ -1,10 +1,11 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
+import com.blockchain.core.price.HistoricalRateList
+import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import info.blockchain.balance.Money
-import info.blockchain.wallet.prices.data.PriceDatum
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -15,7 +16,6 @@ import piuk.blockchain.android.coincore.CryptoAsset
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import piuk.blockchain.androidcore.data.exchangerate.TimeSpan
 import timber.log.Timber
 import java.util.Stack
 
@@ -27,9 +27,9 @@ data class AssetDetailsState(
     val assetDisplayMap: AssetDisplayMap? = null,
     val recurringBuys: Map<String, RecurringBuy>? = null,
     val assetFiatPrice: String = "",
-    val timeSpan: TimeSpan = TimeSpan.DAY,
+    val timeSpan: HistoricalTimeSpan = HistoricalTimeSpan.DAY,
     val chartLoading: Boolean = false,
-    val chartData: List<PriceDatum> = emptyList(),
+    val chartData: HistoricalRateList = emptyList(),
     val errorState: AssetDetailsError = AssetDetailsError.NONE,
     val hostAction: AssetAction? = null,
     val selectedAccountCryptoBalance: Money? = null,
@@ -181,17 +181,18 @@ class AssetDetailsModel(
                 }
             )
 
-    private fun updateChartData(asset: CryptoAsset, timeSpan: TimeSpan) =
-        interactor.loadHistoricPrices(asset, timeSpan).doOnSubscribe {
-            process(ChartLoading)
-        }.subscribeBy(
-            onSuccess = {
-                process(ChartDataLoaded(it))
-            },
-            onError = {
-                process(ChartDataLoadFailed)
-            }
-        )
+    private fun updateChartData(asset: CryptoAsset, timeSpan: HistoricalTimeSpan) =
+        interactor.loadHistoricPrices(asset, timeSpan)
+            .doOnSubscribe {
+                process(ChartLoading)
+            }.subscribeBy(
+                onSuccess = {
+                    process(ChartDataLoaded(it))
+                },
+                onError = {
+                    process(ChartDataLoadFailed)
+                }
+            )
 
     private fun accountActions(account: BlockchainAccount): Disposable =
         account.actions.subscribeBy(

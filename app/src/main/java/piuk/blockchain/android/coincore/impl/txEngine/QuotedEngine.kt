@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -15,7 +16,6 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.FiatAccount
@@ -26,7 +26,6 @@ import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.ValidationState
 import piuk.blockchain.android.coincore.copyAndPut
 import piuk.blockchain.android.coincore.impl.makeExternalAssetAddress
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import java.math.RoundingMode
@@ -45,10 +44,14 @@ abstract class QuotedEngine(
 
     protected abstract val availableBalance: Single<Money>
 
-    protected fun updateLimits(pendingTx: PendingTx, pricedQuote: PricedQuote): Single<PendingTx> =
-        Singles.zip(
+    protected fun updateLimits(
+        fiat: String,
+        pendingTx: PendingTx,
+        pricedQuote: PricedQuote
+    ): Single<PendingTx> =
+        Single.zip(
             kycTierService.tiers(),
-            walletManager.getProductTransferLimits(userFiat, productType, direction)
+            walletManager.getProductTransferLimits(fiat, productType, direction)
         ) { tier, limits ->
             onLimitsForTierFetched(tier, limits, pendingTx, pricedQuote)
         }
@@ -83,7 +86,7 @@ abstract class QuotedEngine(
     override fun start(
         sourceAccount: BlockchainAccount,
         txTarget: TransactionTarget,
-        exchangeRates: ExchangeRateDataManager,
+        exchangeRates: ExchangeRatesDataManager,
         refreshTrigger: RefreshTrigger
     ) {
         super.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)

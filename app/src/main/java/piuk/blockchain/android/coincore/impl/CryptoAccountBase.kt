@@ -1,12 +1,13 @@
 package piuk.blockchain.android.coincore.impl
 
+import com.blockchain.core.price.ExchangeRates
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.total
@@ -29,9 +30,10 @@ import piuk.blockchain.android.coincore.TradeActivitySummaryItem
 import piuk.blockchain.android.coincore.TxEngine
 import piuk.blockchain.android.coincore.TxSourceState
 import piuk.blockchain.android.coincore.takeEnabledIf
+import piuk.blockchain.android.coincore.toFiat
+import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.identity.Feature
 import piuk.blockchain.android.identity.UserIdentity
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import java.math.BigInteger
 
@@ -39,7 +41,7 @@ internal const val transactionFetchCount = 50
 internal const val transactionFetchOffset = 0
 
 abstract class CryptoAccountBase : CryptoAccount {
-    protected abstract val exchangeRates: ExchangeRateDataManager
+    protected abstract val exchangeRates: ExchangeRatesDataManager
     protected abstract val baseActions: Set<AssetAction>
 
     final override var hasTransactions: Boolean = false
@@ -49,7 +51,7 @@ abstract class CryptoAccountBase : CryptoAccount {
         fiatCurrency: String,
         exchangeRates: ExchangeRates
     ): Single<Money> =
-        accountBalance.map { it.toFiat(exchangeRates, fiatCurrency) }
+        accountBalance.map { it.toFiat(fiatCurrency, exchangeRates) }
 
     protected fun setHasTransactions(hasTransactions: Boolean) {
         this.hasTransactions = hasTransactions
@@ -66,8 +68,25 @@ abstract class CryptoAccountBase : CryptoAccount {
     override val disabledReason: Single<IneligibilityReason>
         get() = Single.just(IneligibilityReason.NONE)
 
+    private fun normaliseTxId(txId: String): String =
+        txId.replace("-", "")
+
+    protected fun appendTradeActivity(
+        custodialWalletManager: CustodialWalletManager,
+        asset: AssetInfo,
+        activityList: List<ActivitySummaryItem>
+    ): Single<ActivitySummaryList> = custodialWalletManager.getCustodialActivityForAsset(asset, directions)
+        .map { swapItems ->
+            swapItems.map {
+                custodialItemToSummary(it)
+            }
+        }.map { custodialItemsActivity ->
+            reconcileSwaps(custodialItemsActivity, activityList)
+        }
+
     private fun custodialItemToSummary(item: TradeTransactionItem): TradeActivitySummaryItem {
         val sendingAccount = this
+        val userFiat = item.apiFiatValue.toUserFiat(exchangeRates) as FiatValue
         return with(item) {
             TradeActivitySummaryItem(
                 exchangeRates = exchangeRates,
@@ -83,27 +102,11 @@ abstract class CryptoAccountBase : CryptoAccount {
                 depositNetworkFee = Single.just(item.currencyPair.toSourceMoney(0.toBigInteger())),
                 withdrawalNetworkFee = withdrawalNetworkFee,
                 currencyPair = item.currencyPair,
-                fiatValue = fiatValue,
-                fiatCurrency = fiatCurrency
+                fiatValue = userFiat,
+                fiatCurrency = userFiat.currencyCode
             )
         }
     }
-
-    private fun normaliseTxId(txId: String): String =
-        txId.replace("-", "")
-
-    protected fun appendTradeActivity(
-        custodialWalletManager: CustodialWalletManager,
-        asset: AssetInfo,
-        activityList: List<ActivitySummaryItem>
-    ) = custodialWalletManager.getCustodialActivityForAsset(asset, directions)
-        .map { swapItems ->
-            swapItems.map {
-                custodialItemToSummary(it)
-            }
-        }.map { custodialItemsActivity ->
-            reconcileSwaps(custodialItemsActivity, activityList)
-        }
 
     protected abstract fun reconcileSwaps(
         tradeItems: List<TradeActivitySummaryItem>,
@@ -128,7 +131,7 @@ internal class CryptoExchangeAccount(
     override val asset: AssetInfo,
     override val label: String,
     private val address: String,
-    override val exchangeRates: ExchangeRateDataManager
+    override val exchangeRates: ExchangeRatesDataManager
 ) : CryptoAccountBase() {
 
     override val baseActions: Set<AssetAction> = setOf()
@@ -320,7 +323,7 @@ class CryptoAccountCustodialGroup(
         fiatCurrency: String,
         exchangeRates: ExchangeRates
     ): Single<Money> =
-        accountBalance.map { it.toFiat(exchangeRates, fiatCurrency) }
+        accountBalance.map { it.toFiat(fiatCurrency, exchangeRates) }
 
     override fun includes(account: BlockchainAccount): Boolean =
         accounts.contains(account)
@@ -395,7 +398,7 @@ class CryptoAccountNonCustodialGroup(
         if (accounts.isEmpty()) {
             Single.just(FiatValue.zero(fiatCurrency))
         } else {
-            accountBalance.map { it.toFiat(exchangeRates, fiatCurrency) }
+            accountBalance.map { it.toFiat(fiatCurrency, exchangeRates) }
         }
 
     override val receiveAddress: Single<ReceiveAddress>
