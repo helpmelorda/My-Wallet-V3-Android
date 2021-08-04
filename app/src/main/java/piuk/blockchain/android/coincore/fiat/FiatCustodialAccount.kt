@@ -1,12 +1,12 @@
 package piuk.blockchain.android.coincore.fiat
 
 import com.blockchain.core.price.ExchangeRates
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
-import com.blockchain.nabu.datamanagers.repositories.CustodialAssetWalletsBalancesRepository
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -31,14 +31,14 @@ internal class FiatCustodialAccount(
     override val label: String,
     override val fiatCurrency: String,
     override val isDefault: Boolean = false,
-    private val custodialAssetWalletsBalancesRepository: CustodialAssetWalletsBalancesRepository,
+    private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     private val exchangesRatesDataManager: ExchangeRatesDataManager
 ) : FiatAccount {
     private val hasFunds = AtomicBoolean(false)
 
     override val accountBalance: Single<Money>
-        get() = custodialAssetWalletsBalancesRepository.getFiatTotalBalanceForAsset(fiatCurrency)
+        get() = tradingBalanceDataManager.getFiatTotalBalanceForAsset(fiatCurrency)
             .defaultIfEmpty(FiatValue.zero(fiatCurrency))
             .map {
                 it as Money
@@ -47,7 +47,7 @@ internal class FiatCustodialAccount(
             }
 
     override val actionableBalance: Single<Money>
-        get() = custodialAssetWalletsBalancesRepository.getFiatActionableBalanceForAsset(fiatCurrency)
+        get() = tradingBalanceDataManager.getFiatActionableBalanceForAsset(fiatCurrency)
             .defaultIfEmpty(FiatValue.zero(fiatCurrency))
             .map {
                 it as Money
@@ -56,7 +56,7 @@ internal class FiatCustodialAccount(
             }
 
     override val pendingBalance: Single<Money>
-        get() = custodialAssetWalletsBalancesRepository.getFiatPendingBalanceForAsset(fiatCurrency)
+        get() = tradingBalanceDataManager.getFiatPendingBalanceForAsset(fiatCurrency)
             .defaultIfEmpty(FiatValue.zero(fiatCurrency))
             .map {
                 it as Money

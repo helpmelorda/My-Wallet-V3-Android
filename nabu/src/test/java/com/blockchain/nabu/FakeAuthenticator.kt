@@ -22,4 +22,8 @@ class FakeAuthenticator(private val sessionToken: NabuSessionTokenResponse) : Au
     override fun invalidateToken() {
         throw Exception("Not expected")
     }
+
+    override fun getAuthHeader(): Single<String> {
+        return Single.just(sessionToken.authHeader)
+    }
 }

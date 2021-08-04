@@ -2,6 +2,7 @@ package piuk.blockchain.android.coincore.impl
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.nhaarman.mockitokotlin2.mock
@@ -37,6 +38,7 @@ class CustodialTradingAccountTest {
 
     private val exchangeRates: ExchangeRatesDataManager = mock()
     private val custodialManager: CustodialWalletManager = mock()
+    private val tradingBalanceDataManager: TradingBalanceDataManager = mock()
     private val identity: UserIdentity = mock()
     private val features: InternalFeatureFlagApi = mock()
 
@@ -261,6 +263,7 @@ class CustodialTradingAccountTest {
             label = "Test Account",
             exchangeRates = exchangeRates,
             custodialWalletManager = custodialManager,
+            tradingBalanceDataManager = tradingBalanceDataManager,
             identity = identity,
             features = features,
             baseActions = actions
@@ -277,9 +280,9 @@ class CustodialTradingAccountTest {
         val interestFeature = Feature.Interest(testAsset)
         whenever(identity.isEligibleFor(interestFeature)).thenReturn(Single.just(interest))
 
-        whenever(custodialManager.getTotalBalanceForAsset(testAsset))
+        whenever(tradingBalanceDataManager.getTotalBalanceForAsset(testAsset))
             .thenReturn(Maybe.just(accountBalance))
-        whenever(custodialManager.getActionableBalanceForAsset(testAsset))
+        whenever(tradingBalanceDataManager.getActionableBalanceForAsset(testAsset))
             .thenReturn(Maybe.just(actionableBalance))
         whenever(custodialManager.getSupportedFundsFiats())
             .thenReturn(Single.just(supportedFiat))

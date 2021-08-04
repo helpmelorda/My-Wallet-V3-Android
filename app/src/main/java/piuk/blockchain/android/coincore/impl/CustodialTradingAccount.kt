@@ -1,6 +1,7 @@
 package piuk.blockchain.android.coincore.impl
 
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CryptoTransaction
@@ -44,6 +45,7 @@ class CustodialTradingAccount(
     override val label: String,
     override val exchangeRates: ExchangeRatesDataManager,
     val custodialWalletManager: CustodialWalletManager,
+    val tradingBalanceDataManager: TradingBalanceDataManager,
     val isNoteSupported: Boolean = false,
     private val identity: UserIdentity,
     @Suppress("unused")
@@ -87,7 +89,7 @@ class CustodialTradingAccount(
         other is CustodialTradingAccount && other.asset == asset
 
     override val accountBalance: Single<Money>
-        get() = custodialWalletManager.getTotalBalanceForAsset(asset)
+        get() = tradingBalanceDataManager.getTotalBalanceForAsset(asset)
             .defaultIfEmpty(CryptoValue.zero(asset))
             .onErrorReturn {
                 Timber.d("Unable to get custodial trading total balance: $it")
@@ -97,7 +99,7 @@ class CustodialTradingAccount(
             .map { it }
 
     override val actionableBalance: Single<Money>
-        get() = custodialWalletManager.getActionableBalanceForAsset(asset)
+        get() = tradingBalanceDataManager.getActionableBalanceForAsset(asset)
             .defaultIfEmpty(CryptoValue.zero(asset))
             .onErrorReturn {
                 Timber.d("Unable to get custodial trading actionable balance: $it")
@@ -107,7 +109,7 @@ class CustodialTradingAccount(
             .map { it }
 
     override val pendingBalance: Single<Money>
-        get() = custodialWalletManager.getPendingBalanceForAsset(asset)
+        get() = tradingBalanceDataManager.getPendingBalanceForAsset(asset)
             .defaultIfEmpty(CryptoValue.zero(asset))
             .map { it }
 

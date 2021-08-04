@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.loader
 
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
@@ -41,6 +42,7 @@ internal class CryptoAssetLoader(
     private val walletPreferences: WalletStatus,
     private val custodialManager: CustodialWalletManager,
     private val exchangeRates: ExchangeRatesDataManager,
+    private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val currencyPrefs: CurrencyPrefs,
     private val labels: DefaultLabels,
     private val pitLinking: PitLinking,
@@ -75,6 +77,7 @@ internal class CryptoAssetLoader(
             asset = assetInfo,
             payloadManager = payloadManager,
             custodialManager = custodialManager,
+            tradingBalanceDataManager = tradingBalanceDataManager,
             exchangeRates = exchangeRates,
             currencyPrefs = currencyPrefs,
             labels = labels,
@@ -102,6 +105,7 @@ internal class CryptoAssetLoader(
             exchangeRates = exchangeRates,
             currencyPrefs = currencyPrefs,
             custodialManager = custodialManager,
+            tradingBalanceDataManager = tradingBalanceDataManager,
             crashLogger = crashLogger,
             labels = labels,
             pitLinking = pitLinking,

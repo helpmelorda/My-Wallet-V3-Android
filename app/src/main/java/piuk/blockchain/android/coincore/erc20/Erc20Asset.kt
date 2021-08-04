@@ -1,6 +1,7 @@
 package piuk.blockchain.android.coincore.erc20
 
 import com.blockchain.annotations.CommonCode
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
@@ -33,6 +34,7 @@ internal class Erc20Asset(
     private val walletPreferences: WalletStatus,
     payloadManager: PayloadDataManager,
     custodialManager: CustodialWalletManager,
+    tradingBalanceDataManager: TradingBalanceDataManager,
     exchangeRates: ExchangeRatesDataManager,
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
@@ -48,6 +50,7 @@ internal class Erc20Asset(
     currencyPrefs,
     labels,
     custodialManager,
+    tradingBalanceDataManager,
     pitLinking,
     crashLogger,
     identity,
@@ -73,6 +76,7 @@ internal class Erc20Asset(
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
+                    tradingBalanceDataManager = tradingBalanceDataManager,
                     identity = identity,
                     features = features,
                     baseActions = availableCustodialActions

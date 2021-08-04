@@ -1,6 +1,7 @@
 package piuk.blockchain.android.coincore.xlm
 
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -38,6 +39,7 @@ internal class XlmAsset(
     private val xlmFeesFetcher: XlmFeesFetcher,
     private val walletOptionsDataManager: WalletOptionsDataManager,
     custodialManager: CustodialWalletManager,
+    tradingBalanceDataManager: TradingBalanceDataManager,
     exchangeRates: ExchangeRatesDataManager,
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
@@ -52,6 +54,7 @@ internal class XlmAsset(
     currencyPrefs,
     labels,
     custodialManager,
+    tradingBalanceDataManager,
     pitLinking,
     crashLogger,
     identity,
@@ -93,6 +96,7 @@ internal class XlmAsset(
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
+                    tradingBalanceDataManager = tradingBalanceDataManager,
                     identity = identity,
                     features = features
                 )

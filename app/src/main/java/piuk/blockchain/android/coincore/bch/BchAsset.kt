@@ -2,6 +2,7 @@ package piuk.blockchain.android.coincore.bch
 
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -38,6 +39,7 @@ internal class BchAsset(
     payloadManager: PayloadDataManager,
     private val bchDataManager: BchDataManager,
     custodialManager: CustodialWalletManager,
+    tradingBalanceDataManager: TradingBalanceDataManager,
     private val feeDataManager: FeeDataManager,
     private val sendDataManager: SendDataManager,
     exchangeRates: ExchangeRatesDataManager,
@@ -55,6 +57,7 @@ internal class BchAsset(
     currencyPrefs,
     labels,
     custodialManager,
+    tradingBalanceDataManager,
     pitLinking,
     crashLogger,
     identity,
@@ -106,6 +109,7 @@ internal class BchAsset(
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
+                    tradingBalanceDataManager,
                     identity = identity,
                     features = features
                 )

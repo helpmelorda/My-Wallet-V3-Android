@@ -31,6 +31,7 @@ class AssetDetailsModelTest {
             sendDataManager = mock(),
             feeDataManager = mock(),
             custodialManager = mock(),
+            tradingBalanceDataManager = mock(),
             exchangeRates = mock(),
             currencyPrefs = mock(),
             labels = mock(),

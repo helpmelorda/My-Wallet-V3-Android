@@ -2,6 +2,7 @@ package piuk.blockchain.android.coincore.btc
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -47,6 +48,7 @@ class BtcAssetTest {
     private val coinsWebsocket: CoinsWebSocketStrategy = mock()
     private val custodialManager: CustodialWalletManager = mock()
     private val exchangeRates: ExchangeRatesDataManager = mock()
+    private val tradingBalanceDataManager: TradingBalanceDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val labels: DefaultLabels = mock()
     private val pitLinking: PitLinking = mock()
@@ -62,6 +64,7 @@ class BtcAssetTest {
         feeDataManager = feeDataManager,
         coinsWebsocket = coinsWebsocket,
         custodialManager = custodialManager,
+        tradingBalanceDataManager = tradingBalanceDataManager,
         exchangeRates = exchangeRates,
         currencyPrefs = currencyPrefs,
         labels = labels,

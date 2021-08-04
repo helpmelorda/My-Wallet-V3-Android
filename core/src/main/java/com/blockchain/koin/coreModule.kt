@@ -3,10 +3,13 @@ package com.blockchain.koin
 import android.preference.PreferenceManager
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
+import com.blockchain.core.custodial.TradingBalanceCallCache
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
+import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
 import com.blockchain.datamanagers.DataManagerPayloadDecrypt
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
@@ -98,6 +101,19 @@ val coreModule = module {
     factory { PrivateKeyFactory() }
 
     scope(payloadScopeQualifier) {
+
+        scoped {
+            TradingBalanceCallCache(
+                balanceService = get(),
+                authHeaderProvider = get()
+            )
+        }
+
+        scoped {
+            TradingBalanceDataManagerImpl(
+                tradingBalanceCallCache = get()
+            )
+        }.bind(TradingBalanceDataManager::class)
 
         scoped {
             EthDataManager(

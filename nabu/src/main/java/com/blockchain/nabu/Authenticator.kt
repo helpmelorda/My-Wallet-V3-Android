@@ -1,11 +1,12 @@
 package com.blockchain.nabu
 
+import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 
-interface Authenticator {
+interface Authenticator : AuthHeaderProvider {
 
     fun <T> authenticate(
         singleFunction: (NabuSessionTokenResponse) -> Single<T>

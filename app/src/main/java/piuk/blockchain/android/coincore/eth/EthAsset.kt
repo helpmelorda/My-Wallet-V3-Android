@@ -2,6 +2,7 @@ package piuk.blockchain.android.coincore.eth
 
 import com.blockchain.annotations.CommonCode
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -38,6 +39,7 @@ internal class EthAsset(
     private val feeDataManager: FeeDataManager,
     private val assetCatalogue: Lazy<AssetCatalogue>,
     custodialManager: CustodialWalletManager,
+    tradingBalanceDataManager: TradingBalanceDataManager,
     exchangeRates: ExchangeRatesDataManager,
     currencyPrefs: CurrencyPrefs,
     private val walletPrefs: WalletStatus,
@@ -53,6 +55,7 @@ internal class EthAsset(
     currencyPrefs,
     labels,
     custodialManager,
+    tradingBalanceDataManager,
     pitLinking,
     crashLogger,
     identity,
@@ -98,6 +101,7 @@ internal class EthAsset(
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
+                    tradingBalanceDataManager = tradingBalanceDataManager,
                     identity = identity,
                     features = features
                 )

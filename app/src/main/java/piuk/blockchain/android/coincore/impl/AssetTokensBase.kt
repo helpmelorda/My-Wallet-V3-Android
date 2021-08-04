@@ -2,6 +2,7 @@ package piuk.blockchain.android.coincore.impl
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalRateList
@@ -43,6 +44,7 @@ internal abstract class CryptoAssetBase(
     protected val currencyPrefs: CurrencyPrefs,
     protected val labels: DefaultLabels,
     protected val custodialManager: CustodialWalletManager,
+    protected val tradingBalanceDataManager: TradingBalanceDataManager,
     private val pitLinking: PitLinking,
     protected val crashLogger: CrashLogger,
     protected val identity: UserIdentity,

@@ -1,8 +1,8 @@
 package piuk.blockchain.android.coincore.fiat
 
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.repositories.CustodialAssetWalletsBalancesRepository
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
 import io.reactivex.rxjava3.core.Completable
@@ -18,8 +18,8 @@ import piuk.blockchain.android.coincore.SingleAccountList
 
 class FiatAsset(
     private val labels: DefaultLabels,
-    private val custodialAssetWalletsBalancesRepository: CustodialAssetWalletsBalancesRepository,
     private val exchangeRateDataManager: ExchangeRatesDataManager,
+    private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     private val currencyPrefs: CurrencyPrefs
 ) : Asset {
@@ -71,7 +71,7 @@ class FiatAsset(
             FiatCustodialAccount(
                 label = labels.getDefaultCustodialFiatWalletLabel(fiatCurrency),
                 fiatCurrency = fiatCurrency,
-                custodialAssetWalletsBalancesRepository = custodialAssetWalletsBalancesRepository,
+                tradingBalanceDataManager = tradingBalanceDataManager,
                 exchangesRatesDataManager = exchangeRateDataManager,
                 custodialWalletManager = custodialWalletManager
             )

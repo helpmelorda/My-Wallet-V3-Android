@@ -1,6 +1,7 @@
 package piuk.blockchain.android.coincore.btc
 
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -41,6 +42,7 @@ internal class BtcAsset(
     private val feeDataManager: FeeDataManager,
     private val coinsWebsocket: CoinsWebSocketStrategy,
     custodialManager: CustodialWalletManager,
+    tradingBalanceDataManager: TradingBalanceDataManager,
     exchangeRates: ExchangeRatesDataManager,
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
@@ -56,6 +58,7 @@ internal class BtcAsset(
     currencyPrefs,
     labels,
     custodialManager,
+    tradingBalanceDataManager,
     pitLinking,
     crashLogger,
     identity,
@@ -98,6 +101,7 @@ internal class BtcAsset(
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
+                    tradingBalanceDataManager = tradingBalanceDataManager,
                     identity = identity,
                     features = features
                 )

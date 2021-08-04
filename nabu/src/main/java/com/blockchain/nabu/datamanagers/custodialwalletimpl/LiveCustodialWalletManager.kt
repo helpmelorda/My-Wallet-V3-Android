@@ -1,5 +1,6 @@
 package com.blockchain.nabu.datamanagers.custodialwalletimpl
 
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.Authenticator
@@ -42,7 +43,6 @@ import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.featureflags.BankLinkingEnabledProvider
 import com.blockchain.nabu.datamanagers.featureflags.Feature
 import com.blockchain.nabu.datamanagers.featureflags.FeatureEligibility
-import com.blockchain.nabu.datamanagers.repositories.CustodialAssetWalletsBalancesRepository
 import com.blockchain.nabu.datamanagers.repositories.RecurringBuyRepository
 import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
@@ -126,7 +126,7 @@ class LiveCustodialWalletManager(
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val paymentAccountMapperMappers: Map<String, PaymentAccountMapper>,
     private val kycFeatureEligibility: FeatureEligibility,
-    private val assetBalancesRepository: CustodialAssetWalletsBalancesRepository,
+    private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val interestRepository: InterestRepository,
     private val currencyPrefs: CurrencyPrefs,
     private val custodialRepository: CustodialRepository,
@@ -451,15 +451,6 @@ class LiveCustodialWalletManager(
             bank.remove(it)
         }
 
-    override fun getTotalBalanceForAsset(asset: AssetInfo): Maybe<CryptoValue> =
-        assetBalancesRepository.getTotalBalanceForAsset(asset)
-
-    override fun getActionableBalanceForAsset(asset: AssetInfo): Maybe<CryptoValue> =
-        assetBalancesRepository.getActionableBalanceForAsset(asset)
-
-    override fun getPendingBalanceForAsset(asset: AssetInfo): Maybe<CryptoValue> =
-        assetBalancesRepository.getPendingBalanceForAsset(asset)
-
     override fun transferFundsToWallet(amount: CryptoValue, walletAddress: String): Single<String> =
         authenticator.authenticate {
             nabuService.transferFunds(
@@ -592,7 +583,7 @@ class LiveCustodialWalletManager(
     private fun paymentMethods(fiatCurrency: String, onlyEligible: Boolean, fetchSdddLimits: Boolean = false) =
         authenticator.authenticate {
             Single.zip(
-                assetBalancesRepository.getFiatTotalBalanceForAsset(fiatCurrency)
+                tradingBalanceDataManager.getFiatTotalBalanceForAsset(fiatCurrency)
                     .map { balance -> CustodialFiatBalance(fiatCurrency, true, balance) }
                     .defaultIfEmpty(CustodialFiatBalance(fiatCurrency, false, null)),
                 nabuService.getCards(it).onErrorReturn { emptyList() },
