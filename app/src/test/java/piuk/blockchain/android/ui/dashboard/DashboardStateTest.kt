@@ -49,4 +49,58 @@ class DashboardStateTest {
 
         assertNull(subject.fiatBalance)
     }
+
+    @Test
+    fun `if bitcoin asset is loaded then delta should be -25`() {
+        val subject = DashboardState(
+            assets = mapOfAssets(
+                CryptoCurrency.BTC to testBtcState,
+                CryptoCurrency.ETHER to initialEthState,
+                CryptoCurrency.XLM to initialXlmState
+            ),
+            announcement = null
+        )
+
+        assertEquals(Pair(FiatValue.fromMajor(
+            FIAT_CURRENCY,
+            (-1000).toBigDecimal()
+        ), -25.0), subject.delta)
+    }
+
+    @Test
+    fun `if bitcoin asset is loaded with no fiat assets then delta should be -25`() {
+        val subject = DashboardState(
+            assets = mapOfAssets(
+                CryptoCurrency.BTC to testBtcState,
+                CryptoCurrency.ETHER to initialEthState,
+                CryptoCurrency.XLM to initialXlmState
+            ),
+            fiatAssets = fiatAssetState_1,
+            announcement = null
+        )
+
+        assertEquals(Pair(FiatValue.fromMajor(
+            FIAT_CURRENCY,
+            (-1000).toBigDecimal()
+        ), -25.0), subject.delta)
+    }
+
+    @Test
+    fun `if bitcoin asset is loaded with fiat assets then delta should be -20`() {
+        val subject = DashboardState(
+            assets = mapOfAssets(
+                CryptoCurrency.BTC to testBtcState,
+                CryptoCurrency.ETHER to initialEthState,
+                CryptoCurrency.XLM to initialXlmState
+            ),
+            fiatAssets = fiatAssetState_2,
+            announcement = null
+        )
+
+        assertEquals(Pair(FiatValue.fromMajor(
+            FIAT_CURRENCY,
+            (-1000).toBigDecimal()
+        ), -20.0), subject.delta)
+    }
+
 }
