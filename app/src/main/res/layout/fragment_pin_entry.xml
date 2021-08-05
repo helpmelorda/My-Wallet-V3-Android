@@ -28,7 +28,7 @@
         android:layout_marginTop="36dp"
         android:adjustViewBounds="true"
         android:contentDescription="@string/app_name"
-        app:layout_constraintBottom_toTopOf="@id/titleBox"
+        app:layout_constraintBottom_toTopOf="@id/layout_warning"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -112,20 +112,20 @@
         app:layout_constraintStart_toEndOf="@+id/pinBox2"
         app:srcCompat="@drawable/rounded_view_blue_white_border" />
 
-        <ImageView
-            android:id="@+id/fingerprint_logo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginBottom="24dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/fingerprint_logo"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@id/text_view_version_code"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/vector_fingerprint"
-            app:tint="@color/primary_navy_dark"
-            tools:visibility="visible" />
+    <ImageView
+        android:id="@+id/fingerprint_logo"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginBottom="24dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/fingerprint_logo"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/text_view_version_code"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/vector_fingerprint"
+        app:tint="@color/primary_navy_dark"
+        tools:visibility="visible" />
 
     <include
         android:id="@+id/layout_warning"
@@ -138,6 +138,7 @@
         app:layout_constraintBottom_toTopOf="@id/titleBox"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/icon"
         tools:visibility="visible" />
 
     <TextView

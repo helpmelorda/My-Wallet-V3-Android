@@ -1,7 +1,5 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
@@ -24,7 +22,6 @@ import piuk.blockchain.android.ui.customviews.account.addViewToBottomWithConstra
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
-import kotlin.properties.Delegates
 
 data class AssetDetailItem(
     val assetFilter: AssetFilter,
@@ -121,70 +118,6 @@ class LabelViewHolder(private val binding: DialogDashboardAssetLabelItemBinding)
             )
             else -> ""
         }
-    }
-}
-
-internal class AssetDetailAdapter(
-    private val onAccountSelected: (BlockchainAccount, AssetFilter) -> Unit,
-    private val token: CryptoAsset,
-    private val labels: DefaultLabels,
-    private val assetDetailsDecorator: AssetDetailsDecorator
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private val compositeDisposable = CompositeDisposable()
-
-    var itemList: List<AssetDetailItem> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
-        if (oldValue != newValue) {
-            notifyDataSetChanged()
-        }
-    }
-
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView)
-        compositeDisposable.clear()
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-        if (viewType == TYPE_CRYPTO) {
-            AssetDetailViewHolder(
-                ViewAccountCryptoOverviewBinding.inflate(LayoutInflater.from(parent.context), parent, false), labels
-            )
-        } else {
-            LabelViewHolder(
-                DialogDashboardAssetLabelItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            )
-        }
-
-    private val showBanner = token.isCustodialOnly
-
-    override fun getItemCount(): Int = if (showBanner) itemList.size + 1 else itemList.size
-
-    override fun getItemViewType(position: Int): Int =
-        if (showBanner) {
-            if (position >= itemList.size) {
-                TYPE_LABEL
-            } else {
-                TYPE_CRYPTO
-            }
-        } else {
-            TYPE_CRYPTO
-        }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is AssetDetailViewHolder) {
-            holder.bind(
-                itemList[position],
-                onAccountSelected,
-                compositeDisposable,
-                assetDetailsDecorator
-            )
-        } else {
-            (holder as LabelViewHolder).bind(token)
-        }
-    }
-
-    companion object {
-        private const val TYPE_CRYPTO = 0
-        private const val TYPE_LABEL = 1
     }
 }
 

@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -15,10 +13,10 @@ import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.preferences.RatingPrefs
+import com.blockchain.utils.secondsToDays
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManagerFactory
 import info.blockchain.balance.FiatValue
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.cards.CardAuthoriseWebViewActivity
@@ -33,9 +31,8 @@ import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankPaymentApproval
-import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
-import com.blockchain.utils.secondsToDays
 import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
 import java.util.Locale
 
 class SimpleBuyPaymentFragment :
@@ -47,7 +44,6 @@ class SimpleBuyPaymentFragment :
     private val ratingPrefs: RatingPrefs by scopedInject()
     private var reviewInfo: ReviewInfo? = null
     private var isFirstLoad = false
-    private val internalFlags: InternalFeatureFlagApi by inject()
 
     private val isPaymentAuthorised: Boolean by lazy {
         arguments?.getBoolean(IS_PAYMENT_AUTHORISED, false) ?: false
@@ -94,9 +90,7 @@ class SimpleBuyPaymentFragment :
             return
         }
 
-        if (internalFlags.isFeatureEnabled(GatedFeature.RECURRING_BUYS) &&
-            newState.recurringBuyState == RecurringBuyState.INACTIVE
-        ) {
+        if (newState.recurringBuyState == RecurringBuyState.INACTIVE) {
             toast(resources.getString(R.string.recurring_buy_creation_error), ToastCustom.TYPE_ERROR)
         }
 

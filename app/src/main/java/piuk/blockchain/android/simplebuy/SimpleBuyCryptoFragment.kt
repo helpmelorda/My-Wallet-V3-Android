@@ -11,7 +11,6 @@ import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
@@ -59,7 +58,6 @@ import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.time.ZonedDateTime
 
@@ -87,10 +85,6 @@ class SimpleBuyCryptoFragment :
 
     private val preselectedMethodId: String? by unsafeLazy {
         arguments?.getString(ARG_PAYMENT_METHOD_ID)
-    }
-
-    private val isRecurringBuyEnabled: Boolean by lazy {
-        features.isFeatureEnabled(GatedFeature.RECURRING_BUYS)
     }
 
     override fun navigator(): SimpleBuyNavigator =
@@ -379,8 +373,7 @@ class SimpleBuyCryptoFragment :
         state.isAmountValid && state.selectedPaymentMethod != null && !state.isLoading
 
     private fun renderDefinedPaymentMethod(selectedPaymentMethod: PaymentMethod) {
-        binding.frequencySpinner.visibleIf { isRecurringBuyEnabled }
-        if (isRecurringBuyEnabled) renderRecurringBuy()
+        renderRecurringBuy()
 
         when (selectedPaymentMethod) {
             is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod)

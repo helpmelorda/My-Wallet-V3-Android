@@ -17,7 +17,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
-import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
@@ -26,17 +25,17 @@ import piuk.blockchain.android.databinding.ActivityLandingBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
 import piuk.blockchain.android.ui.createwallet.NewCreateWalletActivity
-import piuk.blockchain.android.ui.recover.RecoverFundsActivity
-import piuk.blockchain.android.util.copyHashOnLongClick
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
+import piuk.blockchain.android.ui.recover.RecoverFundsActivity
+import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.copyHashOnLongClick
 import piuk.blockchain.android.util.visible
 
 class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingView {
 
     override val presenter: LandingPresenter by scopedInject()
-    private val stringUtils: StringUtils by inject()
     private val ssoLoginFF: FeatureFlag by inject(ssoLoginFeatureFlag)
     private val ssoARFF: FeatureFlag by inject(ssoAccountRecoveryFeatureFlag)
     private val internalFlags: InternalFeatureFlagApi by inject()
@@ -167,8 +166,8 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         val learnMoreMap = mapOf<String, Uri>("learn_more" to Uri.parse(WALLET_STATUS_URL))
         binding.layoutWarning.warningMessage.apply {
             movementMethod = LinkMovementMethod.getInstance()
-            text = stringUtils.getStringWithMappedAnnotations(
-                R.string.wallet_outage_message, learnMoreMap, this@LandingActivity
+            text = StringUtils.getStringWithMappedAnnotations(
+                this@LandingActivity, R.string.wallet_issue_message, learnMoreMap
             )
         }
     }

@@ -1587,6 +1587,7 @@ Sus fondos estarán disponibles para ser retirados una vez que la transferencia 
     <string name="sb_checkout_pending_order_title">Pedido en curso</string>
     <string name="sb_checkout_pending_order_blurb">Vaya, parece que ya tiene un pedido de compra en curso. Espere hasta que se complete antes de volver a comprar.</string>
     <string name="wallet_outage_message">Hemos experimentado una interrupción. No se preocupe, sus fondos están seguros. <annotation link="learn_more"> Más información </annotation></string>
+    <string name="wallet_issue_message">Hay una alerta en nuestra página de estado. Puede que toda la funcionalidad de la cartera no esté disponible. No se preocupe, sus fondos están seguros. <annotation link="learn_more"> Más información →</annotation></string>
     <string name="increase_your_limits">Aumente sus límites</string>
     <string name="increase_your_limits_body">Continúe su verificación para alcanzar el nivel Gold y aumente sus límites y métodos de pago</string>
     <string name="continue_to_gold">Continuar a Gold</string>
