@@ -4,20 +4,14 @@ import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class ResetPasswordIntents : MviIntent<ResetPasswordState> {
 
-    data class RecoverWallet(
-        val email: String,
+    data class SetNewPassword(
         val password: String,
-        val recoveryPhrase: String,
-        val walletName: String,
         val shouldResetKyc: Boolean
     ) : ResetPasswordIntents() {
         override fun reduce(oldState: ResetPasswordState): ResetPasswordState =
             oldState.copy(
-                email = email,
                 password = password,
-                recoveryPhrase = recoveryPhrase,
-                walletName = walletName,
-                status = ResetPasswordStatus.RESTORE_WALLET
+                status = ResetPasswordStatus.SET_PASSWORD
             )
     }
 

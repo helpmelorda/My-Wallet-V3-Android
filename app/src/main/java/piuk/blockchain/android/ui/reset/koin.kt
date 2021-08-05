@@ -32,6 +32,7 @@ val resetAccountModule = module {
 
         factory {
             ResetPasswordInteractor(
+                authDataManager = get(),
                 payloadDataManager = get(),
                 accessState = get(),
                 prefs = get(),

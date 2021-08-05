@@ -2127,7 +2127,6 @@
     <string name="reset_password_optional_label">Would you like to reset your password? You can always do this later in Settings.</string>
     <string name="reset_password_hint">New Password</string>
     <string name="reset_password_confirm_hint">Confirm New Password</string>
-    <string name="reset_password_optional_title">Reset Password?</string>
     <string name="restore_wallet_cta">Restore Wallet</string>
 
     <!-- Recurring buy screens -->

@@ -98,23 +98,17 @@ class ResetPasswordModelTest {
     }
 
     @Test
-    fun `recover wallet successfully`() {
-        val email = "email"
+    fun `set password successfully`() {
         val password = "password"
-        val recoveryPhrase = "recovery_phrase"
-        val walletName = "wallet_name"
 
-        whenever(interactor.restoreWallet(email, password, recoveryPhrase, walletName)).thenReturn(
+        whenever(interactor.setNewPassword(password)).thenReturn(
             Completable.complete()
         )
 
         val testState = model.state.test()
         model.process(
-            ResetPasswordIntents.RecoverWallet(
-                email,
+            ResetPasswordIntents.SetNewPassword(
                 password,
-                recoveryPhrase,
-                walletName,
                 false
             )
         )
@@ -122,30 +116,21 @@ class ResetPasswordModelTest {
         testState.assertValues(
             ResetPasswordState(),
             ResetPasswordState(
-                email = email,
                 password = password,
-                recoveryPhrase = recoveryPhrase,
-                walletName = walletName,
-                status = ResetPasswordStatus.RESTORE_WALLET
+                status = ResetPasswordStatus.SET_PASSWORD
             ),
             ResetPasswordState(
-                email = email,
                 password = password,
-                recoveryPhrase = recoveryPhrase,
-                walletName = walletName,
                 status = ResetPasswordStatus.SHOW_SUCCESS
             )
         )
     }
 
     @Test
-    fun `fail to recover wallet should show error`() {
-        val email = "email"
+    fun `fail to set new password should show error`() {
         val password = "password"
-        val recoveryPhrase = "recovery_phrase"
-        val walletName = "wallet_name"
 
-        whenever(interactor.restoreWallet(email, password, recoveryPhrase, walletName)).thenReturn(
+        whenever(interactor.setNewPassword(password)).thenReturn(
             Completable.error(
                 Exception()
             )
@@ -153,11 +138,8 @@ class ResetPasswordModelTest {
 
         val testState = model.state.test()
         model.process(
-            ResetPasswordIntents.RecoverWallet(
-                email,
+            ResetPasswordIntents.SetNewPassword(
                 password,
-                recoveryPhrase,
-                walletName,
                 false
             )
         )
@@ -165,41 +147,29 @@ class ResetPasswordModelTest {
         testState.assertValues(
             ResetPasswordState(),
             ResetPasswordState(
-                email = email,
                 password = password,
-                recoveryPhrase = recoveryPhrase,
-                walletName = walletName,
-                status = ResetPasswordStatus.RESTORE_WALLET
+                status = ResetPasswordStatus.SET_PASSWORD
             ),
             ResetPasswordState(
-                email = email,
                 password = password,
-                recoveryPhrase = recoveryPhrase,
-                walletName = walletName,
                 status = ResetPasswordStatus.SHOW_ERROR
             )
         )
     }
 
     @Test
-    fun `fail to reset kyc when recovering wallet should show error`() {
-        val email = "email"
+    fun `fail to reset kyc when resetting password should show error`() {
         val password = "password"
-        val recoveryPhrase = "recovery_phrase"
-        val walletName = "wallet_name"
 
-        whenever(interactor.restoreWallet(email, password, recoveryPhrase, walletName)).thenReturn(
+        whenever(interactor.setNewPassword(password)).thenReturn(
             Completable.complete()
         )
         whenever(interactor.resetUserKyc()).thenReturn(Completable.error(Exception()))
 
         val testState = model.state.test()
         model.process(
-            ResetPasswordIntents.RecoverWallet(
-                email,
+            ResetPasswordIntents.SetNewPassword(
                 password,
-                recoveryPhrase,
-                walletName,
                 true
             )
         )
@@ -207,37 +177,25 @@ class ResetPasswordModelTest {
         testState.assertValues(
             ResetPasswordState(),
             ResetPasswordState(
-                email = email,
                 password = password,
-                recoveryPhrase = recoveryPhrase,
-                walletName = walletName,
-                status = ResetPasswordStatus.RESTORE_WALLET
+                status = ResetPasswordStatus.SET_PASSWORD
             ),
             ResetPasswordState(
-                email = email,
                 password = password,
-                recoveryPhrase = recoveryPhrase,
-                walletName = walletName,
                 status = ResetPasswordStatus.RESET_KYC
             ),
             ResetPasswordState(
-                email = email,
                 password = password,
-                recoveryPhrase = recoveryPhrase,
-                walletName = walletName,
                 status = ResetPasswordStatus.SHOW_ERROR
             )
         )
     }
 
     @Test
-    fun `reset kyc is already in progress when recovering wallet, continue`() {
-        val email = "email"
+    fun `reset kyc is already in progress when resetting password, continue`() {
         val password = "password"
-        val recoveryPhrase = "recovery_phrase"
-        val walletName = "wallet_name"
 
-        whenever(interactor.restoreWallet(email, password, recoveryPhrase, walletName)).thenReturn(
+        whenever(interactor.setNewPassword(password)).thenReturn(
             Completable.complete()
         )
         whenever(interactor.resetUserKyc()).thenReturn(
@@ -255,11 +213,8 @@ class ResetPasswordModelTest {
 
         val testState = model.state.test()
         model.process(
-            ResetPasswordIntents.RecoverWallet(
-                email,
+            ResetPasswordIntents.SetNewPassword(
                 password,
-                recoveryPhrase,
-                walletName,
                 true
             )
         )
@@ -267,24 +222,15 @@ class ResetPasswordModelTest {
         testState.assertValues(
             ResetPasswordState(),
             ResetPasswordState(
-                email = email,
                 password = password,
-                recoveryPhrase = recoveryPhrase,
-                walletName = walletName,
-                status = ResetPasswordStatus.RESTORE_WALLET
+                status = ResetPasswordStatus.SET_PASSWORD
             ),
             ResetPasswordState(
-                email = email,
                 password = password,
-                recoveryPhrase = recoveryPhrase,
-                walletName = walletName,
                 status = ResetPasswordStatus.RESET_KYC
             ),
             ResetPasswordState(
-                email = email,
                 password = password,
-                recoveryPhrase = recoveryPhrase,
-                walletName = walletName,
                 status = ResetPasswordStatus.SHOW_SUCCESS
             )
         )

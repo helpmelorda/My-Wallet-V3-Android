@@ -28,8 +28,8 @@ class ResetPasswordFragment :
 
     private val defaultLabels: DefaultLabels by inject()
 
-    private val isPasswordResetMandatory: Boolean by lazy {
-        arguments?.getBoolean(IS_MANDATORY, false) ?: false
+    private val shouldResetKyc: Boolean by lazy {
+        arguments?.getBoolean(SHOULD_RESET_KYC, false) ?: false
     }
 
     private val email: String by lazy {
@@ -45,7 +45,7 @@ class ResetPasswordFragment :
     }
 
     private val shouldRecoverWallet: Boolean by lazy {
-        recoveryPhrase.isNotBlank() && email.isNotBlank()
+        recoveryPhrase.isNotBlank()
     }
 
     private val shouldRecoverAccount: Boolean by lazy {
@@ -60,8 +60,8 @@ class ResetPasswordFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
-            initUI(isPasswordResetMandatory)
-            initControls(isPasswordResetMandatory)
+            initUI(shouldResetKyc)
+            initControls()
         }
     }
 
@@ -77,7 +77,7 @@ class ResetPasswordFragment :
             }
             ResetPasswordStatus.CREATE_WALLET,
             ResetPasswordStatus.RECOVER_ACCOUNT,
-            ResetPasswordStatus.RESTORE_WALLET,
+            ResetPasswordStatus.SET_PASSWORD,
             ResetPasswordStatus.RESET_KYC -> binding.progressBar.visible()
             else -> {
                 binding.progressBar.gone()
@@ -89,12 +89,9 @@ class ResetPasswordFragment :
         model.process(
             when {
                 shouldRecoverWallet ->
-                    ResetPasswordIntents.RecoverWallet(
-                        email = email,
+                    ResetPasswordIntents.SetNewPassword(
                         password = password,
-                        recoveryPhrase = recoveryPhrase,
-                        walletName = defaultLabels.getDefaultNonCustodialWalletLabel(),
-                        shouldResetKyc = isPasswordResetMandatory
+                        shouldResetKyc = shouldResetKyc
                     )
                 shouldRecoverAccount ->
                     ResetPasswordIntents.CreateWalletForAccount(
@@ -102,19 +99,15 @@ class ResetPasswordFragment :
                         password = password,
                         recoveryToken = recoveryToken,
                         walletName = defaultLabels.getDefaultNonCustodialWalletLabel(),
-                        shouldResetKyc = isPasswordResetMandatory
+                        shouldResetKyc = shouldResetKyc
                     )
                 else -> ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_ERROR)
             }
         )
     }
 
-    private fun FragmentPasswordResetBinding.initControls(isMandatory: Boolean) {
+    private fun FragmentPasswordResetBinding.initControls() {
         backButton.setOnClickListener { parentFragmentManager.popBackStack() }
-        skipButton.apply {
-            visibleIf { !isMandatory }
-            setOnClickListener { start<PinEntryActivity>(requireContext()) }
-        }
 
         continueButton.setOnClickListener {
             if (passwordView.isPasswordValid()) {
@@ -123,13 +116,9 @@ class ResetPasswordFragment :
         }
     }
 
-    private fun FragmentPasswordResetBinding.initUI(isMandatory: Boolean) {
-        resetPasswordTitle.text = if (isMandatory) {
-            getString(R.string.common_reset_password)
-        } else {
-            getString(R.string.reset_password_optional_title)
-        }
-        optionalResetPasswordLabel.visibleIf { !isMandatory }
+    private fun FragmentPasswordResetBinding.initUI(shouldResetKyc: Boolean) {
+        resetPasswordTitle.text = getString(R.string.common_reset_password)
+        optionalResetPasswordLabel.visibleIf { !shouldResetKyc }
         val linksMap = mapOf<String, Uri>(
             "terms" to Uri.parse(URL_TOS_POLICY),
             "privacy" to Uri.parse(URL_PRIVACY_POLICY)
@@ -141,13 +130,13 @@ class ResetPasswordFragment :
                 linksMap = linksMap
             )
             movementMethod = LinkMovementMethod.getInstance()
-            visibleIf { isMandatory }
+            visibleIf { shouldResetKyc }
         }
         resetKycNotice.apply {
             text = getString(R.string.reset_kyc_notice)
-            visibleIf { isMandatory }
+            visibleIf { shouldResetKyc }
         }
-        continueButton.text = if (!isMandatory) {
+        continueButton.text = if (!shouldResetKyc) {
             getString(R.string.common_continue)
         } else {
             getString(R.string.common_reset_password)
@@ -158,17 +147,17 @@ class ResetPasswordFragment :
         const val RECOVERY_TOKEN = "recovery_token"
         const val EMAIL = "email"
         const val SEED_PHRASE = "seed_phrase"
-        private const val IS_MANDATORY = "is_mandatory"
+        private const val SHOULD_RESET_KYC = "should_reset_kyc"
 
         fun newInstance(
-            isResetMandatory: Boolean,
+            shouldResetKyc: Boolean,
             email: String = "",
             recoveryPhrase: String = "",
             recoveryToken: String = ""
         ): ResetPasswordFragment {
             return ResetPasswordFragment().apply {
                 arguments = Bundle().apply {
-                    putBoolean(IS_MANDATORY, isResetMandatory)
+                    putBoolean(SHOULD_RESET_KYC, shouldResetKyc)
                     putString(EMAIL, email)
                     putString(SEED_PHRASE, recoveryPhrase)
                     putString(RECOVERY_TOKEN, recoveryToken)

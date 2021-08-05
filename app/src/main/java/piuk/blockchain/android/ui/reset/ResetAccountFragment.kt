@@ -97,7 +97,7 @@ class ResetAccountFragment :
             .replace(
                 binding.fragmentContainer.id,
                 ResetPasswordFragment.newInstance(
-                    isResetMandatory = true,
+                    shouldResetKyc = true,
                     email = arguments?.getString(ResetPasswordFragment.EMAIL) ?: "",
                     recoveryToken = arguments?.getString(ResetPasswordFragment.RECOVERY_TOKEN) ?: ""
                 ),
