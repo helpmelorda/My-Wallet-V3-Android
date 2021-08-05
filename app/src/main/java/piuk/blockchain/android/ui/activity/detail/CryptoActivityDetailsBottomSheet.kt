@@ -305,7 +305,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                         BuySellClicked(origin = LaunchOrigin.TRANSACTION_DETAILS, type = BuySellType.BUY)
                     )
                     startActivity(
-                        SimpleBuyActivity.newInstance(requireContext(), asset, true)
+                        SimpleBuyActivity.newInstance(requireContext(), asset.ticker, true)
                     )
                     dismiss()
                 }

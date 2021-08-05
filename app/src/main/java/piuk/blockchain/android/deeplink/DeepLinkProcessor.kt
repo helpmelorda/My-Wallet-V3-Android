@@ -17,7 +17,8 @@ internal class DeepLinkProcessor(
     private val kycDeepLinkHelper: KycDeepLinkHelper,
     private val sunriverDeepLinkHelper: SunriverDeepLinkHelper,
     private val thePitDeepLinkParser: ThePitDeepLinkParser,
-    private val openBankingDeepLinkParser: OpenBankingDeepLinkParser
+    private val openBankingDeepLinkParser: OpenBankingDeepLinkParser,
+    private val blockchainDeepLinkParser: BlockchainDeepLinkParser
 ) {
     fun getLink(intent: Intent): Single<LinkState> =
         linkHandler.getPendingLinks(intent).switchIfEmpty(Single.never()).flatMap {
@@ -49,6 +50,10 @@ internal class DeepLinkProcessor(
             if (openBankingDeepLink != null && openBankingDeepLink.type != OpenBankingLinkType.UNKNOWN) {
                 return@fromCallable openBankingDeepLink
             }
+            val blockchainLink = blockchainDeepLinkParser.mapUri(uri)
+            if (blockchainLink != BlockchainLinkState.NoUri) {
+                return@fromCallable LinkState.BlockchainLink(blockchainLink)
+            }
             LinkState.NoUri
         }
             .switchIfEmpty(Maybe.just(LinkState.NoUri))
@@ -57,6 +62,7 @@ internal class DeepLinkProcessor(
 }
 
 sealed class LinkState {
+    data class BlockchainLink(val link: BlockchainLinkState) : LinkState()
     data class EmailVerifiedDeepLink(val link: EmailVerifiedLinkState) : LinkState()
     data class SunriverDeepLink(val link: CampaignLinkState) : LinkState()
     data class KycDeepLink(val link: KycLinkState) : LinkState()
