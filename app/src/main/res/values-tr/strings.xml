@@ -14,6 +14,10 @@
         <item>onbirinci kelime</item>
         <item>onikinci kelime</item>
     </string-array>
+    <string-array name="xlm_memo_types_manual">
+        <item>Not Metni</item>
+        <item>Not Kimliği</item>
+    </string-array>
     <string name="backup_wallet">Parayı yedekle</string>
     <string name="action_settings">Ayarlar</string>
     <string name="please_wait">Lütfen bekleyin</string>
@@ -109,8 +113,10 @@
     <string name="creating_wallet">Cüzdan oluşturuluyor</string>
     <string name="restore_failed">Cüzdan kurtarma başarısız oldu. Lütfen tekrar deneyin</string>
     <string name="restoring_wallet">Cüzdan kurtarılıyor</string>
+    <string name="login_password_hint">Parola</string>
     <string name="kyc_email_hint_unfocused">E-posta Adresiniz</string>
-    <string name="new_account_cta_text">Sonraki</string>
+    <string name="you_agree_terms_of_service">Bir hesap oluşturarak Blockchain\'in <annotation link="terms">Hizmet Şartları</annotation> ve <annotation link="privacy">Gizlilik Politikasını</annotation> kabul etmiş olursunuz.</string>
+    <string name="new_account_cta_text">Devam et</string>
     <string name="new_account_title">Hesap Oluştur</string>
     <string name="strength_weak">Güçsüz</string>
     <string name="strength_medium">Düzenli</string>
@@ -120,6 +126,7 @@
     <string name="btn_forgot_password">Şifrenizi mi Unuttunuz?\"</string>
     <string name="SEND">Gönder</string>
     <string name="bitpay_remaining_time">Kalan süre</string>
+    <string name="confirm_status_msg_invoice_expired">BitPay Faturasının Süresi Doldu</string>
     <string name="bitpay_announcement_body">BitPay ile artık Blockchain cüzdanınızı destekleyici perakendecilerle alışveriş yapmak için kullanabilirsiniz.</string>
     <string name="transaction_failed">İşlem başarısız</string>
     <string name="enter_double_encryption_pw">Lütfen çift kriptolama şifresi girin</string>
@@ -138,6 +145,7 @@ Her hakkı saklıdır.</string>
     </string>
     <string name="weak_password">Seçilen şifre paranızı korumak için çok zayıf. Lütfen farklı bir şifre tanımlayın.</string>
     <string name="confirm_details">Ödemeyi Onayla</string>
+    <string name="activity_details_fee">ücret</string>
     <string name="exit_confirm">Çıkmak için tekrar geri düğmesine basın</string>
     <string name="label_address">Adresiniz başarıyla içe aktarıldı. Opsiyonel olarak,
         bu adrese kolay bir görüntü adı atayın.
@@ -249,6 +257,7 @@ Her hakkı saklıdır.</string>
         arşivlenemez.
     </string>
     <string name="extended_public_key">Genişletilmiş Genel Anahtar</string>
+    <string name="kyc_address_address_first_line_hint">Adres</string>
     <string name="copy_xpub">xpub kopyala</string>
     <string name="scan_this_code">Genişletilmiş ortak anahtarınız tüm ortak adreslerinizi içeren gelişmiş
         bir özelliktir.
@@ -587,6 +596,7 @@ Yatırın ve Çekin</string>
     <string name="the_exchange_loading_dialog_description">10 saniye içinde yeni bir pencere açılmalıdır.</string>
     <string name="the_exchange_verify_email_title">E-posta adresinizi doğrulayın</string>
     <string name="the_exchange_verify_email_description">Az önce size bir doğrulama e-postası gönderdik. Exchange\'e bağlanabilmeniz için e-posta adresinizin doğrulanması gerekiyor.</string>
+    <string name="open_email_cta">E-posta Uygulamasını Aç</string>
     <string name="the_exchange_did_not_get_email">E-postayı almadınız mı?</string>
     <string name="the_exchange_send_again">Tekrar gönderin</string>
     <string name="mail_resent_succeed">E-posta gönderildi. Devam etmek için gelen kutunuzu kontrol edin.</string>
@@ -745,6 +755,7 @@ Lütfen bu 12 kelimeyi sırayla yazın ve güvenli bir yerde saklayın. Asla kim
     <string name="kyc_complete_home_address">Ev Adresi Eklendi</string>
     <string name="kyc_complete_id_uploaded">Kimlik Yüklendi</string>
     <string name="kyc_complete_video_uploaded">Video yüklendi</string>
+    <string name="kyc_help_dialog_need_some_help">Yardıma ihtiyacım var?</string>
     <string name="kyc_help_dialog_need_some_help_body">Blockchain Destek Ekibimiz, kimliğinizi neden doğrulamamız gerektiğini açıklayan Yardım Kılavuzları hazırladı.</string>
     <string name="kyc_help_dialog_read_now">Şimdi Oku</string>
     <string name="kyc_help_dialog_read_now_url">https://blockchain.zendesk.com/hc/en-us/categories/360001135512-Identity-Verification</string>
@@ -815,6 +826,7 @@ Lütfen bu 12 kelimeyi sırayla yazın ve güvenli bir yerde saklayın. Asla kim
     <string name="start_arrow">başlangıç oku</string>
     <string name="approved">Onaylandı!</string>
     <string name="in_review">İncelemede</string>
+    <string name="send_enter_amount_available">Mevcut</string>
     <string name="swap_limit">Takas Limitiniz, ticaret yapabileceğiniz maksimum kripto miktarıdır.</string>
     <string name="swap_unavailable">Şu Anda Kullanılamıyor</string>
     <string name="swap_unavailable_explained">Kimliğinizi doğrulamada sorun yaşadık. Swap özelliğiniz şu anda devre dışı bırakıldı.</string>
@@ -877,6 +889,7 @@ Lütfen bu 12 kelimeyi sırayla yazın ve güvenli bir yerde saklayın. Asla kim
 Bu hesaba para yatırarak bankacılık işlemlerindeki iş ortağımız <annotation link="modular_terms_and_conditions">Modulr\'ın Şart ve Koşulları\'nı</annotation> kabul etmiş olursunuz.</string>
     <string name="recipient_name_must_match">Yalnızca adınızdaki bir banka hesabından para gönderin. Aksi takdirde, depozitonuz ertelenebilir veya reddedilebilir.</string>
     <string name="are_ypu_sure">Emin misiniz?</string>
+    <string name="cancel_order_do_cancel">Siparişi iptal et</string>
     <string name="cancel_order_go_back">Geri Git</string>
     <string name="cancel_order_do_cancel_dashboard">Evet, İptal Et</string>
     <string name="cancel_order_go_back_dashboard">Hayır, Emri Tut</string>
@@ -920,8 +933,10 @@ Bu hesaba para yatırarak bankacılık işlemlerindeki iş ortağımız <annotat
     <string name="activity_state_refunded">Geri Ödendi</string>
     <string name="common_save">Kayıt etmek</string>
     <string name="send_scan_qr_code">QR Kodu Tara</string>
+    <string name="search">Arama</string>
     <string name="send_again">Tekrar gönderin</string>
     <string name="checkout_item_send_to">Buraya gönderildi:</string>
+    <string name="recurring_buy_details_total_cost">Toplam tutar</string>
     <string name="send_confirmation_tx_fee">İşlem ücreti</string>
     <string name="transfer_amount">Transfer Tutarı</string>
     <string name="common_try_again">Tekrar deneyin</string>
@@ -1019,8 +1034,6 @@ Bu hesaba para yatırarak bankacılık işlemlerindeki iş ortağımız <annotat
     <string name="expired">Süresi doldu</string>
     <string name="save_my_card">Kartımı Kaydet</string>
     <string name="activity_details_label_waiting_on_funds">Fonlar Bekleniyor</string>
-    <string name="common_hyphenated_strings">%1$s - %2$s</string>
-    <string name="common_spaced_strings">%1$s %2$s</string>
     <string name="server_unreachable_exit">Sunucuya bağlanamadı. Lütfen tekrar deneyin.</string>
     <string name="dashboard_asset_balance_interest">%1$.1f%% APY kazan</string>
     <string name="default_label_interest_wallet">Faiz Cüzdanı</string>
@@ -1046,6 +1059,7 @@ Onay</string>
     <string name="activity_details_label_pending_execution">Bekleyen İşlem</string>
     <string name="activity_details_buy_sending_to">Gönderiliyor</string>
     <string name="activity_details_buy_purchase_amount">Satın Alınıyor</string>
+    <string name="activity_details_buy_fees">harç</string>
     <string name="activity_details_buy_payment_method">Ödeme Yöntemi</string>
     <string name="activity_details_view_bank_transfer_details">Banka Havalesi Ayrıntılarını Görüntüleme</string>
     <string name="activity_details_buy_again">Tekrar Satın Al</string>
@@ -1142,7 +1156,6 @@ desteklenmez. Lütfen  bir adres ve özel anahtar
     <string name="common_deposit">Para Yatırma</string>
     <string name="common_transfer">Aktarma</string>
     <string name="common_error">Bir şeyler ters gitti lütfen tekrar deneyin</string>
-    <string name="common_company_name">Blockchain.com</string>
     <string name="toolbar_cmd_transfer">Aktarma</string>
     <string name="notification_2fa_summary">İki Aşamalı Kimlik Doğrulama Bildirimleri</string>
     <string name="notification_2fa_description">İki Faktörlü Kimlik Doğrulama ile ilgili bildirimler</string>
@@ -1205,6 +1218,7 @@ desteklenmez. Lütfen  bir adres ve özel anahtar
     <string name="send_enter_amount_error_insufficient_funds">Cüzdanında yeterli %1$s yok.</string>
     <string name="send_enter_amount_error_invalid_amount">0,00000001 %1$s veya daha fazlasını gönderin.</string>
     <string name="send_enter_invalid_password">Şifre yanlış.</string>
+    <string name="confirm_status_msg_unexpected_error">Beklenmedik bir hata oldu. Lütfen daha sonra tekrar deneyin.</string>
     <string name="send_enter_insufficient_gas">Bu işlemi gerçekleştirmek için yeterli tutarda ETH sahibi değilsiniz.</string>
     <string name="send_select_a_wallet_title">veya Bir Cüzdan Seçin</string>
     <string name="send_internal_transfer_message">Şu anda %2$s Ticari Cüzdanınızdan %2$s Cüzdanlarınıza yalnızca %1$s transfer yapabilirsiniz. %2$s Cüzdanınıza %1$s ulaşınca harici adreslere transfer yapabilirsiniz.</string>
@@ -1339,7 +1353,6 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="confirm_status_msg_insufficient_funds">Bu hesapta bu işlemi gerçekleştirmek için yeterli paranız yok</string>
     <string name="confirm_status_msg_insufficient_gas">@string/send_enter_insufficient_gas</string>
     <string name="confirm_status_msg_option_invalid">Lütfen Şartlarımızı kabul ettiğinizden emin olun.</string>
-    <string name="common_replaceable_value">%1$s</string>
     <string name="common_free">Ücretsiz</string>
     <string name="two_fa_new_request">Yeni kod isteniyor...</string>
     <string name="transfer_funds_title">İçe Aktarılan Adresten Transfer Yapılsın mı?</string>
@@ -1442,7 +1455,6 @@ Trade Hesabınız ile Kripto Para Swap Yapın</string>
     <string name="qr_activity_hint_import_wallet">Cüzdan özel anahtarı tara</string>
     <string name="qr_activity_hint_pairing_code">İnternet sayfası eşleştirme QR kodu tara</string>
     <string name="qr_activity_hint_new_web_login">İnternet sayfasına giriş yap</string>
-    <string name="common_zero">0</string>
     <string name="common_retry">Yeniden Dene</string>
     <string name="strength_hint">Harf, rakam ve sembol karışımından oluşan en az 8 karakter kullanın.</string>
     <string name="content_desc_enter_amount">Miktar Gir</string>
@@ -1551,13 +1563,10 @@ Not: Gelecek %1$s gün bu paraları Cüzdanınızdan Gönderemeyecek veya Çekem
     <string name="backup_instructions_2">Yani şunları yapmalısınız:</string>
     <string name="backup_button_begin">Kurtarma İfadesini Görüntüle</string>
     <string name="backup_instructions_warn">Uyarı: Biri yedekleme ifadenize sahipse, Özel Anahtar Cüzdanınıza erişebilir ve para çekebilir.</string>
-    <string name="common_newlined_strings">%1$s
-%2$s</string>
     <string name="backup_wallet_title">Gizli Özel Anahtar Kurtarma</string>
     <string name="pin_max_strikes">%1$d başarısız PIN denemesi. Lütfen şifrenizi girin.</string>
     <string name="recovery_passphrase_1">Gizli Özel Anahtar Kurtarma İfadesi</string>
     <string name="invalid_recovery_phrase_1">Geçersiz Gizli Özel Anahtar Kurtarma İfadesi. Lütfen tekrar deneyin</string>
-    <string name="sign_up_email">E-posta</string>
     <string name="password_disclaimer">Blockchain.com\'un parolamı benim için kurtaramayacağını anlıyorum. Cüzdanıma erişimi kaybedersem, parama erişmek için <annotation link="backup"> Gizli İfademi </annotation> kullanmalıyım.</string>
     <string name="transfer_funds_description_1">İçe aktarılan adresler Gizli Özel Anahtar Yedekleme İfadeniz tarafından yedeklenmez. Bu fonları güvence altına almak için
  bu bakiyeleri yedeklemenize eklemek için aktarmanızı öneririz.
@@ -1918,6 +1927,10 @@ Banka transferiniz %3$s tarihinde tamamlandıktan sonra para çekme işlemi ger�
     <string name="recurring_buy_label">Sıklık</string>
     <string name="recurring_buy_one_time_short">Tek sefer</string>
     <string name="recurring_buy_one_time">Tek seferlik satın alma</string>
+    <string name="recurring_buy_daily">Her gün</string>
+    <string name="recurring_buy_weekly">Her hafta</string>
+    <string name="recurring_buy_bi_weekly">İki haftada bir</string>
+    <string name="recurring_buy_monthly">Her ay</string>
     <string name="recurring_buy_frequency_label">Yinelenen</string>
     <string name="recurring_buy_frequency_subtitle">%1$s tarihinde</string>
     <string name="recurring_buy_frequency_subtitle_each_day">%s civarında</string>
@@ -1983,22 +1996,102 @@ Banka transferiniz %3$s tarihinde tamamlandıktan sonra para çekme işlemi ger�
     <string name="dashboard_title_recurring_buy">Ne zaman satın alacağınızdan emin değil misiniz?</string>
     <string name="dashboard_recurring_buy_description">Piyasayı doğru zamanı yakalamak zor olduğundan birçok yatırımcı ortalama dolar maliyeti kullanıyor.</string>
     <string name="dashboard_recurring_buy_learn_more">Daha fazla bilgi edin →</string>
+    <string name="dashboard_recurring_buy_item_title">%2$s %3$s cinsinden %1$s satın al</string>
     <string name="dashboard_recurring_buy_item_label">Sonraki satın alma: %1$s</string>
     <string name="dashboard_recurring_buy_item_label_error">Düşük bakiye. Para Ekleyin</string>
     <string name="dashboard_recurring_buy_title">Yinelenen satın alma işlemleri</string>
+    <string name="recurring_buy_info_cta">Yinelenen Satın Alma İşlemini İptal Et</string>
+    <string name="recurring_buy_sheet_title">Yinelenen %1$s Satın Alma İşlemi</string>
+    <string name="recurring_buy_info_purchase_label">Sonra Satın Alma</string>
     <string name="recurring_buy_cancelled_toast">Yinelenen satın alma işlemi iptal edildi</string>
     <string name="recurring_buy_cancelled_error_toast">Hay aksi! Yinelenen satın alma işleminizi iptal ederken bir sorun oluştu. Lütfen daha sonra tekrar deneyin.</string>
     <string name="recurring_buy_cancel_dialog_desc">Bu Yinelenen Satın Alma İşlemini iptal etmek istediğinizden emin misiniz?</string>
     <string name="recurring_buy_activity_pending">Bekliyor</string>
     <string name="recurring_buy_details_next_payment">Sonraki Ödeme</string>
+    <string name="recurring_buy_details_recurring">Yinelenen</string>
+    <string name="recurring_buy_details_fees">harç</string>
     <string name="activity_details_label_btn_cash">Nakit Ekle</string>
     <string name="recurring_buy_funds_label">%s Hesabı</string>
     <string name="recurring_buy_short_error">Başarısız oldu</string>
     <string name="recurring_buy_insufficient_funds_short_error">Başarısız oldu. Bakiye Düşük</string>
+    <string name="recurring_buy_insufficient_funds_error">Ödeme yönteminizde yeterli para bulunmuyor. Yinelenen satın alma işleminin tamamlanması daha fazla para ekleyin.</string>
     <string name="recurring_buy_internal_server_error">Satın alma işleminizde bir hata oluştu. Az sonra tekrar deneyeceğiniz.</string>
     <string name="recurring_buy_final_attempt_error">Satın alma işleminizde bir hata oluştu. Daha fazla bilgi için <annotation link="contact_support_link">destek ekibiyle iletişime geçin.</annotation></string>
     <string name="recurring_buy_beneficiary_error">Seçtiğiniz ödemi yöntemi aktif değil. Lütfen başkasını kullanın.</string>
     <string name="recurring_buy_limits_exceed_error">Hesabınız al-sat limitlerini aştı. Daha fazla bilgi için <annotation link="contact_support_link">destek ekibiyle iletişime geçin.</annotation></string>
     <string name="recurring_buy_generic_error">Satın alma işleminizde bir hata oluştu. Daha fazla bilgi için <annotation link="contact_support_link">destek ekibiyle iletişime geçin.</annotation></string>
     <string name="fee_calculated_at_checkout">Ödeme aşamasında hesaplanır</string>
+    <string name="common_remove">Kaldır</string>
+    <string name="common_parametrised_confirm">%1$s Onayla</string>
+    <string name="common_search">Arama</string>
+    <string name="password">Şifre</string>
+    <string name="email">E-posta Adresiniz</string>
+    <string name="sign_up_email">E-posta</string>
+    <string name="password_disclaimer_1">Blockchain.com\'un şifreleri saklamadığını ve dolayısıyla şifremi kurtaramayacağını veya sıfırlayamayacağını anlıyorum. Cüzdanıma erişimi kaybedersem parama erişmek için <annotation link="backup">Gizli Özel Anahtar Kurtarma İ̇fademi</annotation> kullanmalıyım. Hesap oluşturarak Blockchain\'in <annotation link="terms">Hizmet Şartları</annotation> ve <annotation link="privacy">Gizlilik Politikasını</annotation> kabul etmiş olursunuz.</string>
+    <string name="new_account_title_1">Yeni Hesap</string>
+    <string name="create_wallet_state">Eyalet</string>
+    <string name="create_wallet_country">İkamet Edilen Ülke</string>
+    <string name="bitpay_invoice_expired">BitPay Faturasının Süresi Doldu</string>
+    <string name="fee">Ücret</string>
+    <string name="address">Adres</string>
+    <string name="amount">Tutar</string>
+    <string name="the_exchange_open_email_app">E-posta Uygulamasını Aç</string>
+    <string name="pax_renamed_card_title">USD Dijital artık Paxos Standart oldu</string>
+    <string name="pax_renamed_card_body">USD Dijital (USD-D) adını Paxos Standart (PAX) olarak güncelledik. Hesaptaki paralar bundan etkilenmez.</string>
+    <string name="airdrop_received_sheet_amount_label">Tutar</string>
+    <string name="kyc_email_hint_focused">E-posta Adresiniz</string>
+    <string name="available">Kullanılabilir</string>
+    <string name="need_some_help">Yardıma mı ihtiyacınız var?</string>
+    <string name="xlm_memo_text">Not Metni</string>
+    <string name="xlm_memo_id">Not Kimliği</string>
+    <string name="cancel_order">Emri İptal Et</string>
+    <string name="activity_details_title_received">Al</string>
+    <string name="activity_details_label_cancelled">İ̇ptal Edildi</string>
+    <string name="activity_details_buy_fee">Ücret</string>
+    <string name="custodial_only_asset_label">Trade hesabınızdan %1$s çekme işlevi şu an kullanılamıyor, ancak yakında hizmetinizde olacak.</string>
+    <string name="enter_amount_not_enough_balance">Ücret için yetersiz bakiye</string>
+    <string name="send_enter_unexpected_error">Beklenmedik bir hata oldu. Lütfen daha sonra tekrar deneyin.</string>
+    <string name="scan_no_available_account">%1$s gönderecek tutara sahip kaynak hesap mevcut değil.</string>
+    <string name="confirm_status_memo_invalid">Lütfen not etleyin.</string>
+    <string name="receive">Al</string>
+    <string name="restore_wallet_cta">Cüzdanı Geri Yükle</string>
+    <string name="recurring_buy_cta_1">Başlayın</string>
+    <string name="recurring_buy_title_1_1">Piyasada uygun zamanı yakalamak yerine çoğu akıllı yatırımcı</string>
+    <string name="recurring_buy_title_1_2">
+Maliyet Ortalaması Yapma.</string>
+    <string name="recurring_buy_title_2_1">Strateji oldukça basit</string>
+    <string name="recurring_buy_title_2_2">
+Her hafta aynı tutarda yatırım yapın.</string>
+    <string name="recurring_buy_title_3_1">Fiyatlar düştüğünde,</string>
+    <string name="recurring_buy_title_3_2">
+Daha fazla kripto para satın alacaksınız.</string>
+    <string name="recurring_buy_title_4_1">Fiyatlar yükseldiğinde.</string>
+    <string name="recurring_buy_title_4_2">
+Daha az kripto para satın alacaksınız.</string>
+    <string name="recurring_buy_title_5_1">Fakat işe yarıyor mu?
+Son 5 yılda her hafta Bitcoin satın almak, piyasada uygun zamanı yakalamaktan daha iyi sonuç verdi</string>
+    <string name="recurring_buy_title_5_2">
+%86\'lık oranda.</string>
+    <string name="recurring_buy_note">Hesaplama, rastgele bir günde yapılan haftalık tek seferlik 30$\'lık satın alımı esas almaktadır. \"Piyasada uygun zamanı yakalamak\" her %6\'lık düşüşte Bitcoin satın almak olarak tanımlanmaktadır. <annotation link="learn_more">Daha fazla bilgi edinin -></annotation></string>
+    <string name="recurring_buy_daily_1">Her Gün</string>
+    <string name="recurring_buy_daily_selector">Günlük</string>
+    <string name="recurring_buy_weekly_1">Haftada Bir Kez</string>
+    <string name="recurring_buy_weekly_selector">Haftalık</string>
+    <string name="recurring_buy_bi_weekly_1">Ayda İki Kez</string>
+    <string name="recurring_buy_monthly_1">Ayda Bir Kez</string>
+    <string name="recurring_buy_monthly_selector">Aylık</string>
+    <string name="recurring_buy_frequency_label_1">Sıklık</string>
+    <string name="recurring_buy_frequency_subtitle_biweekly">Birer %s arayla</string>
+    <string name="recurring_buy_sheet_title_1">Yinelenen Satın Alma</string>
+    <string name="recurring_buy_header">%2$s içinden %1$s</string>
+    <string name="recurring_buy_info_purchase_label_1">Sonraki Satın Alma</string>
+    <string name="recurring_buy_details_fee">Ücret</string>
+    <string name="recurring_buy_insufficient_funds_error_1">Ödeme yönteminizin bakiyesi çok düşük. Lütfen şimdi daha fazla para ekleyin.</string>
+    <string name="recurring_buy_on_boarding_header">Her gün, her hafta veya her ay için kolay bir otomatik Yinelenen Satın Alma işlemi ayarlayın. Maliyet Ortalaması yapın.</string>
+    <string name="recurring_buy_set_up_title">Yinelenen Satın Alma Oluştur</string>
+    <string name="recurring_buy_first_time_toolbar">Yinelenen Satın Alma</string>
+    <string name="recurring_buy_first_time_title">%2$s içinden %1$s satın al</string>
+    <string name="recurring_buy_first_time_success_title">Yinelenen Satın Alma Başlatıldı!</string>
+    <string name="recurring_buy_first_time_info">Yinelenen Satın Alma işlemiyle her gün, her hafta veya her ay %2$s içinden %1$s satın al. Piyasada uygun zamanı yakalamaya gerek yok.</string>
+    <string name="recurring_buy_first_time_success_subtitle">Mevcut piyasa fiyatından %2$s%3$s için %1$s satın alım yapacağız. Bu yinelenen satın alma işlemini dilediğiniz an iptal edebilirsiniz.</string>
 </resources>
