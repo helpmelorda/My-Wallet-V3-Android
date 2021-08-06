@@ -9,6 +9,7 @@ import com.blockchain.nabu.models.responses.nabu.TierResponse
 import com.blockchain.nabu.models.responses.nabu.TierLevels
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.ProductsUsed
+import com.blockchain.nabu.models.responses.nabu.ResubmissionResponse
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.service.TierService
 import com.nhaarman.mockitokotlin2.mock
@@ -98,7 +99,7 @@ class KycTiersQueriesResubmissionTest {
 
     @Test
     fun `resubmission true`() {
-        emptyNabuUser().copy(resubmission = "ANYTHING") and givenTiersState(
+        emptyNabuUser().copy(resubmission = ResubmissionResponse(0, "ANYTHING")) and givenTiersState(
             tier1State = KycTierState.Verified,
             tier2State = KycTierState.Pending
         ) then {

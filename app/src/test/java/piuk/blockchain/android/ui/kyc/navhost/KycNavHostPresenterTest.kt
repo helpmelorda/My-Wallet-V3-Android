@@ -7,6 +7,7 @@ import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
+import com.blockchain.nabu.models.responses.nabu.ResubmissionResponse
 import com.blockchain.nabu.models.responses.nabu.TierLevels
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.service.TierUpdater
@@ -291,7 +292,7 @@ class KycNavHostPresenterTest {
                         kycState = KycState.UnderReview,
                         insertedAt = null,
                         updatedAt = null,
-                        resubmission = Any()
+                        resubmission = ResubmissionResponse(0, "")
                     )
                 )
             )
