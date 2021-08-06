@@ -1,7 +1,7 @@
 package info.blockchain.wallet.payment
 
 import info.blockchain.wallet.payload.model.Utxo
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 import java.math.BigInteger
 
@@ -27,9 +27,9 @@ class CoinSelectionTest {
                 coinSortingMethod = AscentDraw
             )
             .also {
-                it.spendableOutputs.values() `should equal` unspents(20000, 30000, 50000, 300000).values()
-                it.absoluteFee `should equal` 37070.toBigInteger()
-                it.consumedAmount `should equal` BigInteger.ZERO
+                it.spendableOutputs.values() `should be equal to` unspents(20000, 30000, 50000, 300000).values()
+                it.absoluteFee `should be equal to` 37070.toBigInteger()
+                it.consumedAmount `should be equal to` BigInteger.ZERO
             }
     }
 
@@ -45,9 +45,9 @@ class CoinSelectionTest {
             changeOutputType = OutputType.P2PKH,
             coinSortingMethod = AscentDraw
         ).also {
-            it.spendableOutputs.values() `should equal` selected.values()
-            it.absoluteFee `should equal` (selected.sum() - outputAmount)
-            it.consumedAmount `should equal` 9190.toBigInteger()
+            it.spendableOutputs.values() `should be equal to` selected.values()
+            it.absoluteFee `should be equal to` (selected.sum() - outputAmount)
+            it.consumedAmount `should be equal to` 9190.toBigInteger()
         }
     }
 
@@ -62,9 +62,9 @@ class CoinSelectionTest {
             changeOutputType = OutputType.P2PKH,
             coinSortingMethod = DescentDraw
         ).also {
-            it.spendableOutputs.values() `should equal` unspents(300000).values()
-            it.absoluteFee `should equal` 12485.toBigInteger()
-            it.consumedAmount `should equal` BigInteger.ZERO
+            it.spendableOutputs.values() `should be equal to` unspents(300000).values()
+            it.absoluteFee `should be equal to` 12485.toBigInteger()
+            it.consumedAmount `should be equal to` BigInteger.ZERO
         }
     }
 
@@ -80,9 +80,9 @@ class CoinSelectionTest {
             changeOutputType = OutputType.P2PKH,
             coinSortingMethod = DescentDraw
         ).also {
-            it.spendableOutputs.values() `should equal` selected.values()
-            it.absoluteFee `should equal` (selected.sum() - outputAmount)
-            it.consumedAmount `should equal` 4385.toBigInteger()
+            it.spendableOutputs.values() `should be equal to` selected.values()
+            it.absoluteFee `should be equal to` (selected.sum() - outputAmount)
+            it.consumedAmount `should be equal to` 4385.toBigInteger()
         }
     }
 
@@ -91,9 +91,9 @@ class CoinSelectionTest {
         val coins = unspents(1, 20000, 0, 0, 300000)
 
         CoinSelection(coins, feePerByte).selectAll(OutputType.P2PKH).also {
-            it.spendableOutputs.values() `should equal` unspents(20000, 300000).values()
-            it.absoluteFee `should equal` 18810.toBigInteger()
-            it.consumedAmount `should equal` BigInteger.ZERO
+            it.spendableOutputs.values() `should be equal to` unspents(20000, 300000).values()
+            it.absoluteFee `should be equal to` 18810.toBigInteger()
+            it.consumedAmount `should be equal to` BigInteger.ZERO
         }
     }
 
@@ -102,9 +102,9 @@ class CoinSelectionTest {
         val coins = unspents()
 
         CoinSelection(coins, feePerByte).selectAll(OutputType.P2PKH).also {
-            it.spendableOutputs.values() `should equal` unspents().values()
-            it.absoluteFee `should equal` 0.toBigInteger()
-            it.consumedAmount `should equal` BigInteger.ZERO
+            it.spendableOutputs.values() `should be equal to` unspents().values()
+            it.absoluteFee `should be equal to` 0.toBigInteger()
+            it.consumedAmount `should be equal to` BigInteger.ZERO
         }
     }
 
@@ -113,9 +113,9 @@ class CoinSelectionTest {
         val coins = unspents(1, 10, 100)
 
         CoinSelection(coins, feePerByte).selectAll(OutputType.P2PKH).also {
-            it.spendableOutputs.values() `should equal` unspents().values()
-            it.absoluteFee `should equal` 0.toBigInteger()
-            it.consumedAmount `should equal` BigInteger.ZERO
+            it.spendableOutputs.values() `should be equal to` unspents().values()
+            it.absoluteFee `should be equal to` 0.toBigInteger()
+            it.consumedAmount `should be equal to` BigInteger.ZERO
         }
     }
 }

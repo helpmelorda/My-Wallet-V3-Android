@@ -4,8 +4,8 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
-import io.reactivex.Completable
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
@@ -18,7 +18,7 @@ internal class BchActivitySummaryItem(
     private val payloadDataManager: PayloadDataManager
 ) : NonCustodialActivitySummaryItem() {
 
-    override val cryptoCurrency = CryptoCurrency.BCH
+    override val asset = CryptoCurrency.BCH
     override val transactionType: TransactionSummary.TransactionType = transactionSummary.transactionType
     override val timeStampMs: Long = transactionSummary.time * 1000
 

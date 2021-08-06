@@ -8,11 +8,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.blockchain.koin.scopedInject
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.BlockchainAccount
@@ -249,7 +249,7 @@ class EnterTargetAddressSheet : TransactionFlowSheet<DialogTxFlowEnterAddressBin
         QrScanActivity.start(this, QrExpected.ASSET_ADDRESS_QR(state.sendingAsset))
     }
 
-    private fun addressEntered(address: String, asset: CryptoCurrency) {
+    private fun addressEntered(address: String, asset: AssetInfo) {
         analyticsHooks.onManualAddressEntered(state)
         model.process(TransactionIntent.ValidateInputTargetAddress(address, asset))
     }
@@ -285,7 +285,7 @@ class EnterTargetAddressSheet : TransactionFlowSheet<DialogTxFlowEnterAddressBin
                         onComplete = {
                             ToastCustom.makeText(
                                 requireContext(),
-                                getString(R.string.scan_mismatch_transaction_target, state.sendingAsset.displayTicker),
+                                getString(R.string.scan_mismatch_transaction_target, state.sendingAsset.ticker),
                                 ToastCustom.LENGTH_SHORT,
                                 ToastCustom.TYPE_GENERAL
                             )

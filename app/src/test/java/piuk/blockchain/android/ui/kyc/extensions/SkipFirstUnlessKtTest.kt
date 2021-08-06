@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.kyc.extensions
 
-import io.reactivex.rxkotlin.toObservable
-import org.amshove.kluent.`should equal`
+import io.reactivex.rxjava3.kotlin.toObservable
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class SkipFirstUnlessKtTest {
@@ -11,7 +11,7 @@ class SkipFirstUnlessKtTest {
         val source = listOf("", "one", "two", "three", "four").toObservable()
         val testObserver = source.skipFirstUnless { !it.isEmpty() }.test()
         val list = testObserver.values()
-        list `should equal` listOf("one", "two", "three", "four")
+        list `should be equal to` listOf("one", "two", "three", "four")
     }
 
     @Test
@@ -19,7 +19,7 @@ class SkipFirstUnlessKtTest {
         val source = listOf("one", "", "two", "three", "four").toObservable()
         val testObserver = source.skipFirstUnless { !it.isEmpty() }.test()
         val list = testObserver.values()
-        list `should equal` listOf("one", "", "two", "three", "four")
+        list `should be equal to` listOf("one", "", "two", "three", "four")
     }
 
     @Test
@@ -27,7 +27,7 @@ class SkipFirstUnlessKtTest {
         val source = listOf("", "", "", "", "").toObservable()
         val testObserver = source.skipFirstUnless { !it.isEmpty() }.test()
         val list = testObserver.values()
-        list `should equal` listOf("", "", "", "")
+        list `should be equal to` listOf("", "", "", "")
     }
 
     @Test
@@ -35,6 +35,6 @@ class SkipFirstUnlessKtTest {
         val source = listOf(1, 2, 3, 4, 5).toObservable()
         val testObserver = source.skipFirstUnless { it == 1 }.test()
         val list = testObserver.values()
-        list `should equal` listOf(1, 2, 3, 4, 5)
+        list `should be equal to` listOf(1, 2, 3, 4, 5)
     }
 }

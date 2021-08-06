@@ -1,6 +1,5 @@
 apply plugin: 'kotlin'
 apply plugin: 'kotlinx-serialization'
-apply from: '../../quality/jacocoKtLibrary.gradle'
 apply from: '../../quality/ktlint.gradle'
 
 sourceCompatibility = Versions.javaCompatibilityVersion

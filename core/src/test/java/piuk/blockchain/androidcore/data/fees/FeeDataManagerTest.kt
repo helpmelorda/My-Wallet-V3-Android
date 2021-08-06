@@ -1,11 +1,11 @@
 package piuk.blockchain.androidcore.data.fees
 
 import com.blockchain.android.testutils.rxInit
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.FeeApi
-import io.reactivex.Observable
-import org.amshove.kluent.`should equal to`
-import org.amshove.kluent.mock
+import io.reactivex.rxjava3.core.Observable
+import org.amshove.kluent.`should be equal to`
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -38,8 +38,8 @@ class FeeDataManagerTest {
             .values()
             .first()
             .apply {
-                priorityFee `should equal to` 4
-                regularFee `should equal to` 4
+                priorityFee `should be equal to` 4
+                regularFee `should be equal to` 4
             }
     }
 
@@ -53,11 +53,11 @@ class FeeDataManagerTest {
             .values()
             .first()
             .apply {
-                priorityFee `should equal to` 23
-                regularFee `should equal to` 23
-                gasLimit `should equal to` 21000
-                limits!!.min `should equal to` 23
-                limits!!.max `should equal to` 23
+                priorityFee `should be equal to` 23
+                regularFee `should be equal to` 23
+                gasLimit `should be equal to` 21000
+                limits!!.min `should be equal to` 23
+                limits!!.max `should be equal to` 23
             }
     }
 
@@ -71,10 +71,10 @@ class FeeDataManagerTest {
             .values()
             .first()
             .apply {
-                priorityFee `should equal to` 11
-                regularFee `should equal to` 5
-                limits!!.min `should equal to` 2
-                limits!!.max `should equal to` 16
+                priorityFee `should be equal to` 11
+                regularFee `should be equal to` 5
+                limits!!.min `should be equal to` 2
+                limits!!.max `should be equal to` 16
             }
     }
 
@@ -88,8 +88,8 @@ class FeeDataManagerTest {
             .values()
             .first()
             .apply {
-                priorityFee `should equal to` 100
-                regularFee `should equal to` 100
+                priorityFee `should be equal to` 100
+                regularFee `should be equal to` 100
             }
     }
 
@@ -102,11 +102,11 @@ class FeeDataManagerTest {
             .values()
             .first()
             .apply {
-                priorityFee `should equal to` 23
-                regularFee `should equal to` 23
-                gasLimit `should equal to` 21000
-                limits!!.min `should equal to` 23
-                limits!!.max `should equal to` 23
+                priorityFee `should be equal to` 23
+                regularFee `should be equal to` 23
+                gasLimit `should be equal to` 21000
+                limits!!.min `should be equal to` 23
+                limits!!.max `should be equal to` 23
             }
     }
 }

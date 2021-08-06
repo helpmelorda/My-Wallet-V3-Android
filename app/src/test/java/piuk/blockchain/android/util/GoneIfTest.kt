@@ -1,10 +1,10 @@
 package piuk.blockchain.android.util
 
 import android.view.View
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
-import org.amshove.kluent.`it returns`
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.verify
+
 import org.junit.Test
 
 class GoneIfTest {
@@ -30,7 +30,7 @@ class GoneIfTest {
     @Test
     fun `when view is null, the function does not evaluate`() {
         mock<() -> Boolean> {
-            onGeneric { invoke() } `it returns` true
+            onGeneric { invoke() }.thenReturn(true)
         }.apply {
             (null as View?).goneIf(this)
             verify(this, never()).invoke()

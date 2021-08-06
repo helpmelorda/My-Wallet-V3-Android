@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.recover
 
 import com.blockchain.android.testutils.rxInit
-import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import info.blockchain.wallet.metadata.MetadataInteractor

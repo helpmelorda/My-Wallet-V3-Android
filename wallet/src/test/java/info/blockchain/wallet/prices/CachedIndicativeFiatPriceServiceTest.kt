@@ -1,12 +1,12 @@
 package info.blockchain.wallet.prices
 
 import com.blockchain.testutils.rxInit
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.schedulers.TestScheduler
-import org.amshove.kluent.`should equal`
+import io.reactivex.rxjava3.schedulers.TestScheduler
+import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test
 import java.math.BigDecimal
@@ -30,9 +30,9 @@ class CachedIndicativeFiatPriceServiceTest {
             .indicativeRateStream(from = CryptoCurrency.BTC, toFiat = "USD")
             .assertSingle()
             .apply {
-                rate `should equal` BigDecimal.valueOf(99.0)
-                from `should equal` CryptoCurrency.BTC
-                to `should equal` "USD"
+                rate `should be equal to` BigDecimal.valueOf(99.0)
+                from `should be equal to` CryptoCurrency.BTC
+                to `should be equal to` "USD"
             }
         mockPriceApi.verifyNumberOfApiCalls(1)
     }
@@ -50,7 +50,7 @@ class CachedIndicativeFiatPriceServiceTest {
         mockPriceApi.givenPrice(100.0)
         testScheduler.advanceTimeBy(1, TimeUnit.MILLISECONDS)
 
-        test.values().map { it.rate } `should equal` listOf(BigDecimal.valueOf(99.0), BigDecimal.valueOf(100.0))
+        test.values().map { it.rate } `should be equal to` listOf(BigDecimal.valueOf(99.0), BigDecimal.valueOf(100.0))
         mockPriceApi.verifyNumberOfApiCalls(2)
     }
 
@@ -82,7 +82,7 @@ class CachedIndicativeFiatPriceServiceTest {
         testScheduler.advanceTimeBy(1, TimeUnit.SECONDS)
 
         mockPriceApi.verifyNumberOfApiCalls(2)
-        test.values().map { it.rate } `should equal` listOf(BigDecimal.valueOf(99.0), BigDecimal.valueOf(100.0))
+        test.values().map { it.rate } `should be equal to` listOf(BigDecimal.valueOf(99.0), BigDecimal.valueOf(100.0))
     }
 
     @Test
@@ -100,7 +100,7 @@ class CachedIndicativeFiatPriceServiceTest {
         testScheduler.advanceTimeBy(1, TimeUnit.SECONDS)
 
         test.assertNoErrors()
-        test.values().map { it.rate } `should equal` listOf(BigDecimal.valueOf(99.0), BigDecimal.valueOf(100.0))
+        test.values().map { it.rate } `should be equal to` listOf(BigDecimal.valueOf(99.0), BigDecimal.valueOf(100.0))
         mockPriceApi.verifyNumberOfApiCalls(3)
     }
 
@@ -119,7 +119,7 @@ class CachedIndicativeFiatPriceServiceTest {
         testScheduler.advanceTimeBy(1, TimeUnit.SECONDS)
 
         test.assertNoErrors()
-        test.values().map { it.rate } `should equal` listOf(BigDecimal.valueOf(99.0), BigDecimal.valueOf(100.0))
+        test.values().map { it.rate } `should be equal to` listOf(BigDecimal.valueOf(99.0), BigDecimal.valueOf(100.0))
         mockPriceApi.verifyNumberOfApiCalls(11)
     }
 

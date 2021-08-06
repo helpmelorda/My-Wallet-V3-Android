@@ -13,18 +13,17 @@ import com.blockchain.nabu.models.responses.nabu.NabuErrorStatusCodes
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.SettingsAnalyticsEvents
 import com.blockchain.preferences.RatingPrefs
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.settings.SettingsManager
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.rxkotlin.zipWith
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
+import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.scan.QrScanError
@@ -34,7 +33,9 @@ import piuk.blockchain.android.simplebuy.SimpleBuyModel
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.android.thepit.PitLinkingState
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
+import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
@@ -44,7 +45,6 @@ import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
 import timber.log.Timber
 import java.io.Serializable
 
@@ -272,6 +272,7 @@ class SettingsPresenter(
                 throw IllegalStateException("PIN code not found in AccessState")
             }
         }
+        analytics.logEvent(SettingsAnalytics.BiometricsOptionUpdated(isFingerprintUnlockEnabled))
     }
 
     fun updateKyc() {
@@ -512,11 +513,14 @@ class SettingsPresenter(
         compositeDisposable += authDataManager.createPin(password, accessState.pin)
             .doOnSubscribe { view?.showProgress() }
             .doOnTerminate { view?.hideProgress() }
+            .andThen(authDataManager.verifyCloudBackup())
             .andThen(payloadDataManager.syncPayloadWithServer())
             .subscribeBy(
                 onComplete = {
                     view?.showError(R.string.password_changed)
-                    analytics.logEvent(SettingsAnalyticsEvents.PasswordChanged)
+
+                    analytics.logEvent(SettingsAnalytics.PasswordChanged_Old)
+                    analytics.logEvent(SettingsAnalytics.PasswordChanged(TxFlowAnalyticsAccountType.USERKEY))
                 },
                 onError = { showUpdatePasswordFailed(fallbackPassword) })
     }
@@ -538,22 +542,15 @@ class SettingsPresenter(
                         analytics.logEvent(AnalyticsEvents.ChangeFiatCurrency)
                     }
                     prefs.selectedFiatCurrency = fiatUnit
-                    prefs.clearState()
-                    analytics.logEvent(SettingsAnalyticsEvents.CurrencyChanged)
+                    prefs.clearBuyState()
+                    analytics.logEvent(SettingsAnalytics.CurrencyChanged)
                     updateUi(it)
                 },
                 onError = { view?.showError(R.string.update_failed) }
             )
     }
 
-    fun clearOfflineAddressCache() {
-        prefs.offlineCacheData = null
-    }
-
     fun updateCloudData(newValue: Boolean) {
-        if (newValue) {
-            clearOfflineAddressCache()
-        }
         prefs.backupEnabled = newValue
     }
 
@@ -591,7 +588,8 @@ class SettingsPresenter(
                 onSuccess = {
                     when (it) {
                         is ScanResult.SecuredChannelLogin -> secureChannelManager.sendHandshake(it.handshake)
-                        else -> {}
+                        else -> {
+                        }
                     }.exhaustive
                 },
                 onError = {

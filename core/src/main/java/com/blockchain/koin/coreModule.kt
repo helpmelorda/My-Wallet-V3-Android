@@ -1,6 +1,11 @@
 package com.blockchain.koin
 
 import android.preference.PreferenceManager
+import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
+import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
+import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.datamanagers.DataManagerPayloadDecrypt
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
@@ -14,7 +19,6 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.InternalFeatureFlagPrefs
 import com.blockchain.preferences.NotificationPrefs
-import com.blockchain.preferences.OfflineCachePrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
@@ -36,8 +40,8 @@ import piuk.blockchain.androidcore.data.access.AccessStateImpl
 import piuk.blockchain.androidcore.data.access.LogoutTimer
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.auth.AuthService
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataStore
-import piuk.blockchain.androidcore.data.erc20.datastores.Erc20DataStore
+import com.blockchain.core.chains.bitcoincash.BchDataStore
+import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
@@ -88,6 +92,52 @@ val coreModule = module {
     factory { PrivateKeyFactory() }
 
     scope(payloadScopeQualifier) {
+
+        scoped {
+            EthDataManager(
+                payloadDataManager = get(),
+                ethAccountApi = get(),
+                ethDataStore = get(),
+                metadataManager = get(),
+                lastTxUpdater = get(),
+                rxBus = get()
+            )
+        }
+
+        factory {
+            Erc20BalanceCallCache(
+                erc20Service = get()
+            )
+        }
+
+        factory {
+            Erc20HistoryCallCache(
+                ethDataManager = get(),
+                erc20Service = get()
+            )
+        }
+
+        scoped {
+            Erc20DataManagerImpl(
+                ethDataManager = get(),
+                balanceCallCache = get(),
+                historyCallCache = get()
+            )
+        }.bind(Erc20DataManager::class)
+
+        factory { BchDataStore() }
+
+        scoped {
+            BchDataManager(
+                payloadDataManager = get(),
+                bchDataStore = get(),
+                bitcoinApi = get(),
+                defaultLabels = get(),
+                metadataManager = get(),
+                rxBus = get(),
+                crashLogger = get()
+            )
+        }
 
         factory {
             PayloadService(
@@ -140,16 +190,13 @@ val coreModule = module {
 
         scoped { EthDataStore() }
 
-        scoped { Erc20DataStore() }
-
-        scoped { BchDataStore() }
-
         scoped { WalletOptionsState() }
 
         scoped { SettingsDataManager(
             settingsService = get(),
             settingsDataStore = get(),
             currencyPrefs = get(),
+            walletSettingsService = get(),
             rxBus = get()
         ) }
 
@@ -171,6 +218,7 @@ val coreModule = module {
 
         factory {
             ExchangeRateDataManager(
+                assetCatalogue = get(),
                 exchangeRateDataStore = get(),
                 rxBus = get()
             )
@@ -250,7 +298,6 @@ val coreModule = module {
         .bind(RatingPrefs::class)
         .bind(WalletStatus::class)
         .bind(EncryptedPrefs::class)
-        .bind(OfflineCachePrefs::class)
         .bind(AuthPrefs::class)
         .bind(BankLinkingPrefs::class)
         .bind(InternalFeatureFlagPrefs::class)

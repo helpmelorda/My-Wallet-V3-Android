@@ -11,15 +11,16 @@ import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import info.blockchain.balance.AssetInfo
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
-import info.blockchain.balance.CryptoCurrency
+import com.blockchain.nabu.models.data.RecurringBuyState
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.JavaHashCode
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -27,7 +28,7 @@ import java.util.Date
 import kotlin.math.sign
 
 abstract class CryptoActivitySummaryItem : ActivitySummaryItem() {
-    abstract val cryptoCurrency: CryptoCurrency
+    abstract val asset: AssetInfo
     override fun totalFiatWhenExecuted(selectedFiat: String): Single<Money> =
         exchangeRates.getHistoricPrice(
             value = value,
@@ -106,14 +107,15 @@ data class TradeActivitySummaryItem(
 
 data class RecurringBuyActivitySummaryItem(
     override val exchangeRates: ExchangeRateDataManager,
-    override val cryptoCurrency: CryptoCurrency,
+    override val asset: AssetInfo,
     override val txId: String,
     override val timeStampMs: Long,
     override val value: Money,
     override val account: SingleAccount,
     val originMoney: FiatValue,
     val destinationMoney: Money,
-    val state: RecurringBuyTransactionState,
+    val recurringBuyState: RecurringBuyState,
+    val transactionState: RecurringBuyTransactionState,
     val failureReason: RecurringBuyErrorState?,
     val nextPayment: Date,
     val insertedAt: Date,
@@ -127,7 +129,7 @@ data class RecurringBuyActivitySummaryItem(
 
 data class CustodialInterestActivitySummaryItem(
     override val exchangeRates: ExchangeRateDataManager,
-    override val cryptoCurrency: CryptoCurrency,
+    override val asset: AssetInfo,
     override val txId: String,
     override val timeStampMs: Long,
     override val value: Money,
@@ -146,7 +148,7 @@ data class CustodialInterestActivitySummaryItem(
 
 data class CustodialTradingActivitySummaryItem(
     override val exchangeRates: ExchangeRateDataManager,
-    override val cryptoCurrency: CryptoCurrency,
+    override val asset: AssetInfo,
     override val txId: String,
     override val timeStampMs: Long,
     override val value: Money,
@@ -161,7 +163,7 @@ data class CustodialTradingActivitySummaryItem(
 ) : CryptoActivitySummaryItem()
 
 data class CustodialTransferActivitySummaryItem(
-    override val cryptoCurrency: CryptoCurrency,
+    override val asset: AssetInfo,
     override val exchangeRates: ExchangeRateDataManager,
     override val txId: String,
     override val timeStampMs: Long,
@@ -196,7 +198,7 @@ abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem() {
     open val isPending: Boolean = false
     open var note: String? = null
 
-    override fun toString(): String = "cryptoCurrency = $cryptoCurrency" +
+    override fun toString(): String = "cryptoCurrency = $asset" +
         "transactionType  = $transactionType " +
         "timeStamp  = $timeStampMs " +
         "total  = ${value.toStringWithSymbol()} " +
@@ -213,7 +215,7 @@ abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem() {
         if (other == null || javaClass != other.javaClass) return false
         val that = other as NonCustodialActivitySummaryItem?
 
-        return this.cryptoCurrency == that?.cryptoCurrency &&
+        return this.asset == that?.asset &&
             this.transactionType == that.transactionType &&
             this.timeStampMs == that.timeStampMs &&
             this.value == that.value &&
@@ -229,7 +231,7 @@ abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem() {
 
     override fun hashCode(): Int {
         var result = 17
-        result = 31 * result + cryptoCurrency.hashCode()
+        result = 31 * result + asset.hashCode()
         result = 31 * result + transactionType.hashCode()
         result = 31 * result + JavaHashCode.hashCode(timeStampMs)
         result = 31 * result + value.hashCode()
@@ -247,7 +249,7 @@ abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem() {
         Completable.error(IllegalStateException("Update description not supported"))
 
     val isConfirmed: Boolean by unsafeLazy {
-        confirmations >= cryptoCurrency.requiredConfirmations
+        confirmations >= asset.requiredConfirmations
     }
 }
 

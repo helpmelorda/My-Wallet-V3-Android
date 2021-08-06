@@ -5,14 +5,14 @@ import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import io.reactivex.Single
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`should equal`
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import io.reactivex.rxjava3.core.Single
+
+import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test
 
@@ -48,8 +48,10 @@ class NabuDataManagerAsAuthenticatorTest {
         val token = givenToken("User", "ABC")
 
         val nabuDataManager = mock<NabuDataManager> {
-            on { currentToken(NabuOfflineTokenResponse("User", "ABC")) } `it returns` Single.just(
-                nabuSessionTokenResponse("User", "ABC")
+            on { currentToken(NabuOfflineTokenResponse("User", "ABC")) }.thenReturn(
+                Single.just(
+                    nabuSessionTokenResponse("User", "ABC")
+                )
             )
         }
         val sut = NabuAuthenticator(token, nabuDataManager, mock()) as Authenticator
@@ -58,8 +60,8 @@ class NabuDataManagerAsAuthenticatorTest {
             .test()
             .values()[0]
             .apply {
-                this.userId `should equal` "User"
-                this.token `should equal` "ABC"
+                this.userId `should be equal to` "User"
+                this.token `should be equal to` "ABC"
             }
     }
 
@@ -80,8 +82,13 @@ class NabuDataManagerAsAuthenticatorTest {
 
     private fun givenToken(userId: String, token: String): NabuToken =
         mock {
-            on { fetchNabuToken() } `it returns` Single.just(NabuOfflineTokenResponse(
-                userId,
-                token))
+            on { fetchNabuToken() }.thenReturn(
+                Single.just(
+                    NabuOfflineTokenResponse(
+                        userId,
+                        token
+                    )
+                )
+            )
         }
 }

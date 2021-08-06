@@ -11,16 +11,18 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.FragmentTransaction
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.CrashLogger
+import com.blockchain.notifications.analytics.Analytics
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupWordListBinding
 import piuk.blockchain.android.ui.backup.verify.BackupWalletVerifyFragment
+import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BaseFragment
 
 class BackupWalletWordListFragment :
     BaseFragment<BackupWalletWordListView, BackupWalletWordListPresenter>(),
@@ -28,6 +30,7 @@ class BackupWalletWordListFragment :
 
     private val backupWalletWordListPresenter: BackupWalletWordListPresenter by scopedInject()
     private val crashLogger: CrashLogger by inject()
+    private val analytics: Analytics by inject()
 
     private val animEnterFromRight: Animation by unsafeLazy {
         AnimationUtils.loadAnimation(
@@ -77,6 +80,13 @@ class BackupWalletWordListFragment :
     ): View {
         _binding = FragmentBackupWordListBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) {
+            analytics.logEvent(SettingsAnalytics.RecoveryPhraseShown)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

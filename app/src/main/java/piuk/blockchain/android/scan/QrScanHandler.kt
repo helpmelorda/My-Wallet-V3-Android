@@ -4,27 +4,30 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.koin.payloadScope
+import info.blockchain.balance.AssetInfo
 import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.util.FormatsUtil
 import info.blockchain.wallet.util.FormatsUtil.BCH_PREFIX
 import info.blockchain.wallet.util.FormatsUtil.BTC_PREFIX
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.MaybeSubject
-import io.reactivex.subjects.SingleSubject
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.SingleSubject
+import io.reactivex.rxjava3.subjects.MaybeSubject
+
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AddressFactory
+import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AssetFilter
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.CryptoTarget
 import piuk.blockchain.android.coincore.SingleAccountList
+import piuk.blockchain.android.coincore.filterByAction
 import piuk.blockchain.android.coincore.impl.BitPayInvoiceTarget
 import piuk.blockchain.android.data.api.bitpay.BITPAY_LIVE_BASE
 import piuk.blockchain.android.data.api.bitpay.BitPayDataManager
@@ -103,7 +106,7 @@ class QrScanResultProcessor(
         }
 
     private fun parseBitpayInvoice(bitpayUri: String): Single<CryptoTarget> {
-        val cryptoCurrency = bitpayUri.getCryptoCurrencyFromLink()
+        val cryptoCurrency = bitpayUri.getAssetFromLink()
         return BitPayInvoiceTarget.fromLink(cryptoCurrency, bitpayUri, bitPayDataManager)
             .onErrorResumeNext {
                 Single.error(QrScanError(QrScanError.ErrorCode.BitPayScanFailed, it.message ?: "Unknown reason"))
@@ -112,13 +115,12 @@ class QrScanResultProcessor(
 
     fun disambiguateScan(
         activity: Activity,
-        targets: Collection<CryptoTarget>,
-        assetResources: AssetResources
+        targets: Collection<CryptoTarget>
     ): Single<CryptoTarget> {
         // TEMP while refactoring - replace with bottom sheet.
         val optionsList = ArrayList(targets)
         val selectList = optionsList.map {
-            activity.resources.getString(assetResources.assetNameRes(it.asset))
+            it.asset.name
         }.toTypedArray()
 
         val subject = SingleSubject.create<CryptoTarget>()
@@ -130,8 +132,8 @@ class QrScanResultProcessor(
                 selectList,
                 -1
             ) { dialog, which ->
-                subject.onSuccess(optionsList[which])
                 dialog.dismiss()
+                subject.onSuccess(optionsList[which])
             }
             .create()
             .show()
@@ -140,7 +142,7 @@ class QrScanResultProcessor(
     }
 
     fun selectAssetTargetFromScan(
-        asset: CryptoCurrency,
+        asset: AssetInfo,
         scanResult: ScanResult
     ): Maybe<CryptoAddress> =
         Maybe.just(scanResult)
@@ -160,28 +162,24 @@ class QrScanResultProcessor(
         activity: BlockchainActivity,
         target: CryptoTarget
     ): Maybe<CryptoAccount> {
-        // TODO: We currently only support sending to external addresses from a non-custodial
-        // account. At some point, this will - maybe - change and we'll have to implement
-        // a 'can send from' method on coincore.
-
         val subject = MaybeSubject.create<CryptoAccount>()
 
         val asset = target.asset
         val coincore = payloadScope.get<Coincore>()
 
-        coincore[asset].accountGroup(AssetFilter.NonCustodial)
+        coincore[asset].accountGroup(AssetFilter.All)
+            .map { group -> group.accounts }
+            .defaultIfEmpty(emptyList())
+            .flatMap { list -> list.filterByAction(AssetAction.Send) }
             .subscribeBy(
-                onSuccess = {
-                    when (it.accounts.size) {
-                        1 -> subject.onSuccess(it.accounts[0] as CryptoAccount)
-                        0 -> throw IllegalStateException("No account found")
+                onSuccess = { accounts ->
+                    when (accounts.size) {
+                        1 -> subject.onSuccess(accounts[0] as CryptoAccount)
+                        0 -> subject.onComplete()
                         else -> showAccountSelectionDialog(
-                            activity, subject, Single.just(it.accounts)
+                            activity, subject, Single.just(accounts)
                         )
                     }
-                },
-                onComplete = {
-                    subject.onComplete()
                 },
                 onError = {
                     subject.onError(it)
@@ -225,7 +223,7 @@ private const val bitpayInvoiceUrl = "$BITPAY_LIVE_BASE$PATH_BITPAY_INVOICE/"
 private fun String.isBitpayUri(): Boolean =
     FormatsUtil.getPaymentRequestUrl(this).contains(bitpayInvoiceUrl)
 
-private fun String.getCryptoCurrencyFromLink(): CryptoCurrency =
+private fun String.getAssetFromLink(): AssetInfo =
     when {
         this.startsWith(BTC_PREFIX) -> CryptoCurrency.BTC
         this.startsWith(BCH_PREFIX) -> CryptoCurrency.BCH

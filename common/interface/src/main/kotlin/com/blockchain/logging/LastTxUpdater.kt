@@ -1,6 +1,6 @@
 package com.blockchain.logging
 
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 
 interface LastTxUpdater {
 

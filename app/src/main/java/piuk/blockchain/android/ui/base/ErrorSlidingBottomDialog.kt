@@ -47,7 +47,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
                         ErrorDialogData(
                             context.getString(R.string.ops),
                             context.getString(R.string.something_went_wrong_try_again),
-                            context.getString(R.string.ok_cap)
+                            context.getString(R.string.common_ok)
                         )
                     )
                 }

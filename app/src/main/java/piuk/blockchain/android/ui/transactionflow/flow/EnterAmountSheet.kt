@@ -11,10 +11,10 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -99,12 +99,11 @@ class EnterAmountSheet : TransactionFlowSheet<DialogTxFlowEnterAmountBinding>() 
                 lowerSlot?.update(newState)
                 upperSlot?.update(newState)
 
-                showFlashMessageIfNeeded(newState)
-
                 if (!newState.canGoBack) {
                     amountSheetBack.gone()
                 }
             }
+            showFlashMessageIfNeeded(newState)
         }
     }
 
@@ -183,7 +182,6 @@ class EnterAmountSheet : TransactionFlowSheet<DialogTxFlowEnterAmountBinding>() 
                 onCtaClick()
             }
             amountSheetBack.setOnClickListener {
-                analyticsHooks.onStepBackClicked(state)
                 model.process(TransactionIntent.NavigateBackFromEnterAmount)
             }
         }
@@ -249,9 +247,9 @@ class EnterAmountSheet : TransactionFlowSheet<DialogTxFlowEnterAmountBinding>() 
     ): Money {
         val min = state.pendingTx?.minLimit ?: return rate.inverse().convert(amount)
         val max = state.maxSpendable
-        val roundedUpAmount = rate.inverse(RoundingMode.CEILING, state.sendingAsset.userDp)
+        val roundedUpAmount = rate.inverse(RoundingMode.CEILING, CryptoValue.DISPLAY_DP)
             .convert(amount)
-        val roundedDownAmount = rate.inverse(RoundingMode.FLOOR, state.sendingAsset.userDp)
+        val roundedDownAmount = rate.inverse(RoundingMode.FLOOR, CryptoValue.DISPLAY_DP)
             .convert(amount)
         return if (roundedUpAmount >= min && roundedUpAmount <= max)
             roundedUpAmount

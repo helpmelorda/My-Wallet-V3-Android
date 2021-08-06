@@ -1,18 +1,18 @@
 package info.blockchain.wallet.api.dust
 
-import info.blockchain.balance.CryptoCurrency
+import com.blockchain.api.services.NonCustodialBitcoinService
 import info.blockchain.wallet.ApiCode
 import info.blockchain.wallet.api.dust.data.DustInput
-import io.reactivex.Single
-import java.util.Locale
+import io.reactivex.rxjava3.core.Single
 
 interface DustService {
-
-    fun getDust(cryptoCurrency: CryptoCurrency): Single<DustInput>
+    fun getDust(): Single<DustInput>
 }
 
-internal class BchDustService(private val api: DustApi, private val apiCode: ApiCode) : DustService {
-
-    override fun getDust(cryptoCurrency: CryptoCurrency): Single<DustInput> =
-        api.getDust(cryptoCurrency.networkTicker.toLowerCase(Locale.ENGLISH), apiCode.apiCode)
+internal class BchDustService(
+    private val api: DustApi,
+    private val apiCode: ApiCode
+) : DustService {
+    override fun getDust(): Single<DustInput> =
+        api.getDust(NonCustodialBitcoinService.BITCOIN_CASH, apiCode.apiCode)
 }

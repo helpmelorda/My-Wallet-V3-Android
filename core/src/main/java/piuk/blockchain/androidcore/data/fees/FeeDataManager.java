@@ -1,10 +1,9 @@
 package piuk.blockchain.androidcore.data.fees;
 
-import info.blockchain.balance.CryptoCurrency;
 import info.blockchain.wallet.api.FeeApi;
 import info.blockchain.wallet.api.data.FeeOptions;
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 
 import piuk.blockchain.androidcore.data.rxjava.RxBus;
 import piuk.blockchain.androidcore.data.rxjava.RxPinning;
@@ -27,7 +26,7 @@ public class FeeDataManager {
      */
     public Observable<FeeOptions> getBtcFeeOptions() {
         return rxPinning.call(() -> feeApi.getBtcFeeOptions())
-            .onErrorReturnItem(FeeOptions.Companion.defaultFee(CryptoCurrency.BTC))
+            .onErrorReturnItem(FeeOptions.Companion.defaultForBtc())
             .observeOn(AndroidSchedulers.mainThread());
     }
 
@@ -39,7 +38,7 @@ public class FeeDataManager {
      */
     public Observable<FeeOptions> getEthFeeOptions() {
         return rxPinning.call(() -> feeApi.getEthFeeOptions())
-                .onErrorReturnItem(FeeOptions.Companion.defaultFee(CryptoCurrency.ETHER))
+                .onErrorReturnItem(FeeOptions.Companion.defaultForEth())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
@@ -52,7 +51,7 @@ public class FeeDataManager {
      */
     public Observable<FeeOptions> getErc20FeeOptions(String contractAddress) {
         return rxPinning.call(() -> feeApi.getErc20FeeOptions(contractAddress))
-            .onErrorReturnItem(FeeOptions.Companion.defaultFee(CryptoCurrency.ETHER))
+            .onErrorReturnItem(FeeOptions.Companion.defaultForErc20())
             .observeOn(AndroidSchedulers.mainThread());
     }
 
@@ -64,7 +63,7 @@ public class FeeDataManager {
      */
     public Observable<FeeOptions> getBchFeeOptions() {
         return feeApi.getBchFeeOptions()
-                .onErrorReturnItem(FeeOptions.Companion.defaultFee(CryptoCurrency.BCH));
+                .onErrorReturnItem(FeeOptions.Companion.defaultForBch());
     }
 
     /**
@@ -72,6 +71,8 @@ public class FeeDataManager {
      */
     public Observable<FeeOptions> getXlmFeeOptions() {
         return feeApi.getXlmFeeOptions()
-                .onErrorReturnItem(FeeOptions.Companion.defaultFee(CryptoCurrency.XLM));
+                .onErrorReturnItem(FeeOptions.Companion.defaultForXlm());
     }
+
+
 }

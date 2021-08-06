@@ -20,10 +20,10 @@ import com.blockchain.sunriver.XlmDataManager
 import com.google.gson.JsonSyntaxException
 import info.blockchain.balance.FiatValue
 import info.blockchain.wallet.payload.PayloadManager
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -60,8 +60,8 @@ import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import piuk.blockchain.androidcoreui.utils.logging.Logging
-import piuk.blockchain.androidcoreui.utils.logging.secondPasswordEvent
+import com.blockchain.notifications.analytics.Logging
+import com.blockchain.notifications.analytics.secondPasswordEvent
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -329,6 +329,9 @@ class MainPresenter internal constructor(
                         is PollResult.Cancel -> {
                             // do nothing
                         }
+                        else -> {
+                            // do nothing
+                        }
                     }
                 },
                 onError = {
@@ -533,7 +536,8 @@ class MainPresenter internal constructor(
                         is ScanResult.TxTarget -> {
                             view?.startTransactionFlowWithTarget(it.targets)
                         }
-                        is ScanResult.ImportedWallet -> { } // TODO: as part of Auth
+                        is ScanResult.ImportedWallet -> {
+                        } // TODO: as part of Auth
                         is ScanResult.SecuredChannelLogin -> secureChannelManager.sendHandshake(it.handshake)
                     }.exhaustive
                 },

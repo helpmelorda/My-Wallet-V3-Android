@@ -1,6 +1,6 @@
 package info.blockchain.wallet;
 
-import com.blockchain.api.NonCustodialBitcoinService;
+import com.blockchain.api.services.NonCustodialBitcoinService;
 import com.blockchain.api.bitcoin.data.BalanceDto;
 import com.blockchain.api.bitcoin.data.MultiAddress;
 import info.blockchain.wallet.api.WalletApi;

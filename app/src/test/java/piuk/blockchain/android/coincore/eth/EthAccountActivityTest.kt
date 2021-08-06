@@ -8,19 +8,19 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.wallet.ethereum.EthereumAccount
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthTransaction
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Single
+
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -43,8 +43,8 @@ class EthAccountActivityTest {
     private val walletPrefs: WalletStatus = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val ethAccount: EthereumAccount = mock {
-        on { address } itReturns ETH_ADDRESS
-        on { label } itReturns "TestEthAccount"
+        on { address }.thenReturn(ETH_ADDRESS)
+        on { label }.thenReturn("TestEthAccount")
     }
 
     private val subject =
@@ -57,6 +57,7 @@ class EthAccountActivityTest {
                 exchangeRates = exchangeRates,
                 walletPreferences = walletPrefs,
                 custodialWalletManager = custodialWalletManager,
+                assetCatalogue = mock(),
                 identity = mock()
             )
         )

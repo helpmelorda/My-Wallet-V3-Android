@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.auth
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.notifications.analytics.Analytics
@@ -10,11 +11,11 @@ import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
+import piuk.blockchain.android.repositories.AssetActivityRepository
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.transactionScopeOrNull
 import piuk.blockchain.android.util.OSUtil
 import piuk.blockchain.androidcore.data.access.AccessState
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsState
 import piuk.blockchain.androidcore.utils.PersistentPrefs
@@ -26,6 +27,7 @@ class LogoutActivity : AppCompatActivity() {
     private val bchDataManager: BchDataManager by scopedInject()
     private val walletOptionsState: WalletOptionsState by scopedInject()
     private val nabuDataManager: NabuDataManager by scopedInject()
+    private val assetActivityRepository: AssetActivityRepository by scopedInject()
     private val osUtil: OSUtil by inject()
     private val analytics: Analytics by inject()
     private val loginState: AccessState by inject()
@@ -54,6 +56,7 @@ class LogoutActivity : AppCompatActivity() {
     private fun clearData() {
         ethDataManager.clearAccountDetails()
         bchDataManager.clearAccountDetails()
+        assetActivityRepository.clear()
         nabuDataManager.clearAccessToken()
         resetTransaction()
 

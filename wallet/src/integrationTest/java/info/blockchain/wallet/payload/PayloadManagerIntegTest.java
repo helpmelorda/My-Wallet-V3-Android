@@ -1,13 +1,13 @@
 package info.blockchain.wallet.payload;
 
-import com.blockchain.api.NonCustodialBitcoinService;
-import com.blockchain.api.bitcoin.BitcoinApiInterface;
+import com.blockchain.api.services.NonCustodialBitcoinService;
+import com.blockchain.api.bitcoin.BitcoinApi;
 
 import info.blockchain.wallet.BaseIntegTest;
 import info.blockchain.wallet.BlockchainFramework;
 import info.blockchain.wallet.api.WalletApi;
 import info.blockchain.wallet.api.WalletExplorerEndpoints;
-import info.blockchain.wallet.multiaddress.MultiAddressFactory;
+import info.blockchain.wallet.multiaddress.MultiAddressFactoryBtc;
 import info.blockchain.wallet.payload.data.WalletBody;
 import info.blockchain.wallet.payload.data.ImportedAddress;
 import info.blockchain.wallet.payload.data.Wallet;
@@ -27,7 +27,7 @@ public final class PayloadManagerIntegTest extends BaseIntegTest {
 
     @Before
     public void setup() {
-        final BitcoinApiInterface api = BlockchainFramework.getRetrofitApiInstance().create(BitcoinApiInterface.class);
+        final BitcoinApi api = BlockchainFramework.getRetrofitApiInstance().create(BitcoinApi.class);
         final NonCustodialBitcoinService bitcoinApi = new NonCustodialBitcoinService(
                 api,
                 BlockchainFramework.getApiCode()
@@ -42,7 +42,7 @@ public final class PayloadManagerIntegTest extends BaseIntegTest {
                     siteKey
                 ),
                 bitcoinApi,
-                new MultiAddressFactory(bitcoinApi),
+                new MultiAddressFactoryBtc(bitcoinApi),
                 new BalanceManagerBtc(bitcoinApi),
                 new BalanceManagerBch(bitcoinApi)
         );

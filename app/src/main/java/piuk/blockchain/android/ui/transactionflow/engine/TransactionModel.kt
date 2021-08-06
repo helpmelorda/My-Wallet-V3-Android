@@ -2,15 +2,15 @@ package piuk.blockchain.android.ui.transactionflow.engine
 
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.data.LinkBankTransfer
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Observable
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAccount
@@ -108,7 +108,7 @@ data class TransactionState(
 ) : MviState {
 
     // workaround for using engine without cryptocurrency source
-    val sendingAsset: CryptoCurrency
+    val sendingAsset: AssetInfo
         get() = (sendingAccount as? CryptoAccount)?.asset ?: throw IllegalStateException(
             "Trying to use cryptocurrency with non-crypto source"
         )
@@ -243,6 +243,7 @@ class TransactionModel(
             is TransactionIntent.ClearBackStack -> null
             is TransactionIntent.NavigateBackFromEnterAmount -> processTransactionInvalidation(previousState.action)
             is TransactionIntent.ApprovalRequired -> null
+            is TransactionIntent.ClearSelectedTarget -> null
         }
     }
 
@@ -277,7 +278,9 @@ class TransactionModel(
                 onSuccess = {
                     process(TransactionIntent.AvailableAccountsListUpdated(it))
                 },
-                onError = { }
+                onError = {
+                    Timber.e("Error getting target accounts $it")
+                }
             )
         } else {
             process(TransactionIntent.TargetSelected)
@@ -305,6 +308,7 @@ class TransactionModel(
 
     override fun onScanLoopError(t: Throwable) {
         super.onScanLoopError(TxFlowLogError.LoopFail(t))
+        Timber.v("!TRANSACTION!> Transaction Model: state error -> $t")
         throw t
     }
 
@@ -357,7 +361,7 @@ class TransactionModel(
 
     private fun processValidateAddress(
         address: String,
-        expectedAsset: CryptoCurrency
+        expectedAsset: AssetInfo
     ): Disposable =
         interactor.validateTargetAddress(address, expectedAsset)
             .subscribeBy(

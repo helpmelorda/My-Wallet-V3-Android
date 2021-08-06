@@ -3,13 +3,13 @@ package info.blockchain.wallet.api;
 import info.blockchain.wallet.BlockchainFramework;
 import info.blockchain.wallet.MockedResponseTest;
 import info.blockchain.wallet.api.data.FeeOptions;
-import io.reactivex.observers.TestObserver;
+import io.reactivex.rxjava3.observers.TestObserver;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -26,7 +26,7 @@ public class FeeApiTest extends MockedResponseTest {
     public void getFeeOptions() throws Exception {
 
         URI uri = getClass().getClassLoader().getResource("fee_options.txt").toURI();
-        String feeOptions = new String(Files.readAllBytes(Paths.get(uri)), Charset.forName("utf-8"));
+        String feeOptions = new String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8);
 
         mockInterceptor.setResponseString(feeOptions);
         mockInterceptor.setResponseCode(200);
@@ -46,7 +46,7 @@ public class FeeApiTest extends MockedResponseTest {
     public void getEthFeeOptions() throws Exception {
 
         URI uri = getClass().getClassLoader().getResource("fee_eth_options.txt").toURI();
-        String feeOptions = new String(Files.readAllBytes(Paths.get(uri)), Charset.forName("utf-8"));
+        String feeOptions = new String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8);
 
         mockInterceptor.setResponseString(feeOptions);
         mockInterceptor.setResponseCode(200);

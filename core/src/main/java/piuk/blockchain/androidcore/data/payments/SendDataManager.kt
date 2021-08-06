@@ -1,6 +1,7 @@
 package piuk.blockchain.androidcore.data.payments
 
 import com.blockchain.logging.LastTxUpdater
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.api.dust.data.DustInput
@@ -9,8 +10,8 @@ import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Utxo
 import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import org.bitcoinj.core.Transaction
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.data.rxjava.RxPinning
@@ -196,14 +197,14 @@ class SendDataManager(
      * Calculates the total amount of bitcoin or bitcoin cash that can be swept from an [Utxo]
      * object and returns the amount that can be recovered, accounting for fees
      *
-     * @param cryptoCurrency The currency for which you wish to calculate the max available.
+     * @param asset The currency for which you wish to calculate the max available.
      * @param unspentCoins An [Utxo] object that you wish to sweep
      * @param targetOutputType Destination output type
      * @param feePerKb The current fee per kB on the network
      * @return the sweepable amount as a CryptoValue
      */
     fun getMaximumAvailable(
-        cryptoCurrency: CryptoCurrency,
+        asset: AssetInfo,
         unspentCoins: List<Utxo>,
         targetOutputType: OutputType,
         feePerKb: CryptoValue
@@ -212,12 +213,12 @@ class SendDataManager(
             unspentCoins,
             targetOutputType,
             feePerKb.toBigInteger(),
-            cryptoCurrency == CryptoCurrency.BCH
+            asset == CryptoCurrency.BCH
         )
 
         return MaxAvailable(
-            maxSpendable = CryptoValue.fromMinor(cryptoCurrency, available.first),
-            feeForMax = CryptoValue.fromMinor(cryptoCurrency, available.second)
+            maxSpendable = CryptoValue.fromMinor(asset, available.first),
+            feeForMax = CryptoValue.fromMinor(asset, available.second)
         )
     }
 

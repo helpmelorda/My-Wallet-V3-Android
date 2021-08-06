@@ -4,10 +4,10 @@ import android.content.Intent
 import android.net.Uri
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.notifications.links.PendingLink
-import com.nhaarman.mockito_kotlin.mock
-import io.reactivex.Maybe
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.any
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import io.reactivex.rxjava3.core.Maybe
+
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -19,7 +19,7 @@ import piuk.blockchain.android.sunriver.CampaignLinkState
 import piuk.blockchain.android.sunriver.SunriverDeepLinkHelper
 import piuk.blockchain.android.thepit.ThePitDeepLinkParser
 
-@Config(sdk = [23], application = BlockchainTestApplication::class)
+@Config(sdk = [24], application = BlockchainTestApplication::class)
 @RunWith(RobolectricTestRunner::class)
 class DeepLinkProcessorTest {
 
@@ -113,5 +113,5 @@ private fun givenUriExpect(uri: String, expected: LinkState) {
 
 private fun givenPendingUri(uri: String): PendingLink =
     mock {
-        on { getPendingLinks(any()) } `it returns` Maybe.just(Uri.parse(uri))
+        on { getPendingLinks(any()) }.thenReturn(Maybe.just(Uri.parse(uri)))
     }

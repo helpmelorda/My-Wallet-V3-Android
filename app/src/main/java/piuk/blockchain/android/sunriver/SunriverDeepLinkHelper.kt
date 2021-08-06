@@ -4,8 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.notifications.links.PendingLink
-import io.reactivex.Maybe
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 
 class SunriverDeepLinkHelper(
     private val linkHandler: PendingLink

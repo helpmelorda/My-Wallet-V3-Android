@@ -11,9 +11,9 @@ import androidx.appcompat.app.AlertDialog
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityReceiveQrBinding
+import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.shortcuts.LauncherShortcutHelper
-import piuk.blockchain.androidcoreui.ui.base.BaseMvpActivity
 
 internal class ReceiveQrActivity :
     BaseMvpActivity<ReceiveQrView, ReceiveQrPresenter>(), ReceiveQrView {

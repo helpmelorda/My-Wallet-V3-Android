@@ -3,10 +3,10 @@ package piuk.blockchain.android.ui.start
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.logging.CrashLogger
 import com.blockchain.notifications.analytics.Analytics
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.payload.data.Wallet
-import org.amshove.kluent.any
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

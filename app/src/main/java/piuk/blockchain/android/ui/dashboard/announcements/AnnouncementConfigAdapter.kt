@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import com.blockchain.remoteconfig.RemoteConfig
 import com.google.gson.Gson
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 data class AnnounceConfig(
     val order: List<String> = emptyList(), // Announcement card display order

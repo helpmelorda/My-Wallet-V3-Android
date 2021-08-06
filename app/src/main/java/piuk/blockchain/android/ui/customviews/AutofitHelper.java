@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import piuk.blockchain.androidcoreui.R;
+import piuk.blockchain.android.R;
 import timber.log.Timber;
 
 /**

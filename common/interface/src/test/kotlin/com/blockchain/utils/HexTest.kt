@@ -1,38 +1,38 @@
 package com.blockchain.utils
 
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class HexTest {
 
     @Test
     fun `empty byte array to hex`() {
-        byteArrayOf().toHex() `should equal` ""
+        byteArrayOf().toHex() `should be equal to` ""
     }
 
     @Test
     fun `1 byte array to hex`() {
-        byteArrayOf(0).toHex() `should equal` "00"
+        byteArrayOf(0).toHex() `should be equal to` "00"
     }
 
     @Test
     fun `1 byte, non-zero array to hex`() {
-        byteArrayOf(1).toHex() `should equal` "01"
+        byteArrayOf(1).toHex() `should be equal to` "01"
     }
 
     @Test
     fun `2 byte array to hex`() {
-        byteArrayOf(1, 2).toHex() `should equal` "0102"
+        byteArrayOf(1, 2).toHex() `should be equal to` "0102"
     }
 
     @Test
     fun `large value array to hex`() {
-        byteArrayOf(0xff.toByte(), 0x7f).toHex() `should equal` "FF7F"
+        byteArrayOf(0xff.toByte(), 0x7f).toHex() `should be equal to` "FF7F"
     }
 
     @Test
     fun `all values to hex`() {
-        (0..255).map(Int::toByte).toByteArray().toHex() `should equal`
+        (0..255).map(Int::toByte).toByteArray().toHex() `should be equal to`
             "000102030405060708090A0B0C0D0E0F" +
             "101112131415161718191A1B1C1D1E1F" +
             "202122232425262728292A2B2C2D2E2F" +

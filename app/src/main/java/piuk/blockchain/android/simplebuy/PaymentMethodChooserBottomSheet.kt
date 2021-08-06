@@ -32,7 +32,8 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
                     paymentMethods
                         .map {
                             it.toPaymentMethodItem()
-                        })
+                        }
+                )
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
             layoutManager = LinearLayoutManager(context)
         }
@@ -76,7 +77,9 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
 
 data class PaymentMethodItem(val paymentMethod: PaymentMethod, val clickAction: () -> Unit)
 
-private class PaymentMethodsAdapter(adapterItems: List<PaymentMethodItem>) :
+private class PaymentMethodsAdapter(
+    adapterItems: List<PaymentMethodItem>
+) :
     DelegationAdapter<PaymentMethodItem>(AdapterDelegatesManager(), adapterItems) {
     init {
         val cardPaymentDelegate = CardPaymentDelegate()

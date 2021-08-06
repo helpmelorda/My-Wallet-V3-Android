@@ -54,14 +54,15 @@ import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenReques
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 import com.blockchain.veriff.VeriffApplicantAndToken
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
 import retrofit2.Retrofit
 
-class NabuService(retrofit: Retrofit) {
+class NabuService(
+    retrofit: Retrofit
+) {
 
     private val service: Nabu = retrofit.create(Nabu::class.java)
 
@@ -518,25 +519,6 @@ class NabuService(retrofit: Retrofit) {
         sessionToken.authHeader, orderId, confirmBody
     ).wrapErrorMessage()
 
-    fun getBalanceForAsset(
-        sessionToken: NabuSessionTokenResponse,
-        cryptoCurrency: CryptoCurrency
-    ) = service.getBalanceForAsset(
-        sessionToken.authHeader, cryptoCurrency.networkTicker
-    ).flatMapMaybe {
-        when (it.code()) {
-            200 -> Maybe.just(it.body())
-            204 -> Maybe.empty()
-            else -> Maybe.error(HttpException(it))
-        }
-    }.wrapErrorMessage()
-
-    fun getCustodialWalletBalanceForAllAssets(
-        sessionToken: NabuSessionTokenResponse
-    ) = service.getCustodialWalletBalanceForAllAssets(
-        sessionToken.authHeader
-    ).wrapErrorMessage()
-
     fun transferFunds(
         sessionToken: NabuSessionTokenResponse,
         request: TransferRequest
@@ -545,7 +527,7 @@ class NabuService(retrofit: Retrofit) {
         request
     ).map {
         when (it.code()) {
-            200 -> it.body()?.id ?: ""
+            200 -> it.body()?.id.orEmpty()
             403 -> if (it.body()?.code == TransferFundsResponse.ERROR_WITHDRAWL_LOCKED)
                 throw TransactionError.WithdrawalBalanceLocked
             else
@@ -653,11 +635,6 @@ class NabuService(retrofit: Retrofit) {
     fun getInterestEnabled(
         sessionToken: NabuSessionTokenResponse
     ) = service.getInterestEnabled(authorization = sessionToken.authHeader)
-        .wrapErrorMessage()
-
-    fun getInterestEligibility(
-        sessionToken: NabuSessionTokenResponse
-    ) = service.getInterestEligibility(authorization = sessionToken.authHeader)
         .wrapErrorMessage()
 
     fun getLinkedBank(

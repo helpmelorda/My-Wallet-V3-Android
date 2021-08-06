@@ -7,8 +7,8 @@ import android.content.Intent
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.Analytics
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import piuk.blockchain.android.R
@@ -20,7 +20,9 @@ import piuk.blockchain.android.util.lifecycle.LifecycleInterestedComponent
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 
-class CoinsWebSocketService(private val applicationContext: Context) : MessagesSocketHandler, KoinComponent {
+class CoinsWebSocketService(
+    private val applicationContext: Context
+) : MessagesSocketHandler, KoinComponent {
 
     private val compositeDisposable = CompositeDisposable()
     private val notificationManager: NotificationManager by inject()
@@ -34,14 +36,17 @@ class CoinsWebSocketService(private val applicationContext: Context) : MessagesS
         coinsWebSocketStrategy.close()
         coinsWebSocketStrategy.setMessagesHandler(this)
         coinsWebSocketStrategy.open()
-        compositeDisposable += lifecycleInterestedComponent.appStateUpdated.subscribe {
-            if (it == AppState.FOREGROUNDED) {
-                coinsWebSocketStrategy.open()
-            } else {
-                coinsWebSocketStrategy.close()
+
+        compositeDisposable += lifecycleInterestedComponent
+            .appStateUpdated
+            .subscribe {
+                if (it == AppState.FOREGROUNDED) {
+                    coinsWebSocketStrategy.open()
+                } else {
+                    coinsWebSocketStrategy.close()
+                }
             }
         }
-    }
 
     override fun showToast(message: Int) {
         ToastCustom.makeText(
@@ -61,13 +66,20 @@ class CoinsWebSocketService(private val applicationContext: Context) : MessagesS
             notifyIntent,
             PendingIntent.FLAG_UPDATE_CURRENT)
 
-        NotificationsUtil(applicationContext, notificationManager, analytics).triggerNotification(
-            title,
-            marquee,
-            text,
-            R.mipmap.ic_launcher,
-            pendingIntent,
-            1000)
+        NotificationsUtil(
+            context = applicationContext,
+            notificationManager = notificationManager,
+            analytics = analytics
+        ).triggerNotification(
+            title = title,
+            marquee = marquee,
+            text = text,
+            icon = R.mipmap.ic_launcher,
+            pendingIntent = pendingIntent,
+            id = 1000,
+            appName = R.string.app_name,
+            colorRes = R.color.primary_navy_medium
+        )
     }
 
     override fun sendBroadcast(event: ActionEvent) {

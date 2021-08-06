@@ -2,7 +2,7 @@ package com.blockchain.api.addressmapping
 
 import com.blockchain.api.addressmapping.data.AddressMapRequest
 import com.blockchain.api.addressmapping.data.AddressMapResponse
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Body
 import retrofit2.http.Headers
 import retrofit2.http.POST

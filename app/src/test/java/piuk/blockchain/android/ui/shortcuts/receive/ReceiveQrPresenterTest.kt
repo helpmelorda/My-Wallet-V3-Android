@@ -2,10 +2,10 @@ package piuk.blockchain.android.ui.shortcuts.receive
 
 import android.content.Intent
 import android.graphics.Bitmap
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Single
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Single
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,7 +20,7 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import kotlin.jvm.Throws
 
-@Config(sdk = [23], application = BlockchainTestApplication::class)
+@Config(sdk = [24], application = BlockchainTestApplication::class)
 @RunWith(RobolectricTestRunner::class)
 class ReceiveQrPresenterTest {
 

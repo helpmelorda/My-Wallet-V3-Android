@@ -13,7 +13,6 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.Money
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.TxConfirmationValue
 import piuk.blockchain.android.databinding.ItemSendConfirmAgreementTransferBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -25,8 +24,7 @@ import piuk.blockchain.android.util.setThrottledCheckedChange
 class ConfirmAgreementToTransferItemDelegate<in T>(
     private val model: TransactionModel,
     private val exchangeRates: ExchangeRates,
-    private val selectedCurrency: String,
-    private val assetResources: AssetResources
+    private val selectedCurrency: String
 ) : AdapterDelegate<T> {
     override fun isForViewType(items: List<T>, position: Int): Boolean =
         (items[position] as? TxConfirmationValue.TxBooleanConfirmation<*>)?.data?.let {
@@ -46,8 +44,7 @@ class ConfirmAgreementToTransferItemDelegate<in T>(
         holder: RecyclerView.ViewHolder
     ) = (holder as AgreementTextItemViewHolder).bind(
         items[position] as TxConfirmationValue.TxBooleanConfirmation<Money>,
-        model,
-        assetResources
+        model
     )
 }
 
@@ -59,8 +56,7 @@ private class AgreementTextItemViewHolder(
 
     fun bind(
         item: TxConfirmationValue.TxBooleanConfirmation<Money>,
-        model: TransactionModel,
-        assetResources: AssetResources
+        model: TransactionModel
     ) {
         binding.apply {
             confirmDetailsCheckbox.setText(
@@ -68,8 +64,7 @@ private class AgreementTextItemViewHolder(
                     item.data ?: return,
                     exchangeRates,
                     selectedCurrency,
-                    context.resources,
-                    assetResources
+                    context.resources
                 ),
                 TextView.BufferType.SPANNABLE
             )
@@ -86,8 +81,7 @@ private class AgreementTextItemViewHolder(
         amount: Money,
         exchangeRates: ExchangeRates,
         selectedCurrency: String,
-        resources: Resources,
-        assetResources: AssetResources
+        resources: Resources
     ): SpannableStringBuilder {
         val introToHolding = resources.getString(R.string.send_confirmation_interest_holding_period_1)
         val amountInBold =
@@ -95,7 +89,7 @@ private class AgreementTextItemViewHolder(
         val outroToHolding = context.resources.getString(
             R.string.send_confirmation_interest_holding_period_2,
             amount.toStringWithSymbol(),
-            context.resources.getString(assetResources.assetNameRes((amount as CryptoValue).currency))
+            (amount as CryptoValue).currency.name
         )
         val sb = SpannableStringBuilder()
             .append(introToHolding)

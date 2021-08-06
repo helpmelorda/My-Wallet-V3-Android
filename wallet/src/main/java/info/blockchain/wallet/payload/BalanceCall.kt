@@ -1,8 +1,8 @@
 package info.blockchain.wallet.payload
 
-import com.blockchain.api.NonCustodialBitcoinService
+import info.blockchain.balance.AssetInfo
+import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.bitcoin.data.BalanceResponseDto
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.exceptions.ServerConnectionException
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.data.legacyXpubAddresses
@@ -11,10 +11,11 @@ import info.blockchain.wallet.payload.model.Balance
 import info.blockchain.wallet.payload.model.toBalanceMap
 import retrofit2.Response
 import java.math.BigInteger
+import java.util.Locale
 
 class BalanceCall(
     private val bitcoinApi: NonCustodialBitcoinService,
-    private val cryptoCurrency: CryptoCurrency
+    private val asset: AssetInfo
 ) : BalanceQuery {
 
     override fun getBalancesForXPubs(xpubs: List<XPubs>, legacyImported: List<String>): Map<String, BigInteger> =
@@ -34,7 +35,7 @@ class BalanceCall(
 
     private fun getBalanceOfAddresses(addresses: List<String>) =
         bitcoinApi.getBalance(
-            cryptoCurrency.networkTicker.toLowerCase(),
+            asset.ticker.toLowerCase(Locale.ROOT),
             addresses,
             emptyList(),
             NonCustodialBitcoinService.BalanceFilter.RemoveUnspendable
@@ -42,7 +43,7 @@ class BalanceCall(
 
     private fun getBalanceOfXpubs(legacyAddresses: List<String>, segwitAddresses: List<String>) =
         bitcoinApi.getBalance(
-            cryptoCurrency.networkTicker.toLowerCase(),
+            asset.ticker.toLowerCase(Locale.ROOT),
             legacyAddresses,
             segwitAddresses,
             NonCustodialBitcoinService.BalanceFilter.RemoveUnspendable

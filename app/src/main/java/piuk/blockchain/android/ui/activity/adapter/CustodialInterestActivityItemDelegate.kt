@@ -7,28 +7,26 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.nabu.datamanagers.InterestState
+import info.blockchain.balance.AssetInfo
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDate
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.multiaddress.TransactionSummary
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.CustodialInterestActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
+import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.setAssetIconColours
+import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
 import java.util.Date
 
 class CustodialInterestActivityItemDelegate<in T>(
     private val currencyPrefs: CurrencyPrefs,
-    private val assetResources: AssetResources,
-    private val onItemClicked: (CryptoCurrency, String, CryptoActivityType) -> Unit // crypto, txID, type
+    private val onItemClicked: (AssetInfo, String, CryptoActivityType) -> Unit // crypto, txID, type
 ) : AdapterDelegate<T> {
 
     override fun isForViewType(items: List<T>, position: Int): Boolean =
@@ -46,7 +44,6 @@ class CustodialInterestActivityItemDelegate<in T>(
     ) = (holder as CustodialInterestActivityItemViewHolder).bind(
         items[position] as CustodialInterestActivitySummaryItem,
         currencyPrefs.selectedFiatCurrency,
-        assetResources,
         onItemClicked
     )
 }
@@ -60,18 +57,14 @@ private class CustodialInterestActivityItemViewHolder(
     fun bind(
         tx: CustodialInterestActivitySummaryItem,
         selectedFiatCurrency: String,
-        assetResources: AssetResources,
-        onAccountClicked: (CryptoCurrency, String, CryptoActivityType) -> Unit
+        onAccountClicked: (AssetInfo, String, CryptoActivityType) -> Unit
     ) {
         disposables.clear()
         with(binding) {
             icon.setIcon(tx.isPending(), tx.type)
             when {
                 tx.status.isPending().not() -> {
-                    icon.setAssetIconColours(
-                        tintColor = assetResources.assetTint(tx.cryptoCurrency),
-                        filterColor = assetResources.assetFilter(tx.cryptoCurrency)
-                    )
+                    icon.setAssetIconColoursWithTint(tx.asset)
                 }
                 tx.status.hasFailed() -> icon.setTransactionHasFailed()
                 else -> {
@@ -84,12 +77,12 @@ private class CustodialInterestActivityItemViewHolder(
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
             assetBalanceFiat.bindAndConvertFiatBalance(tx, disposables, selectedFiatCurrency)
 
-            txType.setTxLabel(tx.cryptoCurrency, tx.type)
+            txType.setTxLabel(tx.asset, tx.type)
             statusDate.setTxStatus(tx)
             setTextColours(tx.status)
 
             txRoot.setOnClickListener {
-                onAccountClicked(tx.cryptoCurrency, tx.txId, CryptoActivityType.CUSTODIAL_INTEREST)
+                onAccountClicked(tx.asset, tx.txId, CryptoActivityType.CUSTODIAL_INTEREST)
             }
         }
     }
@@ -137,25 +130,25 @@ private fun ImageView.setIcon(txPending: Boolean, type: TransactionSummary.Trans
     )
 
 private fun TextView.setTxLabel(
-    cryptoCurrency: CryptoCurrency,
+    asset: AssetInfo,
     type: TransactionSummary.TransactionType
 ) {
     text = when (type) {
         TransactionSummary.TransactionType.DEPOSIT -> context.resources.getString(
             R.string.tx_title_transfer,
-            cryptoCurrency.displayTicker
+            asset.ticker
         )
         TransactionSummary.TransactionType.INTEREST_EARNED -> context.resources.getString(
             R.string.tx_title_interest,
-            cryptoCurrency.displayTicker
+            asset.ticker
         )
         TransactionSummary.TransactionType.WITHDRAW -> context.resources.getString(
             R.string.tx_title_withdraw,
-            cryptoCurrency.displayTicker
+            asset.ticker
         )
         else -> context.resources.getString(
             R.string.tx_title_transfer,
-            cryptoCurrency.displayTicker
+            asset.ticker
         )
     }
 }

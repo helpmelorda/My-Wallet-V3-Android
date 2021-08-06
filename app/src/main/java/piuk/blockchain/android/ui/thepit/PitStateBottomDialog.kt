@@ -7,9 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.ui.extensions.throttledClicks
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import piuk.blockchain.android.util.throttledClicks
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.databinding.DialogSheetWalletMercuryLinkingBinding
 import piuk.blockchain.android.ui.customviews.ErrorBottomDialog

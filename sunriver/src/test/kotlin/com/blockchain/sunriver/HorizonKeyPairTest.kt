@@ -2,8 +2,8 @@ package com.blockchain.sunriver
 
 import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.`should throw the Exception`
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should throw`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.`with message`
 import org.junit.Test
@@ -16,9 +16,9 @@ class HorizonKeyPairTest {
         val pair = KeyPair.fromSecretSeed("SBQPDFUGLMWJYEYXFRM5TQX3AX2BR47WKI4FDS7EJQUSEUUVY72MZPJF")
         val hkp = pair.toHorizonKeyPair()
 
-        hkp.accountId `should equal` "GDY47CJARRHHL66JH3RJURDYXAMIQ5DMXZLP3TDAUJ6IN2GUOFX4OJOC"
+        hkp.accountId `should be equal to` "GDY47CJARRHHL66JH3RJURDYXAMIQ5DMXZLP3TDAUJ6IN2GUOFX4OJOC"
         hkp `should be instance of` HorizonKeyPair.Private::class
-        String((hkp as HorizonKeyPair.Private).secret) `should equal`
+        String((hkp as HorizonKeyPair.Private).secret) `should be equal to`
             "SBQPDFUGLMWJYEYXFRM5TQX3AX2BR47WKI4FDS7EJQUSEUUVY72MZPJF"
     }
 
@@ -27,7 +27,7 @@ class HorizonKeyPairTest {
         val pair = KeyPair.fromAccountId("GDY47CJARRHHL66JH3RJURDYXAMIQ5DMXZLP3TDAUJ6IN2GUOFX4OJOC")
         val hkp = pair.toHorizonKeyPair()
 
-        hkp.accountId `should equal` "GDY47CJARRHHL66JH3RJURDYXAMIQ5DMXZLP3TDAUJ6IN2GUOFX4OJOC"
+        hkp.accountId `should be equal to` "GDY47CJARRHHL66JH3RJURDYXAMIQ5DMXZLP3TDAUJ6IN2GUOFX4OJOC"
         hkp `should be instance of` HorizonKeyPair.Public::class
     }
 
@@ -36,7 +36,7 @@ class HorizonKeyPairTest {
         val pair = KeyPair.fromSecretSeed("SBQPDFUGLMWJYEYXFRM5TQX3AX2BR47WKI4FDS7EJQUSEUUVY72MZPJF")
         val hkp: HorizonKeyPair.Public = pair.toHorizonKeyPair().neuter()
 
-        hkp.accountId `should equal` "GDY47CJARRHHL66JH3RJURDYXAMIQ5DMXZLP3TDAUJ6IN2GUOFX4OJOC"
+        hkp.accountId `should be equal to` "GDY47CJARRHHL66JH3RJURDYXAMIQ5DMXZLP3TDAUJ6IN2GUOFX4OJOC"
     }
 
     @Test
@@ -45,7 +45,7 @@ class HorizonKeyPairTest {
         val hkp = pair.toHorizonKeyPair()
 
         hkp.neuter() `should be` hkp
-        hkp.accountId `should equal` "GDY47CJARRHHL66JH3RJURDYXAMIQ5DMXZLP3TDAUJ6IN2GUOFX4OJOC"
+        hkp.accountId `should be equal to` "GDY47CJARRHHL66JH3RJURDYXAMIQ5DMXZLP3TDAUJ6IN2GUOFX4OJOC"
     }
 
     @Test
@@ -53,8 +53,8 @@ class HorizonKeyPairTest {
         val pair = KeyPair.fromSecretSeed("SAFWTGXVS7ELMNCXELFWCFZOPMHUZ5LXNBGUVRCY3FHLFPXK4QPXYP2X")
         val pair2 = pair.toHorizonKeyPair().toKeyPair()
 
-        pair2.accountId `should equal` "GDAHPZ2NSYIIHZXM56Y36SBVTV5QKFIZGYMMBHOU53ETUSWTP62B63EQ"
-        String(pair2.secretSeed) `should equal` "SAFWTGXVS7ELMNCXELFWCFZOPMHUZ5LXNBGUVRCY3FHLFPXK4QPXYP2X"
+        pair2.accountId `should be equal to` "GDAHPZ2NSYIIHZXM56Y36SBVTV5QKFIZGYMMBHOU53ETUSWTP62B63EQ"
+        String(pair2.secretSeed) `should be equal to` "SAFWTGXVS7ELMNCXELFWCFZOPMHUZ5LXNBGUVRCY3FHLFPXK4QPXYP2X"
         pair2.canSign() `should be` true
     }
 
@@ -63,21 +63,21 @@ class HorizonKeyPairTest {
         val pair = KeyPair.fromAccountId("GAVXVW5MCK7Q66RIBWZZKZEDQTRXWCZUP4DIIFXCCENGW2P6W4OA34RH")
         val pair2 = pair.toHorizonKeyPair().toKeyPair()
 
-        pair2.accountId `should equal` "GAVXVW5MCK7Q66RIBWZZKZEDQTRXWCZUP4DIIFXCCENGW2P6W4OA34RH"
+        pair2.accountId `should be equal to` "GAVXVW5MCK7Q66RIBWZZKZEDQTRXWCZUP4DIIFXCCENGW2P6W4OA34RH"
         pair2.canSign() `should be` false
     }
 
     @Test
     fun `createValidatedPublic - OK`() {
         HorizonKeyPair.createValidatedPublic("GAVXVW5MCK7Q66RIBWZZKZEDQTRXWCZUP4DIIFXCCENGW2P6W4OA34RH")
-            .accountId `should equal` "GAVXVW5MCK7Q66RIBWZZKZEDQTRXWCZUP4DIIFXCCENGW2P6W4OA34RH"
+            .accountId `should be equal to` "GAVXVW5MCK7Q66RIBWZZKZEDQTRXWCZUP4DIIFXCCENGW2P6W4OA34RH"
     }
 
     @Test
     fun `createValidatedPublic - Bad account id checksum`() {
         {
             HorizonKeyPair.createValidatedPublic("GAVXVW5MCK7Q66RIBWZZKZEDQTRXWCZUP4DIIFXCCENGW2P6W4OA34RT")
-        } `should throw the Exception` InvalidAccountIdException::class `with message`
+        } `should throw` InvalidAccountIdException::class `with message`
             "Invalid Account Id, Checksum invalid"
     }
 

@@ -2,10 +2,10 @@ package piuk.blockchain.android.coincore.impl
 
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.util.FormatsUtil
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.CryptoTarget
 import piuk.blockchain.android.coincore.InvoiceTarget
@@ -17,7 +17,7 @@ import java.lang.IllegalStateException
 import java.util.regex.Pattern
 
 class BitPayInvoiceTarget(
-    override val asset: CryptoCurrency,
+    override val asset: AssetInfo,
     override val address: String,
     val amount: CryptoValue,
     val invoiceId: String,
@@ -36,7 +36,7 @@ class BitPayInvoiceTarget(
         private val MERCHANT_PATTERN: Pattern = Pattern.compile("for merchant ")
 
         fun fromLink(
-            asset: CryptoCurrency,
+            asset: AssetInfo,
             linkData: String,
             bitPayDataManager: BitPayDataManager
         ): Single<CryptoTarget> {
@@ -44,7 +44,7 @@ class BitPayInvoiceTarget(
                 FormatsUtil.getPaymentRequestUrl(linkData)
                     .replace(INVOICE_PREFIX, "")
 
-            return bitPayDataManager.getRawPaymentRequest(invoiceId = invoiceId, currencyCode = asset.networkTicker)
+            return bitPayDataManager.getRawPaymentRequest(invoiceId = invoiceId, currencyCode = asset.ticker)
                 .map { rawRequest ->
                     BitPayInvoiceTarget(
                         asset = asset,

@@ -1,6 +1,6 @@
 package info.blockchain.balance
 
-import info.blockchain.utils.tryParseBigDecimal
+import com.blockchain.utils.tryParseBigDecimal
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode

@@ -1,6 +1,6 @@
 package com.blockchain.wallet
 
-import io.reactivex.Maybe
+import io.reactivex.rxjava3.core.Maybe
 
 interface SeedAccessWithoutPrompt {
 

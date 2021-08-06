@@ -1,8 +1,8 @@
 package piuk.blockchain.androidcore.data.payload
 
-import com.blockchain.api.WalletSettingsService
+import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.api.wallet.data.WalletSettingsDto
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import java.util.Locale
 
 internal interface PayloadVersionController {

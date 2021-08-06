@@ -22,9 +22,9 @@ import com.google.android.play.core.missingsplits.MissingSplitsManagerFactory
 import info.blockchain.wallet.BlockchainFramework
 import info.blockchain.wallet.FrameworkInterface
 import info.blockchain.wallet.api.Environment
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.plugins.RxJavaPlugins
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
@@ -42,9 +42,9 @@ import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.connectivity.ConnectionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PrngFixer
-import piuk.blockchain.androidcoreui.ApplicationLifeCycle
-import piuk.blockchain.androidcoreui.utils.logging.Logging
-import piuk.blockchain.androidcoreui.utils.logging.appLaunchEvent
+import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
+import com.blockchain.notifications.analytics.Logging
+import com.blockchain.notifications.analytics.appLaunchEvent
 import retrofit2.Retrofit
 import timber.log.Timber
 

@@ -12,10 +12,10 @@ import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import com.blockchain.nabu.service.TierService
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.Singles
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.FiatAccount
@@ -172,6 +172,6 @@ abstract class QuotedEngine(
 
     protected fun Money.withUserDpRounding(roundingMode: RoundingMode): CryptoValue =
         (this as? CryptoValue)?.let {
-            CryptoValue.fromMajor(it.currency, it.toBigDecimal().setScale(sourceAsset.userDp, roundingMode))
+            CryptoValue.fromMajor(it.currency, it.toBigDecimal().setScale(CryptoValue.DISPLAY_DP, roundingMode))
         } ?: throw IllegalStateException("Method only support cryptovalues")
 }

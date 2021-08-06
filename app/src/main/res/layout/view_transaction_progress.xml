@@ -8,13 +8,13 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/tx_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/asset_icon_size_large"
+        android:layout_height="@dimen/asset_icon_size_large"
         app:layout_constraintBottom_toBottomOf="@+id/tx_guideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tx_guideline"
-        app:srcCompat="@drawable/ic_btc_circled_mask" />
+        app:srcCompat="@drawable/ic_default_asset_logo" />
 
     <ProgressBar
         android:id="@+id/progress"
@@ -108,7 +108,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/standard_margin"
-        android:text="@string/ok_cap"
+        android:text="@string/common_ok"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:visibility="visible" />

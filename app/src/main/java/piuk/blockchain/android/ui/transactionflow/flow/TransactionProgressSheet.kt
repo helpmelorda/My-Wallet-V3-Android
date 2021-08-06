@@ -20,13 +20,14 @@ class TransactionProgressSheet : TransactionFlowSheet<DialogTxFlowInProgressBind
         DialogTxFlowInProgressBinding.inflate(inflater, container, false)
 
     private val customiser: TransactionProgressCustomisations by inject()
-    private val MAX_STACKTRACE_CHARS = 400
 
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! TransactionProgressSheet")
         require(newState.currentStep == TransactionStep.IN_PROGRESS)
 
-        binding.txProgressView.setAssetIcon(customiser.transactionProgressIcon(newState))
+        customiser.transactionProgressStandardIcon(newState)?.let {
+            binding.txProgressView.setAssetIcon(it)
+        } ?: binding.txProgressView.setAssetIcon(newState.sendingAsset)
 
         handleStatusUpdates(newState)
         cacheState(newState)
@@ -95,5 +96,9 @@ class TransactionProgressSheet : TransactionFlowSheet<DialogTxFlowInProgressBind
         requireActivity().windowManager?.defaultDisplay?.getMetrics(metrics)
         binding.root.layoutParams.height = (metrics.heightPixels - (48 * metrics.density)).toInt()
         binding.root.requestLayout()
+    }
+
+    companion object {
+        private const val MAX_STACKTRACE_CHARS = 400
     }
 }

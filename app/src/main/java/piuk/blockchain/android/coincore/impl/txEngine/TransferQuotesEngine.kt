@@ -5,10 +5,10 @@ import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.TransferQuote
 import com.blockchain.nabu.datamanagers.repositories.QuotesProvider
 import info.blockchain.balance.Money
-import io.reactivex.Observable
-import io.reactivex.rxkotlin.Observables
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.kotlin.Observables
+import io.reactivex.rxjava3.subjects.BehaviorSubject
+import io.reactivex.rxjava3.subjects.PublishSubject
 import piuk.blockchain.android.coincore.impl.PricesInterpolator
 import java.math.BigInteger
 import java.util.Date
@@ -36,7 +36,7 @@ class TransferQuotesEngine(
                 TimeUnit.SECONDS
             ).flatMapSingle {
                 quotesProvider.fetchQuote(direction = direction, pair = pair)
-            }.startWith(quote)
+            }.startWithItem(quote)
         }.takeUntil(stop)
 
     val pricedQuote: Observable<PricedQuote>

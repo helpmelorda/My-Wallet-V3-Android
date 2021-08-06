@@ -1,6 +1,6 @@
 package info.blockchain.wallet.wordlists
 
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
 import org.junit.Test
 import org.spongycastle.util.encoders.Hex
@@ -10,7 +10,7 @@ class EnglishWordListTest {
 
     @Test
     fun `sha-256 of bytes of wordlist file is as expected`() {
-        readAllBytes("wordlist/en_US.txt").hashSha256() `should equal`
+        readAllBytes("wordlist/en_US.txt").hashSha256() `should be equal to`
             "2f5eed53a4727b4bf8880d8f3f199efc90e58503646d9ff8eff3a2ed3b24dbda"
     }
 

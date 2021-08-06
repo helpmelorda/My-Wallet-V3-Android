@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.kyc.email.entry
 
 import com.blockchain.logging.CrashLogger
-import io.reactivex.Observable
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
@@ -32,7 +32,7 @@ class EmailVeriffModel(
             )
             EmailVeriffIntent.StartEmailVerification -> interactor.fetchEmail().flatMapObservable {
                 if (!it.isVerified) {
-                    interactor.pollForEmailStatus().toObservable().startWith(it)
+                    interactor.pollForEmailStatus().toObservable().startWithItem(it)
                 } else Observable.just(it)
             }.subscribeBy(onNext = {
                 process(EmailVeriffIntent.EmailUpdated(it))

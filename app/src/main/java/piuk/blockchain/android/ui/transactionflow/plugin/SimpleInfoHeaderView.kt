@@ -16,7 +16,6 @@ import piuk.blockchain.android.util.visibleIf
 
 class SimpleInfoHeaderView @JvmOverloads constructor(
     ctx: Context,
-    private val showExchange: Boolean = true,
     attr: AttributeSet? = null,
     defStyle: Int = 0
 ) : ConstraintLayout(ctx, attr, defStyle), ConfirmSheetWidget, KoinComponent {
@@ -24,6 +23,8 @@ class SimpleInfoHeaderView @JvmOverloads constructor(
     private lateinit var model: TransactionModel
     private lateinit var customiser: TransactionConfirmationCustomisations
     private lateinit var analytics: TxFlowAnalytics
+    private lateinit var cachedState: TransactionState
+    var shouldShowExchange = true
 
     private val binding: ViewCheckoutHeaderBinding =
         ViewCheckoutHeaderBinding.inflate(LayoutInflater.from(context), this, true)
@@ -42,11 +43,12 @@ class SimpleInfoHeaderView @JvmOverloads constructor(
 
     override fun update(state: TransactionState) {
         check(::model.isInitialized) { "Control not initialised" }
-
-        with(binding) {
+        cachedState = state
+            with(binding) {
             state.pendingTx?.amount?.let { amnt ->
                 headerTitle.text = amnt.toStringWithSymbol()
-                if (showExchange) {
+
+                if (shouldShowExchange) {
                     state.fiatRate?.let {
                         headerSubtitle.text = it.convert(amnt, false).toStringWithSymbol()
                     }

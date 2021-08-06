@@ -4,16 +4,14 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.blockchain.koin.scopedInject
 import org.koin.core.KoinComponent
-import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AccountIcon
-import piuk.blockchain.android.coincore.AssetResources
+import org.koin.core.inject
+import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.databinding.ViewAssetWithAccountIconBinding
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.setAssetIconColours
-import piuk.blockchain.android.util.setImageDrawable
+import piuk.blockchain.android.util.setAssetIconColoursNoTint
 import piuk.blockchain.android.util.visible
 
 class AssetWithAccountIcon @JvmOverloads constructor(
@@ -22,7 +20,7 @@ class AssetWithAccountIcon @JvmOverloads constructor(
     defStyle: Int = 0
 ) : ConstraintLayout(ctx, attr, defStyle), KoinComponent {
 
-    private val assetResources: AssetResources by scopedInject()
+    private val assetResources: AssetResources by inject()
 
     private val binding: ViewAssetWithAccountIconBinding by lazy {
         ViewAssetWithAccountIconBinding.inflate(LayoutInflater.from(context), this, true)
@@ -31,14 +29,11 @@ class AssetWithAccountIcon @JvmOverloads constructor(
     fun updateIcon(account: CryptoAccount) {
         val accountIcon = AccountIcon(account, assetResources)
 
-        binding.assetIcon.setImageDrawable(accountIcon.icon)
+        accountIcon.loadAssetIcon(binding.assetIcon)
         accountIcon.indicator?.let {
             binding.accountIcon.apply {
                 visible()
-                setAssetIconColours(
-                    tintColor = R.color.white,
-                    filterColor = assetResources.assetFilter(account.asset)
-                )
+                setAssetIconColoursNoTint(account.asset)
                 setImageResource(it)
             }
         } ?: kotlin.run { binding.accountIcon.gone() }

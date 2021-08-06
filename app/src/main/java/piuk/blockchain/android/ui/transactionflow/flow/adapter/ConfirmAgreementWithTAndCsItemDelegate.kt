@@ -6,8 +6,8 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.ui.urllinks.INTEREST_PRIVACY_POLICY
-import com.blockchain.ui.urllinks.INTEREST_TERMS_OF_SERVICE
+import piuk.blockchain.android.urllinks.INTEREST_PRIVACY_POLICY
+import piuk.blockchain.android.urllinks.INTEREST_TERMS_OF_SERVICE
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.TxConfirmation
 import piuk.blockchain.android.coincore.TxConfirmationValue

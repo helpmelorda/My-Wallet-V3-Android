@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Single
+
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementQueries
@@ -14,7 +14,7 @@ class BuyBitcoinAnnouncementTest {
     private val dismissRecorder: DismissRecorder = mock()
     private val dismissEntry: DismissRecorder.DismissEntry = mock()
     private val announcementQueries: AnnouncementQueries = mock {
-        on { isSimplifiedDueDiligenceEligibleAndNotVerified() } itReturns Single.just(false)
+        on { isSimplifiedDueDiligenceEligibleAndNotVerified() }.thenReturn(Single.just(false))
     }
 
     private lateinit var subject: BuyBitcoinAnnouncement

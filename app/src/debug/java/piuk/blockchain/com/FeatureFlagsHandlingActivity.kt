@@ -10,7 +10,7 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.ActivityLocalFeatureFlagsBinding
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -98,7 +98,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     }
 
     private fun clearSimpleBuyState() {
-        simpleBuyPrefs.clearState()
+        simpleBuyPrefs.clearBuyState()
         showToast("Local SB State cleared")
     }
 
@@ -118,7 +118,6 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
 
         dismissRecorder.undismissAll(announcementList)
 
-        prefs.resetTour()
         showToast("Announcement reset")
     }
 

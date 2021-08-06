@@ -18,15 +18,15 @@ import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.ui.urllinks.URL_CONTACT_SUPPORT
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.rxkotlin.zipWith
-import io.reactivex.schedulers.Schedulers
+import piuk.blockchain.android.urllinks.URL_CONTACT_SUPPORT
+import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -71,7 +71,7 @@ class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
     private val eligibilityProvider: SimpleBuyEligibilityProvider by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val analytics: Analytics by inject()
-    private val accountsSorting: AccountsSorting by inject()
+    private val accountsSorting: AccountsSorting by scopedInject()
     private val txLauncher: TransactionLauncher by inject()
 
     private val compositeDisposable = CompositeDisposable()
@@ -270,6 +270,7 @@ class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
 
     private fun startSellFlow(it: CryptoAccount) {
         txLauncher.startFlow(
+            activity = requireActivity(),
             sourceAccount = it,
             action = AssetAction.Sell,
             fragmentManager = fragmentManager ?: return,
@@ -278,7 +279,7 @@ class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
         analytics.logEvent(BuySellViewedEvent(BuySellType.SELL))
     }
 
-    private fun supportedCryptoCurrencies(): Single<List<CryptoCurrency>> {
+    private fun supportedCryptoCurrencies(): Single<List<AssetInfo>> {
         val availableFiats =
             custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency)
         return custodialWalletManager.getSupportedBuySellCryptoCurrencies()

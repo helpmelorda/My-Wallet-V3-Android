@@ -1,12 +1,13 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import info.blockchain.balance.Money
 import info.blockchain.wallet.prices.data.PriceDatum
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AvailableActions
 import piuk.blockchain.android.coincore.BlockchainAccount
@@ -35,6 +36,7 @@ data class AssetDetailsState(
     val selectedAccountFiatBalance: Money? = null,
     val navigateToInterestDashboard: Boolean = false,
     val selectedRecurringBuy: RecurringBuy? = null,
+    val paymentId: String? = null,
     val stepsBackStack: Stack<AssetDetailsStep> = Stack()
 ) : MviState
 
@@ -62,7 +64,7 @@ class AssetDetailsModel(
         Timber.d("***> performAction: ${intent.javaClass.simpleName}")
 
         return when (intent) {
-            is ShowRelevantAssetDetailsSheet -> interactor.shouldShowCustody(intent.cryptoCurrency)
+            is ShowRelevantAssetDetailsSheet -> interactor.shouldShowCustody(intent.asset)
                 .subscribeBy(
                     onSuccess = {
                         if (it) {
@@ -89,6 +91,11 @@ class AssetDetailsModel(
                     deleteRecurringBuy(it.id)
                 }
             }
+            is GetPaymentDetails -> {
+                previousState.selectedRecurringBuy?.let {
+                    loadPaymentDetails(it.paymentMethodType, it.paymentMethodId.orEmpty(), it.amount.currencyCode)
+                }
+            }
             is HandleActionIntent,
             is ChartLoading,
             is ChartDataLoaded,
@@ -112,9 +119,26 @@ class AssetDetailsModel(
             is ShowRecurringBuySheet,
             is ClearSelectedRecurringBuy,
             is UpdateRecurringBuy,
-            is UpdateRecurringBuyError -> null
+            is UpdateRecurringBuyError,
+            is UpdatePaymentDetails -> null
         }
     }
+
+    private fun loadPaymentDetails(
+        paymentMethodType: PaymentMethodType,
+        paymentMethodId: String,
+        originCurrency: String
+    ) =
+        interactor.loadPaymentDetails(
+            paymentMethodType,
+            paymentMethodId,
+            originCurrency
+        )
+            .subscribeBy(
+                onSuccess = {
+                    process(UpdatePaymentDetails(it))
+                }
+            )
 
     private fun deleteRecurringBuy(id: String) =
         interactor.deleteRecurringBuy(id)
@@ -147,7 +171,7 @@ class AssetDetailsModel(
                 })
 
     private fun loadRecurringBuysForAsset(asset: CryptoAsset): Disposable =
-        interactor.loadRecurringBuysForAsset(asset.asset.networkTicker)
+        interactor.loadRecurringBuysForAsset(asset.asset.ticker)
             .subscribeBy(
                 onSuccess = { list ->
                     process(RecurringBuyDataLoaded(list.map { it.id to it }.toMap()))

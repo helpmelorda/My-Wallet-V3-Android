@@ -6,11 +6,13 @@ import com.blockchain.testutils.ether
 import com.blockchain.testutils.lumens
 import com.blockchain.testutils.rxInit
 import com.blockchain.testutils.usd
-import com.nhaarman.mockito_kotlin.whenever
+import info.blockchain.balance.AssetCatalogue
+import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Single
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.mock
+import io.reactivex.rxjava3.core.Single
+import org.amshove.kluent.`should be equal to`
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import piuk.blockchain.androidcore.data.exchangerate.datastore.ExchangeRateDataStore
@@ -22,6 +24,7 @@ class ExchangeRateDataManagerTest {
 
     private lateinit var subject: ExchangeRateDataManager
     private val exchangeRateDataStore: ExchangeRateDataStore = mock()
+    private val assetCatalogue: AssetCatalogue = mock()
     private val rxBus: RxBus = mock()
 
     @get:Rule
@@ -32,8 +35,9 @@ class ExchangeRateDataManagerTest {
     @Before
     fun setUp() {
         subject = ExchangeRateDataManager(
-            exchangeRateDataStore,
-            rxBus
+            exchangeRateDataStore = exchangeRateDataStore,
+            assetCatalogue = assetCatalogue,
+            rxBus = rxBus
         )
     }
 
@@ -45,7 +49,7 @@ class ExchangeRateDataManagerTest {
             .values()
             .first()
             .apply {
-                this `should equal` 8100.37.usd()
+                this `should be equal to` 8100.37.usd()
             }
     }
 
@@ -53,60 +57,60 @@ class ExchangeRateDataManagerTest {
     fun `BTC toFiat`() {
         givenExchangeRate(CryptoCurrency.BTC, "USD", 5000.0)
 
-        0.01.bitcoin().toFiat(subject, "USD") `should equal` 50.usd()
+        0.01.bitcoin().toFiat(subject, "USD") `should be equal to` 50.usd()
     }
 
     @Test
     fun `BCH toFiat`() {
         givenExchangeRate(CryptoCurrency.BCH, "USD", 1000.0)
 
-        0.1.bitcoinCash().toFiat(subject, "USD") `should equal` 100.usd()
+        0.1.bitcoinCash().toFiat(subject, "USD") `should be equal to` 100.usd()
     }
 
     @Test
     fun `ETH toFiat`() {
         givenExchangeRate(CryptoCurrency.ETHER, "USD", 1000.0)
 
-        2.ether().toFiat(subject, "USD") `should equal` 2000.usd()
+        2.ether().toFiat(subject, "USD") `should be equal to` 2000.usd()
     }
 
     @Test
     fun `USD toCrypto BTC`() {
         givenExchangeRate(CryptoCurrency.BTC, "USD", 5000.0)
 
-        50.usd().toCrypto(subject, CryptoCurrency.BTC) `should equal` 0.01.bitcoin()
+        50.usd().toCrypto(subject, CryptoCurrency.BTC) `should be equal to` 0.01.bitcoin()
     }
 
     @Test
     fun `USD toCrypto BCH`() {
         givenExchangeRate(CryptoCurrency.BCH, "USD", 1000.0)
 
-        100.usd().toCrypto(subject, CryptoCurrency.BCH) `should equal` 0.1.bitcoinCash()
+        100.usd().toCrypto(subject, CryptoCurrency.BCH) `should be equal to` 0.1.bitcoinCash()
     }
 
     @Test
     fun `USD toCrypto ETHER`() {
         givenExchangeRate(CryptoCurrency.ETHER, "USD", 1000.0)
 
-        2000.usd().toCrypto(subject, CryptoCurrency.ETHER) `should equal` 2.ether()
+        2000.usd().toCrypto(subject, CryptoCurrency.ETHER) `should be equal to` 2.ether()
     }
 
     @Test
     fun `toCrypto when no rate, but zero anyway`() {
-        0.usd().toCrypto(subject, CryptoCurrency.ETHER) `should equal` 0.ether()
-        0.usd().toCryptoOrNull(subject, CryptoCurrency.ETHER) `should equal` 0.ether()
+        0.usd().toCrypto(subject, CryptoCurrency.ETHER) `should be equal to` 0.ether()
+        0.usd().toCryptoOrNull(subject, CryptoCurrency.ETHER) `should be equal to` 0.ether()
     }
 
     @Test
     fun `toCrypto when no rate, but not zero`() {
-        1.usd().toCrypto(subject, CryptoCurrency.BCH) `should equal` 0.bitcoinCash()
-        1.usd().toCryptoOrNull(subject, CryptoCurrency.BCH) `should equal` null
+        1.usd().toCrypto(subject, CryptoCurrency.BCH) `should be equal to` 0.bitcoinCash()
+        1.usd().toCryptoOrNull(subject, CryptoCurrency.BCH) `should be equal to` null
     }
 
     @Test
     fun `toCrypto yields full precision of the currency - BTC`() {
         givenExchangeRate(CryptoCurrency.BTC, "USD", 5610.82)
-        1000.82.usd().toCrypto(subject, CryptoCurrency.BTC) `should equal` 0.17837321.bitcoin()
+        1000.82.usd().toCrypto(subject, CryptoCurrency.BTC) `should be equal to` 0.17837321.bitcoin()
     }
 
     @Test
@@ -115,23 +119,23 @@ class ExchangeRateDataManagerTest {
         val expected = BigDecimal("0.178372896701557526").ether()
 
         val result = BigDecimal(1000.82).usd().toCrypto(subject, CryptoCurrency.ETHER)
-        result `should equal` expected
+        result `should be equal to` expected
     }
 
     @Test
     fun `toCrypto yields full precision of the currency - XLM`() {
         givenExchangeRate(CryptoCurrency.XLM, "USD", 5610.82)
-        1000.82.usd().toCrypto(subject, CryptoCurrency.XLM) `should equal` 0.1783732.lumens()
+        1000.82.usd().toCrypto(subject, CryptoCurrency.XLM) `should be equal to` 0.1783732.lumens()
     }
 
     @Test
     fun `toCrypto rounds up on half`() {
         givenExchangeRate(CryptoCurrency.BTC, "USD", 9.0)
-        5.usd().toCrypto(subject, CryptoCurrency.BTC) `should equal` 0.55555556.bitcoin()
+        5.usd().toCrypto(subject, CryptoCurrency.BTC) `should be equal to` 0.55555556.bitcoin()
     }
 
     private fun givenExchangeRate(
-        cryptoCurrency: CryptoCurrency,
+        cryptoCurrency: AssetInfo,
         currencyName: String,
         exchangeRate: Double
     ) {
@@ -139,7 +143,7 @@ class ExchangeRateDataManagerTest {
     }
 
     private fun givenHistoricExchangeRate(
-        cryptoCurrency: CryptoCurrency,
+        cryptoCurrency: AssetInfo,
         currencyName: String,
         time: Long,
         price: BigDecimal

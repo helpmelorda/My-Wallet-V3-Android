@@ -5,8 +5,8 @@ import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.service.TierService
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
-import io.reactivex.Single
-import io.reactivex.rxkotlin.zipWith
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.coincore.FeeLevel
 import piuk.blockchain.android.coincore.FeeSelection
 import piuk.blockchain.android.coincore.FiatAccount
@@ -84,6 +84,8 @@ class TradingSellTxEngine(
         // This engine only supports FeeLevel.None, so
         return Single.just(pendingTx)
     }
+
+    override fun feeInSourceCurrency(pendingTx: PendingTx): Money = pendingTx.feeAmount
 
     override val requireSecondPassword: Boolean
         get() = false

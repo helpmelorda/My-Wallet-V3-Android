@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.dashboard
 
-import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
 import org.junit.Test
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow

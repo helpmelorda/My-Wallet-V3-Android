@@ -12,14 +12,13 @@ import com.blockchain.nabu.datamanagers.RecurringBuyTransaction
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Singles
-import io.reactivex.rxkotlin.zipWith
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.AssetAction
@@ -33,6 +32,7 @@ import piuk.blockchain.android.coincore.TradeActivitySummaryItem
 import piuk.blockchain.android.coincore.TradingAccount
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.TxSourceState
+import piuk.blockchain.android.coincore.takeEnabledIf
 import piuk.blockchain.android.identity.Feature
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
@@ -40,15 +40,16 @@ import piuk.blockchain.androidcore.utils.extensions.mapList
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
 
-open class CustodialTradingAccount(
-    override val asset: CryptoCurrency,
+class CustodialTradingAccount(
+    override val asset: AssetInfo,
     override val label: String,
     override val exchangeRates: ExchangeRateDataManager,
     val custodialWalletManager: CustodialWalletManager,
     val isNoteSupported: Boolean = false,
     private val identity: UserIdentity,
     @Suppress("unused")
-    private val features: InternalFeatureFlagApi
+    private val features: InternalFeatureFlagApi,
+    override val baseActions: Set<AssetAction> = defaultActions
 ) : CryptoAccountBase(), TradingAccount {
 
     private val hasFunds = AtomicBoolean(false)
@@ -88,7 +89,7 @@ open class CustodialTradingAccount(
 
     override val accountBalance: Single<Money>
         get() = custodialWalletManager.getTotalBalanceForAsset(asset)
-            .toSingle(CryptoValue.zero(asset))
+            .defaultIfEmpty(CryptoValue.zero(asset))
             .onErrorReturn {
                 Timber.d("Unable to get custodial trading total balance: $it")
                 CryptoValue.zero(asset)
@@ -98,7 +99,7 @@ open class CustodialTradingAccount(
 
     override val actionableBalance: Single<Money>
         get() = custodialWalletManager.getActionableBalanceForAsset(asset)
-            .toSingle(CryptoValue.zero(asset))
+            .defaultIfEmpty(CryptoValue.zero(asset))
             .onErrorReturn {
                 Timber.d("Unable to get custodial trading actionable balance: $it")
                 CryptoValue.zero(asset)
@@ -108,7 +109,7 @@ open class CustodialTradingAccount(
 
     override val pendingBalance: Single<Money>
         get() = custodialWalletManager.getPendingBalanceForAsset(asset)
-            .toSingle(CryptoValue.zero(asset))
+            .defaultIfEmpty(CryptoValue.zero(asset))
             .map { it }
 
     override val activity: Single<ActivitySummaryList>
@@ -130,7 +131,7 @@ open class CustodialTradingAccount(
         false // Default is, presently, only ever a non-custodial account.
 
     override val sourceState: Single<TxSourceState>
-        get() = Singles.zip(
+        get() = Single.zip(
             accountBalance,
             actionableBalance
         ) { total, actionable ->
@@ -143,24 +144,34 @@ open class CustodialTradingAccount(
 
     override val actions: Single<AvailableActions>
         get() =
-            Singles.zip(
+            Single.zip(
                 accountBalance.map { it.isPositive },
                 actionableBalance.map { it.isPositive },
                 identity.isEligibleFor(Feature.SimpleBuy),
                 identity.isEligibleFor(Feature.Interest(asset)),
                 custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() }
             ) { hasFunds, hasActionableBalance, isEligibleForSimpleBuy, isEligibleForInterest, fiatAccounts ->
+                val isActiveFunded = !isArchived && hasFunds
 
-                val activity = AssetAction.ViewActivity
-                val send = AssetAction.Send.takeIf { !isArchived && hasActionableBalance }
-                val interest = AssetAction.InterestDeposit.takeIf { !isArchived && isEligibleForInterest }
-                val swap = AssetAction.Swap.takeIf { !isArchived && hasFunds && isEligibleForSimpleBuy }
-                val sell = AssetAction.Sell.takeIf {
-                    !isArchived && hasFunds && isEligibleForSimpleBuy && fiatAccounts.isNotEmpty()
+                val activity = AssetAction.ViewActivity.takeEnabledIf(baseActions)
+                val receive = AssetAction.Receive.takeEnabledIf(baseActions)
+                val buy = AssetAction.Buy.takeEnabledIf(baseActions)
+
+                val send = AssetAction.Send.takeEnabledIf(baseActions) {
+                    isActiveFunded && hasActionableBalance
                 }
-                val receive = AssetAction.Receive
+                val interest = AssetAction.InterestDeposit.takeEnabledIf(baseActions) {
+                    isActiveFunded && isEligibleForInterest
+                }
+                val swap = AssetAction.Swap.takeEnabledIf(baseActions) {
+                    isActiveFunded && isEligibleForSimpleBuy
+                }
+                val sell = AssetAction.Sell.takeEnabledIf(baseActions) {
+                    isActiveFunded && isEligibleForSimpleBuy && fiatAccounts.isNotEmpty()
+                }
+
                 setOfNotNull(
-                    AssetAction.Buy, sell, swap, send, receive, interest, activity
+                    buy, sell, swap, send, receive, interest, activity
                 )
             }
 
@@ -168,9 +179,9 @@ open class CustodialTradingAccount(
 
     private fun appendTransferActivity(
         custodialWalletManager: CustodialWalletManager,
-        asset: CryptoCurrency,
+        asset: AssetInfo,
         summaryList: List<ActivitySummaryItem>
-    ) = custodialWalletManager.getCustodialCryptoTransactions(asset.networkTicker, Product.BUY)
+    ) = custodialWalletManager.getCustodialCryptoTransactions(asset.ticker, Product.BUY)
         .map { txs ->
             txs.map {
                 it.toSummaryItem()
@@ -179,7 +190,7 @@ open class CustodialTradingAccount(
 
     private fun CryptoTransaction.toSummaryItem() =
         CustodialTransferActivitySummaryItem(
-            cryptoCurrency = asset,
+            asset = asset,
             exchangeRates = exchangeRates,
             txId = id,
             timeStampMs = date.time,
@@ -197,7 +208,7 @@ open class CustodialTradingAccount(
         if (order.type == OrderType.BUY) {
             CustodialTradingActivitySummaryItem(
                 exchangeRates = exchangeRates,
-                cryptoCurrency = order.crypto.currency,
+                asset = order.crypto.currency,
                 value = order.crypto,
                 fundedFiat = order.fiat,
                 txId = order.id,
@@ -237,13 +248,14 @@ open class CustodialTradingAccount(
     private fun orderToSummary(order: RecurringBuyTransaction): ActivitySummaryItem =
         RecurringBuyActivitySummaryItem(
             exchangeRates = exchangeRates,
-            cryptoCurrency = order.destinationMoney.currency,
+            asset = order.destinationMoney.currency,
             txId = order.id,
             timeStampMs = order.insertedAt.time,
             account = this,
             value = order.originMoney,
             destinationMoney = order.destinationMoney,
-            state = order.state,
+            recurringBuyState = order.recurringBuyState,
+            transactionState = order.transactionState,
             failureReason = order.failureReason,
             nextPayment = order.nextPayment,
             insertedAt = order.insertedAt,

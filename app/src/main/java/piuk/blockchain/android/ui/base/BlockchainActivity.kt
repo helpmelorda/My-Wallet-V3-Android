@@ -11,19 +11,18 @@ import androidx.appcompat.app.AlertDialog
 import androidx.viewbinding.ViewBinding
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.SecurityPrefs
-import com.blockchain.ui.ActivityIndicator
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
+import piuk.blockchain.android.util.ActivityIndicator
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.access.LogoutTimer
-import piuk.blockchain.androidcoreui.ApplicationLifeCycle
-import piuk.blockchain.androidcoreui.ui.base.ToolBarActivity
+import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
 
 /**
  * A base Activity for all activities which need auth timeouts & screenshot prevention

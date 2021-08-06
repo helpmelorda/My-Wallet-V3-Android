@@ -3,13 +3,13 @@ package piuk.blockchain.android.coincore.impl.txEngine
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.PaymentLimits
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatValue
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Single
+
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -62,7 +62,7 @@ class FiatDepositTxEngineTest {
     fun `inputs fail validation when source Account incorrect`() {
         val sourceAccount: FiatAccount = mock()
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         // Act
@@ -96,10 +96,10 @@ class FiatDepositTxEngineTest {
         whenever(walletManager.getBankTransferLimits(SELECTED_FIAT, true)).thenReturn(Single.just(limits))
 
         val sourceAccount: LinkedBankAccount = mock {
-            on { fiatCurrency } itReturns SELECTED_FIAT
+            on { fiatCurrency }.thenReturn(SELECTED_FIAT)
         }
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         // Act
@@ -135,7 +135,7 @@ class FiatDepositTxEngineTest {
     fun `update amount modifies the pendingTx correctly`() {
         val sourceAccount: LinkedBankAccount = mock()
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -176,7 +176,7 @@ class FiatDepositTxEngineTest {
     fun `validate amount when pendingTx uninitialised`() {
         val sourceAccount: LinkedBankAccount = mock()
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -215,7 +215,7 @@ class FiatDepositTxEngineTest {
     fun `validate amount when limits not set`() {
         val sourceAccount: LinkedBankAccount = mock()
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -252,7 +252,7 @@ class FiatDepositTxEngineTest {
     fun `validate amount when under min limit`() {
         val sourceAccount: LinkedBankAccount = mock()
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -292,7 +292,7 @@ class FiatDepositTxEngineTest {
     fun `validate amount when over max limit`() {
         val sourceAccount: LinkedBankAccount = mock()
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -332,7 +332,7 @@ class FiatDepositTxEngineTest {
     fun `validate amount when correct`() {
         val sourceAccount: LinkedBankAccount = mock()
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -374,10 +374,10 @@ class FiatDepositTxEngineTest {
     fun `executing tx works`() {
         val bankAccountAddress = LinkedBankAccount.BankAccountAddress("address", "label")
         val sourceAccount: LinkedBankAccount = mock {
-            on { receiveAddress } itReturns Single.just(bankAccountAddress)
+            on { receiveAddress }.thenReturn(Single.just(bankAccountAddress))
         }
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(
@@ -424,10 +424,10 @@ class FiatDepositTxEngineTest {
     fun `executing tx throws exception`() {
         val bankAccountAddress = LinkedBankAccount.BankAccountAddress("address", "label")
         val sourceAccount: LinkedBankAccount = mock {
-            on { receiveAddress } itReturns Single.just(bankAccountAddress)
+            on { receiveAddress }.thenReturn(Single.just(bankAccountAddress))
         }
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
         }
 
         subject.start(

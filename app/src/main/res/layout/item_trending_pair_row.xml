@@ -39,7 +39,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/trending_icon_type"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/vector_bitcoin_colored" />
+        tools:src="@drawable/ic_default_asset_logo" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/trending_icon_out"
@@ -48,7 +48,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/vector_eth_colored" />
+        tools:src="@drawable/ic_default_asset_logo" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/trending_icon_type"

@@ -2,17 +2,17 @@ package piuk.blockchain.android.coincore
 
 import com.blockchain.logging.CrashLogger
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.percentageDelta
 import info.blockchain.wallet.prices.TimeAgo
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.zipWith
-import piuk.blockchain.android.coincore.alg.AlgoCryptoWalletAccount
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.impl.AllWalletsAccount
 import piuk.blockchain.android.coincore.impl.TxProcessorFactory
+import piuk.blockchain.android.coincore.loader.AssetCatalogueImpl
+import piuk.blockchain.android.coincore.loader.AssetLoader
 import piuk.blockchain.android.ui.sell.ExchangePriceWithDelta
 import piuk.blockchain.android.ui.transfer.AccountsSorter
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -21,36 +21,45 @@ import timber.log.Timber
 private class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e)
 
 class Coincore internal constructor(
+    private val fixedAssets: List<CryptoAsset>,
+    private val assetCatalogue: AssetCatalogueImpl,
+    private val assetLoader: AssetLoader,
     // TODO: Build an interface on PayloadDataManager/PayloadManager for 'global' crypto calls; second password etc?
     private val payloadManager: PayloadDataManager,
-    private val assetLoader: AssetLoader,
     private val txProcessorFactory: TxProcessorFactory,
     private val defaultLabels: DefaultLabels,
     private val fiatAsset: Asset,
     private val crashLogger: CrashLogger
 ) {
 
-    private val assetMap: Map<CryptoCurrency, CryptoAsset>
-        get() = assetLoader.assetMap
+    private lateinit var assetMap: Map<AssetInfo, CryptoAsset>
 
-    operator fun get(ccy: CryptoCurrency): CryptoAsset =
+    operator fun get(ccy: AssetInfo): CryptoAsset =
         assetMap[ccy] ?: throw IllegalArgumentException(
-            "Unknown CryptoCurrency ${ccy.networkTicker}"
+            "Unknown CryptoCurrency ${ccy.ticker}"
         )
 
     fun init(): Completable =
+        assetCatalogue.initialise(fixedAssets.map { it.asset }.toSet())
+            .flatMap { assetLoader.loadDynamicAssets(it) }
+            .map { fixedAssets + it }
+            .doOnSuccess { assetList -> assetMap = assetList.associateBy { it.asset } }
+            .flatMapCompletable { assetList -> initAssets(assetList) }
+            .doOnError {
+                Timber.e("Coincore initialisation failed! $it")
+            }
+
+    private fun initAssets(assetList: List<CryptoAsset>): Completable =
         Completable.concat(
-            assetMap.values.map { asset ->
+            assetList.map { asset ->
                 Completable.defer { asset.init() }
                     .doOnError {
                         crashLogger.logException(
-                            CoincoreInitFailure("Failed init: ${asset.asset.networkTicker}", it)
+                            CoincoreInitFailure("Failed init: ${asset.asset.ticker}", it)
                         )
                     }
             }.toList()
-        ).doOnError {
-            Timber.e("Coincore initialisation failed! $it")
-        }
+        )
 
     val fiatAssets: Asset
         get() = fiatAsset
@@ -104,7 +113,7 @@ class Coincore internal constructor(
 
         val fiatTargets = fiatAsset.accountGroup(AssetFilter.All).map {
             it.accounts
-        }.toSingle(emptyList())
+        }.defaultIfEmpty(emptyList())
 
         val sameCurrencyPlusFiat = sameCurrencyTransactionTargets.zipWith(fiatTargets) { crypto, fiat ->
             crypto + fiat
@@ -120,7 +129,10 @@ class Coincore internal constructor(
         }
     }
 
-    private fun getActionFilter(action: AssetAction, sourceAccount: CryptoAccount): (SingleAccount) -> Boolean =
+    private fun getActionFilter(
+        action: AssetAction,
+        sourceAccount: CryptoAccount
+    ): (SingleAccount) -> Boolean =
         when (action) {
             AssetAction.Sell -> {
                 {
@@ -134,8 +146,6 @@ class Coincore internal constructor(
                         it.asset != sourceAccount.asset &&
                         it !is FiatAccount &&
                         it !is InterestAccount &&
-                        // fixme special case we should remove once receive is implemented
-                        it !is AlgoCryptoWalletAccount &&
                         if (sourceAccount.isCustodial()) it.isCustodial() else true
                 }
             }
@@ -155,10 +165,10 @@ class Coincore internal constructor(
         }
 
     fun findAccountByAddress(
-        cryptoCurrency: CryptoCurrency,
+        asset: AssetInfo,
         address: String
     ): Maybe<SingleAccount> =
-        filterAccountsByAddress(assetMap.getValue(cryptoCurrency).accountGroup(AssetFilter.All), address)
+        filterAccountsByAddress(assetMap.getValue(asset).accountGroup(AssetFilter.All), address)
 
     private fun filterAccountsByAddress(
         accountGroup: Maybe<AccountGroup>,
@@ -182,7 +192,7 @@ class Coincore internal constructor(
             .toList()
             .flatMapMaybe {
                 if (it.isEmpty())
-                    Maybe.empty<SingleAccount>()
+                    Maybe.empty()
                 else
                     Maybe.just(it.first())
             }
@@ -198,10 +208,10 @@ class Coincore internal constructor(
             action
         )
 
-    fun getExchangePriceWithDelta(cryptoCurrency: CryptoCurrency): Single<ExchangePriceWithDelta> =
-        this[cryptoCurrency].exchangeRate().zipWith(
-            this[cryptoCurrency].historicRate(TimeAgo.ONE_DAY.epoch)
-        ).map { (currentPrice, price24h) ->
+    fun getExchangePriceWithDelta(asset: AssetInfo): Single<ExchangePriceWithDelta> =
+        this[asset].exchangeRate().zipWith(
+            this[asset].historicRate(TimeAgo.ONE_DAY.epoch)
+        ) { currentPrice, price24h ->
             val price = currentPrice.percentageDelta(price24h)
             ExchangePriceWithDelta(currentPrice.price(), price)
         }
@@ -216,4 +226,7 @@ class Coincore internal constructor(
             .filter { a -> a.label.compareTo(label, true) == 0 }
             .toList()
             .map { it.isEmpty() }
+
+    // "Active" means funded, but this is not yet supported until erc20 scaling is complete TODO
+    fun activeCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets
 }

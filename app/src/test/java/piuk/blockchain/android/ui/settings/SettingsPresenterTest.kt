@@ -10,22 +10,22 @@ import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.remoteconfig.FeatureFlag
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.times
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.settings.SettingsManager
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.mock
+
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -125,10 +125,10 @@ class SettingsPresenterTest {
     fun onViewReadySuccess() {
         // Arrange
         val mockSettings: Settings = mock {
-            on { isNotificationsOn } `it returns` true
-            on { notificationsType } `it returns` listOf(1, 32)
-            on { smsNumber } `it returns` "sms"
-            on { email } `it returns` "email"
+            on { isNotificationsOn }.thenReturn(true)
+            on { notificationsType }.thenReturn(listOf(1, 32))
+            on { smsNumber }.thenReturn("sms")
+            on { email }.thenReturn("email")
         }
 
         whenever(settingsDataManager.fetchSettings()).thenReturn(Observable.just(mockSettings))
@@ -584,6 +584,7 @@ class SettingsPresenterTest {
         val pin = "PIN"
         whenever(accessState.pin).thenReturn(pin)
         whenever(authDataManager.createPin(newPassword, pin)).thenReturn(Completable.complete())
+        whenever(authDataManager.verifyCloudBackup()).thenReturn(Completable.complete())
         whenever(payloadDataManager.syncPayloadWithServer()).thenReturn(Completable.complete())
 
         // Act
@@ -607,6 +608,7 @@ class SettingsPresenterTest {
         whenever(accessState.pin).thenReturn(pin)
         whenever(authDataManager.createPin(newPassword, pin))
             .thenReturn(Completable.error(Throwable()))
+        whenever(authDataManager.verifyCloudBackup()).thenReturn(Completable.complete())
         whenever(payloadDataManager.syncPayloadWithServer()).thenReturn(Completable.complete())
 
         // Act

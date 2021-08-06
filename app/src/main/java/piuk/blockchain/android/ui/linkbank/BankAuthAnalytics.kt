@@ -6,6 +6,7 @@ import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
 import java.io.Serializable
+import java.util.Locale
 
 enum class BankAuthAnalytics(
     override val event: String,
@@ -109,3 +110,10 @@ fun bankAuthEvent(event: BankAuthAnalytics, partner: BankPartner): AnalyticsEven
             "partner" to BankPartnerTypes.toAnalyticsType(partner)
         )
     }
+
+fun String.toAnalyticsBankProvider() =
+    when {
+        this.toLowerCase(Locale.ROOT).contains("safeconnect") -> "SAFE_CONNECT"
+        this.toLowerCase(Locale.ROOT).contains("fintecture") -> "FINTECTURE"
+        else -> this
+}

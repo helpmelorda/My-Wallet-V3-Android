@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.bch
 
+import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.CryptoCurrency
@@ -14,9 +15,9 @@ import info.blockchain.wallet.payload.model.Utxo
 import info.blockchain.wallet.payment.Payment
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import info.blockchain.wallet.util.FormatsUtil
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Singles
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 import org.bitcoinj.core.Transaction
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.android.coincore.AssetAction
@@ -34,7 +35,6 @@ import piuk.blockchain.android.coincore.impl.txEngine.EngineTransaction
 import piuk.blockchain.android.coincore.impl.txEngine.OnChainTxEngineBase
 import piuk.blockchain.android.coincore.updateTxValidity
 import piuk.blockchain.android.ui.transactionflow.flow.FeeInfo
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
@@ -134,7 +134,7 @@ class BchOnChainTxEngine(
         val changeOutputType = payloadDataManager.getXpubFormatOutputType(XPub.Format.LEGACY)
 
         val available = sendDataManager.getMaximumAvailable(
-            cryptoCurrency = sourceAsset,
+            asset = sourceAsset,
             targetOutputType = targetOutputType,
             unspentCoins = coins,
             feePerKb = feePerKb

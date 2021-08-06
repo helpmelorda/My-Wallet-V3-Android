@@ -1,6 +1,6 @@
 package com.blockchain.sunriver
 
-import com.nhaarman.mockito_kotlin.argThat
+import com.nhaarman.mockitokotlin2.argThat
 import org.stellar.sdk.KeyPair
 import java.util.Arrays
 

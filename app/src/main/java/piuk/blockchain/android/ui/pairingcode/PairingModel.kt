@@ -2,18 +2,18 @@ package piuk.blockchain.android.ui.pairingcode
 
 import android.graphics.Bitmap
 import com.blockchain.logging.CrashLogger
-import io.reactivex.Scheduler
-import io.reactivex.Single
-import io.reactivex.disposables.Disposable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.Disposable
 import okhttp3.ResponseBody
 import piuk.blockchain.android.scan.QrCodeDataManager
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcoreui.utils.logging.Logging
-import piuk.blockchain.androidcoreui.utils.logging.PairingMethod
-import piuk.blockchain.androidcoreui.utils.logging.pairingEvent
+import com.blockchain.notifications.analytics.Logging
+import com.blockchain.notifications.analytics.PairingMethod
+import com.blockchain.notifications.analytics.pairingEvent
 
 class PairingModel(
     initialState: PairingState,

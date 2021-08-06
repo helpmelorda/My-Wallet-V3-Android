@@ -3,7 +3,7 @@ package info.blockchain.balance
 import info.blockchain.balance.Money.Companion.max
 import info.blockchain.balance.Money.Companion.min
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should throw the Exception`
+import org.amshove.kluent.`should throw`
 import org.amshove.kluent.`with message`
 import org.junit.Test
 
@@ -57,7 +57,7 @@ class CryptoValueMinAndMaxTest {
         val b = 2.satoshiCash();
         {
             max(a, b)
-        } `should throw the Exception` Exception::class `with message` "Can't compare BTC and BCH"
+        } `should throw` Exception::class `with message` "Can't compare BTC and BCH"
     }
 
     @Test
@@ -66,6 +66,6 @@ class CryptoValueMinAndMaxTest {
         val b = 2.satoshi();
         {
             min(a, b)
-        } `should throw the Exception` Exception::class `with message` "Can't compare ETH and BTC"
+        } `should throw` Exception::class `with message` "Can't compare ETH and BTC"
     }
 }

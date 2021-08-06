@@ -19,7 +19,7 @@ import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.YapilyAttributes
-import com.blockchain.ui.urllinks.URL_YODLEE_SUPPORT_LEARN_MORE
+import piuk.blockchain.android.urllinks.URL_YODLEE_SUPPORT_LEARN_MORE
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentLinkABankBinding
@@ -28,10 +28,10 @@ import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedDrawable
 
 class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthState, FragmentLinkABankBinding>() {
 

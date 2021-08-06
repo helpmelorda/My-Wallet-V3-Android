@@ -7,7 +7,6 @@ import com.blockchain.koin.gbp
 import com.blockchain.koin.interestAccountFeatureFlag
 import com.blockchain.koin.moshiExplorerRetrofit
 import com.blockchain.koin.mwaFeatureFlag
-import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.usd
 import com.blockchain.logging.DigitalTrust
@@ -20,18 +19,13 @@ import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.DefaultLabels
 import com.google.gson.GsonBuilder
 import info.blockchain.wallet.metadata.MetadataDerivation
-import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import okhttp3.OkHttpClient
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.cards.CardModel
 import piuk.blockchain.android.cards.partners.EverypayCardActivator
-import piuk.blockchain.android.coincore.AssetOrdering
-import piuk.blockchain.android.coincore.AssetResources
-import piuk.blockchain.android.coincore.OfflineAccountCache
-import piuk.blockchain.android.coincore.impl.AssetResourcesImpl
-import piuk.blockchain.android.coincore.impl.OfflineBalanceCall
 import piuk.blockchain.android.data.api.bitpay.BitPayDataManager
 import piuk.blockchain.android.data.api.bitpay.BitPayService
 import piuk.blockchain.android.data.biometrics.BiometricAuth
@@ -47,15 +41,15 @@ import piuk.blockchain.android.identity.NabuUserIdentity
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
-import piuk.blockchain.android.remoteconfig.AssetOrderingRemoteConfig
 import piuk.blockchain.android.scan.QrCodeDataManager
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.EURPaymentAccountMapper
 import piuk.blockchain.android.simplebuy.GBPPaymentAccountMapper
 import piuk.blockchain.android.simplebuy.SimpleBuyFlowNavigator
-import piuk.blockchain.android.simplebuy.SimpleBuyInflateAdapter
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
 import piuk.blockchain.android.simplebuy.SimpleBuyModel
+import piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializer
+import piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializerImpl
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.simplebuy.USDPaymentAccountMapper
@@ -69,13 +63,10 @@ import piuk.blockchain.android.ui.auth.FirebaseMobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.PinEntryPresenter
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedPresenter
-import piuk.blockchain.android.ui.backup.start.BackupWalletStartingPresenter
 import piuk.blockchain.android.ui.backup.verify.BackupVerifyPresenter
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListPresenter
 import piuk.blockchain.android.ui.createwallet.CreateWalletPresenter
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
-import piuk.blockchain.android.ui.customviews.SwapTrendingPairsProvider
-import piuk.blockchain.android.ui.customviews.TrendingPairsProvider
 import piuk.blockchain.android.ui.customviews.dialogs.OverlayDetection
 import piuk.blockchain.android.ui.dashboard.BalanceAnalyticsReporter
 import piuk.blockchain.android.ui.dashboard.DashboardInteractor
@@ -97,22 +88,30 @@ import piuk.blockchain.android.ui.linkbank.BankAuthState
 import piuk.blockchain.android.ui.onboarding.OnboardingPresenter
 import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
+import piuk.blockchain.android.ui.backup.start.BackupWalletStartingInteractor
+import piuk.blockchain.android.ui.backup.start.BackupWalletStartingModel
+import piuk.blockchain.android.ui.backup.start.BackupWalletStartingState
 import piuk.blockchain.android.ui.pairingcode.PairingModel
 import piuk.blockchain.android.ui.pairingcode.PairingState
 import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
 import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
+import piuk.blockchain.android.ui.recurringbuy.data.TradeRepositoryImpl
+import piuk.blockchain.android.ui.recurringbuy.domain.TradeRepository
+import piuk.blockchain.android.ui.recurringbuy.domain.usecases.IsFirstTimeBuyerUseCase
+import piuk.blockchain.android.ui.reset.ResetAccountModel
+import piuk.blockchain.android.ui.reset.ResetAccountState
+import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
 import piuk.blockchain.android.ui.settings.SettingsPresenter
 import piuk.blockchain.android.ui.transfer.receive.ReceiveIntentHelper
 import piuk.blockchain.android.ui.shortcuts.receive.ReceiveQrPresenter
 import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
-import piuk.blockchain.android.ui.swipetoreceive.LocalOfflineAccountCache
-import piuk.blockchain.android.ui.swipetoreceive.SwipeToReceivePresenter
 import piuk.blockchain.android.ui.thepit.PitPermissionsPresenter
 import piuk.blockchain.android.ui.thepit.PitVerifyEmailPresenter
 import piuk.blockchain.android.ui.transfer.AccountsSorting
-import piuk.blockchain.android.ui.transfer.DefaultAccountsSorting
+import piuk.blockchain.android.ui.transfer.DashboardAccountsSorting
 import piuk.blockchain.android.ui.transfer.receive.ReceiveModel
 import piuk.blockchain.android.ui.transfer.receive.ReceiveState
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
@@ -128,8 +127,6 @@ import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.lifecycle.LifecycleInterestedComponent
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.utils.PrngFixer
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 
@@ -170,36 +167,17 @@ val applicationModule = module {
     }.bind(DigitalTrust::class)
 
     scope(payloadScopeQualifier) {
-        factory {
-            EthDataManager(
-                payloadDataManager = get(),
-                ethAccountApi = get(),
-                ethDataStore = get(),
-                erc20DataStore = get(),
-                walletOptionsDataManager = get(),
-                metadataManager = get(),
-                lastTxUpdater = get(),
-                rxBus = get()
-            )
-        }
-
-        factory {
-            BchDataManager(
-                payloadDataManager = get(),
-                bchDataStore = get(),
-                bitcoinApi = get(),
-                defaultLabels = get(),
-                metadataManager = get(),
-                rxBus = get(),
-                crashLogger = get()
-            )
-        }
 
         factory {
             SecondPasswordDialog(contextAccess = get(), payloadManager = get())
         }.bind(SecondPasswordHandler::class)
 
-        factory { KycStatusHelper(get(), get(), get(), get()) }
+        factory { KycStatusHelper(
+            nabuDataManager = get(),
+            nabuToken = get(),
+            settingsDataManager = get(),
+            tierService = get()
+        ) }
 
         scoped {
             CredentialsWiper(
@@ -263,15 +241,16 @@ val applicationModule = module {
             CoinsWebSocketStrategy(
                 coinsWebSocket = get(),
                 ethDataManager = get(),
+                erc20DataManager = get(),
+                bchDataManager = get(),
                 stringUtils = get(),
                 gson = get(),
                 payloadDataManager = get(),
-                bchDataManager = get(),
                 rxBus = get(),
                 prefs = get(),
                 appUtil = get(),
                 accessState = get(),
-                assetResources = get()
+                assetCatalogue = get()
             )
         }
 
@@ -333,7 +312,20 @@ val applicationModule = module {
         }
 
         factory {
-            BackupWalletStartingPresenter()
+            BackupWalletStartingInteractor(
+                prefs = get(),
+                settingsDataManager = get()
+            )
+        }
+
+        factory {
+            BackupWalletStartingModel(
+                initialState = BackupWalletStartingState(),
+                mainScheduler = AndroidSchedulers.mainThread(),
+                environmentConfig = get(),
+                crashLogger = get(),
+                interactor = get()
+            )
         }
 
         factory {
@@ -373,6 +365,15 @@ val applicationModule = module {
                 metadataInteractor = get(),
                 metadataDerivation = MetadataDerivation(),
                 nabuDataManager = get()
+            )
+        }
+
+        factory {
+            ResetAccountModel(
+                initialState = ResetAccountState(),
+                mainScheduler = AndroidSchedulers.mainThread(),
+                environmentConfig = get(),
+                crashLogger = get()
             )
         }
 
@@ -431,7 +432,11 @@ val applicationModule = module {
             )
         }
 
-        factory { DeepLinkPersistence(get()) }
+        factory {
+            DeepLinkPersistence(
+                prefs = get()
+            )
+        }
 
         factory {
             DashboardModel(
@@ -453,7 +458,6 @@ val applicationModule = module {
                 simpleBuyPrefs = get(),
                 analytics = get(),
                 crashLogger = get(),
-                assetOrdering = get(),
                 linkedBanksFactory = get()
             )
         }
@@ -498,14 +502,36 @@ val applicationModule = module {
                 initialState = SimpleBuyState(),
                 ratingPrefs = get(),
                 prefs = get(),
-                gson = get(),
+                serializer = get(),
                 cardActivators = listOf(
                     EverypayCardActivator(get(), get())
                 ),
                 environmentConfig = get(),
-                crashLogger = get()
+                crashLogger = get(),
+                isFirstTimeBuyerUseCase = get(),
+                featureFlagApi = get()
             )
         }
+
+        factory {
+            IsFirstTimeBuyerUseCase(
+                tradeRepository = get()
+            )
+        }
+
+        factory {
+            TradeRepositoryImpl(
+                tradeService = get(),
+                authenticator = get()
+            )
+        }.bind(TradeRepository::class)
+
+        factory {
+            SimpleBuyPrefsSerializerImpl(
+                prefs = get(),
+                assetCatalogue = get()
+            )
+        }.bind(SimpleBuyPrefsSerializer::class)
 
         factory {
             BankAuthModel(
@@ -552,20 +578,16 @@ val applicationModule = module {
         }
 
         scoped {
-            val inflateAdapter = SimpleBuyInflateAdapter(
-                prefs = get(),
-                gson = get()
-            )
-
             SimpleBuySyncFactory(
                 custodialWallet = get(),
-                localStateAdapter = inflateAdapter
+                serializer = get()
             )
         }
 
         factory {
             BalanceAnalyticsReporter(
-                analytics = get()
+                analytics = get(),
+                coincore = get()
             )
         }
 
@@ -672,7 +694,8 @@ val applicationModule = module {
 
         factory {
             BackupWalletCompletedPresenter(
-                walletStatus = get()
+                walletStatus = get(),
+                authDataManager = get()
             )
         }
 
@@ -726,6 +749,7 @@ val applicationModule = module {
             AirdropCentrePresenter(
                 nabuToken = get(),
                 nabu = get(),
+                assetCatalogue = get(),
                 crashLogger = get()
             )
         }
@@ -754,41 +778,20 @@ val applicationModule = module {
         }
 
         factory {
-            EmailVerifyInteractor(get())
+            EmailVerifyInteractor(emailUpdater = get())
         }
+
+        factory {
+            DashboardAccountsSorting(
+                dashboardPrefs = get(),
+                assetCatalogue = get()
+            )
+        }.bind(AccountsSorting::class)
     }
 
     factory {
         FirebaseMobileNoticeRemoteConfig(remoteConfig = get())
     }.bind(MobileNoticeRemoteConfig::class)
-
-    factory {
-        SwapTrendingPairsProvider(
-            coincore = payloadScope.get(),
-            eligibilityProvider = payloadScope.get()
-        )
-    }.bind(TrendingPairsProvider::class)
-
-    factory {
-        OfflineBalanceCall(
-            bitcoinApi = get()
-        )
-    }
-
-    factory {
-        SwipeToReceivePresenter(
-            qrGenerator = get(),
-            addressCache = get(),
-            offlineBalance = get()
-        )
-    }
-
-    single {
-        LocalOfflineAccountCache(
-            prefs = get(),
-            ordering = get()
-        )
-    }.bind(OfflineAccountCache::class)
 
     factory {
         QrCodeDataManager()
@@ -815,16 +818,12 @@ val applicationModule = module {
         )
     }
 
-    factory { ResourceDefaultLabels(get(), get()) }.bind(DefaultLabels::class)
-
-    factory { DefaultAccountsSorting(get()) }.bind(AccountsSorting::class)
-
     factory {
-        AssetOrderingRemoteConfig(
-            config = get(),
-            crashLogger = get()
+        ResourceDefaultLabels(
+            resources = get(),
+            assetResources = get()
         )
-    }.bind(AssetOrdering::class)
+    }.bind(DefaultLabels::class)
 
     single {
         OverlayDetection(get())
@@ -838,8 +837,7 @@ val applicationModule = module {
 
     factory {
         ReceiveIntentHelper(
-            context = get(),
-            assetResources = get()
+            context = get()
         )
     }
 

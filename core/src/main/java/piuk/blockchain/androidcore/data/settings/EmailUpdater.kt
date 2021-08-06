@@ -1,6 +1,6 @@
 package piuk.blockchain.androidcore.data.settings
 
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 data class Email(
     val address: String,

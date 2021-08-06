@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.kyc.search
 
-import io.reactivex.Observable
-import io.reactivex.functions.BiFunction
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.functions.BiFunction
 
 class ListQueryObservable<T>(
     private val queryObservable: Observable<CharSequence>,

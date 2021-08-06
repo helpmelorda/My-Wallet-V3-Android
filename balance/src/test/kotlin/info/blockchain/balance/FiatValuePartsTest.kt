@@ -1,6 +1,6 @@
 package info.blockchain.balance
 
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 import java.util.Locale
 
@@ -12,10 +12,10 @@ class FiatValuePartsTest {
 
         1.2.gbp()
             .toStringParts().apply {
-                symbol `should equal` "£"
-                major `should equal` "1"
-                minor `should equal` "20"
-                majorAndMinor `should equal` "1.20"
+                symbol `should be equal to` "£"
+                major `should be equal to` "1"
+                minor `should be equal to` "20"
+                majorAndMinor `should be equal to` "1.20"
             }
     }
 
@@ -25,10 +25,10 @@ class FiatValuePartsTest {
 
         9.89.usd()
             .toStringParts().apply {
-                symbol `should equal` "$"
-                major `should equal` "9"
-                minor `should equal` "89"
-                majorAndMinor `should equal` "9.89"
+                symbol `should be equal to` "$"
+                major `should be equal to` "9"
+                minor `should be equal to` "89"
+                majorAndMinor `should be equal to` "9.89"
             }
     }
 
@@ -38,10 +38,10 @@ class FiatValuePartsTest {
 
         5.86.usd()
             .toStringParts().apply {
-                symbol `should equal` "USD"
-                major `should equal` "5"
-                minor `should equal` "86"
-                majorAndMinor `should equal` "5.86"
+                symbol `should be equal to` "USD"
+                major `should be equal to` "5"
+                minor `should be equal to` "86"
+                majorAndMinor `should be equal to` "5.86"
             }
     }
 
@@ -51,10 +51,10 @@ class FiatValuePartsTest {
 
         512.jpy()
             .toStringParts().apply {
-                symbol `should equal` "￥"
-                major `should equal` "512"
-                minor `should equal` ""
-                majorAndMinor `should equal` "512"
+                symbol `should be equal to` "￥"
+                major `should be equal to` "512"
+                minor `should be equal to` ""
+                majorAndMinor `should be equal to` "512"
             }
     }
 
@@ -64,10 +64,10 @@ class FiatValuePartsTest {
 
         1512.99.usd()
             .toStringParts().apply {
-                symbol `should equal` "USD"
-                major `should equal` "1 512"
-                minor `should equal` "99"
-                majorAndMinor `should equal` "1 512,99"
+                symbol `should be equal to` "USD"
+                major `should be equal to` "1 512"
+                minor `should be equal to` "99"
+                majorAndMinor `should be equal to` "1 512,99"
             }
     }
 
@@ -77,10 +77,10 @@ class FiatValuePartsTest {
 
         2356.32.eur()
             .toStringParts().apply {
-                symbol `should equal` "€"
-                major `should equal` "2.356"
-                minor `should equal` "32"
-                majorAndMinor `should equal` "2.356,32"
+                symbol `should be equal to` "€"
+                major `should be equal to` "2.356"
+                minor `should be equal to` "32"
+                majorAndMinor `should be equal to` "2.356,32"
             }
     }
 
@@ -90,10 +90,10 @@ class FiatValuePartsTest {
 
         4567.98.eur()
             .toStringParts().apply {
-                symbol `should equal` "€"
-                major `should equal` "4.567"
-                minor `should equal` "98"
-                majorAndMinor `should equal` "4.567,98"
+                symbol `should be equal to` "€"
+                major `should be equal to` "4.567"
+                minor `should be equal to` "98"
+                majorAndMinor `should be equal to` "4.567,98"
             }
     }
 }

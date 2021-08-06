@@ -21,6 +21,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkedBank
+import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
@@ -29,13 +30,12 @@ import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttri
 import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.BankLinkingPrefs
-import com.blockchain.ui.trackProgress
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.zipWith
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.cards.CardIntent
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.networking.PollResult
@@ -48,6 +48,7 @@ import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.util.AppUtil
+import piuk.blockchain.android.util.trackProgress
 import java.util.concurrent.TimeUnit
 
 class SimpleBuyInteractor(
@@ -92,7 +93,7 @@ class SimpleBuyInteractor(
     }
 
     fun createOrder(
-        cryptoCurrency: CryptoCurrency,
+        cryptoAsset: AssetInfo,
         amount: FiatValue,
         paymentMethodId: String? = null,
         paymentMethod: PaymentMethodType,
@@ -100,13 +101,13 @@ class SimpleBuyInteractor(
     ): Single<SimpleBuyIntent.OrderCreated> =
         custodialWalletManager.createOrder(
             custodialWalletOrder = CustodialWalletOrder(
-                pair = "${cryptoCurrency.networkTicker}-${amount.currencyCode}",
+                pair = "${cryptoAsset.ticker}-${amount.currencyCode}",
                 action = "BUY",
                 input = OrderInput(
                     amount.currencyCode, amount.toBigInteger().toString()
                 ),
                 output = OrderOutput(
-                    cryptoCurrency.networkTicker, null
+                    cryptoAsset.ticker, null
                 ),
                 paymentMethodId = paymentMethodId,
                 paymentType = paymentMethod.name
@@ -117,19 +118,22 @@ class SimpleBuyInteractor(
         }
 
     fun createRecurringBuyOrder(state: SimpleBuyState): Single<RecurringBuyOrder> {
-        return if (isRecurringBuyEnabled) {
+        return if (isRecurringBuyEnabled && state.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
+            val asset = state.selectedCryptoAsset
+            require(asset != null) { "createRecurringBuyOrder selected crypto is null" }
             require(state.order.amount != null) { "createRecurringBuyOrder amount is null" }
-            require(state.selectedCryptoCurrency != null) { "createRecurringBuyOrder selected crypto is null" }
             require(state.selectedPaymentMethod != null) { "createRecurringBuyOrder selected payment method is null" }
 
+            val amount = state.order.amount
+            val paymentMethod = state.selectedPaymentMethod
             custodialWalletManager.createRecurringBuyOrder(
                 RecurringBuyRequestBody(
-                    inputValue = state.order.amount?.toBigDecimal().toString(),
-                    inputCurrency = state.order.amount?.currencyCode.toString(),
-                    destinationCurrency = state.selectedCryptoCurrency.networkTicker,
-                    paymentMethod = state.selectedPaymentMethod.paymentMethodType.name,
+                    inputValue = amount?.toBigInteger().toString(),
+                    inputCurrency = amount?.currencyCode.toString(),
+                    destinationCurrency = asset.ticker,
+                    paymentMethod = paymentMethod.paymentMethodType.name,
                     period = state.recurringBuyFrequency.name,
-                    beneficiaryId = state.selectedPaymentMethod.id
+                    beneficiaryId = paymentMethod.id
                 )
             )
         } else {
@@ -148,9 +152,9 @@ class SimpleBuyInteractor(
                 SimpleBuyIntent.WithdrawLocksTimeUpdated()
             }
 
-    fun fetchQuote(cryptoCurrency: CryptoCurrency?, amount: FiatValue?): Single<SimpleBuyIntent.QuoteUpdated> =
+    fun fetchQuote(asset: AssetInfo?, amount: FiatValue?): Single<SimpleBuyIntent.QuoteUpdated> =
         custodialWalletManager.getQuote(
-            cryptoCurrency = cryptoCurrency ?: throw IllegalStateException("Missing Cryptocurrency "),
+            asset = asset ?: throw IllegalStateException("Missing Cryptocurrency "),
             fiatCurrency = amount?.currencyCode ?: throw IllegalStateException("Missing FiatCurrency "),
             action = "BUY",
             currency = amount.currencyCode,
@@ -262,8 +266,8 @@ class SimpleBuyInteractor(
         isUnderReviewFor(KycTierLevel.SILVER) ||
             isUnderReviewFor(KycTierLevel.GOLD)
 
-    fun exchangeRate(cryptoCurrency: CryptoCurrency): Single<SimpleBuyIntent.ExchangePriceWithDeltaUpdated> =
-        coincore.getExchangePriceWithDelta(cryptoCurrency)
+    fun exchangeRate(asset: AssetInfo): Single<SimpleBuyIntent.ExchangePriceWithDeltaUpdated> =
+        coincore.getExchangePriceWithDelta(asset)
             .map { exchangePriceWithDelta ->
                 SimpleBuyIntent.ExchangePriceWithDeltaUpdated(exchangePriceWithDelta = exchangePriceWithDelta)
             }

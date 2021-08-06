@@ -2,13 +2,15 @@ package piuk.blockchain.android.coincore.eth
 
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.ethereum.EthereumAccount
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.ActivitySummaryList
+import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.TxEngine
 import piuk.blockchain.android.coincore.TxSourceState
@@ -28,8 +30,11 @@ internal class EthCryptoWalletAccount(
     private val walletPreferences: WalletStatus,
     override val exchangeRates: ExchangeRateDataManager,
     private val custodialWalletManager: CustodialWalletManager,
+    private val assetCatalogue: AssetCatalogue,
     identity: UserIdentity
 ) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.ETHER, custodialWalletManager, identity) {
+
+    override val baseActions: Set<AssetAction> = defaultActions
 
     internal val address: String
         get() = jsonAccount.address
@@ -93,7 +98,7 @@ internal class EthCryptoWalletAccount(
             .doOnSuccess { setHasTransactions(it.isNotEmpty()) }
 
     fun isErc20FeeTransaction(to: String): Boolean =
-        CryptoCurrency.erc20Assets().firstOrNull {
+        assetCatalogue.supportedL2Assets(asset).firstOrNull {
             to.equals(ethDataManager.getErc20TokenData(it).contractAddress, true)
         } != null
 

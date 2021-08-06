@@ -8,8 +8,8 @@ import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.annotation.RequiresApi
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.core.KoinComponent
 import org.koin.core.get
 import piuk.blockchain.android.R
@@ -18,8 +18,8 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import piuk.blockchain.android.util.AndroidUtils
-import piuk.blockchain.androidcoreui.utils.logging.launcherShortcutEvent
-import piuk.blockchain.androidcoreui.utils.logging.Logging
+import com.blockchain.notifications.analytics.launcherShortcutEvent
+import com.blockchain.notifications.analytics.Logging
 
 class LauncherShortcutHelper(
     private val ctx: Context

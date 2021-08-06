@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.widget.Toolbar
 import piuk.blockchain.android.R
-import piuk.blockchain.androidcoreui.ui.base.BaseAuthActivity
+import piuk.blockchain.android.ui.base.BaseAuthActivity
 
 class SettingsActivity : BaseAuthActivity() {
 

@@ -7,23 +7,23 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.wallet.DefaultLabels
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.ImportedAddress
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.util.PrivateKeyFactory
-import io.reactivex.Observable
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+
 import org.bitcoinj.crypto.BIP38PrivateKey.BadPassphraseException
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.coincore.impl.OfflineAccountUpdater
+import piuk.blockchain.android.coincore.impl.BackendNotificationUpdater
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
 import piuk.blockchain.android.identity.NabuUserIdentity
 import piuk.blockchain.android.thepit.PitLinking
@@ -55,7 +55,7 @@ class BtcAssetTest {
     private val crashLogger: CrashLogger = mock()
     private val walletPreferences: WalletStatus = mock()
     private val identity: NabuUserIdentity = mock()
-    private val offlineCache: OfflineAccountUpdater = mock()
+    private val notificationUpdater: BackendNotificationUpdater = mock()
     private val features: InternalFeatureFlagApi = mock()
 
     private val subject = BtcAsset(
@@ -70,7 +70,7 @@ class BtcAssetTest {
         labels = labels,
         pitLinking = pitLinking,
         crashLogger = crashLogger,
-        offlineAccounts = offlineCache,
+        notificationUpdater = notificationUpdater,
         walletPreferences = walletPreferences,
         identity = identity,
         features = features
@@ -79,7 +79,7 @@ class BtcAssetTest {
     @Test
     fun createAccountSuccessNoSecondPassword() {
         val mockInternalAccount: Account = mock {
-            on { xpubs } itReturns XPubs(listOf(XPub(NEW_XPUB, XPub.Format.LEGACY)))
+            on { xpubs }.thenReturn(XPubs(listOf(XPub(NEW_XPUB, XPub.Format.LEGACY))))
         }
 
         whenever(payloadManager.createNewAccount(TEST_LABEL, null)).thenReturn(
@@ -114,11 +114,11 @@ class BtcAssetTest {
     @Test
     fun importNonBip38Success() {
         val ecKey: SigningKey = mock {
-            on { hasPrivKey } itReturns true
+            on { hasPrivKey }.thenReturn(true)
         }
 
         val internalAccount: ImportedAddress = mock {
-            on { address } itReturns IMPORTED_ADDRESS
+            on { address }.thenReturn(IMPORTED_ADDRESS)
         }
 
         whenever(payloadManager.getKeyFromImportedData(NON_BIP38_FORMAT, KEY_DATA))
@@ -140,7 +140,7 @@ class BtcAssetTest {
     @Test
     fun importNonBip38NoPrivateKey() {
         val ecKey: SigningKey = mock {
-            on { hasPrivKey } itReturns true
+            on { hasPrivKey }.thenReturn(true)
         }
 
         whenever(payloadManager.getKeyFromImportedData(NON_BIP38_FORMAT, KEY_DATA))
@@ -168,11 +168,11 @@ class BtcAssetTest {
     @Test
     fun importBip38Success() {
         val ecKey: SigningKey = mock {
-            on { hasPrivKey } itReturns true
+            on { hasPrivKey }.thenReturn(true)
         }
 
         val internalAccount: ImportedAddress = mock {
-            on { address } itReturns IMPORTED_ADDRESS
+            on { address }.thenReturn(IMPORTED_ADDRESS)
         }
 
         whenever(payloadManager.getBip38KeyFromImportedData(KEY_DATA, KEY_PASSWORD))

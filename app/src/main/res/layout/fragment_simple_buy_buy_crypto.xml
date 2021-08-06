@@ -29,7 +29,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:srcCompat="@drawable/vector_bitcoin_colored" />
+                tools:srcCompat="@drawable/ic_default_asset_logo" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/buy_icon"
@@ -103,41 +103,31 @@
         android:layout_marginStart="@dimen/small_margin"
         android:layout_marginTop="@dimen/small_margin"
         android:layout_marginEnd="@dimen/small_margin"
-        app:layout_constraintBottom_toTopOf="@id/recurring_buy_label"
+        app:layout_constraintBottom_toTopOf="@id/recurring_buy_cta"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sb_buy_crypto_header"
         app:layout_goneMarginEnd="@dimen/small_margin"
         tools:layout_height="20dp" />
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/recurring_buy_label"
-        style="@style/Text.Light.14"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/small_margin"
-        android:text="@string/recurring_buy_label"
-        app:layout_constraintBottom_toTopOf="@id/payment_method"
-        app:layout_constraintStart_toStartOf="@id/payment_method"
-        app:layout_constraintTop_toBottomOf="@id/input_amount" />
-
     <Button
         android:id="@+id/recurring_buy_cta"
         style="@style/CtaButton.White.Slim"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/standard_margin"
         android:text="@string/recurring_buy_one_time_short"
-        app:layout_constraintBottom_toBottomOf="@id/recurring_buy_label"
+        android:layout_marginTop="@dimen/small_margin"
+        app:layout_constraintBottom_toTopOf="@id/payment_method"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/recurring_buy_label" />
+        app:layout_constraintTop_toBottomOf="@id/input_amount"/>
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/frequency_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="recurring_buy_cta, recurring_buy_label"
+        app:constraint_referenced_ids="recurring_buy_cta, recurring_buy_cta"
         tools:visibility="visible" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -149,7 +139,7 @@
         android:layout_marginTop="@dimen/standard_margin"
         android:text="@string/payment_method"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recurring_buy_label" />
+        app:layout_constraintTop_toBottomOf="@+id/recurring_buy_cta" />
 
     <View
         android:id="@+id/payment_method_separator"

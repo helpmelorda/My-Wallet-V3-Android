@@ -6,21 +6,20 @@ import com.blockchain.serialization.fromMoshiJson
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.wallet.Seed
 import com.blockchain.wallet.SeedAccess
-import com.nhaarman.mockito_kotlin.KStubbing
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.times
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.verifyZeroInteractions
-import info.blockchain.balance.CryptoCurrency
+import com.nhaarman.mockitokotlin2.KStubbing
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import io.github.novacrypto.bip39.SeedCalculator
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`should equal`
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class XlmMetaDataInitializerTest {
@@ -74,7 +73,7 @@ class XlmMetaDataInitializerTest {
             .test()
             .assertNoErrors()
             .assertComplete()
-            .values() `should equal` listOf(expectedData)
+            .values() `should be equal to` listOf(expectedData)
 
         repository.assertSaved(expectedData)
         repository.assertLoaded()
@@ -113,7 +112,7 @@ class XlmMetaDataInitializerTest {
             .test()
             .assertNoErrors()
             .assertComplete()
-            .values() `should equal` listOf(expectedData)
+            .values() `should be equal to` listOf(expectedData)
 
         repository.assertSaved(expectedData)
         repository.assertLoaded()
@@ -153,7 +152,7 @@ class XlmMetaDataInitializerTest {
             .test()
             .assertNoErrors()
             .assertComplete()
-            .values() `should equal` listOf(expectedData)
+            .values() `should be equal to` listOf(expectedData)
 
         repository.assertSaved(expectedData)
         repository.assertLoaded()
@@ -190,7 +189,7 @@ class XlmMetaDataInitializerTest {
             .test()
             .assertNoErrors()
             .assertComplete()
-            .values() `should equal` listOf(expectedData)
+            .values() `should be equal to` listOf(expectedData)
 
         repository.assertNothingSaved()
         repository.assertLoaded()
@@ -227,7 +226,7 @@ class XlmMetaDataInitializerTest {
             .test()
             .assertNoErrors()
             .assertComplete()
-            .values() `should equal` listOf(expectedData)
+            .values() `should be equal to` listOf(expectedData)
 
         repository.assertNothingSaved()
         repository.assertLoaded()
@@ -246,7 +245,7 @@ class XlmMetaDataInitializerTest {
                     any(),
                     eq(XlmMetaData.MetaDataType)
                 )
-            } `it returns` Completable.error(Exception("Save fail"))
+            }.thenReturn(Completable.error(Exception("Save fail")))
             emptyLoad()
         }
         XlmMetaDataInitializer(
@@ -257,7 +256,7 @@ class XlmMetaDataInitializerTest {
         )
             .initWalletMaybe
             .test()
-            .assertFailureAndMessage(Exception::class.java, "Save fail")
+            .assertFailure(Exception::class.java)
 
         verifyNoMoreInteractions(crashLogger)
 
@@ -341,7 +340,7 @@ class XlmMetaDataInitializerTest {
             .test()
             .assertNoErrors()
             .assertComplete()
-            .values() `should equal` listOf(expectedData)
+            .values() `should be equal to` listOf(expectedData)
 
         repository.assertNothingSaved()
         repository.assertLoaded()
@@ -383,7 +382,7 @@ class XlmMetaDataInitializerTest {
             .test()
             .assertNoErrors()
             .assertComplete()
-            .values() `should equal` listOf(expectedData)
+            .values() `should be equal to` listOf(expectedData)
 
         repository.assertSaved(expectedData)
         repository.assertLoaded()
@@ -425,7 +424,7 @@ class XlmMetaDataInitializerTest {
             .test()
             .assertNoErrors()
             .assertComplete()
-            .values() `should equal` listOf(expectedData)
+            .values() `should be equal to` listOf(expectedData)
 
         repository.assertSaved(expectedData)
         repository.assertLoaded()
@@ -466,7 +465,7 @@ class XlmMetaDataInitializerTest {
             .test()
             .assertNoErrors()
             .assertComplete()
-            .values() `should equal` listOf(expectedData)
+            .values() `should be equal to` listOf(expectedData)
 
         repository.assertSaved(expectedData)
         repository.assertLoaded()
@@ -506,7 +505,7 @@ class XlmMetaDataInitializerTest {
             .test()
             .assertNoErrors()
             .assertComplete()
-            .values() `should equal` listOf(expectedData)
+            .values() `should be equal to` listOf(expectedData)
 
         repository.assertNothingSaved()
         repository.assertLoaded()
@@ -546,14 +545,14 @@ class XlmMetaDataInitializerTest {
                 .test()
                 .assertNoErrors()
                 .assertComplete()
-                .values() `should equal` listOf(expectedData)
+                .values() `should be equal to` listOf(expectedData)
 
             initializer
                 .initWalletMaybe
                 .test()
                 .assertNoErrors()
                 .assertComplete()
-                .values() `should equal` listOf(expectedData)
+                .values() `should be equal to` listOf(expectedData)
         }
 
         repository.assertNothingSaved()
@@ -594,7 +593,7 @@ class XlmMetaDataInitializerTest {
                 .test()
                 .assertNoErrors()
                 .assertComplete()
-                .values() `should equal` listOf(expectedData)
+                .values() `should be equal to` listOf(expectedData)
         }
 
         repository.assertSaved(expectedData)
@@ -679,24 +678,26 @@ private fun MetadataRepository.assertSaved(
 }
 
 private fun KStubbing<MetadataRepository>.emptyLoad() {
-    on { loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.java) } `it returns` Maybe.empty()
+    on { loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.java) }.thenReturn(Maybe.empty())
 }
 
 private fun KStubbing<MetadataRepository>.loads(expectedData: XlmMetaData) {
-    on { loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.java) } `it returns` Maybe.just(
-        expectedData
+    on { loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.java) }.thenReturn(
+        Maybe.just(
+            expectedData
+        )
     )
 }
 
 private fun KStubbing<MetadataRepository>.emptyAtFirstThenLoads(expectedData: XlmMetaData) {
     var count = 1
-    on { loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.java) } `it returns` Maybe.defer {
+    on { loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.java) }.thenReturn(Maybe.defer {
         if (count-- > 0) {
-            Maybe.empty<XlmMetaData>()
+            Maybe.empty()
         } else {
             Maybe.just(expectedData)
         }
-    }
+    })
 }
 
 private fun KStubbing<MetadataRepository>.successfulSave() {
@@ -706,10 +707,10 @@ private fun KStubbing<MetadataRepository>.successfulSave() {
             any(),
             eq(XlmMetaData.MetaDataType)
         )
-    } `it returns` Completable.complete()
+    }.thenReturn(Completable.complete())
 }
 
 private fun givenDefaultXlmLabel(defaultLabel: String): DefaultLabels =
     mock {
-        on { getDefaultNonCustodialWalletLabel(CryptoCurrency.XLM) } `it returns` defaultLabel
+        on { getDefaultNonCustodialWalletLabel() }.thenReturn(defaultLabel)
     }

@@ -13,7 +13,7 @@
         app:layout_constraintBottom_toBottomOf="@id/item_interest_asset_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/item_interest_asset_title"
-        tools:src="@drawable/vector_bitcoin_colored" />
+        tools:src="@drawable/ic_default_asset_logo" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/item_interest_asset_title"

@@ -1,6 +1,6 @@
 package com.blockchain.nabu.service
 
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 
 interface TierUpdater {
 

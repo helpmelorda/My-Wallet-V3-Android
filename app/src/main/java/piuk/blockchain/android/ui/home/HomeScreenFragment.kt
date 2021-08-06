@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.home
 
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BlockchainAccount
@@ -41,7 +41,7 @@ interface HomeNavigator {
 
     fun launchSimpleBuySell(
         viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,
-        asset: CryptoCurrency? = null
+        asset: AssetInfo? = null
     )
 
     fun launchOpenBankingLinking(bankLinkingInfo: BankLinkingInfo)
@@ -52,7 +52,7 @@ interface HomeNavigator {
     fun goToTransfer()
 
     fun resumeSimpleBuyKyc()
-    fun startSimpleBuy(cryptoCurrency: CryptoCurrency)
+    fun startSimpleBuy(asset: AssetInfo)
     fun startInterestDashboard()
     fun launchFiatDeposit(currency: String)
 }

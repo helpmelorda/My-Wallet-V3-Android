@@ -12,12 +12,13 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
-import com.blockchain.ui.urllinks.STX_STACKS_LEARN_MORE
+import piuk.blockchain.android.urllinks.STX_STACKS_LEARN_MORE
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.campaign.sunriverCampaignName
 import piuk.blockchain.android.databinding.DialogAirdropStatusBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.goneIf
@@ -28,6 +29,7 @@ import java.text.DateFormat
 class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(), AirdropCentreView {
 
     private val presenter: AirdropCentrePresenter by scopedInject()
+    private val assetResources: AssetResources by scopedInject()
 
     private val airdropName: String by unsafeLazy {
         arguments?.getString(ARG_AIRDROP_NAME) ?: blockstackCampaignName
@@ -57,11 +59,12 @@ class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun renderBlockstacks(airdrop: Airdrop) {
         with(binding) {
-            title.setText(R.string.airdrop_sheet_stx_title)
+            title.text = "${airdrop.asset.name} (${airdrop.asset.ticker})"
             body.setText(R.string.airdrop_sheet_stx_body)
-            iconCrypto.setImageResource(R.drawable.ic_logo_stx)
+            assetResources.loadAssetIcon(iconCrypto, airdrop.asset)
         }
 
         renderStatus(airdrop)
@@ -77,11 +80,12 @@ class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun renderSunriver(airdrop: Airdrop) {
         with(binding) {
-            title.setText(R.string.airdrop_sheet_xlm_title)
+            title.text = "${airdrop.asset.name} (${airdrop.asset.ticker})"
             body.gone()
-            iconCrypto.setImageResource(R.drawable.vector_xlm_colored)
+            assetResources.loadAssetIcon(iconCrypto, airdrop.asset)
         }
         renderStatus(airdrop)
         renderDate(airdrop)

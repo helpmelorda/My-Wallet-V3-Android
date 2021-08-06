@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.auth
 
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -19,11 +18,11 @@ import androidx.appcompat.app.AppCompatActivity.RESULT_CANCELED
 import androidx.appcompat.app.AppCompatActivity.RESULT_OK
 import androidx.appcompat.widget.AppCompatEditText
 import com.blockchain.koin.scopedInject
-import com.blockchain.koin.scopedInjectActivity
+import piuk.blockchain.android.util.scopedInjectActivity
 import com.blockchain.ui.password.SecondPasswordHandler
-import com.blockchain.ui.urllinks.APP_STORE_URI
-import com.blockchain.ui.urllinks.APP_STORE_URL
-import com.blockchain.ui.urllinks.WALLET_STATUS_URL
+import piuk.blockchain.android.urllinks.APP_STORE_URI
+import piuk.blockchain.android.urllinks.APP_STORE_URL
+import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -33,10 +32,10 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.tasks.Task
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
@@ -60,14 +59,12 @@ import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.copyHashOnLongClick
 import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import piuk.blockchain.androidcore.utils.annotations.Thunk
-import piuk.blockchain.androidcoreui.ui.base.BaseFragment
+import piuk.blockchain.android.ui.base.BaseFragment
 
-internal class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
+class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
     PinEntryView, BiometricsEnrollmentBottomSheet.Host {
 
     private var _binding: FragmentPinEntryBinding? = null
@@ -87,7 +84,6 @@ internal class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(
         get() = _pinBoxList
 
     private var materialProgressDialog: MaterialProgressDialog? = null
-    private var listener: OnPinEntryFragmentInteractionListener? = null
     private val clearPinNumberRunnable = ClearPinNumberRunnable()
     private var isPaused = false
 
@@ -128,20 +124,13 @@ internal class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(
         }
 
         showConnectionDialogIfNeeded()
-        binding.swipeHintLayout.setOnClickListener { listener?.onSwipePressed() }
 
         presenter.onViewReady()
         presenter.checkForceUpgradeStatus(BuildConfig.VERSION_NAME)
 
-        if (arguments != null) {
-            val showSwipeHint = requireArguments().getBoolean(KEY_SHOW_SWIPE_HINT)
-            if (!showSwipeHint) {
-                binding.swipeHintLayout.invisible()
-            }
-        }
+        binding.keyboard.setPadClickedListener(
+            object : PinEntryKeypad.OnPinEntryPadClickedListener {
 
-        binding.keyboard.setPadClickedListener(object :
-            PinEntryKeypad.OnPinEntryPadClickedListener {
             override fun onNumberClicked(number: String) {
                 presenter.onPadClicked(number)
             }
@@ -168,18 +157,9 @@ internal class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(
 
     private fun getVersionText() = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnPinEntryFragmentInteractionListener) {
-            listener = context
-        } else {
-            throw RuntimeException("$context must implement OnPinEntryFragmentInteractionListener")
-        }
-    }
-
     override fun showFingerprintDialog() {
-        binding?.fingerprintLogo?.visible()
-        binding?.fingerprintLogo?.setOnClickListener { presenter.checkFingerprintStatus() }
+        binding.fingerprintLogo.visible()
+        binding.fingerprintLogo.setOnClickListener { presenter.checkFingerprintStatus() }
 
         if (presenter.canShowFingerprintDialog()) {
             biometricsController.init(
@@ -223,7 +203,7 @@ internal class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(
 
     private fun hideBiometricsUi() {
         showKeyboard()
-        binding?.fingerprintLogo?.gone()
+        binding.fingerprintLogo.gone()
     }
 
     override fun askToUseBiometrics() {
@@ -231,9 +211,9 @@ internal class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(
     }
 
     override fun showApiOutageMessage() {
-        binding?.layoutWarning?.root.visible()
+        binding.layoutWarning.root.visible()
         val learnMoreMap = mapOf<String, Uri>("learn_more" to Uri.parse(WALLET_STATUS_URL))
-        binding?.layoutWarning?.warningMessage?.let {
+        binding.layoutWarning.warningMessage.let {
             it.movementMethod = LinkMovementMethod.getInstance()
             it.text = stringUtils.getStringWithMappedAnnotations(
                     R.string.wallet_outage_message, learnMoreMap, requireActivity()
@@ -288,18 +268,18 @@ internal class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(
     }
 
     override fun showKeyboard() {
-        if (activity != null && binding!!.keyboard.visibility == View.INVISIBLE) {
+        if (activity != null && binding.keyboard.visibility == View.INVISIBLE) {
             val bottomUp = AnimationUtils.loadAnimation(activity, R.anim.bottom_up)
-            binding!!.keyboard.startAnimation(bottomUp)
-            binding!!.keyboard.visibility = View.VISIBLE
+            binding.keyboard.startAnimation(bottomUp)
+            binding.keyboard.visibility = View.VISIBLE
         }
     }
 
     private fun hideKeyboard() {
-        if (activity != null && binding!!.keyboard.visibility == View.VISIBLE) {
+        if (activity != null && binding.keyboard.visibility == View.VISIBLE) {
             val bottomUp = AnimationUtils.loadAnimation(activity, R.anim.top_down)
-            binding!!.keyboard.startAnimation(bottomUp)
-            binding!!.keyboard.visibility = View.INVISIBLE
+            binding.keyboard.startAnimation(bottomUp)
+            binding.keyboard.visibility = View.INVISIBLE
         }
     }
 
@@ -374,7 +354,7 @@ internal class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(
         startActivity(intent)
     }
 
-    override fun walletUpgradeRequired(triesRemaining: Int) {
+    override fun walletUpgradeRequired(passwordTriesRemaining: Int) {
         secondPasswordHandler.validate(
             this.requireContext(),
             object : SecondPasswordHandler.ResultListener {
@@ -387,7 +367,7 @@ internal class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(
                 }
 
                 override fun onCancelled() {
-                    handleIncorrectPassword(triesRemaining)
+                    handleIncorrectPassword(passwordTriesRemaining)
                 }
             }
         )
@@ -412,17 +392,11 @@ internal class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(
     }
 
     override fun setTitleString(@StringRes title: Int) {
-        HANDLER.postDelayed({ binding?.titleBox?.setText(title) }, 200)
+        HANDLER.postDelayed({ binding.titleBox.setText(title) }, 200)
     }
 
     override fun setTitleVisibility(@ViewUtils.Visibility visibility: Int) {
-        binding?.titleBox?.visibility = visibility
-    }
-
-    fun resetPinEntry() {
-        if (activity != null && !requireActivity().isFinishing && presenter != null) {
-            presenter.clearPinBoxes()
-        }
+        binding.titleBox.visibility = visibility
     }
 
     fun allowExit(): Boolean {
@@ -694,7 +668,6 @@ internal class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(
         _binding = null
     }
 
-    @Thunk
     internal fun dismissFingerprintDialog() {
         // Hide if fingerprint unlock has become unavailable
         if (!presenter.ifShouldShowFingerprintLogin) {
@@ -733,21 +706,14 @@ internal class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(
 
     override fun getMvpView(): PinEntryView = this
 
-    internal interface OnPinEntryFragmentInteractionListener {
-        fun onSwipePressed()
-    }
-
     companion object {
-        private const val KEY_SHOW_SWIPE_HINT = "show_swipe_hint"
         private const val KEY_IS_AFTER_WALLET_CREATION = "is_after_wallet_creation"
         private val HANDLER = Handler()
 
         fun newInstance(
-            showSwipeHint: Boolean,
             isAfterCreateWallet: Boolean
         ): PinEntryFragment {
             val args = Bundle()
-            args.putBoolean(KEY_SHOW_SWIPE_HINT, showSwipeHint)
             args.putBoolean(KEY_IS_AFTER_WALLET_CREATION, isAfterCreateWallet)
             val fragment = PinEntryFragment()
             fragment.arguments = args
@@ -760,4 +726,3 @@ const val KEY_VALIDATING_PIN_FOR_RESULT = "validating_pin"
 const val KEY_VALIDATING_PIN_FOR_RESULT_AND_PAYLOAD = "validating_pin_and_payload"
 const val KEY_VALIDATED_PIN = "validated_pin"
 const val REQUEST_CODE_VALIDATE_PIN = 88
-const val REQUEST_CODE_VALIDATE_PIN_AND_PAYLOAD = 89

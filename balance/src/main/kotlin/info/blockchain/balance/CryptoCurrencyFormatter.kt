@@ -50,11 +50,17 @@ private class CryptoCurrencyFormatter(private val locale: Locale) {
     ) =
         cryptoValue.currency.decimalFormat(precision).formatWithUnit(
             cryptoValue.toBigDecimal(),
-            cryptoValue.currency.displayTicker
+            cryptoValue.currency.ticker
         )
 
-    private fun CryptoCurrency.decimalFormat(displayMode: FormatPrecision) =
-        createCryptoDecimalFormat(locale, if (displayMode == FormatPrecision.Short) this.userDp else this.dp)
+    private fun AssetInfo.decimalFormat(displayMode: FormatPrecision) =
+        createCryptoDecimalFormat(
+            locale,
+            if (displayMode == FormatPrecision.Short)
+                CryptoValue.DISPLAY_DP
+            else
+                this.precisionDp
+        )
 
     private fun DecimalFormat.formatWithUnit(value: BigDecimal, symbol: String) =
         "${formatWithoutUnit(value)} $symbol"

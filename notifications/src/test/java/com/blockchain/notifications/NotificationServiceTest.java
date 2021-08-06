@@ -1,8 +1,8 @@
 package com.blockchain.notifications;
 
 import info.blockchain.wallet.api.WalletApi;
-import io.reactivex.Observable;
-import io.reactivex.observers.TestObserver;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.observers.TestObserver;
 import okhttp3.ResponseBody;
 import org.junit.Before;
 import org.junit.Test;

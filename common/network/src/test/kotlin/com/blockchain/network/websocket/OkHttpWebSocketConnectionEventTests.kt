@@ -3,7 +3,7 @@ package com.blockchain.network.websocket
 import com.blockchain.network.initRule
 import io.fabric8.mockwebserver.DefaultMockServer
 import okhttp3.OkHttpClient
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test
 
@@ -37,7 +37,7 @@ class OkHttpWebSocketConnectionEventTests {
             val test = connectionEvents.test()
             open()
             waiter.waitForAllConnects()
-            test.values().first() `should equal` ConnectionEvent.Connected
+            test.values().first() `should be equal to` ConnectionEvent.Connected
         }
     }
 
@@ -62,7 +62,7 @@ class OkHttpWebSocketConnectionEventTests {
             Thread.sleep(50)
             close()
             closeWaiter.waitForAllCloses()
-            test.values().last() `should equal` ConnectionEvent.ClientDisconnect
+            test.values().last() `should be equal to` ConnectionEvent.ClientDisconnect
         }
     }
 
@@ -92,7 +92,7 @@ class OkHttpWebSocketConnectionEventTests {
             Thread.sleep(50)
             close()
             secondCloseWaiter.waitForAllCloses()
-            test.values() `should equal` listOf(
+            test.values() `should be equal to` listOf(
                 ConnectionEvent.Connected,
                 ConnectionEvent.ClientDisconnect,
                 ConnectionEvent.Connected,

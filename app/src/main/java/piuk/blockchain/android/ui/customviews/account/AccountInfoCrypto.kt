@@ -9,15 +9,14 @@ import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.Money
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.core.KoinComponent
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.InterestAccount
@@ -41,7 +40,6 @@ class AccountInfoCrypto @JvmOverloads constructor(
     private val exchangeRates: ExchangeRates by scopedInject()
     private val currencyPrefs: CurrencyPrefs by scopedInject()
     private val coincore: Coincore by scopedInject()
-    private val assetResources: AssetResources by scopedInject()
     private val compositeDisposable = CompositeDisposable()
     private var accountBalance: Money? = null
     private var isEnabled: Boolean? = null
@@ -115,7 +113,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
             val crypto = account.asset
             walletName.text = account.label
 
-            assetSubtitle.setText(assetResources.assetNameRes(crypto))
+            assetSubtitle.text = crypto.name
 
             compositeDisposable += account.accountBalance
                 .doOnSuccess {
@@ -211,8 +209,8 @@ private fun <T> Single<T>.startWithValueIfCondition(
         this.toObservable()
     else {
         when {
-            value != null -> this.toObservable().startWith(value)
-            alternativeValue != null -> this.toObservable().startWith(alternativeValue)
+            value != null -> this.toObservable().startWithItem(value)
+            alternativeValue != null -> this.toObservable().startWithItem(alternativeValue)
             else -> this.toObservable()
         }
     }

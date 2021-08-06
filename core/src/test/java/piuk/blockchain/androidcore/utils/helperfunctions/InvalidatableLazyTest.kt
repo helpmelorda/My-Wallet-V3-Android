@@ -1,6 +1,6 @@
 package piuk.blockchain.androidcore.utils.helperfunctions
 
-import org.amshove.kluent.`should equal to`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class InvalidatableLazyTest {
@@ -17,13 +17,13 @@ class InvalidatableLazyTest {
         val invalidatableLazy = InvalidatableLazy { getValue() }
         val invalidatableValue by invalidatableLazy
         // Returned value should be first String
-        invalidatableValue `should equal to` firstString
+        invalidatableValue `should be equal to` firstString
         // Change string returned by function, first value should still be returned as result lazy-loaded
         stringToReturn = secondString
-        invalidatableValue `should equal to` firstString
+        invalidatableValue `should be equal to` firstString
         // Invalidate delegate
         invalidatableLazy.invalidate()
         // Return value should be re-evaluated and return second String
-        invalidatableValue `should equal to` secondString
+        invalidatableValue `should be equal to` secondString
     }
 }

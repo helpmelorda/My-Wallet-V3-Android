@@ -1,7 +1,7 @@
 package info.blockchain.balance
 
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should throw the Exception`
+import org.amshove.kluent.`should throw`
 import org.amshove.kluent.withMessage
 import org.junit.Test
 
@@ -46,14 +46,14 @@ class FiatValueComparisonTests {
     fun `can't compare different currencies with greater than`() {
         val a = 3.cad()
         val b = 3.usd();
-        { a > b } `should throw the Exception` ValueTypeMismatchException::class withMessage "Can't compare CAD and USD"
+        { a > b } `should throw` ValueTypeMismatchException::class withMessage "Can't compare CAD and USD"
     }
 
     @Test
     fun `can't compare different currencies with less than`() {
         val a = 3.jpy()
         val b = 3.gbp();
-        { a < b } `should throw the Exception` ValueTypeMismatchException::class withMessage "Can't compare JPY and GBP"
+        { a < b } `should throw` ValueTypeMismatchException::class withMessage "Can't compare JPY and GBP"
     }
 
     @Test

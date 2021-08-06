@@ -4,10 +4,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
+import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.AssetFilter
@@ -76,9 +76,9 @@ private class AssetWalletViewHolder(
             }
 
             walletName.text = when (item.assetFilter) {
-                AssetFilter.NonCustodial -> labels.getDefaultNonCustodialWalletLabel(asset)
-                AssetFilter.Custodial -> labels.getDefaultCustodialWalletLabel(asset)
-                AssetFilter.Interest -> labels.getDefaultInterestWalletLabel(asset)
+                AssetFilter.NonCustodial -> labels.getDefaultNonCustodialWalletLabel()
+                AssetFilter.Custodial -> labels.getDefaultCustodialWalletLabel()
+                AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
                 else -> throw IllegalArgumentException("Not supported filter")
             }
 
@@ -119,7 +119,7 @@ private class AssetWalletViewHolder(
         }
     }
 
-    private fun getAsset(account: BlockchainAccount, currency: String): CryptoCurrency =
+    private fun getAsset(account: BlockchainAccount, currency: String): AssetInfo =
         when (account) {
             is CryptoAccount -> account.asset
             is AccountGroup -> account.accounts.filterIsInstance<CryptoAccount>()

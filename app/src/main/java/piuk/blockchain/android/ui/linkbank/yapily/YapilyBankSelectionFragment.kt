@@ -16,6 +16,7 @@ import piuk.blockchain.android.ui.linkbank.BankAuthAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowNavigator
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.bankAuthEvent
+import piuk.blockchain.android.ui.linkbank.toAnalyticsBankProvider
 import piuk.blockchain.android.ui.linkbank.yapily.adapters.YapilyBanksDelegateAdapter
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
@@ -51,7 +52,7 @@ class YapilyBankSelectionFragment : Fragment() {
                 analytics.logEvent(
                     BankAuthAnalytics.BankSelected(
                         bankName = it.name,
-                        provider = attributes.entity
+                        provider = attributes.entity.toAnalyticsBankProvider()
                     )
                 )
             },

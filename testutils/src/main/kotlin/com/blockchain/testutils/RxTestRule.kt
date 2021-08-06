@@ -1,8 +1,8 @@
 package com.blockchain.testutils
 
-import io.reactivex.Scheduler
-import io.reactivex.plugins.RxJavaPlugins
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.plugins.RxJavaPlugins
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 fun rxInit(block: RxInit.() -> Unit) =
     before {

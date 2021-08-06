@@ -5,13 +5,13 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.repositories.CustodialAssetWalletsBalancesRepository
-import com.blockchain.nabu.models.responses.interest.DisabledReason
+import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.total
-import io.reactivex.Single
-import io.reactivex.rxkotlin.zipWith
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.ActivitySummaryList
@@ -38,7 +38,7 @@ internal class FiatCustodialAccount(
 
     override val accountBalance: Single<Money>
         get() = custodialAssetWalletsBalancesRepository.getFiatTotalBalanceForAsset(fiatCurrency)
-            .toSingle(FiatValue.zero(fiatCurrency))
+            .defaultIfEmpty(FiatValue.zero(fiatCurrency))
             .map {
                 it as Money
             }.doOnSuccess {
@@ -47,7 +47,7 @@ internal class FiatCustodialAccount(
 
     override val actionableBalance: Single<Money>
         get() = custodialAssetWalletsBalancesRepository.getFiatActionableBalanceForAsset(fiatCurrency)
-            .toSingle(FiatValue.zero(fiatCurrency))
+            .defaultIfEmpty(FiatValue.zero(fiatCurrency))
             .map {
                 it as Money
             }.doOnSuccess {
@@ -56,7 +56,7 @@ internal class FiatCustodialAccount(
 
     override val pendingBalance: Single<Money>
         get() = custodialAssetWalletsBalancesRepository.getFiatPendingBalanceForAsset(fiatCurrency)
-            .toSingle(FiatValue.zero(fiatCurrency))
+            .defaultIfEmpty(FiatValue.zero(fiatCurrency))
             .map {
                 it as Money
             }
@@ -124,8 +124,8 @@ internal class FiatCustodialAccount(
     override val isEnabled: Single<Boolean>
         get() = Single.just(true)
 
-    override val disabledReason: Single<DisabledReason>
-        get() = Single.just(DisabledReason.NONE)
+    override val disabledReason: Single<IneligibilityReason>
+        get() = Single.just(IneligibilityReason.NONE)
 }
 
 class FiatAccountGroup(

@@ -12,7 +12,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.security.SecureRandom;
 
-import io.reactivex.observers.TestObserver;
+import io.reactivex.rxjava3.observers.TestObserver;
 import okhttp3.ResponseBody;
 import retrofit2.HttpException;
 import retrofit2.Response;
@@ -46,7 +46,7 @@ public final class WalletApiIntegTest extends BaseIntegTest {
         final TestObserver<ResponseBody> testObserver =
                 walletApi.updateFirebaseNotificationToken("", "", "").test();
 
-        testObserver.assertTerminated();
+        testObserver.assertComplete();
         testObserver.assertNotComplete();
         testObserver.assertError(HttpException.class);
     }
@@ -117,7 +117,7 @@ public final class WalletApiIntegTest extends BaseIntegTest {
         final TestObserver<ResponseBody> testObserver =
                 walletApi.fetchPairingEncryptionPassword("").test();
 
-        testObserver.assertTerminated();
+        testObserver.assertComplete();
         testObserver.assertError(HttpException.class);
     }
 

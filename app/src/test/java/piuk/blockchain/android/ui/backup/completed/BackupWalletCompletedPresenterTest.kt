@@ -1,22 +1,24 @@
 package piuk.blockchain.android.ui.backup.completed
 
 import com.blockchain.preferences.WalletStatus
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
+import piuk.blockchain.androidcore.data.auth.AuthDataManager
 
 class BackupWalletCompletedPresenterTest {
 
     private lateinit var subject: BackupWalletCompletedPresenter
     private val view: BackupWalletCompletedView = mock()
     private val walletStatus: WalletStatus = mock()
+    private val authDataManager: AuthDataManager = mock()
 
     @Before
     fun setUp() {
-        subject = BackupWalletCompletedPresenter(walletStatus)
+        subject = BackupWalletCompletedPresenter(walletStatus, authDataManager)
         subject.initView(view)
     }
 

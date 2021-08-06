@@ -2,23 +2,28 @@ package piuk.blockchain.android.ui.activity.detail
 
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.InterestState
+import info.blockchain.balance.AssetInfo
 import com.blockchain.nabu.datamanagers.RecurringBuyErrorState
 import com.blockchain.nabu.datamanagers.RecurringBuyTransactionState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
-import info.blockchain.balance.CryptoCurrency
+import com.blockchain.nabu.models.data.RecurringBuyState
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.android.ui.base.mvi.MviState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import java.util.Date
+
+interface Copyable {
+    val filed: String
+}
 
 sealed class ActivityDetailsType
 data class Created(val date: Date) : ActivityDetailsType()
@@ -46,8 +51,11 @@ data class BuyPurchaseAmount(val fundedFiat: FiatValue) : ActivityDetailsType()
 data class TotalCostAmount(val fundedFiat: FiatValue) : ActivityDetailsType()
 data class FeeAmount(val fundedFiat: FiatValue) : ActivityDetailsType()
 data class SellPurchaseAmount(val value: Money) : ActivityDetailsType()
-data class TransactionId(val txId: String) : ActivityDetailsType()
-data class BuyCryptoWallet(val crypto: CryptoCurrency) : ActivityDetailsType()
+data class TransactionId(val txId: String) : ActivityDetailsType(), Copyable {
+    override val filed: String
+        get() = txId
+}
+data class BuyCryptoWallet(val crypto: AssetInfo) : ActivityDetailsType()
 data class RecurringBuyFrequency(val frequency: RecurringBuyFrequency) : ActivityDetailsType()
 data class SellCryptoWallet(val currency: String) : ActivityDetailsType()
 data class BuyPaymentMethod(val paymentDetails: PaymentDetails) : ActivityDetailsType()
@@ -79,7 +87,8 @@ data class ActivityDetailState(
     val listOfItems: Set<ActivityDetailsType> = emptySet(),
     val isError: Boolean = false,
     val hasDeleteError: Boolean = false,
-    val recurringBuyState: RecurringBuyTransactionState = RecurringBuyTransactionState.UNKNOWN,
+    val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
+    val transactionRecurringBuyState: RecurringBuyTransactionState = RecurringBuyTransactionState.UNKNOWN,
     val recurringBuyError: RecurringBuyErrorState = RecurringBuyErrorState.UNKNOWN,
     val descriptionState: DescriptionState = DescriptionState.NOT_SET,
     val recurringBuyId: String? = "",
@@ -120,7 +129,7 @@ class ActivityDetailsModel(
 
             is UpdateDescriptionIntent ->
                 interactor.updateItemDescription(
-                    intent.txId, intent.cryptoCurrency,
+                    intent.txId, intent.asset,
                     intent.description
                 ).subscribeBy(
                     onComplete = {
@@ -163,7 +172,7 @@ class ActivityDetailsModel(
 
     private fun loadSellActivityDetails(intent: LoadActivityDetailsIntent) {
         interactor.getTradeActivityDetails(
-            cryptoCurrency = intent.cryptoCurrency,
+            asset = intent.asset,
             txHash = intent.txHash
         )?.let {
             process(LoadSellHeaderDataIntent(it))
@@ -199,7 +208,7 @@ class ActivityDetailsModel(
 
     private fun loadNonCustodialActivityDetails(intent: LoadActivityDetailsIntent) =
         interactor.getNonCustodialActivityDetails(
-            cryptoCurrency = intent.cryptoCurrency,
+            asset = intent.asset,
             txHash = intent.txHash
         )?.let {
             process(LoadNonCustodialCreationDateIntent(it))
@@ -208,7 +217,7 @@ class ActivityDetailsModel(
 
     private fun loadCustodialTradingActivityDetails(intent: LoadActivityDetailsIntent) =
         interactor.getCustodialTradingActivityDetails(
-            cryptoCurrency = intent.cryptoCurrency,
+            asset = intent.asset,
             txHash = intent.txHash
         )?.let {
             process(LoadCustodialTradingHeaderDataIntent(it))
@@ -248,7 +257,7 @@ class ActivityDetailsModel(
 
     private fun loadCustodialInterestActivityDetails(intent: LoadActivityDetailsIntent) =
         interactor.getCustodialInterestActivityDetails(
-            cryptoCurrency = intent.cryptoCurrency,
+            asset = intent.asset,
             txHash = intent.txHash
         )?.let {
             process(LoadCustodialInterestHeaderDataIntent(it))
@@ -263,7 +272,7 @@ class ActivityDetailsModel(
 
     private fun loadCustodialTransferActivityDetails(intent: LoadActivityDetailsIntent) =
         interactor.getCustodialTransferActivityDetails(
-            cryptoCurrency = intent.cryptoCurrency,
+            asset = intent.asset,
             txHash = intent.txHash
         )?.let {
             process(LoadCustodialSendHeaderDataIntent(it))
@@ -278,7 +287,7 @@ class ActivityDetailsModel(
 
     private fun loadSwapActivityDetails(intent: LoadActivityDetailsIntent) =
         interactor.getTradeActivityDetails(
-            cryptoCurrency = intent.cryptoCurrency,
+            asset = intent.asset,
             txHash = intent.txHash
         )?.let {
             process(LoadSwapHeaderDataIntent(it))

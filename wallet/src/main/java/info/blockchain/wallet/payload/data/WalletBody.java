@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
-import com.blockchain.api.NonCustodialBitcoinService;
+import com.blockchain.api.services.NonCustodialBitcoinService;
 import com.blockchain.api.bitcoin.data.BalanceDto;
 import info.blockchain.wallet.bip44.HDAccount;
 import info.blockchain.wallet.bip44.HDAddress;

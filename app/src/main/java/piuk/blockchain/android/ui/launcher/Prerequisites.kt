@@ -5,9 +5,9 @@ import com.blockchain.operations.AppStartUpFlushable
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.home.models.MetadataEvent
@@ -36,8 +36,8 @@ class Prerequisites(
             } else
                 Completable.error(MetadataInitException(it))
         }
-            .then { simpleBuySync.performSync().logAndCompleteOnError(SIMPLE_BUY_SYNC) }
             .then { coincore.init() } // Coincore signals the crash logger internally
+            .then { simpleBuySync.performSync().logAndCompleteOnError(SIMPLE_BUY_SYNC) }
             .then { Completable.concat(flushables.map { it.flush().logAndCompleteOnError(it.tag) }) }
             .then { walletCredentialsUpdater.checkAndUpdate().logAndCompleteOnError(WALLET_CREDENTIALS) }
             .doOnComplete {

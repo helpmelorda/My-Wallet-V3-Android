@@ -11,8 +11,8 @@ sealed class ExchangeRate(val rate: BigDecimal) {
     abstract fun inverse(roundingMode: RoundingMode = RoundingMode.HALF_UP, scale: Int = -1): ExchangeRate
 
     class CryptoToCrypto(
-        val from: CryptoCurrency,
-        val to: CryptoCurrency,
+        val from: AssetInfo,
+        val to: AssetInfo,
         rate: BigDecimal
     ) : ExchangeRate(rate) {
         fun applyRate(cryptoValue: CryptoValue): CryptoValue {
@@ -33,12 +33,16 @@ sealed class ExchangeRate(val rate: BigDecimal) {
             CryptoToCrypto(
                 to,
                 from,
-                BigDecimal.ONE.divide(rate, if (scale == -1) from.dp else scale, roundingMode).stripTrailingZeros()
+                BigDecimal.ONE.divide(
+                    rate,
+                    if (scale == -1) from.precisionDp else scale,
+                    roundingMode
+                ).stripTrailingZeros()
             )
     }
 
     data class CryptoToFiat(
-        val from: CryptoCurrency,
+        val from: AssetInfo,
         val to: String,
         private val _rate: BigDecimal
     ) : ExchangeRate(_rate) {
@@ -61,13 +65,17 @@ sealed class ExchangeRate(val rate: BigDecimal) {
             FiatToCrypto(
                 to,
                 from,
-                BigDecimal.ONE.divide(rate, if (scale == -1) from.dp else scale, roundingMode).stripTrailingZeros()
+                BigDecimal.ONE.divide(
+                    rate,
+                    if (scale == -1) from.precisionDp else scale,
+                    roundingMode
+                ).stripTrailingZeros()
             )
     }
 
     class FiatToCrypto(
         val from: String,
-        val to: CryptoCurrency,
+        val to: AssetInfo,
         rate: BigDecimal
     ) : ExchangeRate(rate) {
         fun applyRate(fiatValue: FiatValue): CryptoValue {
@@ -128,9 +136,9 @@ sealed class ExchangeRate(val rate: BigDecimal) {
     }
 
     companion object {
-        private fun validateCurrency(expected: CryptoCurrency, got: CryptoCurrency) {
+        private fun validateCurrency(expected: AssetInfo, got: AssetInfo) {
             if (expected != got)
-                throw ValueTypeMismatchException("exchange", expected.networkTicker, got.networkTicker)
+                throw ValueTypeMismatchException("exchange", expected.ticker, got.ticker)
         }
 
         private fun validateCurrency(expected: String, got: String) {

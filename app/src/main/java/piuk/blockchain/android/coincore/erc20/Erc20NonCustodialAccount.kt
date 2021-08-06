@@ -1,13 +1,15 @@
 package piuk.blockchain.android.coincore.erc20
 
+import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Singles
+import info.blockchain.balance.isErc20
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.ActivitySummaryList
+import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.TxEngine
@@ -15,24 +17,22 @@ import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.TxSourceState
 import piuk.blockchain.android.coincore.impl.CryptoNonCustodialAccount
 import piuk.blockchain.android.identity.UserIdentity
-import piuk.blockchain.androidcore.data.erc20.FeedErc20Transfer
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.mapList
 import java.util.concurrent.atomic.AtomicBoolean
 
 class Erc20NonCustodialAccount(
     payloadManager: PayloadDataManager,
-    asset: CryptoCurrency,
-    private val ethDataManager: EthDataManager,
+    asset: AssetInfo,
+    private val erc20DataManager: Erc20DataManager,
     internal val address: String,
     private val fees: FeeDataManager,
     override val label: String,
     override val exchangeRates: ExchangeRateDataManager,
     private val walletPreferences: WalletStatus,
     private val custodialWalletManager: CustodialWalletManager,
+    override val baseActions: Set<AssetAction>,
     identity: UserIdentity
 ) : CryptoNonCustodialAccount(payloadManager, asset, custodialWalletManager, identity) {
 
@@ -49,7 +49,8 @@ class Erc20NonCustodialAccount(
         )
 
     override val accountBalance: Single<Money>
-        get() = ethDataManager.getErc20Balance(asset)
+        get() = erc20DataManager.getErc20Balance(asset)
+            .map { it.balance }
             .doOnSuccess { hasFunds.set(it.isPositive) }
             .map { it }
 
@@ -58,30 +59,20 @@ class Erc20NonCustodialAccount(
 
     override val activity: Single<ActivitySummaryList>
         get() {
-            val feedTransactions = ethDataManager.fetchErc20DataModel(asset)
-                .flatMap { ethDataManager.getErc20Transactions(asset) }
-                .mapList {
-                    val feeObservable = ethDataManager
-                        .getTransaction(it.transactionHash)
-                        .map { transaction ->
-                            transaction.gasUsed * transaction.gasPrice
-                        }
-                    FeedErc20Transfer(it, feeObservable)
-                }
+            val feedTransactions = erc20DataManager.getErc20History(asset)
 
-            return Singles.zip(
+            return Single.zip(
                 feedTransactions,
-                ethDataManager.getErc20AccountHash(asset),
-                ethDataManager.getLatestBlockNumber()
-            ) { transactions, accountHash, latestBlockNumber ->
+                erc20DataManager.latestBlockNumber()
+            ) { transactions, latestBlockNumber ->
                 transactions.map { transaction ->
                     Erc20ActivitySummaryItem(
                         asset,
-                        feedTransfer = transaction,
-                        accountHash = accountHash,
-                        ethDataManager = ethDataManager,
+                        event = transaction,
+                        accountHash = address,
+                        erc20DataManager = erc20DataManager,
                         exchangeRates = exchangeRates,
-                        lastBlockNumber = latestBlockNumber.number,
+                        lastBlockNumber = latestBlockNumber,
                         account = this
                     )
                 }
@@ -92,31 +83,32 @@ class Erc20NonCustodialAccount(
 
     override val sourceState: Single<TxSourceState>
         get() = super.sourceState.flatMap { state ->
-            ethDataManager.isLastTxPending().map { hasUnconfirmed ->
-                if (hasUnconfirmed) {
-                    TxSourceState.TRANSACTION_IN_FLIGHT
-                } else {
-                    state
+            erc20DataManager.hasUnconfirmedTransactions()
+                .map { hasUnconfirmed ->
+                    if (hasUnconfirmed) {
+                        TxSourceState.TRANSACTION_IN_FLIGHT
+                    } else {
+                        state
+                    }
                 }
             }
-        }
 
     override fun createTxEngine(): TxEngine =
         Erc20OnChainTxEngine(
-            ethDataManager = ethDataManager,
+            erc20DataManager = erc20DataManager,
             feeManager = fees,
-            requireSecondPassword = ethDataManager.requireSecondPassword,
+            requireSecondPassword = erc20DataManager.requireSecondPassword,
             walletPreferences = walletPreferences
         )
 }
 
 internal open class Erc20Address(
-    final override val asset: CryptoCurrency,
+    final override val asset: AssetInfo,
     override val address: String,
     override val label: String = address,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() }
 ) : CryptoAddress {
     init {
-        require(asset.hasFeature(CryptoCurrency.IS_ERC20))
+        require(asset.isErc20())
     }
 }

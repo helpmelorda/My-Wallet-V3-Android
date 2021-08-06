@@ -4,9 +4,8 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Singles
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.FeeLevel
@@ -32,32 +31,37 @@ class TradingToOnChainTxEngine(
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =
-        walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAsset, Product.BUY)
-            .map {
+        Single.zip(
+            sourceAccount.accountBalance.map { it as CryptoValue },
+            sourceAccount.actionableBalance.map { it as CryptoValue },
+            walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAsset, Product.BUY),
+            { total, available, cryptoFeeAndMin ->
                 PendingTx(
                     amount = CryptoValue.zero(sourceAsset),
-                    totalBalance = CryptoValue.zero(sourceAsset),
-                    availableBalance = CryptoValue.zero(sourceAsset),
-                    feeForFullAvailable = CryptoValue.zero(sourceAsset),
-                    feeAmount = CryptoValue.fromMinor(sourceAsset, it.fee),
+                    totalBalance = total,
+                    availableBalance = available.minus(CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee)),
+                    feeForFullAvailable = CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee),
+                    feeAmount = CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee),
                     feeSelection = FeeSelection(),
                     selectedFiat = userFiat,
-                    minLimit = CryptoValue.fromMinor(sourceAsset, it.minLimit)
+                    minLimit = CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.minLimit)
                 )
             }
+        )
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {
         require(amount is CryptoValue)
         require(amount.currency == sourceAsset)
 
-        return Singles.zip(
+        return Single.zip(
             sourceAccount.accountBalance.map { it as CryptoValue },
-            sourceAccount.actionableBalance.map { it as CryptoValue }
-        ) { total, available ->
+            sourceAccount.actionableBalance.map { it as CryptoValue },
+            walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAsset, Product.BUY)
+        ) { total, available, cryptoFeeAndMin ->
             pendingTx.copy(
                 amount = amount,
                 totalBalance = total,
-                availableBalance = available
+                availableBalance = available.minus(CryptoValue.fromMinor(sourceAsset, cryptoFeeAndMin.fee))
             )
         }
     }
@@ -112,21 +116,23 @@ class TradingToOnChainTxEngine(
         validateAmounts(pendingTx).updateTxValidity(pendingTx)
 
     private fun validateAmounts(pendingTx: PendingTx): Completable =
-        sourceAccount.actionableBalance
-            .flatMapCompletable { max ->
-                val min = pendingTx.minLimit ?: CryptoValue.zero(sourceAsset)
-                if (pendingTx.amount.isPositive && max >= pendingTx.amount && min <= pendingTx.amount) {
-                    Completable.complete()
-                } else {
-                    throw TxValidationFailure(
-                        if (pendingTx.amount > pendingTx.availableBalance) {
-                            ValidationState.INSUFFICIENT_FUNDS
-                        } else {
-                            ValidationState.INVALID_AMOUNT
-                        }
-                    )
-                }
+        Completable.defer {
+            val min = pendingTx.minLimit ?: CryptoValue.zero(sourceAsset)
+            if (pendingTx.amount.isPositive &&
+                pendingTx.availableBalance >= pendingTx.amount &&
+                min <= pendingTx.amount
+            ) {
+                Completable.complete()
+            } else {
+                throw TxValidationFailure(
+                    if (pendingTx.amount > pendingTx.availableBalance) {
+                        ValidationState.INSUFFICIENT_FUNDS
+                    } else {
+                        ValidationState.INVALID_AMOUNT
+                    }
+                )
             }
+        }
 
     // The custodial balance now returns an id, so it is possible to add a note via this
     // processor at some point. TODO

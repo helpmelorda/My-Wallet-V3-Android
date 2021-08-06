@@ -2,12 +2,12 @@ package com.blockchain.sunriver
 
 import com.blockchain.testutils.lumens
 import com.blockchain.testutils.stroops
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`should equal`
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should throw`
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
 import org.stellar.sdk.responses.TransactionResponse
@@ -36,19 +36,19 @@ class HorizonOperationMappingTest {
         val myAccount = "GDCERC7BR5N6NFK5B74XTTTA5OLC3YPWODQ5CHKRCRU6IVXFYP364JG7"
         val otherAccount = "GBPF72LVHGENTAC6JCBDU6KG6GNTQIHTTIYZGURQQL3CWXEBVNSUVFPL"
         mapOperationResponse(mock<PaymentOperationResponse> {
-            on { from } `it returns`otherAccount
-            on { to } `it returns` myAccount
-            on { transactionHash } `it returns` "ABCD"
-            on { createdAt } `it returns` "TIME"
-            on { amount } `it returns` 50.lumens().toStringWithoutSymbol()
+            on { from }.thenReturn(otherAccount)
+            on { to }.thenReturn(myAccount)
+            on { transactionHash }.thenReturn("ABCD")
+            on { createdAt }.thenReturn("TIME")
+            on { amount }.thenReturn(50.lumens().toStringWithoutSymbol())
         }, myAccount, givenHorizonProxy(100))
             .apply {
-                hash `should equal` "ABCD"
-                timeStamp `should equal` "TIME"
-                fee `should equal` 100.stroops()
-                from.accountId `should equal` otherAccount
-                to.accountId `should equal` myAccount
-                value `should equal` 50.lumens()
+                hash `should be equal to` "ABCD"
+                timeStamp `should be equal to` "TIME"
+                fee `should be equal to` 100.stroops()
+                from.accountId `should be equal to` otherAccount
+                to.accountId `should be equal to` myAccount
+                value `should be equal to` 50.lumens()
             }
     }
 
@@ -57,19 +57,19 @@ class HorizonOperationMappingTest {
         val myAccount = "GDCERC7BR5N6NFK5B74XTTTA5OLC3YPWODQ5CHKRCRU6IVXFYP364JG7"
         val otherAccount = "GBPF72LVHGENTAC6JCBDU6KG6GNTQIHTTIYZGURQQL3CWXEBVNSUVFPL"
         mapOperationResponse(mock<PaymentOperationResponse> {
-            on { from } `it returns`myAccount
-            on { to } `it returns`otherAccount
-            on { transactionHash } `it returns` "ABCD"
-            on { createdAt } `it returns` "TIME"
-            on { amount } `it returns` 50.lumens().toStringWithoutSymbol()
+            on { from }.thenReturn(myAccount)
+            on { to }.thenReturn(otherAccount)
+            on { transactionHash }.thenReturn("ABCD")
+            on { createdAt }.thenReturn("TIME")
+            on { amount }.thenReturn(50.lumens().toStringWithoutSymbol())
         }, myAccount, givenHorizonProxy(100))
             .apply {
-                hash `should equal` "ABCD"
-                timeStamp `should equal` "TIME"
-                fee `should equal` 100.stroops()
-                from.accountId `should equal` myAccount
-                to.accountId `should equal` otherAccount
-                value `should equal` (-50).lumens()
+                hash `should be equal to` "ABCD"
+                timeStamp `should be equal to` "TIME"
+                fee `should be equal to` 100.stroops()
+                from.accountId `should be equal to` myAccount
+                to.accountId `should be equal to` otherAccount
+                value `should be equal to` (-50).lumens()
             }
     }
 
@@ -78,19 +78,19 @@ class HorizonOperationMappingTest {
         val myAccount = "GDCERC7BR5N6NFK5B74XTTTA5OLC3YPWODQ5CHKRCRU6IVXFYP364JG7"
         val otherAccount = "GBPF72LVHGENTAC6JCBDU6KG6GNTQIHTTIYZGURQQL3CWXEBVNSUVFPL"
         mapOperationResponse(mock<CreateAccountOperationResponse> {
-            on { funder } `it returns` otherAccount
-            on { account } `it returns` myAccount
-            on { transactionHash } `it returns` "ABCD"
-            on { createdAt } `it returns` "TIME"
-            on { startingBalance } `it returns` 100.lumens().toStringWithoutSymbol()
+            on { funder }.thenReturn(otherAccount)
+            on { account }.thenReturn(myAccount)
+            on { transactionHash }.thenReturn("ABCD")
+            on { createdAt }.thenReturn("TIME")
+            on { startingBalance }.thenReturn(100.lumens().toStringWithoutSymbol())
         }, myAccount, givenHorizonProxy(100))
             .apply {
-                hash `should equal` "ABCD"
-                timeStamp `should equal` "TIME"
-                fee `should equal` 100.stroops()
-                from.accountId `should equal` otherAccount
-                to.accountId `should equal` myAccount
-                value `should equal` 100.lumens()
+                hash `should be equal to` "ABCD"
+                timeStamp `should be equal to` "TIME"
+                fee `should be equal to` 100.stroops()
+                from.accountId `should be equal to` otherAccount
+                to.accountId `should be equal to` myAccount
+                value `should be equal to` 100.lumens()
             }
     }
 
@@ -99,28 +99,28 @@ class HorizonOperationMappingTest {
         val myAccount = "GDCERC7BR5N6NFK5B74XTTTA5OLC3YPWODQ5CHKRCRU6IVXFYP364JG7"
         val otherAccount = "GBPF72LVHGENTAC6JCBDU6KG6GNTQIHTTIYZGURQQL3CWXEBVNSUVFPL"
         mapOperationResponse(mock<CreateAccountOperationResponse> {
-            on { funder } `it returns` myAccount
-            on { account } `it returns` otherAccount
-            on { transactionHash } `it returns` "ABCD"
-            on { createdAt } `it returns` "TIME"
-            on { startingBalance } `it returns` 100.lumens().toStringWithoutSymbol()
+            on { funder }.thenReturn(myAccount)
+            on { account }.thenReturn(otherAccount)
+            on { transactionHash }.thenReturn("ABCD")
+            on { createdAt }.thenReturn("TIME")
+            on { startingBalance }.thenReturn(100.lumens().toStringWithoutSymbol())
         }, myAccount, givenHorizonProxy(100))
             .apply {
-                hash `should equal` "ABCD"
-                timeStamp `should equal` "TIME"
-                fee `should equal` 100.stroops()
-                from.accountId `should equal` myAccount
-                to.accountId `should equal` otherAccount
-                value `should equal` (-100).lumens()
+                hash `should be equal to` "ABCD"
+                timeStamp `should be equal to` "TIME"
+                fee `should be equal to` 100.stroops()
+                from.accountId `should be equal to` myAccount
+                to.accountId `should be equal to` otherAccount
+                value `should be equal to` (-100).lumens()
             }
     }
 
     private fun givenHorizonProxy(fee: Long): HorizonProxy {
         val mockTx: TransactionResponse = mock {
-            on { feeCharged } `it returns` fee
+            on { feeCharged }.thenReturn(fee)
         }
         return mock {
-            on { getTransaction(any()) } `it returns` mockTx
+            on { getTransaction(any()) }.thenReturn(mockTx)
         }
     }
 }

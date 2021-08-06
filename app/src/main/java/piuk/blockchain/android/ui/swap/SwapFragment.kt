@@ -20,26 +20,26 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.Money
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.Singles
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.Coincore
+import piuk.blockchain.android.coincore.TrendingPair
+import piuk.blockchain.android.coincore.TrendingPairsProvider
 import piuk.blockchain.android.databinding.FragmentSwapBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.ToastCustom
-import piuk.blockchain.android.ui.customviews.TrendingPair
-import piuk.blockchain.android.ui.customviews.TrendingPairsProvider
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
@@ -70,11 +70,11 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
     private val exchangeRateDataManager: ExchangeRateDataManager by scopedInject()
     private val trendingPairsProvider: TrendingPairsProvider by scopedInject()
     private val walletManager: CustodialWalletManager by scopedInject()
-    private val assetResources: AssetResources by scopedInject()
 
     private val currencyPrefs: CurrencyPrefs by inject()
     private val walletPrefs: WalletStatus by inject()
     private val analytics: Analytics by inject()
+    private val assetResources: AssetResources by inject()
     private val txLauncher: TransactionLauncher by inject()
 
     private val compositeDisposable = CompositeDisposable()
@@ -110,6 +110,7 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
 
     private fun startSwap() {
         txLauncher.startFlow(
+            activity = requireActivity(),
             action = AssetAction.Swap,
             fragmentManager = childFragmentManager,
             flowHost = this@SwapFragment
@@ -229,6 +230,7 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
     private fun onTrendingPairClicked(): (TrendingPair) -> Unit = { pair ->
         analytics.logEvent(SwapAnalyticsEvents.TrendingPairClicked)
         txLauncher.startFlow(
+            activity = requireActivity(),
             sourceAccount = pair.sourceAccount,
             target = pair.destinationAccount,
             action = AssetAction.Swap,
@@ -237,8 +239,8 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
         )
         analytics.logEvent(
             SwapAnalyticsEvents.SwapAccountsSelected(
-                inputCurrency = pair.sourceAccount.asset.networkTicker,
-                outputCurrency = pair.destinationAccount.asset.networkTicker,
+                inputCurrency = pair.sourceAccount.asset.ticker,
+                outputCurrency = pair.destinationAccount.asset.ticker,
                 sourceAccountType = TxFlowAnalyticsAccountType.fromAccount(pair.sourceAccount),
                 targetAccountType = TxFlowAnalyticsAccountType.fromAccount(pair.destinationAccount),
                 werePreselected = true
@@ -292,8 +294,7 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
         binding.pendingSwaps.pendingList.apply {
             adapter =
                 PendingSwapsAdapter(
-                    pendingOrders,
-                    assetResources
+                    pendingOrders
                 ) { money: Money ->
                     money.toFiat(exchangeRateDataManager, currencyPrefs.selectedFiatCurrency)
                 }

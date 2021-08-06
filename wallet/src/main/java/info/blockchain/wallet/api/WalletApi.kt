@@ -9,8 +9,8 @@ import info.blockchain.wallet.ApiCode
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.api.data.Status
 import info.blockchain.wallet.api.data.WalletOptions
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
 import org.spongycastle.util.encoders.Hex
 import retrofit2.Call
@@ -257,6 +257,44 @@ class WalletApi(
             email,
             captcha,
             captchaSiteKey
+        )
+    }
+
+    fun updateMobileSetup(
+        guid: String,
+        sharedKey: String,
+        isMobileSetup: Boolean,
+        deviceType: Int
+    ): Single<ResponseBody> {
+        return explorerInstance.updateMobileSetup(
+            "update-mobile-setup",
+            guid,
+            sharedKey,
+            isMobileSetup,
+            deviceType
+        )
+    }
+
+    fun updateMnemonicBackup(guid: String, sharedKey: String): Single<ResponseBody> {
+        return explorerInstance.updateMnemonicBackup(
+            "update-mnemonic-backup",
+            guid,
+            sharedKey
+        )
+    }
+
+    fun verifyCloudBackup(
+        guid: String,
+        sharedKey: String,
+        hasCloudBackup: Boolean,
+        deviceType: Int
+    ): Single<ResponseBody> {
+        return explorerInstance.verifyCloudBackup(
+            "verify-cloud-backup",
+            guid,
+            sharedKey,
+            hasCloudBackup,
+            deviceType
         )
     }
 

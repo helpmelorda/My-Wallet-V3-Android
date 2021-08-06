@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
-import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.dashboard.announcements.rule.AaveYfiDotAvailableAnnouncement
@@ -17,17 +17,16 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.InterestAvailable
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycIncompleteAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycMoreInfoAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycResubmissionAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.PaxRenamedAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RegisterBiometricsAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RegisteredForAirdropMiniAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SellIntroAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SendToDomainAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SimpleBuyFinishSignupAnnouncement
-import piuk.blockchain.android.ui.dashboard.announcements.rule.StxCompleteAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SwapAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.TransferCryptoAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.TwoFAAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.VerifyEmailAnnouncement
-import piuk.blockchain.android.ui.dashboard.announcements.rule.WDGLDAvailableAnnouncement
 
 val dashboardAnnouncementsModule = module {
 
@@ -60,6 +59,12 @@ val dashboardAnnouncementsModule = module {
                 userIdentity = get()
             )
         }
+
+        factory {
+            PaxRenamedAnnouncement(
+                dismissRecorder = get()
+            )
+        }.bind(AnnouncementRule::class)
 
         factory {
             KycResubmissionAnnouncement(
@@ -158,13 +163,6 @@ val dashboardAnnouncementsModule = module {
         }.bind(AnnouncementRule::class)
 
         factory {
-            StxCompleteAnnouncement(
-                dismissRecorder = get(),
-                queries = get()
-            )
-        }.bind(AnnouncementRule::class)
-
-        factory {
             SimpleBuyFinishSignupAnnouncement(
                 dismissRecorder = get(),
                 analytics = get(),
@@ -204,12 +202,6 @@ val dashboardAnnouncementsModule = module {
 
         factory {
             InterestAvailableAnnouncement(
-                dismissRecorder = get()
-            )
-        }.bind(AnnouncementRule::class)
-
-        factory {
-            WDGLDAvailableAnnouncement(
                 dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)

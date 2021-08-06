@@ -19,6 +19,7 @@ import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycNavHostBinding
+import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.complete.ApplicationCompleteFragment
@@ -27,7 +28,6 @@ import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragmentDirection
 import piuk.blockchain.android.util.invisibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BaseMvpActivity
 
 interface StartKyc {
     fun startKycActivity(context: Any, campaignType: CampaignType)
@@ -67,7 +67,11 @@ class KycNavHostActivity : BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(
         setContentView(binding.root)
         val title = R.string.identity_verification
         setupToolbar(binding.toolbarKyc, title)
-        analytics.logEvent(KYCAnalyticsEvents.UpgradeKycVeriffClicked(campaignType.toLaunchOrigin()))
+        analytics.logEvent(
+            KYCAnalyticsEvents.UpgradeKycVeriffClicked(
+                campaignType.toLaunchOrigin()
+            )
+        )
         navController.setGraph(R.navigation.kyc_nav, intent.extras)
 
         onViewReady()

@@ -9,7 +9,7 @@ import org.robolectric.annotation.Config
 import piuk.blockchain.android.BlockchainTestApplication
 import kotlin.test.assertNull
 
-@Config(sdk = [23], application = BlockchainTestApplication::class)
+@Config(sdk = [24], application = BlockchainTestApplication::class)
 @RunWith(RobolectricTestRunner::class)
 class OpenBankingDeepLinkParserTest {
     private val subject = OpenBankingDeepLinkParser()

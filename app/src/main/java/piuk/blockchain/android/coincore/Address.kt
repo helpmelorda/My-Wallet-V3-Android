@@ -1,13 +1,13 @@
 package piuk.blockchain.android.coincore
 
 import com.blockchain.featureflags.InternalFeatureFlagApi
-import com.blockchain.api.AddressMappingService
-import com.blockchain.api.DomainAddressNotFound
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
+import com.blockchain.api.services.AddressMappingService
+import com.blockchain.api.services.DomainAddressNotFound
 import info.blockchain.balance.CryptoValue
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
 import java.lang.IllegalStateException
 
@@ -38,7 +38,7 @@ object NullAddress : ReceiveAddress {
 }
 
 interface CryptoTarget : TransactionTarget {
-    val asset: CryptoCurrency
+    val asset: AssetInfo
     val memo: String?
         get() = null
 }
@@ -49,7 +49,7 @@ interface CryptoAddress : CryptoTarget, ReceiveAddress {
 
 interface AddressFactory {
     fun parse(address: String): Single<Set<ReceiveAddress>>
-    fun parse(address: String, ccy: CryptoCurrency): Maybe<ReceiveAddress>
+    fun parse(address: String, ccy: AssetInfo): Maybe<ReceiveAddress>
 }
 
 class AddressFactoryImpl(
@@ -72,7 +72,7 @@ class AddressFactoryImpl(
             }
         ).toList().map { it.toSet() }
 
-    override fun parse(address: String, ccy: CryptoCurrency): Maybe<ReceiveAddress> =
+    override fun parse(address: String, ccy: AssetInfo): Maybe<ReceiveAddress> =
         isDomainAddress(address)
             .flatMapMaybe { isDomain ->
                 if (isDomain) {
@@ -82,8 +82,8 @@ class AddressFactoryImpl(
                 }
             }
 
-    private fun resolveDomainAddress(address: String, ccy: CryptoCurrency): Maybe<ReceiveAddress> =
-        addressResolver.resolveAssetAddress(address, ccy.networkTicker)
+    private fun resolveDomainAddress(address: String, ccy: AssetInfo): Maybe<ReceiveAddress> =
+        addressResolver.resolveAssetAddress(address, ccy.ticker)
             .flatMapMaybe { resolved ->
                 if (resolved.isEmpty())
                     Maybe.empty()

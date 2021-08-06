@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.ui.urllinks.URL_BLOCKCHAIN_SUPPORT_CLOUD_BACKUP_INFO
-import io.reactivex.Single
+import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_CLOUD_BACKUP_INFO
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementRule

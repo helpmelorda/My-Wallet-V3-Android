@@ -3,11 +3,11 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Single
-import org.amshove.kluent.mock
+import io.reactivex.rxjava3.core.Single
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.coincore.Coincore

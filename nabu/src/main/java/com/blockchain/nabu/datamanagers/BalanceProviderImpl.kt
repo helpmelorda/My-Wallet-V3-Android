@@ -1,16 +1,16 @@
 package com.blockchain.nabu.datamanagers
 
 import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.models.responses.simplebuy.AllAssetBalancesResponse
-import com.blockchain.nabu.service.NabuService
-import io.reactivex.Single
+import com.blockchain.api.services.TradingBalanceMap
+import com.blockchain.api.services.CustodialBalanceService
+import io.reactivex.rxjava3.core.Single
 
 class BalanceProviderImpl(
-    private val nabuService: NabuService,
+    private val balanceService: CustodialBalanceService,
     private val authenticator: Authenticator
 ) : BalancesProvider {
-    override fun getCustodialWalletBalanceForAllAssets(): Single<AllAssetBalancesResponse> =
+    override fun getCustodialWalletBalanceForAllAssets(): Single<TradingBalanceMap> =
         authenticator.authenticate {
-            nabuService.getCustodialWalletBalanceForAllAssets(it)
+            balanceService.getTradingBalanceForAllAssets(it.authHeader)
         }
 }

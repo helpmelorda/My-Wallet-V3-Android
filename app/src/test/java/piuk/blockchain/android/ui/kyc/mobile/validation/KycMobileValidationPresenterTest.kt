@@ -2,18 +2,18 @@ package piuk.blockchain.android.ui.kyc.mobile.validation
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.NabuUserSync
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.argThat
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.times
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.subjects.PublishSubject
-import org.amshove.kluent.`it returns`
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argThat
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.subjects.PublishSubject
+
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -28,7 +28,7 @@ class KycMobileValidationPresenterTest {
     private val view: KycMobileValidationView = mock()
     private val phoneNumberUpdater: PhoneNumberUpdater = mock()
     private val nabuUserSync: NabuUserSync = mock {
-        on { syncUser() } `it returns` Completable.complete()
+        on { syncUser() }.thenReturn(Completable.complete())
     }
 
     @Suppress("unused")

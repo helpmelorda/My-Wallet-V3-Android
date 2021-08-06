@@ -6,10 +6,5 @@ interface DashboardPrefs {
     var isCustodialIntroSeen: Boolean
     var remainingSendsWithoutBackup: Int
 
-    val isTourComplete: Boolean
-    val tourStage: String
-
-    fun setTourComplete()
-    fun setTourStage(stageName: String)
-    fun resetTour()
+    var dashboardAssetOrder: List<String>
 }

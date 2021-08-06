@@ -1,10 +1,10 @@
 package piuk.blockchain.android.coincore.impl.txEngine
 
 import com.blockchain.preferences.WalletStatus
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.api.data.FeeOptions
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.FeeLevel
 import piuk.blockchain.android.coincore.FeeState
@@ -37,10 +37,10 @@ abstract class OnChainTxEngineBase(
     private fun FeeLevel.mapFeeLevelToSavedValue() =
         this.ordinal
 
-    private fun storeDefaultFeeLevel(cryptoCurrency: CryptoCurrency, feeLevel: FeeLevel) =
+    private fun storeDefaultFeeLevel(cryptoCurrency: AssetInfo, feeLevel: FeeLevel) =
         walletPreferences.setFeeTypeForAsset(cryptoCurrency, feeLevel.mapFeeLevelToSavedValue())
 
-    protected fun fetchDefaultFeeLevel(cryptoCurrency: CryptoCurrency): Int? =
+    protected fun fetchDefaultFeeLevel(cryptoCurrency: AssetInfo): Int? =
         walletPreferences.getFeeTypeForAsset(cryptoCurrency)
 
     protected fun getFeeState(pTx: PendingTx, feeOptions: FeeOptions? = null) =
@@ -87,7 +87,7 @@ abstract class OnChainTxEngineBase(
     }
 
     private fun updateFeeSelection(
-        cryptoCurrency: CryptoCurrency,
+        cryptoCurrency: AssetInfo,
         pendingTx: PendingTx,
         newFeeLevel: FeeLevel,
         customFeeAmount: Long

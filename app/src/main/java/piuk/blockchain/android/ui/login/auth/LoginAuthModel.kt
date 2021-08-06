@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.login.auth
 
 import com.blockchain.logging.CrashLogger
-import io.reactivex.Scheduler
-import io.reactivex.Single
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import okhttp3.ResponseBody
 import org.json.JSONObject
 import piuk.blockchain.android.ui.base.mvi.MviModel
@@ -45,6 +45,7 @@ class LoginAuthModel(
                     code = intent.code,
                     payloadJson = previousState.payloadJson
                 )
+            is LoginAuthIntents.UpdateMobileSetup -> updateAccount(intent.isMobileSetup, intent.deviceType)
             is LoginAuthIntents.ShowAuthComplete -> clearSessionId()
             else -> null
         }
@@ -94,7 +95,14 @@ class LoginAuthModel(
     private fun verifyPassword(payload: String, password: String): Disposable {
         return interactor.verifyPassword(payload, password)
             .subscribeBy(
-                onComplete = { process(LoginAuthIntents.ShowAuthComplete) },
+                onComplete = {
+                    process(
+                        LoginAuthIntents.UpdateMobileSetup(
+                            isMobileSetup = true,
+                            deviceType = DEVICE_TYPE_ANDROID
+                        )
+                    )
+                },
                 onError = { throwable ->
                     process(LoginAuthIntents.ShowError(throwable))
                 }
@@ -116,6 +124,15 @@ class LoginAuthModel(
                 onError = { process(LoginAuthIntents.Show2FAFailed) }
             )
     }
+
+    private fun updateAccount(isMobileSetup: Boolean, deviceType: Int) =
+        interactor.updateMobileSetup(isMobileSetup, deviceType)
+            .subscribeBy(
+                onComplete = { process(LoginAuthIntents.ShowAuthComplete) },
+                onError = { throwable ->
+                    process(LoginAuthIntents.ShowError(throwable))
+                }
+            )
 
     private fun handleResponse(response: Response<ResponseBody>): Single<ResponseBody> {
         val errorResponse = response.errorBody()
@@ -140,6 +157,7 @@ class LoginAuthModel(
     companion object {
         const val INITIAL_ERROR = "initial_error"
         const val KEY_AUTH_REQUIRED = "authorization_required"
+        private const val DEVICE_TYPE_ANDROID = 2
     }
 
     class AuthRequiredException : Exception()

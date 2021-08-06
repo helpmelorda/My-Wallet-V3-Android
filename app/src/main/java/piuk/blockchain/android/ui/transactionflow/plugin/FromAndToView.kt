@@ -6,17 +6,16 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import org.koin.core.KoinComponent
 import org.koin.core.inject
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.NullAddress
 import piuk.blockchain.android.databinding.ViewTxFlowFromAndToBinding
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
 import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.setAssetIconColours
-import piuk.blockchain.android.util.setImageDrawable
+import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.visibleIf
 
 class FromAndToView @JvmOverloads constructor(
@@ -58,11 +57,11 @@ class FromAndToView @JvmOverloads constructor(
 
     private fun updatePendingTxDetails(state: TransactionState) {
         with(binding) {
-            amountSheetAssetIcon.setImageResource(customiser.enterAmountSourceIcon(state))
+            customiser.enterAmountLoadSourceIcon(amountSheetAssetIcon, state)
 
             if (customiser.showTargetIcon(state)) {
                 (state.selectedTarget as? CryptoAccount)?.let {
-                    amountSheetTargetIcon.setImageDrawable(assetResources.drawableResFilled(it.asset))
+                    assetResources.loadAssetIcon(amountSheetTargetIcon, it.asset)
                 }
             } else {
                 amountSheetTargetIcon.gone()
@@ -70,10 +69,7 @@ class FromAndToView @JvmOverloads constructor(
 
             amountSheetAssetDirection.setImageResource(customiser.enterAmountActionIcon(state))
             if (customiser.enterAmountActionIconCustomisation(state)) {
-                amountSheetAssetDirection.setAssetIconColours(
-                    tintColor = assetResources.assetTint(state.sendingAsset),
-                    filterColor = assetResources.assetFilter(state.sendingAsset)
-                )
+                amountSheetAssetDirection.setAssetIconColoursWithTint(state.sendingAsset)
             }
         }
 

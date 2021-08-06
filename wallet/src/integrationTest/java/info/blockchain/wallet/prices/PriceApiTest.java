@@ -4,7 +4,7 @@ import info.blockchain.wallet.ApiCode;
 import info.blockchain.wallet.BaseIntegTest;
 import info.blockchain.wallet.BlockchainFramework;
 import info.blockchain.wallet.prices.data.PriceDatum;
-import io.reactivex.observers.TestObserver;
+import io.reactivex.rxjava3.observers.TestObserver;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 

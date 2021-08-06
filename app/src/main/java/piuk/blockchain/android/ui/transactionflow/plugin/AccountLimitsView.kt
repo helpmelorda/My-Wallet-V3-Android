@@ -5,15 +5,13 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import org.koin.core.KoinComponent
-import org.koin.core.inject
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.NullAddress
 import piuk.blockchain.android.databinding.ViewTxFlowAccountLimitsBinding
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
-import piuk.blockchain.android.util.setAssetIconColours
+import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.visibleIf
 
 class AccountLimitsView @JvmOverloads constructor(
@@ -26,7 +24,6 @@ class AccountLimitsView @JvmOverloads constructor(
     private lateinit var model: TransactionModel
     private lateinit var customiser: EnterAmountCustomisations
     private lateinit var analytics: TxFlowAnalytics
-    private val assetResources: AssetResources by inject()
 
     private val binding: ViewTxFlowAccountLimitsBinding =
         ViewTxFlowAccountLimitsBinding.inflate(LayoutInflater.from(context), this, true)
@@ -55,14 +52,10 @@ class AccountLimitsView @JvmOverloads constructor(
 
     private fun updatePendingTxDetails(state: TransactionState) {
         with(binding) {
-            amountSheetLimitsIcon.setImageResource(customiser.enterAmountSourceIcon(state))
-
+            customiser.enterAmountLoadSourceIcon(amountSheetLimitsIcon, state)
             amountSheetLimitsDirection.setImageResource(customiser.enterAmountActionIcon(state))
             if (customiser.enterAmountActionIconCustomisation(state)) {
-                amountSheetLimitsDirection.setAssetIconColours(
-                    tintColor = assetResources.assetTint(state.sendingAsset),
-                    filterColor = assetResources.assetFilter(state.sendingAsset)
-                )
+                amountSheetLimitsDirection.setAssetIconColoursWithTint(state.sendingAsset)
             }
         }
 

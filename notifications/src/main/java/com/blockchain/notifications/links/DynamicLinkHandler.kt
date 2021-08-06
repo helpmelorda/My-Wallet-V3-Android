@@ -3,7 +3,7 @@ package com.blockchain.notifications.links
 import android.content.Intent
 import android.net.Uri
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
-import io.reactivex.Maybe
+import io.reactivex.rxjava3.core.Maybe
 
 internal class DynamicLinkHandler internal constructor(
     private val dynamicLinks: FirebaseDynamicLinks

@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.dashboard.assetdetails.delegates
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.isCustodialOnly
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.CryptoAsset
 import piuk.blockchain.android.databinding.DialogDashboardAssetLabelItemBinding
@@ -34,9 +34,11 @@ private class LabelViewHolder(
 
     fun bind(token: CryptoAsset) {
         with(binding) {
-            when (token.asset) {
-                CryptoCurrency.ALGO -> assetLabelDescription.text = context.getString(R.string.algorand_asset_label)
-                CryptoCurrency.DOT -> assetLabelDescription.text = context.getString(R.string.polkadot_asset_label)
+            when {
+                token.asset.isCustodialOnly -> context.getString(
+                    R.string.custodial_only_asset_label,
+                    token.asset.ticker
+                )
                 else -> root.gone()
             }
         }

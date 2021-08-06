@@ -4,10 +4,10 @@ import piuk.blockchain.android.ui.kyc.BaseKycPresenter
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import com.blockchain.nabu.NabuToken
 import com.blockchain.notifications.NotificationTokenManager
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.R
 import timber.log.Timber
 

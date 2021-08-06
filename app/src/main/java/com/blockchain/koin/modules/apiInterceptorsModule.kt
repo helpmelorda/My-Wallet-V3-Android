@@ -11,8 +11,10 @@ import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.api.interceptors.ApiInterceptor
 import piuk.blockchain.androidcore.data.api.interceptors.DeviceIdInterceptor
+import piuk.blockchain.androidcore.data.api.interceptors.RequestIdInterceptor
 import piuk.blockchain.androidcore.data.api.interceptors.UserAgentInterceptor
 import piuk.blockchain.androidcore.utils.PersistentPrefs
+import java.util.UUID
 
 val apiInterceptorsModule = module {
 
@@ -20,28 +22,19 @@ val apiInterceptorsModule = module {
         val env: EnvironmentConfig = get()
         val versionName = BuildConfig.VERSION_NAME.removeSuffix(BuildConfig.VERSION_NAME_SUFFIX)
         OkHttpInterceptors(
-            if (env.isRunningInDebugMode()) {
-                listOfNotNull(
-                    // Stetho for debugging network ops via Chrome
-                    StethoInterceptor(),
-                    // Add logging for debugging purposes
-                    ApiInterceptor(),
-                    // Add header in all requests
-                    UserAgentInterceptor(versionName, Build.VERSION.RELEASE),
-                    DeviceIdInterceptor(prefs = lazy { get<PersistentPrefs>() }, get()),
+            mutableListOf(
+                UserAgentInterceptor(versionName, Build.VERSION.RELEASE),
+                DeviceIdInterceptor(prefs = lazy { get<PersistentPrefs>() }, get()),
+                RequestIdInterceptor { UUID.randomUUID().toString() }
+            ).apply {
+                if (env.isRunningInDebugMode()) {
+                    add(StethoInterceptor())
+                    add(ApiInterceptor())
                     if (env.environment != Environment.PRODUCTION) {
-                            ChuckerInterceptor.Builder(androidContext())
-                                .build()
-                    } else {
-                        null
+                        add(ChuckerInterceptor.Builder(androidContext()).build())
                     }
-                )
-            } else {
-                listOf(
-                    // Add header in all requests
-                    UserAgentInterceptor(versionName, Build.VERSION.RELEASE),
-                    DeviceIdInterceptor(prefs = lazy { get<PersistentPrefs>() }, get())
-                )
-            })
+                }
+            }
+        )
     }
 }

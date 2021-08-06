@@ -6,8 +6,8 @@ import info.blockchain.wallet.api.data.Settings;
 import info.blockchain.wallet.api.data.SignedToken;
 import info.blockchain.wallet.api.data.Status;
 import info.blockchain.wallet.api.data.WalletOptions;
-import io.reactivex.Observable;
-import io.reactivex.Single;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -179,5 +179,33 @@ public interface WalletExplorerEndpoints {
         @Field("email") String email,
         @Field("captcha") String captcha,
         @Field("siteKey") String siteKey
+    );
+
+    @FormUrlEncoded
+    @POST("wallet")
+    Single<ResponseBody> updateMobileSetup(
+        @Field("method") String method,
+        @Field("guid") String guid,
+        @Field("sharedKey") String sharedKey,
+        @Field("is_mobile_setup") Boolean isMobileSetup,
+        @Field("mobile_device_type") int deviceType
+    );
+
+    @FormUrlEncoded
+    @POST("wallet")
+    Single<ResponseBody> updateMnemonicBackup(
+        @Field("method") String method,
+        @Field("guid") String guid,
+        @Field("sharedKey") String sharedKey
+    );
+
+    @FormUrlEncoded
+    @POST("wallet")
+    Single<ResponseBody> verifyCloudBackup(
+        @Field("method") String method,
+        @Field("guid") String guid,
+        @Field("sharedKey") String sharedKey,
+        @Field("has_cloud_backup") Boolean isMobileSetup,
+        @Field("mobile_device_type") int deviceType
     );
 }

@@ -6,7 +6,6 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.InternalFeatureFlagPrefs
 import com.blockchain.preferences.NotificationPrefs
-import com.blockchain.preferences.OfflineCachePrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
@@ -24,7 +23,6 @@ interface PersistentPrefs :
     SimpleBuyPrefs,
     RatingPrefs,
     WalletStatus,
-    OfflineCachePrefs,
     EncryptedPrefs,
     AuthPrefs,
     BankLinkingPrefs,
@@ -78,8 +76,5 @@ interface PersistentPrefs :
         const val KEY_OVERLAY_TRUSTED = "overlay_trusted"
 
         const val KEY_ROOT_WARNING_DISABLED = "disable_root_warning"
-
-        // Swipe To Receive
-        const val KEY_SWIPE_TO_RECEIVE_ENABLED = "swipe_to_receive_enabled"
     }
 }

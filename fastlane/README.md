@@ -61,6 +61,11 @@ Bundle of build, perform checks and run tests on CI.
 fastlane android ci_credentials
 ```
 Get the configuration files from the Android credentials repository on CI.
+### android ci_credentials_cleanup
+```
+fastlane android ci_credentials_cleanup
+```
+Cleanup the credentials repository
 ### android ci_upload_to_appcenter
 ```
 fastlane android ci_upload_to_appcenter

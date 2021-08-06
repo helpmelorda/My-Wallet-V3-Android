@@ -1,6 +1,6 @@
 package piuk.blockchain.androidcore.data.datastores.persistentstore
 
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 
 abstract class FetchStrategy<T> {
 

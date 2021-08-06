@@ -4,11 +4,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
+import info.blockchain.balance.isCustodialOnly
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.AssetAction
@@ -56,9 +57,9 @@ class AssetDetailViewHolder(private val binding: ViewAccountCryptoOverviewBindin
             }
 
             walletName.text = when (item.assetFilter) {
-                AssetFilter.NonCustodial -> labels.getDefaultNonCustodialWalletLabel(asset)
-                AssetFilter.Custodial -> labels.getDefaultCustodialWalletLabel(asset)
-                AssetFilter.Interest -> labels.getDefaultInterestWalletLabel(asset)
+                AssetFilter.NonCustodial -> labels.getDefaultNonCustodialWalletLabel()
+                AssetFilter.Custodial -> labels.getDefaultCustodialWalletLabel()
+                AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
                 else -> throw IllegalArgumentException("Not supported filter")
             }
 
@@ -99,7 +100,7 @@ class AssetDetailViewHolder(private val binding: ViewAccountCryptoOverviewBindin
         }
     }
 
-    private fun getAsset(account: BlockchainAccount, currency: String): CryptoCurrency =
+    private fun getAsset(account: BlockchainAccount, currency: String): AssetInfo =
         when (account) {
             is CryptoAccount -> account.asset
             is AccountGroup -> account.accounts.filterIsInstance<CryptoAccount>()
@@ -113,9 +114,11 @@ class AssetDetailViewHolder(private val binding: ViewAccountCryptoOverviewBindin
 class LabelViewHolder(private val binding: DialogDashboardAssetLabelItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(token: CryptoAsset) {
-        binding.assetLabelDescription.text = when (token.asset) {
-            CryptoCurrency.ALGO -> context.getString(R.string.algorand_asset_label)
-            CryptoCurrency.DOT -> context.getString(R.string.polkadot_asset_label)
+        binding.assetLabelDescription.text = when {
+            token.asset.isCustodialOnly -> context.getString(
+                R.string.custodial_only_asset_label,
+                token.asset.ticker
+            )
             else -> ""
         }
     }
@@ -123,7 +126,6 @@ class LabelViewHolder(private val binding: DialogDashboardAssetLabelItemBinding)
 
 internal class AssetDetailAdapter(
     private val onAccountSelected: (BlockchainAccount, AssetFilter) -> Unit,
-    private val showBanner: Boolean,
     private val token: CryptoAsset,
     private val labels: DefaultLabels,
     private val assetDetailsDecorator: AssetDetailsDecorator
@@ -151,6 +153,8 @@ internal class AssetDetailAdapter(
                 DialogDashboardAssetLabelItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             )
         }
+
+    private val showBanner = token.isCustodialOnly
 
     override fun getItemCount(): Int = if (showBanner) itemList.size + 1 else itemList.size
 

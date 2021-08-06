@@ -12,17 +12,17 @@ import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.transition.TransitionManager
 import com.blockchain.koin.scopedInject
-import com.blockchain.ui.urllinks.URL_BACKUP_INFO
-import com.blockchain.ui.urllinks.URL_PRIVACY_POLICY
-import com.blockchain.ui.urllinks.URL_TOS_POLICY
+import piuk.blockchain.android.urllinks.URL_BACKUP_INFO
+import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
+import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import com.blockchain.wallet.DefaultLabels
-import com.jakewharton.rxbinding2.widget.RxTextView
-import info.blockchain.balance.CryptoCurrency
+import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityCreateWalletBinding
 import piuk.blockchain.android.databinding.ViewPasswordStrengthBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
+import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.customviews.toast
@@ -32,7 +32,6 @@ import piuk.blockchain.android.util.getTextString
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BaseMvpActivity
 
 class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPresenter>(),
     CreateWalletView,
@@ -75,25 +74,25 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
             passwordStrengthBinding.passStrengthBar.max = 100 * 10
 
             walletPass.onFocusChangeListener = this@CreateWalletActivity
-            RxTextView.afterTextChangeEvents(walletPass)
+            walletPass.afterTextChangeEvents()
                 .doOnNext {
                     showEntropyContainer()
                     presenter.logEventPasswordOneClicked()
-                    binding.entropyContainer.updatePassword(it.editable().toString())
+                    binding.entropyContainer.updatePassword(it.editable.toString())
                     hideShowCreateButton(
-                        it.editable().toString().length,
+                        it.editable.toString().length,
                         walletPassConfirm.getTextString().length,
                         walletPasswordCheckbox.isChecked
                     )
                 }
                 .emptySubscribe()
 
-            RxTextView.afterTextChangeEvents(walletPassConfirm)
+            walletPassConfirm.afterTextChangeEvents()
                 .doOnNext {
                     presenter.logEventPasswordTwoClicked()
                     hideShowCreateButton(
                         walletPass.getTextString().length,
-                        it.editable().toString().length,
+                        it.editable.toString().length,
                         walletPasswordCheckbox.isChecked
                     )
                 }
@@ -241,7 +240,7 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
         }
     }
 
-    override fun getDefaultAccountName(): String = defaultLabels.getDefaultNonCustodialWalletLabel(CryptoCurrency.BTC)
+    override fun getDefaultAccountName(): String = defaultLabels.getDefaultNonCustodialWalletLabel()
 
     override fun enforceFlagSecure() = true
 

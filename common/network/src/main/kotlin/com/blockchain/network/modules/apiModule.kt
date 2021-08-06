@@ -20,7 +20,7 @@ import okhttp3.CertificatePinner
 import okhttp3.Interceptor
 import org.koin.dsl.module
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.jackson.JacksonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 
@@ -68,7 +68,7 @@ val apiModule = module {
             .baseUrl(getProperty<String>("explorer-api"))
             .client(get())
             .addConverterFactory(get<MoshiConverterFactory>())
-            .addCallAdapterFactory(get<RxJava2CallAdapterFactory>())
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .build()
     }
 
@@ -77,7 +77,7 @@ val apiModule = module {
             .baseUrl(get<EnvironmentUrls>().apiUrl)
             .client(get())
             .addConverterFactory(get<MoshiConverterFactory>())
-            .addCallAdapterFactory(get<RxJava2CallAdapterFactory>())
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .build()
     }
 
@@ -86,7 +86,7 @@ val apiModule = module {
             .baseUrl(get<EnvironmentUrls>().nabuApi)
             .client(get())
             .addConverterFactory(get<MoshiConverterFactory>())
-            .addCallAdapterFactory(get<RxJava2CallAdapterFactory>())
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .build()
     }
 
@@ -95,7 +95,7 @@ val apiModule = module {
             .baseUrl(get<EnvironmentUrls>().statusUrl)
             .client(get())
             .addConverterFactory(get<MoshiConverterFactory>())
-            .addCallAdapterFactory(get<RxJava2CallAdapterFactory>())
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .build()
     }
 
@@ -104,7 +104,7 @@ val apiModule = module {
             .baseUrl(getProperty<String>("blockchain-api"))
             .client(get())
             .addConverterFactory(get<JacksonConverterFactory>())
-            .addCallAdapterFactory(get<RxJava2CallAdapterFactory>())
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .build()
     }
 
@@ -113,7 +113,7 @@ val apiModule = module {
             .baseUrl(getProperty<String>("explorer-api"))
             .client(get())
             .addConverterFactory(get<JacksonConverterFactory>())
-            .addCallAdapterFactory(get<RxJava2CallAdapterFactory>())
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .build()
     }
 
@@ -122,7 +122,7 @@ val apiModule = module {
             .baseUrl(get<EnvironmentUrls>().everypayHostUrl)
             .client(get())
             .addConverterFactory(get<MoshiConverterFactory>())
-            .addCallAdapterFactory(get<RxJava2CallAdapterFactory>())
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .build()
     }
 }

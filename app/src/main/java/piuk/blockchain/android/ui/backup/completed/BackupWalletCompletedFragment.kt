@@ -12,7 +12,9 @@ import piuk.blockchain.android.databinding.FragmentBackupCompleteBinding
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingFragment
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setOnClickListenerDebounced
-import piuk.blockchain.androidcoreui.ui.base.BaseFragment
+import piuk.blockchain.android.ui.base.BaseFragment
+import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.toast
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -39,7 +41,7 @@ class BackupWalletCompletedFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.buttonBackupDone.setOnClickListenerDebounced { onBackupDone() }
+        binding.buttonBackupDone.setOnClickListenerDebounced { presenter.updateMnemonicBackup() }
         binding.buttonBackupAgain.setOnClickListenerDebounced { onBackupAgainRequested() }
 
         onViewReady()
@@ -61,6 +63,17 @@ class BackupWalletCompletedFragment :
         binding.subheadingDate.gone()
     }
 
+    override fun onBackupDone() {
+        activity?.apply {
+            setResult(Activity.RESULT_OK)
+            finish()
+        }
+    }
+
+    override fun showErrorToast() {
+        toast(R.string.common_error, ToastCustom.TYPE_ERROR)
+    }
+
     override fun createPresenter() = presenter
 
     override fun getMvpView() = this
@@ -72,13 +85,6 @@ class BackupWalletCompletedFragment :
                 .replace(R.id.content_frame, BackupWalletStartingFragment())
                 .addToBackStack(BackupWalletStartingFragment.TAG)
                 .commit()
-        }
-    }
-
-    private fun onBackupDone() {
-        activity?.apply {
-            setResult(Activity.RESULT_OK)
-            finish()
         }
     }
 

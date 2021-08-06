@@ -19,12 +19,12 @@ import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
-import com.blockchain.ui.extensions.throttledClicks
-import com.blockchain.ui.urllinks.URL_BLOCKCHAIN_GOLD_UNAVAILABLE_SUPPORT
-import com.blockchain.ui.urllinks.URL_BLOCKCHAIN_KYC_SUPPORTED_COUNTRIES_LIST
+import piuk.blockchain.android.util.throttledClicks
+import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_GOLD_UNAVAILABLE_SUPPORT
+import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_KYC_SUPPORTED_COUNTRIES_LIST
 import com.blockchain.veriff.VeriffApplicantAndToken
 import com.blockchain.veriff.VeriffLauncher
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -32,7 +32,6 @@ import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.databinding.FragmentKycVeriffSplashBinding
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
-import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
@@ -43,12 +42,13 @@ import piuk.blockchain.android.util.goneIf
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BaseFragment
-import piuk.blockchain.androidcoreui.ui.base.UiState
-import piuk.blockchain.androidcoreui.ui.base.UiState.CONTENT
-import piuk.blockchain.androidcoreui.ui.base.UiState.EMPTY
-import piuk.blockchain.androidcoreui.ui.base.UiState.FAILURE
-import piuk.blockchain.androidcoreui.ui.base.UiState.LOADING
+import piuk.blockchain.android.ui.base.BaseFragment
+import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.kyc.splash.UiState
+import piuk.blockchain.android.ui.kyc.splash.UiState.CONTENT
+import piuk.blockchain.android.ui.kyc.splash.UiState.EMPTY
+import piuk.blockchain.android.ui.kyc.splash.UiState.FAILURE
+import piuk.blockchain.android.ui.kyc.splash.UiState.LOADING
 import timber.log.Timber
 
 class VeriffSplashFragment : BaseFragment<VeriffSplashView, VeriffSplashPresenter>(),
@@ -186,6 +186,7 @@ class VeriffSplashFragment : BaseFragment<VeriffSplashView, VeriffSplashPresente
 
     override fun continueToSwap() {
         txLauncher.startFlow(
+            activity = requireActivity(),
             action = AssetAction.Swap,
             fragmentManager = childFragmentManager,
             flowHost = this@VeriffSplashFragment

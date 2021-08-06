@@ -7,13 +7,15 @@ import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
+import info.blockchain.balance.isErc20
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.FiatAccount
 import piuk.blockchain.android.coincore.NullAddress
@@ -67,10 +69,14 @@ abstract class SellTxEngineBase(
             if (pendingTx.amount <= balance) {
                 if (pendingTx.maxLimit != null && pendingTx.minLimit != null) {
                     when {
-                        pendingTx.amount + pendingTx.feeAmount < pendingTx.minLimit -> throw TxValidationFailure(
+                        pendingTx.amount + feeInSourceCurrency(
+                            pendingTx
+                        ) < pendingTx.minLimit -> throw TxValidationFailure(
                             ValidationState.UNDER_MIN_LIMIT
                         )
-                        pendingTx.amount + pendingTx.feeAmount > pendingTx.maxLimit -> throw TxValidationFailure(
+                        pendingTx.amount - feeInSourceCurrency(
+                            pendingTx
+                        ) > pendingTx.maxLimit -> throw TxValidationFailure(
                             ValidationState.OVER_MAX_LIMIT
                         )
                         else -> Completable.complete()
@@ -84,6 +90,10 @@ abstract class SellTxEngineBase(
         }
     }
 
+    // The fee for on chain transaction for erc20 tokens is 0 for the corresponding erc20 token.
+    // The fee for those transactions is paid in ETH and the tx validation happens in the Erc20OnChainEngine
+    abstract fun feeInSourceCurrency(pendingTx: PendingTx): Money
+
     private fun buildNewFee(feeAmount: Money, exchangeAmount: Money): TxConfirmationValue? {
         return if (!feeAmount.isZero) {
             TxConfirmationValue.NetworkFee(
@@ -94,7 +104,7 @@ abstract class SellTxEngineBase(
         } else null
     }
 
-    private fun CryptoCurrency.disambiguateERC20() = if (this.hasFeature(CryptoCurrency.IS_ERC20)) {
+    private fun AssetInfo.disambiguateERC20() = if (this.isErc20()) {
         CryptoCurrency.ETHER
     } else this
 
@@ -168,7 +178,7 @@ abstract class SellTxEngineBase(
                     to = userFiat,
                     _rate = pricedQuote.price.toBigDecimal()
                 )
-                    addOrRefreshConfirmations(pendingTx, pricedQuote, latestQuoteExchangeRate)
+                addOrRefreshConfirmations(pendingTx, pricedQuote, latestQuoteExchangeRate)
             }
 
     protected fun createSellOrder(pendingTx: PendingTx): Single<CustodialOrder> =

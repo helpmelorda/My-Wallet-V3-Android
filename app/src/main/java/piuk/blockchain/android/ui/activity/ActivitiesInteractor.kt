@@ -4,10 +4,10 @@ import com.blockchain.notifications.analytics.Analytics
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.Coincore
@@ -33,7 +33,7 @@ class ActivitiesInteractor(
     fun cancelSimpleBuyOrder(orderId: String): Disposable? {
         return custodialWalletManager.deleteBuyOrder(orderId)
                 .subscribeBy(
-                    onComplete = { simpleBuyPrefs.clearState() },
+                    onComplete = { simpleBuyPrefs.clearBuyState() },
                     onError = { error ->
                         analytics.logEvent(SimpleBuyAnalytics.BANK_DETAILS_CANCEL_ERROR)
                         Timber.e(error)

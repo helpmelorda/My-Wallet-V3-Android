@@ -3,22 +3,22 @@
 object Versions {
 
     // Release info
-    const val minSdk = 23
+    const val minSdk = 24
     const val targetSdk = 30
     const val compileSdk = 30
 
-    const val versionCode = 654
-    const val versionName = "8.8.5"
+    const val versionCode = 14981
+    const val versionName = "8.9.0"
     const val buildTools = "29.0.2"
 
     // Build tools and languages
-    const val androidPlugin = "4.1.2"
-    const val kotlin = "1.4.21"
+    const val androidPlugin = "4.2.1"
+    const val kotlin = "1.5.0"
     const val googleServicesPlugin = "4.3.3"
     const val coveralls = "2.8.2"
     const val buildProperties = "0.4"
     const val ktlint = "0.27.0"
-    const val kotlinJvmTarget = "1.6"
+    const val kotlinJvmTarget = "1.8"
     const val javaCompatibilityVersion = 1.8
 
     // Androidx Libraries
@@ -53,21 +53,21 @@ object Versions {
 
     // Networking, RxJava
     const val chucker = "3.4.0"
-    const val retrofit = "2.7.0"
+    const val retrofit = "2.9.0"
     const val okHttp = "4.9.0"
     const val mockWebServer = "v0.1.8"
     const val moshi = "1.8.0"
     const val gson = "2.8.5"
-    const val jacksonCore = "2.9.6"
-    const val kotlinJson = "1.0.1"
+    const val jacksonCore = "2.12.3"
+    const val kotlinJson = "1.2.1"
     const val kotlinJsonConverter = "0.8.0"
     const val koin = "2.1.5"
-    const val rxJava = "2.2.20"
-    const val rxKotlin = "2.4.0"
-    const val rxAndroid = "2.1.1"
-    const val rxBinding = "2.1.1"
-    const val rxReplayShare = "2.0.1"
-    const val rxRelay = "2.1.1"
+    const val rxJava = "3.0.7"
+    const val rxKotlin = "3.0.1"
+    const val rxAndroid = "3.0.0"
+    const val rxBinding = "4.0.0"
+    const val rxReplayShare = "3.0.0"
+    const val rxRelay = "3.0.0"
     const val glide = "4.12.0"
 
     // Utils, BTC, Ethereum
@@ -102,10 +102,11 @@ object Versions {
     const val sparkline = "1.2.0"
 
     // Third Party SDKs
-    const val veriff = "3.14.1"
+    const val veriff = "3.15.0"
     const val sift = "0.11.1"
     const val cardForm = "4.2.0"
     const val xlmSunriver = "0.21.1"
+    const val lottieVersion = "3.5.0"
 
     // Logging
     const val timber = "4.7.1"
@@ -118,16 +119,16 @@ object Versions {
     const val stetho = "1.5.1"
 
     // Testing
-    const val mockito = "2.10.0"
-    const val mockitoKotlin = "1.5.0"
-    const val kluent = "1.19"
+    const val mockito = "2.23.0"
+    const val mockitoKotlin = "2.0.0"
+    const val kluent = "1.66"
     const val hamcrestJunit = "2.0.0.0"
     const val junit = "4.12"
     const val robolectric = "4.3"
     const val json = "20140107"
     const val espresso = "3.2.0"
-    const val jacoco = "0.8.6"
-    const val androidxTesting = "1.1.1"
+    const val jacoco = "0.8.7"
+    const val androidxTesting = "1.3.0"
 }
 
 object Libraries {
@@ -188,7 +189,7 @@ object Libraries {
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
     const val retrofitJacksonConverter = "com.squareup.retrofit2:converter-jackson:${Versions.retrofit}"
     const val retrofitRxMoshiConverter = "com.squareup.retrofit2:converter-moshi:${Versions.retrofit}"
-    const val retrofitRxJavaAdapter = "com.squareup.retrofit2:adapter-rxjava2:${Versions.retrofit}"
+    const val retrofitRxJavaAdapter = "com.squareup.retrofit2:adapter-rxjava3:${Versions.retrofit}"
     const val retrofitGsonConverter = "com.squareup.retrofit2:converter-gson:2.5.0"
     const val retrofitKotlinJsonConverter =
         "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:${Versions.kotlinJsonConverter}"
@@ -203,22 +204,20 @@ object Libraries {
     const val gson = "com.google.code.gson:gson:${Versions.gson}"
     const val kotlinJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinJson}"
     const val koin = "org.koin:koin-core:${Versions.koin}"
+    const val koinTest = "org.koin:koin-test:${Versions.koin}"
     const val koinAndroid = "org.koin:koin-android:${Versions.koin}"
     const val glide = "com.github.bumptech.glide:glide:${Versions.glide}"
     const val glideAnnotations = "com.github.bumptech.glide:compiler:${Versions.glide}"
     const val chuckerDebug = "com.github.chuckerteam.chucker:library:${Versions.chucker}"
     const val chuckerRelease = "com.github.chuckerteam.chucker:library-no-op:${Versions.chucker}"
-
-    const val koinTest = "org.koin:koin-test:${Versions.koin}"
-    const val rxJava = "io.reactivex.rxjava2:rxjava:${Versions.rxJava}"
-    const val rxKotlin = "io.reactivex.rxjava2:rxkotlin:${Versions.rxKotlin}"
-    const val rxAndroid = "io.reactivex.rxjava2:rxandroid:${Versions.rxAndroid}"
-    const val rxBinding = "com.jakewharton.rxbinding2:rxbinding-kotlin:${Versions.rxBinding}"
-    const val rxBindingV4 = "com.jakewharton.rxbinding2:rxbinding-support-v4-kotlin:${Versions.rxBinding}"
-    const val rxBindingV7 = "com.jakewharton.rxbinding2:rxbinding-appcompat-v7-kotlin:${Versions.rxBinding}"
-    const val rxReplayShare = "com.jakewharton.rx2:replaying-share-kotlin:${Versions.rxReplayShare}"
-    const val rxRelay = "com.jakewharton.rxrelay2:rxrelay:${Versions.rxRelay}"
-
+    const val rxJava = "io.reactivex.rxjava3:rxjava:${Versions.rxJava}"
+    const val rxKotlin = "io.reactivex.rxjava3:rxkotlin:${Versions.rxKotlin}"
+    const val rxAndroid = "io.reactivex.rxjava3:rxandroid:${Versions.rxAndroid}"
+    const val rxBinding = "com.jakewharton.rxbinding4:rxbinding:${Versions.rxBinding}"
+    const val rxBindingCore = "com.jakewharton.rxbinding4:rxbinding-core:${Versions.rxBinding}"
+    const val rxBindingCompat = "com.jakewharton.rxbinding4:rxbinding-appcompat:${Versions.rxBinding}"
+    const val rxReplayShareKotlin = "com.jakewharton.rx3:replaying-share-kotlin:${Versions.rxReplayShare}"
+    const val rxRelay = "com.jakewharton.rxrelay3:rxrelay:${Versions.rxRelay}"
     // Utils, BTC, Ethereum
     const val bitcoinj = "org.bitcoinj:bitcoinj-core:${Versions.bitcoinj}"
     const val web3j = "org.web3j:core:${Versions.web3j}"
@@ -251,6 +250,7 @@ object Libraries {
     const val sift = "com.siftscience:sift-android:${Versions.sift}"
     const val cardForm = "com.braintreepayments:card-form:${Versions.cardForm}"
     const val sunriver = "com.github.stellar:java-stellar-sdk:${Versions.xlmSunriver}"
+    const val lottie = "com.airbnb.android:lottie:${Versions.lottieVersion}"
 
     // Logging
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"
@@ -267,7 +267,7 @@ object Libraries {
 
     // Testing
     const val mockito = "org.mockito:mockito-core:${Versions.mockito}"
-    const val mockitoKotlin = "com.nhaarman:mockito-kotlin:${Versions.mockitoKotlin}"
+    const val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
     const val kluent = "org.amshove.kluent:kluent:${Versions.kluent}"
     const val kotlinJunit = "org.jetbrains.kotlin:kotlin-test-junit:${Versions.kotlin}"
     const val hamcrestJunit = "org.hamcrest:hamcrest-junit:${Versions.hamcrestJunit}"

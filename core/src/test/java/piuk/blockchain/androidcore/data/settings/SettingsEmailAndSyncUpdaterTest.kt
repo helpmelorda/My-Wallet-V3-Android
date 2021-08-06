@@ -1,18 +1,17 @@
 package piuk.blockchain.androidcore.data.settings
 
 import com.blockchain.nabu.NabuUserSync
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import info.blockchain.wallet.api.data.Settings
-import io.reactivex.Completable
-import io.reactivex.Observable
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`it throws`
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.any
+import org.amshove.kluent.`should be equal to`
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doThrow
 import org.junit.Test
 
 class SettingsEmailAndSyncUpdaterTest {
@@ -20,11 +19,11 @@ class SettingsEmailAndSyncUpdaterTest {
     @Test
     fun `can get unverified email from settings`() {
         val settings: Settings = mock {
-            on { email } `it returns` "email@blockchain.com"
-            on { isEmailVerified } `it returns` false
+            on { email }.thenReturn("email@blockchain.com")
+            on { isEmailVerified }.thenReturn(false)
         }
         val settingsDataManager: SettingsDataManager = mock {
-            on { fetchSettings() } `it returns` Observable.just(settings)
+            on { fetchSettings() }.thenReturn(Observable.just(settings))
         }
         SettingsEmailAndSyncUpdater(settingsDataManager, notExpectingSync())
             .email()
@@ -32,7 +31,7 @@ class SettingsEmailAndSyncUpdaterTest {
             .assertComplete()
             .values()
             .single().apply {
-                address `should equal` "email@blockchain.com"
+                address `should be equal to` "email@blockchain.com"
                 isVerified `should be` false
             }
     }
@@ -40,11 +39,11 @@ class SettingsEmailAndSyncUpdaterTest {
     @Test
     fun `can get verified email from settings`() {
         val settings: Settings = mock {
-            on { email } `it returns` "otheremail@emaildomain.com"
-            on { isEmailVerified } `it returns` true
+            on { email }.thenReturn("otheremail@emaildomain.com")
+            on { isEmailVerified }.thenReturn(true)
         }
         val settingsDataManager: SettingsDataManager = mock {
-            on { fetchSettings() } `it returns` Observable.just(settings)
+            on { fetchSettings() }.thenReturn(Observable.just(settings))
         }
         SettingsEmailAndSyncUpdater(settingsDataManager, notExpectingSync())
             .email()
@@ -52,7 +51,7 @@ class SettingsEmailAndSyncUpdaterTest {
             .assertComplete()
             .values()
             .single().apply {
-                address `should equal` "otheremail@emaildomain.com"
+                address `should be equal to` "otheremail@emaildomain.com"
                 isVerified `should be` true
             }
     }
@@ -60,7 +59,7 @@ class SettingsEmailAndSyncUpdaterTest {
     @Test
     fun `missing settings returns empty email`() {
         val settingsDataManager: SettingsDataManager = mock {
-            on { fetchSettings() } `it returns` Observable.empty()
+            on { fetchSettings() }.thenReturn(Observable.empty())
         }
         SettingsEmailAndSyncUpdater(settingsDataManager, notExpectingSync())
             .email()
@@ -68,7 +67,7 @@ class SettingsEmailAndSyncUpdaterTest {
             .assertComplete()
             .values()
             .single().apply {
-                address `should equal` ""
+                address `should be equal to` ""
                 isVerified `should be` false
             }
     }
@@ -76,16 +75,16 @@ class SettingsEmailAndSyncUpdaterTest {
     @Test
     fun `can update email in settings`() {
         val oldSettings: Settings = mock {
-            on { email } `it returns` "oldemail@blockchain.com"
-            on { isEmailVerified } `it returns` false
+            on { email }.thenReturn("oldemail@blockchain.com")
+            on { isEmailVerified }.thenReturn(false)
         }
         val settings: Settings = mock {
-            on { email } `it returns` "newemail@blockchain.com"
-            on { isEmailVerified } `it returns` false
+            on { email }.thenReturn("newemail@blockchain.com")
+            on { isEmailVerified }.thenReturn(false)
         }
         val settingsDataManager: SettingsDataManager = mock {
-            on { fetchSettings() } `it returns` Observable.just(oldSettings)
-            on { updateEmail("newemail@blockchain.com", null) } `it returns` Observable.just(settings)
+            on { fetchSettings() }.thenReturn(Observable.just(oldSettings))
+            on { updateEmail("newemail@blockchain.com", null) }.thenReturn(Observable.just(settings))
         }
         val nabuUserSync = expectToSync()
         SettingsEmailAndSyncUpdater(settingsDataManager, nabuUserSync)
@@ -94,7 +93,7 @@ class SettingsEmailAndSyncUpdaterTest {
             .assertComplete()
             .values()
             .single().apply {
-                address `should equal` "newemail@blockchain.com"
+                address `should be equal to` "newemail@blockchain.com"
                 isVerified `should be` false
             }
         verify(settingsDataManager).fetchSettings()
@@ -106,11 +105,11 @@ class SettingsEmailAndSyncUpdaterTest {
     @Test
     fun `can resend email in settings`() {
         val settings: Settings = mock {
-            on { email } `it returns` "oldemail@blockchain.com"
-            on { isEmailVerified } `it returns` false
+            on { email }.thenReturn("oldemail@blockchain.com")
+            on { isEmailVerified }.thenReturn(false)
         }
         val settingsDataManager: SettingsDataManager = mock {
-            on { updateEmail(any()) } `it returns` Observable.just(settings)
+            on { updateEmail(any()) }.thenReturn(Observable.just(settings))
         }
         SettingsEmailAndSyncUpdater(settingsDataManager, notExpectingSync())
             .resendEmail("oldemail@blockchain.com")
@@ -118,7 +117,7 @@ class SettingsEmailAndSyncUpdaterTest {
             .assertComplete()
             .values()
             .single().apply {
-                address `should equal` "oldemail@blockchain.com"
+                address `should be equal to` "oldemail@blockchain.com"
                 isVerified `should be` false
             }
         verify(settingsDataManager).updateEmail("oldemail@blockchain.com")
@@ -128,11 +127,11 @@ class SettingsEmailAndSyncUpdaterTest {
     @Test
     fun `if the email is verified, when you try to change it to the same thing, it does not update`() {
         val settings: Settings = mock {
-            on { email } `it returns` "theemail@emaildomain.com"
-            on { isEmailVerified } `it returns` true
+            on { email }.thenReturn("theemail@emaildomain.com")
+            on { isEmailVerified }.thenReturn(true)
         }
         val settingsDataManager: SettingsDataManager = mock {
-            on { fetchSettings() } `it returns` Observable.just(settings)
+            on { fetchSettings() }.thenReturn(Observable.just(settings))
         }
         SettingsEmailAndSyncUpdater(settingsDataManager, notExpectingSync())
             .updateEmailAndSync("theemail@emaildomain.com")
@@ -140,7 +139,7 @@ class SettingsEmailAndSyncUpdaterTest {
             .assertComplete()
             .values()
             .single().apply {
-                address `should equal` "theemail@emaildomain.com"
+                address `should be equal to` "theemail@emaildomain.com"
                 isVerified `should be` true
             }
         verify(settingsDataManager).fetchSettings()
@@ -151,12 +150,12 @@ class SettingsEmailAndSyncUpdaterTest {
     @Test
     fun `if the email is not-verified, when you try to change it to the same thing, it does update`() {
         val settings: Settings = mock {
-            on { email } `it returns` "theemail@emaildomain.com"
-            on { isEmailVerified } `it returns` false
+            on { email }.thenReturn("theemail@emaildomain.com")
+            on { isEmailVerified }.thenReturn(false)
         }
         val settingsDataManager: SettingsDataManager = mock {
-            on { fetchSettings() } `it returns` Observable.just(settings)
-            on { updateEmail("theemail@emaildomain.com", null) } `it returns` Observable.just(settings)
+            on { fetchSettings() }.thenReturn(Observable.just(settings))
+            on { updateEmail("theemail@emaildomain.com", null) }.thenReturn(Observable.just(settings))
         }
         val nabuUserSync = expectToSync()
         SettingsEmailAndSyncUpdater(settingsDataManager, nabuUserSync)
@@ -165,7 +164,7 @@ class SettingsEmailAndSyncUpdaterTest {
             .assertComplete()
             .values()
             .single().apply {
-                address `should equal` "theemail@emaildomain.com"
+                address `should be equal to` "theemail@emaildomain.com"
                 isVerified `should be` false
             }
         verify(settingsDataManager).fetchSettings()
@@ -177,10 +176,10 @@ class SettingsEmailAndSyncUpdaterTest {
 
 private fun expectToSync(): NabuUserSync =
     mock {
-        on { syncUser() } `it returns` Completable.complete()
+        on { syncUser() }.thenReturn(Completable.complete())
     }
 
 private fun notExpectingSync(): NabuUserSync =
     mock {
-        on { syncUser() } `it throws` RuntimeException("Not expecting to sync the user")
+        on { syncUser() }.doThrow(RuntimeException("Not expecting to sync the user"))
     }

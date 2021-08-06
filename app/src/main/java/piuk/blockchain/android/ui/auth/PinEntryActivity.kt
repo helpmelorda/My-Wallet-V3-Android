@@ -5,39 +5,28 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.Window
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
-import androidx.viewpager.widget.ViewPager
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.databinding.ActivityPinEntryBinding
 import piuk.blockchain.android.ui.customviews.dialogs.OverlayDetection
-import piuk.blockchain.android.ui.swipetoreceive.SwipeToReceiveFragment
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BaseAuthActivity
+import piuk.blockchain.android.ui.base.BaseAuthActivity
 
-class PinEntryActivity : BaseAuthActivity(), PinEntryFragment.OnPinEntryFragmentInteractionListener,
-    ViewPager.OnPageChangeListener {
+class PinEntryActivity : BaseAuthActivity() {
 
-    private val coinsWebSocketService: CoinsWebSocketService by inject()
     private val overlayDetection: OverlayDetection by inject()
     private val loginState: AccessState by inject()
 
+    private val binding: ActivityPinEntryBinding by lazy {
+        ActivityPinEntryBinding.inflate(layoutInflater)
+    }
+
     private val pinEntryFragment: PinEntryFragment by lazy {
-        PinEntryFragment.newInstance(!shouldHideSwipeToReceive(), isAfterCreateWallet)
+        PinEntryFragment.newInstance(isAfterCreateWallet)
     }
 
     private val isAfterCreateWallet: Boolean by unsafeLazy {
         intent.getBooleanExtra(EXTRA_IS_AFTER_WALLET_CREATION, false)
-    }
-
-    private val isCreatingNewPin: Boolean
-        get() = prefs.pinId.isEmpty()
-
-    private val binding: ActivityPinEntryBinding by lazy {
-        ActivityPinEntryBinding.inflate(layoutInflater)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,49 +34,13 @@ class PinEntryActivity : BaseAuthActivity(), PinEntryFragment.OnPinEntryFragment
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(binding.root)
 
-        val fragmentPagerAdapter: FragmentPagerAdapter
-        if (shouldHideSwipeToReceive()) {
-            // Don't bother instantiating the QR fragment + Presenter if not necessary
-            fragmentPagerAdapter = SwipeToReceiveFragmentPagerAdapter(
-                supportFragmentManager,
-                pinEntryFragment,
-                Fragment())
-
-            lockViewpager()
-        } else {
-            fragmentPagerAdapter = SwipeToReceiveFragmentPagerAdapter(
-                supportFragmentManager,
-                pinEntryFragment,
-                SwipeToReceiveFragment.newInstance())
-
-            startWebSocketService()
-        }
-
-        binding.viewpager.offscreenPageLimit = 2
-        binding.viewpager.addOnPageChangeListener(this)
-        binding.viewpager.adapter = fragmentPagerAdapter
-    }
-
-    private fun shouldHideSwipeToReceive(): Boolean {
-        return (intent.hasExtra(KEY_VALIDATING_PIN_FOR_RESULT) ||
-                intent.hasExtra(KEY_VALIDATING_PIN_FOR_RESULT_AND_PAYLOAD) ||
-                isCreatingNewPin ||
-                !prefs.offlineCacheEnabled)
-    }
-
-    private fun lockViewpager() {
-        binding.viewpager.lockToCurrentPage()
-    }
-
-    override fun onSwipePressed() {
-        binding.viewpager.currentItem = 1
+        supportFragmentManager.beginTransaction()
+            .add(binding.pinContainer.id, pinEntryFragment)
+            .commitAllowingStateLoss()
     }
 
     override fun onBackPressed() {
         when {
-            binding.viewpager.currentItem != 0 -> {
-                binding.viewpager.currentItem = 0
-            }
             pinEntryFragment.isValidatingPinForResult -> {
                 finishWithResultCanceled()
             }
@@ -95,18 +48,6 @@ class PinEntryActivity : BaseAuthActivity(), PinEntryFragment.OnPinEntryFragment
                 loginState.logout()
             }
         }
-    }
-
-    override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-        // No-op
-    }
-
-    override fun onPageSelected(position: Int) {
-        pinEntryFragment.resetPinEntry()
-    }
-
-    override fun onPageScrollStateChanged(state: Int) {
-        // No-op
     }
 
     private fun finishWithResultCanceled() {
@@ -121,36 +62,7 @@ class PinEntryActivity : BaseAuthActivity(), PinEntryFragment.OnPinEntryFragment
                 super.dispatchTouchEvent(event)
     }
 
-    override fun enforceFlagSecure(): Boolean {
-        return true
-    }
-
-    private fun startWebSocketService() {
-        coinsWebSocketService.start()
-    }
-
-    private class SwipeToReceiveFragmentPagerAdapter internal constructor(
-        fm: FragmentManager,
-        private val pinEntryFragment: PinEntryFragment,
-        private val swipeToReceiveFragment: Fragment
-    ) : FragmentPagerAdapter(fm) {
-
-        override fun getItem(position: Int): Fragment {
-            return when (position) {
-                0 -> pinEntryFragment
-                else -> swipeToReceiveFragment
-            }
-        }
-
-        override fun getCount(): Int {
-            return NUM_ITEMS
-        }
-
-        companion object {
-
-            private const val NUM_ITEMS = 2
-        }
-    }
+    override fun enforceFlagSecure(): Boolean = true
 
     companion object {
 

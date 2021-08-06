@@ -6,12 +6,12 @@ import com.blockchain.nabu.models.responses.nabu.KycTierState
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
 import com.blockchain.nabu.service.TierService
 import com.blockchain.nabu.service.TierUpdater
-import io.reactivex.Maybe
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
+import piuk.blockchain.android.ui.base.BasePresenter
 import timber.log.Timber
 
 class KycTierSplashPresenter(

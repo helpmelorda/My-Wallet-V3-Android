@@ -8,25 +8,23 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.AssetInfo
 import com.blockchain.utils.toFormattedDate
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.CustodialTradingActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.setAssetIconColours
+import piuk.blockchain.android.util.getResolvedColor
+import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
 import java.util.Date
 
 class CustodialTradingActivityItemDelegate<in T>(
     private val currencyPrefs: CurrencyPrefs,
-    private val assetResources: AssetResources,
-    private val onItemClicked: (CryptoCurrency, String, CryptoActivityType) -> Unit // crypto, txID, type
+    private val onItemClicked: (AssetInfo, String, CryptoActivityType) -> Unit // crypto, txID, type
 ) : AdapterDelegate<T> {
 
     override fun isForViewType(items: List<T>, position: Int): Boolean =
@@ -44,7 +42,6 @@ class CustodialTradingActivityItemDelegate<in T>(
     ) = (holder as CustodialTradingActivityItemViewHolder).bind(
         items[position] as CustodialTradingActivitySummaryItem,
         currencyPrefs.selectedFiatCurrency,
-        assetResources,
         onItemClicked
     )
 }
@@ -58,18 +55,14 @@ private class CustodialTradingActivityItemViewHolder(
     fun bind(
         tx: CustodialTradingActivitySummaryItem,
         selectedFiatCurrency: String,
-        assetResources: AssetResources,
-        onAccountClicked: (CryptoCurrency, String, CryptoActivityType) -> Unit
+        onAccountClicked: (AssetInfo, String, CryptoActivityType) -> Unit
     ) {
         disposables.clear()
         with(binding) {
             icon.setIcon(tx.status, tx.type)
             when {
                 tx.status.isPending().not() -> {
-                    icon.setAssetIconColours(
-                        tintColor = assetResources.assetTint(tx.cryptoCurrency),
-                        filterColor = assetResources.assetFilter(tx.cryptoCurrency)
-                    )
+                    icon.setAssetIconColoursWithTint(tx.asset)
                 }
                 tx.status.hasFailed() -> icon.setTransactionHasFailed()
 
@@ -79,7 +72,7 @@ private class CustodialTradingActivityItemViewHolder(
                 }
             }
 
-            txType.setTxLabel(tx.cryptoCurrency, tx.type)
+            txType.setTxLabel(tx.asset, tx.type)
 
             statusDate.setTxStatus(tx)
             setTextColours(tx.status)
@@ -89,7 +82,7 @@ private class CustodialTradingActivityItemViewHolder(
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
 
             txRoot.setOnClickListener {
-                onAccountClicked(tx.cryptoCurrency, tx.txId, CryptoActivityType.CUSTODIAL_TRADING)
+                onAccountClicked(tx.asset, tx.txId, CryptoActivityType.CUSTODIAL_TRADING)
             }
         }
     }
@@ -135,9 +128,9 @@ private fun ImageView.setIcon(status: OrderState, type: OrderType) =
         }
     )
 
-private fun TextView.setTxLabel(cryptoCurrency: CryptoCurrency, type: OrderType) {
+private fun TextView.setTxLabel(asset: AssetInfo, type: OrderType) {
     text = context.resources.getString(
-        if (type == OrderType.BUY) R.string.tx_title_buy else R.string.tx_title_sell, cryptoCurrency.displayTicker
+        if (type == OrderType.BUY) R.string.tx_title_buy else R.string.tx_title_sell, asset.ticker
     )
 }
 

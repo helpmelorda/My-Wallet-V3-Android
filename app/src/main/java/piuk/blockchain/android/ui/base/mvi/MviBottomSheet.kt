@@ -2,8 +2,8 @@ package piuk.blockchain.android.ui.base.mvi
 
 import androidx.annotation.CallSuper
 import androidx.viewbinding.ViewBinding
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import timber.log.Timber

@@ -3,13 +3,16 @@ package piuk.blockchain.android.simplebuy
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.fragment.app.FragmentTransaction
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.BankLinkingPrefs
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentActivityBinding
@@ -21,6 +24,8 @@ import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
+import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
+import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
 import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
@@ -35,6 +40,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     private val compositeDisposable = CompositeDisposable()
     private val simpleBuyFlowNavigator: SimpleBuyFlowNavigator by scopedInject()
     private val bankLinkingPrefs: BankLinkingPrefs by scopedInject()
+    private val assetCatalogue: AssetCatalogue by inject()
 
     private val startedFromDashboard: Boolean by unsafeLazy {
         intent.getBooleanExtra(STARTED_FROM_NAVIGATION_KEY, false)
@@ -52,8 +58,10 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
         intent.getBooleanExtra(STARTED_FROM_KYC_RESUME, false)
     }
 
-    private val cryptoCurrency: CryptoCurrency? by unsafeLazy {
-        intent.getSerializableExtra(CRYPTOCURRENCY_KEY) as? CryptoCurrency
+    private val asset: AssetInfo? by unsafeLazy {
+        intent.getStringExtra(ASSET_KEY)?.let {
+            assetCatalogue.fromNetworkTicker(it)
+        }
     }
 
     private val binding: FragmentActivityBinding by lazy {
@@ -83,7 +91,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
             startedFromKycResume,
             startedFromDashboard,
             startedFromApprovalDeepLink,
-            cryptoCurrency
+            asset
         )
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy {
@@ -130,13 +138,14 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override fun goToBuyCryptoScreen(
         addToBackStack: Boolean,
-        preselectedCrypto: CryptoCurrency,
+        preselectedAsset: AssetInfo,
         preselectedPaymentMethodId: String?
     ) {
         supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
             .replace(
                 R.id.content_frame,
-                SimpleBuyCryptoFragment.newInstance(preselectedCrypto, preselectedPaymentMethodId),
+                SimpleBuyCryptoFragment.newInstance(preselectedAsset, preselectedPaymentMethodId),
                 SimpleBuyCryptoFragment::class.simpleName
             )
             .apply {
@@ -149,8 +158,8 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override fun goToCheckOutScreen(addToBackStack: Boolean) {
         ViewUtils.hideKeyboard(this)
-
         supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
             .replace(R.id.content_frame, SimpleBuyCheckoutFragment(), SimpleBuyCheckoutFragment::class.simpleName)
             .apply {
                 if (addToBackStack) {
@@ -162,6 +171,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override fun goToKycVerificationScreen(addToBackStack: Boolean) {
         supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
             .replace(R.id.content_frame, SimpleBuyPendingKycFragment(), SimpleBuyPendingKycFragment::class.simpleName)
             .apply {
                 if (addToBackStack) {
@@ -173,6 +183,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override fun goToPendingOrderScreen() {
         supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
             .replace(
                 R.id.content_frame,
                 SimpleBuyCheckoutFragment.newInstance(true),
@@ -192,6 +203,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
 
     override fun goToPaymentScreen(addToBackStack: Boolean, isPaymentAuthorised: Boolean) {
         supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
             .replace(
                 R.id.content_frame, SimpleBuyPaymentFragment.newInstance(isPaymentAuthorised),
                 SimpleBuyPaymentFragment::class.simpleName
@@ -201,12 +213,6 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
                     addToBackStack(SimpleBuyPaymentFragment::class.simpleName)
                 }
             }
-            .commitAllowingStateLoss()
-    }
-
-    override fun launchIntro() {
-        supportFragmentManager.beginTransaction()
-            .add(R.id.content_frame, SimpleBuyIntroFragment())
             .commitAllowingStateLoss()
     }
 
@@ -220,26 +226,48 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
         startActivity(BankAuthActivity.newInstance(errorState, BankAuthSource.SIMPLE_BUY, this))
     }
 
+    override fun goToSetupFirstRecurringBuy() {
+        supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
+            .replace(R.id.content_frame, RecurringBuyFirstTimeBuyerFragment())
+            .commitAllowingStateLoss()
+    }
+
+    override fun goToFirstRecurringBuyCreated() {
+        supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
+            .replace(R.id.content_frame, RecurringBuySuccessfulFragment())
+            .commitAllowingStateLoss()
+    }
+
+    private fun FragmentTransaction.addAnimationTransaction(): FragmentTransaction =
+        this.setCustomAnimations(
+            R.anim.fragment_slide_left_enter,
+            R.anim.fragment_slide_left_exit,
+            R.anim.fragment_slide_right_enter,
+            R.anim.fragment_slide_right_exit
+        )
+
     companion object {
         const val KYC_STARTED = 6788
         const val RESULT_KYC_SIMPLE_BUY_COMPLETE = 7854
 
         private const val STARTED_FROM_NAVIGATION_KEY = "started_from_navigation_key"
         private const val STARTED_FROM_APPROVAL_KEY = "STARTED_FROM_APPROVAL_KEY"
-        private const val CRYPTOCURRENCY_KEY = "crypto_currency_key"
+        private const val ASSET_KEY = "crypto_currency_key"
         private const val PRESELECTED_PAYMENT_METHOD = "preselected_payment_method_key"
         private const val STARTED_FROM_KYC_RESUME = "started_from_kyc_resume_key"
 
         fun newInstance(
             context: Context,
-            cryptoCurrency: CryptoCurrency? = null,
+            asset: AssetInfo? = null,
             launchFromNavigationBar: Boolean = false,
             launchKycResume: Boolean = false,
             preselectedPaymentMethodId: String? = null,
             launchFromApprovalDeepLink: Boolean = false
         ) = Intent(context, SimpleBuyActivity::class.java).apply {
             putExtra(STARTED_FROM_NAVIGATION_KEY, launchFromNavigationBar)
-            putExtra(CRYPTOCURRENCY_KEY, cryptoCurrency)
+            putExtra(ASSET_KEY, asset?.ticker)
             putExtra(STARTED_FROM_KYC_RESUME, launchKycResume)
             putExtra(PRESELECTED_PAYMENT_METHOD, preselectedPaymentMethodId)
             putExtra(STARTED_FROM_APPROVAL_KEY, launchFromApprovalDeepLink)

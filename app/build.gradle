@@ -4,11 +4,10 @@ apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'androidx.navigation.safeargs'
 apply plugin: 'com.novoda.build-properties'
-apply from: '../quality/jacocoApp.gradle'
 apply from: '../quality/ktlint.gradle'
 apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'com.google.gms.google-services'
 apply plugin: 'kotlinx-serialization'
+apply plugin: 'com.google.gms.google-services'
 
 
 buildProperties {
@@ -63,14 +62,13 @@ android {
         buildConfigString "SHAPE_SHIFT_API_KEY", buildProperties.secrets['shapeShiftApiKey']
 
         manifestPlaceholders = [
-                FABRIC_API_KEY: buildProperties.secrets['fabricApiKey'].string
+            APP_NAME: "@string/app_name",
+            FABRIC_API_KEY: buildProperties.secrets['fabricApiKey'].string
         ]
 
         resConfigs 'en',
-                'de',
                 'es',
                 'fr',
-                'it',
                 'pt',
                 'pt-rBR',
                 'ru',
@@ -106,7 +104,6 @@ android {
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['prodDynamicLink'].string,
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['prodDynamicLink2'].string,
                     LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].string,
-                    LOGIN_LINK_HOST_2  : buildProperties.secrets['prodLoginLink2'].string
             ]
             buildConfigString "EXPLORER_URL", buildProperties.secrets['prodExplorer']
             buildConfigString "API_URL", buildProperties.secrets['prodApiServer']
@@ -125,15 +122,22 @@ android {
             buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['prodSiftAccount']
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['prodSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
+            buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['prodLoginLink']
+
+            def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
+            if (ciVersionCode != null) {
+                versionCode = ciVersionCode.toInteger()
+            }
         }
+
         envInternalProd {
             dimension "environment"
             manifestPlaceholders = [
+                    APP_NAME: "@string/alpha_app_name",
                     BACKUP_API_KEY     : buildProperties.secrets['prodGoogleBackupApiKey'].string,
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['prodDynamicLink'].string,
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['prodDynamicLink2'].string,
                     LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].string,
-                    LOGIN_LINK_HOST_2  : buildProperties.secrets['prodLoginLink2'].string
             ]
             buildConfigString "EXPLORER_URL", buildProperties.secrets['prodExplorer']
             buildConfigString "API_URL", buildProperties.secrets['prodApiServer']
@@ -152,9 +156,9 @@ android {
             buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['prodSiftAccount']
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['prodSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
+            buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['prodLoginLink']
 
             applicationId "com.blockchain.wallet.internal"
-            resValue "string", "app_name", "BlockInternal"
 
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
             if (ciVersionCode != null) {
@@ -167,14 +171,15 @@ android {
                 versionNameSuffix = ".local"
             }
         }
+
         envDev {
             dimension "environment"
             manifestPlaceholders = [
+                    APP_NAME: "@string/dev_app_name",
                     BACKUP_API_KEY     : buildProperties.secrets['devGoogleBackupApiKey'].string,
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['devDynamicLink'].string,
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['devDynamicLink2'].string,
                     LOGIN_LINK_HOST    : buildProperties.secrets['devLoginLink'].string,
-                    LOGIN_LINK_HOST_2  : buildProperties.secrets['devLoginLink2'].string
             ]
             buildConfigString "EXPLORER_URL", buildProperties.secrets['devExplorer']
             buildConfigString "API_URL", buildProperties.secrets['devApiServer']
@@ -193,19 +198,20 @@ android {
             buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['devSiftAccount']
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['devSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaDevSiteKey']
+            buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['devLoginLink']
 
             versionNameSuffix '-dev'
             applicationId "piuk.blockchain.android.dev"
-            resValue "string", "app_name", "BlockDev"
         }
+        
         envStaging {
             dimension "environment"
             manifestPlaceholders = [
+                    APP_NAME: "@string/staging_app_name",
                     BACKUP_API_KEY     : buildProperties.secrets['stagingGoogleBackupApiKey'].string,
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['stagingDynamicLink'].string,
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['stagingDynamicLink2'].string,
                     LOGIN_LINK_HOST    : buildProperties.secrets['stagingLoginLink'].string,
-                    LOGIN_LINK_HOST_2  : buildProperties.secrets['stagingLoginLink2'].string
             ]
             buildConfigString "EXPLORER_URL", buildProperties.secrets['stagingExplorer']
             buildConfigString "API_URL", buildProperties.secrets['stagingApiServer']
@@ -224,10 +230,10 @@ android {
             buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['stagingSiftAccount']
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['stagingSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaStagingSiteKey']
+            buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['stagingLoginLink']
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"
-            resValue "string", "app_name", "BlockStaging"
         }
     }
 
@@ -308,13 +314,10 @@ kapt {
 }
 
 dependencies {
-    implementation project(':coreui')
     implementation project(':notifications')
     implementation project(':nabu')
     implementation project(':sunriver')
     implementation project(':core')
-
-    implementation project(':coreui')
     implementation project(':notifications')
     implementation project(':veriff')
     implementation project(':blockchainApi')
@@ -338,9 +341,16 @@ dependencies {
     // Google core
     implementation Libraries.googlePlayCore
 
-    api Libraries.appCompat
+    implementation Libraries.appCompat
     implementation Libraries.navigationControllerCore
     implementation Libraries.navigationControllerFragments
+    implementation Libraries.recyclerView
+    implementation Libraries.cardView
+    implementation Libraries.gridLayout
+    implementation Libraries.design
+    implementation Libraries.v14
+    implementation Libraries.dynamicAnims
+    implementation Libraries.constraintLayout
 
     implementation Libraries.lifecycleViewModel
     implementation Libraries.lifecycleExtensions
@@ -348,6 +358,7 @@ dependencies {
     implementation Libraries.camera
     implementation Libraries.cameraView
     implementation Libraries.cameraLifecycle
+    implementation Libraries.dexter
 
     implementation(Libraries.googlePlayServicesBase) {
         exclude group: 'com.android.support'
@@ -370,9 +381,16 @@ dependencies {
     // Navigation
     implementation Libraries.navigationControllerCore
     implementation Libraries.navigationControllerFragments
+
     // RxJava
-    implementation Libraries.rxReplayShare
+    implementation Libraries.rxReplayShareKotlin
     implementation Libraries.rxRelay
+    implementation Libraries.rxBinding
+    implementation Libraries.rxBindingCompat
+    implementation Libraries.rxBindingCore
+
+    //Animations
+    implementation Libraries.lottie
 
     // Glide
     implementation Libraries.glide

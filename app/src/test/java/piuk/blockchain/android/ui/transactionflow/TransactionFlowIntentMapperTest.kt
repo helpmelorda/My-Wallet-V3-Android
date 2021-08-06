@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.transactionflow
 
-import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert
 import org.junit.Test
 import piuk.blockchain.android.coincore.AssetAction
@@ -346,7 +346,7 @@ class TransactionFlowIntentMapperTest {
 
     @Test(expected = IllegalStateException::class)
     fun `test summary not allowed`() {
-        val assetAction = AssetAction.Summary
+        val assetAction = AssetAction.ViewStatement
         val passwordRequired = false
 
         val sourceAccount: FiatAccount = mock()

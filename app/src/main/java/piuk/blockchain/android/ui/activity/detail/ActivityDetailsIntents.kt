@@ -5,7 +5,7 @@ import com.blockchain.nabu.datamanagers.RecurringBuyErrorState
 import com.blockchain.nabu.datamanagers.RecurringBuyTransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import piuk.blockchain.android.coincore.CustodialInterestActivitySummaryItem
 import piuk.blockchain.android.coincore.CustodialTradingActivitySummaryItem
@@ -20,7 +20,7 @@ import java.util.Date
 sealed class ActivityDetailsIntents : MviIntent<ActivityDetailState>
 
 class LoadActivityDetailsIntent(
-    val cryptoCurrency: CryptoCurrency,
+    val asset: AssetInfo,
     val txHash: String,
     val activityType: CryptoActivityType
 ) : ActivityDetailsIntents() {
@@ -55,7 +55,7 @@ class LoadNonCustodialHeaderDataIntent(
             isPending = !summaryItem.isConfirmed,
             isFeeTransaction = summaryItem.isFeeTransaction,
             confirmations = summaryItem.confirmations,
-            totalConfirmations = summaryItem.cryptoCurrency.requiredConfirmations
+            totalConfirmations = summaryItem.asset.requiredConfirmations
         )
     }
 }
@@ -89,14 +89,15 @@ class LoadRecurringBuyDetailsHeaderDataIntent(
             } else {
                 recurringBuyItem.originMoney
             },
-            isPending = recurringBuyItem.state == RecurringBuyTransactionState.PENDING,
-            isPendingExecution = recurringBuyItem.state == RecurringBuyTransactionState.PENDING,
-            isError = recurringBuyItem.state == RecurringBuyTransactionState.FAILED,
+            isPending = recurringBuyItem.transactionState == RecurringBuyTransactionState.PENDING,
+            isPendingExecution = recurringBuyItem.transactionState == RecurringBuyTransactionState.PENDING,
+            isError = recurringBuyItem.transactionState == RecurringBuyTransactionState.FAILED,
             isFeeTransaction = false,
             confirmations = 0,
             totalConfirmations = 0,
             recurringBuyError = recurringBuyItem.failureReason ?: RecurringBuyErrorState.UNKNOWN,
-            recurringBuyState = recurringBuyItem.state,
+            transactionRecurringBuyState = recurringBuyItem.transactionState,
+            recurringBuyState = recurringBuyItem.recurringBuyState,
             recurringBuyPaymentMethodType = recurringBuyItem.paymentMethodType,
             recurringBuyOriginCurrency = recurringBuyItem.originMoney.currencyCode
         )
@@ -241,7 +242,7 @@ class CreationDateLoadedIntent(private val createdDate: Date) : ActivityDetailsI
 
 class UpdateDescriptionIntent(
     val txId: String,
-    val cryptoCurrency: CryptoCurrency,
+    val asset: AssetInfo,
     val description: String
 ) : ActivityDetailsIntents() {
     override fun reduce(oldState: ActivityDetailState): ActivityDetailState {

@@ -6,12 +6,12 @@ import com.blockchain.nabu.datamanagers.InterestActivityItem
 import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.models.responses.interest.DisabledReason
-import info.blockchain.balance.CryptoCurrency
+import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.AssetAction
@@ -28,12 +28,15 @@ import piuk.blockchain.androidcore.utils.extensions.mapList
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal class CryptoInterestAccount(
-    override val asset: CryptoCurrency,
+    override val asset: AssetInfo,
     override val label: String,
     private val custodialWalletManager: CustodialWalletManager,
     override val exchangeRates: ExchangeRateDataManager,
+    @Suppress("unused")
     private val features: InternalFeatureFlagApi
 ) : CryptoAccountBase(), InterestAccount {
+
+    override val baseActions: Set<AssetAction> = emptySet() // Not used by this class
 
     private val hasFunds = AtomicBoolean(false)
 
@@ -96,7 +99,7 @@ internal class CryptoInterestAccount(
     private fun interestActivityToSummary(item: InterestActivityItem): ActivitySummaryItem =
         CustodialInterestActivitySummaryItem(
             exchangeRates = exchangeRates,
-            cryptoCurrency = item.cryptoCurrency,
+            asset = item.cryptoCurrency,
             txId = item.id,
             timeStampMs = item.insertedAt.time,
             value = item.value,
@@ -136,20 +139,18 @@ internal class CryptoInterestAccount(
                 enabled
             }
 
-    override val disabledReason: Single<DisabledReason>
+    override val disabledReason: Single<IneligibilityReason>
         get() = custodialWalletManager.getInterestEligibilityForAsset(asset)
             .map { (_, reason) ->
                 reason
             }
 
     override val actions: Single<AvailableActions> =
-        actionableBalance.map {
+        actionableBalance.map { balance ->
             setOfNotNull(
-                if (it.isPositive) {
-                    AssetAction.InterestWithdraw
-                } else {
-                    null
-                }, AssetAction.Summary, AssetAction.ViewActivity
+                AssetAction.InterestWithdraw.takeIf { balance.isPositive },
+                AssetAction.ViewStatement,
+                AssetAction.ViewActivity
             )
         }
 

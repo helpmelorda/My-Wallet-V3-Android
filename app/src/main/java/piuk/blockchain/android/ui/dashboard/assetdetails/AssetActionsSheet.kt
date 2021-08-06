@@ -6,19 +6,17 @@ import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
+import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.LaunchOrigin
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.AvailableActions
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAccount
@@ -37,7 +35,7 @@ import piuk.blockchain.android.ui.customviews.account.removePossibleBottomView
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.setAssetIconColours
+import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import timber.log.Timber
 
 class AssetActionsSheet :
@@ -137,7 +135,7 @@ class AssetActionsSheet :
 
     private fun mapAction(
         action: AssetAction,
-        asset: CryptoCurrency,
+        asset: AssetInfo,
         account: BlockchainAccount
     ): AssetActionItem =
         when (action) {
@@ -157,7 +155,7 @@ class AssetActionsSheet :
                     account, getString(R.string.common_send), R.drawable.ic_tx_sent,
                     getString(
                         R.string.dashboard_asset_actions_send_dsc,
-                        asset.displayTicker
+                        asset.ticker
                     ), asset, action
                 ) {
                     logActionEvent(AssetDetailsAnalytics.SEND_CLICKED, asset)
@@ -174,7 +172,7 @@ class AssetActionsSheet :
                     getString(R.string.common_receive), R.drawable.ic_tx_receive,
                     getString(
                         R.string.dashboard_asset_actions_receive_dsc,
-                        asset.displayTicker
+                        asset.ticker
                     ), asset, action
                 ) {
                     logActionEvent(AssetDetailsAnalytics.RECEIVE_CLICKED, asset)
@@ -189,16 +187,16 @@ class AssetActionsSheet :
             AssetAction.Swap -> AssetActionItem(
                 account, getString(R.string.common_swap),
                 R.drawable.ic_tx_swap,
-                getString(R.string.dashboard_asset_actions_swap_dsc, asset.displayTicker),
+                getString(R.string.dashboard_asset_actions_swap_dsc, asset.ticker),
                 asset, action
             ) {
                 logActionEvent(AssetDetailsAnalytics.SWAP_CLICKED, asset)
                 processAction(AssetAction.Swap)
             }
-            AssetAction.Summary -> AssetActionItem(
+            AssetAction.ViewStatement -> AssetActionItem(
                 getString(R.string.dashboard_asset_actions_summary_title),
                 R.drawable.ic_tx_interest,
-                getString(R.string.dashboard_asset_actions_summary_dsc, asset.displayTicker),
+                getString(R.string.dashboard_asset_actions_summary_dsc, asset.ticker),
                 asset, action
             ) {
                 goToSummary()
@@ -206,13 +204,13 @@ class AssetActionsSheet :
             AssetAction.InterestDeposit -> AssetActionItem(
                 getString(R.string.common_transfer),
                 R.drawable.ic_tx_deposit_arrow,
-                getString(R.string.dashboard_asset_actions_deposit_dsc, asset.displayTicker),
+                getString(R.string.dashboard_asset_actions_deposit_dsc, asset.ticker),
                 asset, action
             ) {
                 processAction(AssetAction.InterestDeposit)
                 analytics.logEvent(
                     InterestAnalytics.InterestDepositClicked(
-                        currency = asset.networkTicker,
+                        currency = asset.ticker,
                         origin = LaunchOrigin.CURRENCY_PAGE
                     )
                 )
@@ -220,13 +218,13 @@ class AssetActionsSheet :
             AssetAction.InterestWithdraw -> AssetActionItem(
                 getString(R.string.common_withdraw),
                 R.drawable.ic_tx_withdraw,
-                getString(R.string.dashboard_asset_actions_withdraw_dsc, asset.displayTicker),
+                getString(R.string.dashboard_asset_actions_withdraw_dsc, asset.ticker),
                 asset, action
             ) {
                 processAction(AssetAction.InterestWithdraw)
                 analytics.logEvent(
                     InterestAnalytics.InterestWithdrawalClicked(
-                        currency = asset.networkTicker,
+                        currency = asset.ticker,
                         origin = LaunchOrigin.CURRENCY_PAGE
                     )
                 )
@@ -243,7 +241,7 @@ class AssetActionsSheet :
             AssetAction.Buy -> AssetActionItem(
                 getString(R.string.common_buy),
                 R.drawable.ic_tx_buy,
-                getString(R.string.dashboard_asset_actions_buy_dsc, asset.displayTicker),
+                getString(R.string.dashboard_asset_actions_buy_dsc, asset.ticker),
                 asset, action
             ) {
                 processAction(AssetAction.Buy)
@@ -252,13 +250,13 @@ class AssetActionsSheet :
             AssetAction.FiatDeposit -> throw IllegalStateException("Cannot Deposit a non-fiat currency to Fiat")
         }
 
-    private fun logActionEvent(event: AssetDetailsAnalytics, asset: CryptoCurrency) {
-        analytics.logEvent(assetActionEvent(event, asset.networkTicker))
+    private fun logActionEvent(event: AssetDetailsAnalytics, asset: AssetInfo) {
+        analytics.logEvent(assetActionEvent(event, asset.ticker))
     }
 
     private fun goToSummary() {
         checkForKycStatus {
-            processAction(AssetAction.Summary)
+            processAction(AssetAction.ViewStatement)
         }
     }
 
@@ -303,8 +301,6 @@ private class AssetActionAdapter(
 
     private val compositeDisposable = CompositeDisposable()
 
-    private val assetResources: AssetResources = payloadScope.get()
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionItemViewHolder =
         ActionItemViewHolder(
             compositeDisposable, ItemAssetActionBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -313,7 +309,7 @@ private class AssetActionAdapter(
     override fun getItemCount(): Int = itemList.size
 
     override fun onBindViewHolder(holder: ActionItemViewHolder, position: Int) =
-        holder.bind(itemList[position], statusDecorator, assetResources)
+        holder.bind(itemList[position], statusDecorator)
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         super.onDetachedFromRecyclerView(recyclerView)
@@ -326,17 +322,13 @@ private class AssetActionAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(
             item: AssetActionItem,
-            statusDecorator: StatusDecorator,
-            assetResources: AssetResources
+            statusDecorator: StatusDecorator
         ) {
             addDecorator(item, statusDecorator)
 
             binding.apply {
                 itemActionIcon.setImageResource(item.icon)
-                itemActionIcon.setAssetIconColours(
-                    tintColor = assetResources.assetTint(item.asset),
-                    filterColor = assetResources.assetFilter(item.asset)
-                )
+                itemActionIcon.setAssetIconColoursWithTint(item.asset)
                 itemActionTitle.text = item.title
                 itemActionLabel.text = item.description
             }
@@ -391,7 +383,7 @@ private data class AssetActionItem(
     val title: String,
     val icon: Int,
     val description: String,
-    val asset: CryptoCurrency,
+    val asset: AssetInfo,
     val action: AssetAction,
     val actionCta: () -> Unit
 ) {
@@ -399,7 +391,7 @@ private data class AssetActionItem(
         title: String,
         icon: Int,
         description: String,
-        asset: CryptoCurrency,
+        asset: AssetInfo,
         action: AssetAction,
         actionCta: () -> Unit
     ) : this(

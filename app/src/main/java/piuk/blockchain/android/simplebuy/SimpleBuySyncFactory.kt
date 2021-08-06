@@ -1,17 +1,15 @@
 package piuk.blockchain.android.simplebuy
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.google.gson.Gson
 import info.blockchain.balance.CryptoValue
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.androidcore.utils.extensions.flatMapBy
 import timber.log.Timber
 
@@ -26,42 +24,19 @@ import timber.log.Timber
 //        is completed/error/cancel, then wipe the local state
 //
 
-interface SimpleBuyPrefsStateAdapter {
-    fun fetch(): SimpleBuyState?
-    fun update(newState: SimpleBuyState)
-    fun clear()
-}
-
-internal class SimpleBuyInflateAdapter(
-    private val prefs: SimpleBuyPrefs,
-    private val gson: Gson
-) : SimpleBuyPrefsStateAdapter {
-    override fun fetch(): SimpleBuyState? =
-        prefs.simpleBuyState()?.let {
-            gson.fromJson(it, SimpleBuyState::class.java)
-        }
-
-    override fun update(newState: SimpleBuyState) =
-        prefs.updateSimpleBuyState(gson.toJson(newState))
-
-    override fun clear() {
-        prefs.clearState()
-    }
-}
-
 class SimpleBuySyncFactory(
     private val custodialWallet: CustodialWalletManager,
-    private val localStateAdapter: SimpleBuyPrefsStateAdapter
+    private val serializer: SimpleBuyPrefsSerializer
 ) {
 
     fun performSync(): Completable = syncStates()
         .doOnSuccess { v ->
             Timber.d("SB Sync: Success")
-            localStateAdapter.update(v)
+            serializer.update(v)
         }
         .doOnComplete {
             Timber.d("SB Sync: Complete")
-            localStateAdapter.clear()
+            serializer.clear()
         }
         .ignoreElement()
         .observeOn(Schedulers.computation())
@@ -70,28 +45,27 @@ class SimpleBuySyncFactory(
         }
 
     fun currentState(): SimpleBuyState? =
-        localStateAdapter.fetch().apply {
+        serializer.fetch().apply {
             Timber.d("SB Sync: state == $this")
         }
 
-    fun lightweightSync(): Completable =
     // If we have a local state in awaiting funds, check the server and clear it if the backend has transitioned
-        // to any completed state (pending, cancelled, finished, failed)
-
+    // to any completed state (pending, cancelled, finished, failed)
+    fun lightweightSync(): Completable =
         maybeInflateLocalState()
             .flatMapBy(
                 onSuccess = { localState ->
                     if (localState.orderState == OrderState.AWAITING_FUNDS) {
                         updateWithRemote(localState)
-                            .doOnComplete { localStateAdapter.clear() }
-                            .doOnSuccess { state -> localStateAdapter.update(state) }
+                            .doOnComplete { serializer.clear() }
+                            .doOnSuccess { state -> serializer.update(state) }
                     } else {
                         Maybe.empty()
                     }
                 },
                 onError = { Maybe.empty() }, // Do nothing
                 onComplete = {
-                    localStateAdapter.clear()
+                    serializer.clear()
                     Maybe.empty()
                 } // No local state. Do nothing
             )
@@ -190,7 +164,7 @@ class SimpleBuySyncFactory(
                     localState
                 }
             }
-            .flatMap { state ->
+            .flatMapMaybe { state ->
                 when (state.orderState) {
                     OrderState.UNINITIALISED,
                     OrderState.INITIALISED,
@@ -209,13 +183,11 @@ class SimpleBuySyncFactory(
             custodialWallet.getBuyOrder(it)
                 .map { order -> order.toSimpleBuyState() }
                 .toMaybe()
-                .onErrorResumeNext(Maybe.empty())
+                .onErrorResumeNext { Maybe.empty() }
         } ?: Maybe.empty()
 
     private fun maybeInflateLocalState(): Maybe<SimpleBuyState> =
-        localStateAdapter.fetch()?.let {
-            Maybe.just(it)
-        } ?: Maybe.empty()
+        Maybe.fromCallable { serializer.fetch() }
 }
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -224,7 +196,7 @@ fun BuySellOrder.toSimpleBuyState(): SimpleBuyState =
         id = id,
         amount = fiat,
         fiatCurrency = fiat.currencyCode,
-        selectedCryptoCurrency = crypto.currency,
+        selectedCryptoAsset = crypto.currency,
         orderState = state,
         fee = fee,
         orderValue = orderValue as? CryptoValue,
@@ -241,5 +213,8 @@ fun BuySellOrder.toSimpleBuyState(): SimpleBuyState =
 private fun configureCurrentScreen(
     state: OrderState
 ): FlowScreen =
-    if (state == OrderState.PENDING_CONFIRMATION) FlowScreen.ENTER_AMOUNT
-    else FlowScreen.CHECKOUT
+    if (state == OrderState.PENDING_CONFIRMATION) {
+        FlowScreen.ENTER_AMOUNT
+    } else {
+        FlowScreen.CHECKOUT
+    }

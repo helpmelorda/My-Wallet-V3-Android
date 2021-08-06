@@ -21,13 +21,15 @@ enum class AuthStatus {
     GetPayload,
     VerifyPassword,
     Submit2FA,
+    UpdateMobileSetup,
     Complete,
     PairingFailed,
     InvalidPassword,
     Invalid2FACode,
     AuthRequired,
     AuthFailed,
-    InitialError
+    InitialError,
+    ShowManualPairing
 }
 
 data class LoginAuthState(
@@ -38,5 +40,7 @@ data class LoginAuthState(
     val authStatus: AuthStatus = AuthStatus.None,
     val authMethod: TwoFAMethod = TwoFAMethod.OFF,
     val payloadJson: String = "",
-    val code: String = ""
+    val code: String = "",
+    val isMobileSetup: Boolean = false,
+    val deviceType: Int = 0
 ) : MviState

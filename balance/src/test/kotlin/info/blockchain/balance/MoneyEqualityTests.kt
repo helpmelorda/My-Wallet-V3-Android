@@ -1,8 +1,8 @@
 package info.blockchain.balance
 
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should not be equal to`
 import org.amshove.kluent.`should not be`
-import org.amshove.kluent.`should not equal`
 import org.junit.Test
 
 class MoneyEqualityTests {
@@ -13,7 +13,7 @@ class MoneyEqualityTests {
         val m2: Money = 1.bitcoin()
 
         m1 `should not be` m2
-        m1 `should equal` m2
+        m1 `should be equal to` m2
     }
 
     @Test
@@ -22,7 +22,7 @@ class MoneyEqualityTests {
         val m2: Money = 2.bitcoin()
 
         m1 `should not be` m2
-        m1 `should not equal` m2
+        m1 `should not be equal to` m2
     }
 
     @Test
@@ -31,7 +31,7 @@ class MoneyEqualityTests {
         val m2: Money = 1.bitcoinCash()
 
         m1 `should not be` m2
-        m1 `should not equal` m2
+        m1 `should not be equal to` m2
     }
 
     @Test
@@ -40,7 +40,7 @@ class MoneyEqualityTests {
         val m2: Money = FiatValue.fromMinor("USD", 1)
 
         m1 `should not be` m2
-        m1 `should not equal` m2
+        m1 `should not be equal to` m2
     }
 
     @Test
@@ -49,7 +49,7 @@ class MoneyEqualityTests {
         val m2: Money = FiatValue.fromMinor("USD", 1)
 
         m1 `should not be` m2
-        m1 `should not equal` m2
+        m1 `should not be equal to` m2
     }
 
     @Test
@@ -58,7 +58,7 @@ class MoneyEqualityTests {
         val m2: Money = FiatValue.fromMinor("CAD", 2)
 
         m1 `should not be` m2
-        m1 `should not equal` m2
+        m1 `should not be equal to` m2
     }
 
     @Test
@@ -67,6 +67,6 @@ class MoneyEqualityTests {
         val m2: Money = FiatValue.fromMinor("CAD", 2)
 
         m1 `should not be` m2
-        m1 `should equal` m2
+        m1 `should be equal to` m2
     }
 }

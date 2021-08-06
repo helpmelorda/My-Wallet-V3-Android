@@ -2,12 +2,12 @@ package piuk.blockchain.androidcore.data.auth.metadata
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.metadata.MetadataRepository
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Completable
-import io.reactivex.Maybe
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager

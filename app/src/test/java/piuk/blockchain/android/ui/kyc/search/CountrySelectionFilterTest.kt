@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.kyc.search
 
-import io.reactivex.Observable
-import org.amshove.kluent.`should equal`
+import io.reactivex.rxjava3.core.Observable
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 import piuk.blockchain.android.ui.kyc.countryselection.util.CountryDisplayModel
 
@@ -13,7 +13,7 @@ class CountrySelectionFilterTest {
         val countries = Observable.just(emptyList<CountryDisplayModel>())
         countries.filterCountries(querySubject)
             .test()
-            .values() `should equal` listOf(emptyList())
+            .values() `should be equal to` listOf(emptyList())
     }
 
     @Test
@@ -27,7 +27,7 @@ class CountrySelectionFilterTest {
         )
         countries.filterCountries(querySubject)
             .test()
-            .values() `should equal` listOf(
+            .values() `should be equal to` listOf(
             listOf(
                 country("UK"),
                 country("US")
@@ -49,7 +49,7 @@ class CountrySelectionFilterTest {
         )
         countries.filterCountries(querySubject)
             .test()
-            .values() `should equal` listOf(
+            .values() `should be equal to` listOf(
             listOf(
                 country("United Kingdom"),
                 country("United States"),
@@ -75,7 +75,7 @@ class CountrySelectionFilterTest {
         )
         countries.filterCountries(querySubject)
             .test()
-            .values() `should equal` listOf(
+            .values() `should be equal to` listOf(
             listOf(
                 country("United Kingdom"),
                 country("United States"),
@@ -102,7 +102,7 @@ class CountrySelectionFilterTest {
         )
         countries.filterCountries(querySubject)
             .test()
-            .values().last() `should equal`
+            .values().last() `should be equal to`
             listOf(
                 country("Canada")
             )
@@ -122,7 +122,7 @@ class CountrySelectionFilterTest {
         )
         countries.filterCountries(querySubject)
             .test()
-            .values().last() `should equal`
+            .values().last() `should be equal to`
             listOf(
                 country("United Kingdom", "UK")
             )
@@ -142,7 +142,7 @@ class CountrySelectionFilterTest {
         )
         countries.filterCountries(querySubject)
             .test()
-            .values().last() `should equal`
+            .values().last() `should be equal to`
             listOf(
                 country("United States", "US")
             )
@@ -162,7 +162,7 @@ class CountrySelectionFilterTest {
         )
         countries.filterCountries(querySubject)
             .test()
-            .values().last() `should equal`
+            .values().last() `should be equal to`
             listOf(
                 country("", "CA")
             )
@@ -184,7 +184,7 @@ class CountrySelectionFilterTest {
         )
         countries.filterCountries(querySubject)
             .test()
-            .values() `should equal` listOf(
+            .values() `should be equal to` listOf(
             listOf(
                 country("United Kingdom"),
                 country("United States"),

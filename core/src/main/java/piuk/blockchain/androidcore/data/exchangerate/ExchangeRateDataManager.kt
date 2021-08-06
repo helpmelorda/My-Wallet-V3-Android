@@ -1,13 +1,14 @@
 package piuk.blockchain.androidcore.data.exchangerate
 
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.androidcore.data.exchangerate.datastore.ExchangeRateDataStore
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.data.rxjava.RxPinning
@@ -22,16 +23,17 @@ import java.math.RoundingMode
  */
 class ExchangeRateDataManager(
     private val exchangeRateDataStore: ExchangeRateDataStore,
+    private val assetCatalogue: AssetCatalogue,
     rxBus: RxBus
 ) : ExchangeRates {
     private val rxPinning = RxPinning(rxBus)
 
     fun updateTickers(): Completable =
-        rxPinning.call { exchangeRateDataStore.updateExchangeRates() }
+        rxPinning.call { exchangeRateDataStore.updateExchangeRates(assetCatalogue) }
             .subscribeOn(Schedulers.io())
 
-    override fun getLastPrice(cryptoCurrency: CryptoCurrency, currencyName: String) =
-        BigDecimal(exchangeRateDataStore.getLastPrice(cryptoCurrency, currencyName))
+    override fun getLastPrice(cryptoAsset: AssetInfo, fiatName: String) =
+        BigDecimal(exchangeRateDataStore.getLastPrice(cryptoAsset, fiatName))
 
     override fun getLastPriceOfFiat(targetFiat: String, sourceFiat: String) =
         BigDecimal(exchangeRateDataStore.getFiatLastPrice(targetFiat = targetFiat, sourceFiat = sourceFiat))
@@ -43,7 +45,7 @@ class ExchangeRateDataManager(
             .map { FiatValue.fromMajor(fiat, it * value.toBigDecimal()) }
             .subscribeOn(Schedulers.io())
 
-    fun getHistoricPrice(currency: CryptoCurrency, fiat: String, timeInSeconds: Long): Single<FiatValue> =
+    fun getHistoricPrice(currency: AssetInfo, fiat: String, timeInSeconds: Long): Single<FiatValue> =
         exchangeRateDataStore.getHistoricPrice(currency, fiat, timeInSeconds)
             .map { FiatValue.fromMajor(fiat, it) }
             .subscribeOn(Schedulers.io())
@@ -51,10 +53,10 @@ class ExchangeRateDataManager(
     fun getCurrencyLabels() = exchangeRateDataStore.getCurrencyLabels()
 }
 
-fun FiatValue.toCrypto(exchangeRateDataManager: ExchangeRates, cryptoCurrency: CryptoCurrency) =
+fun FiatValue.toCrypto(exchangeRateDataManager: ExchangeRates, cryptoCurrency: AssetInfo) =
     toCryptoOrNull(exchangeRateDataManager, cryptoCurrency) ?: CryptoValue.zero(cryptoCurrency)
 
-fun FiatValue.toCryptoOrNull(exchangeRateDataManager: ExchangeRates, cryptoCurrency: CryptoCurrency) =
+fun FiatValue.toCryptoOrNull(exchangeRateDataManager: ExchangeRates, cryptoCurrency: AssetInfo) =
     if (isZero) {
         CryptoValue.zero(cryptoCurrency)
     } else {
@@ -64,7 +66,7 @@ fun FiatValue.toCryptoOrNull(exchangeRateDataManager: ExchangeRates, cryptoCurre
         } else {
             CryptoValue.fromMajor(
                 cryptoCurrency,
-                this.toBigDecimal().divide(rate, cryptoCurrency.dp, RoundingMode.HALF_UP)
+                this.toBigDecimal().divide(rate, cryptoCurrency.precisionDp, RoundingMode.HALF_UP)
             )
         }
     }

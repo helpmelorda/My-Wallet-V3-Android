@@ -1,13 +1,13 @@
 package com.blockchain.network.websocket
 
 import com.blockchain.testutils.rxInit
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.times
-import com.nhaarman.mockito_kotlin.verify
-import io.reactivex.Observable
-import io.reactivex.schedulers.TestScheduler
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.TestScheduler
+import io.reactivex.rxjava3.subjects.PublishSubject
+import io.reactivex.rxjava3.subjects.Subject
 import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.TimeUnit
@@ -214,7 +214,7 @@ class RetryingConnectionFailingConnectionDelayTest {
 }
 
 class MockConnection(val mock: WebSocketConnection = mock()) : WebSocketConnection by mock {
-    private val subject: Subject<ConnectionEvent> = PublishSubject.create<ConnectionEvent>()
+    private val subject: Subject<ConnectionEvent> = PublishSubject.create()
 
     override val connectionEvents: Observable<ConnectionEvent>
         get() = subject

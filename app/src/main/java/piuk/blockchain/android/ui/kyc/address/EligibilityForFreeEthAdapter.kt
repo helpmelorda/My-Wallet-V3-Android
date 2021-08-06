@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.kyc.address
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.EthEligibility
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 class EligibilityForFreeEthAdapter(
     private val nabuToken: NabuToken,

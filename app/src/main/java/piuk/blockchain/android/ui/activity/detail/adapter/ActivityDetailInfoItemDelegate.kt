@@ -18,6 +18,7 @@ import piuk.blockchain.android.ui.activity.detail.BuyCryptoWallet
 import piuk.blockchain.android.ui.activity.detail.BuyFee
 import piuk.blockchain.android.ui.activity.detail.BuyPaymentMethod
 import piuk.blockchain.android.ui.activity.detail.BuyPurchaseAmount
+import piuk.blockchain.android.ui.activity.detail.Copyable
 import piuk.blockchain.android.ui.activity.detail.Created
 import piuk.blockchain.android.ui.activity.detail.Description
 import piuk.blockchain.android.ui.activity.detail.Fee
@@ -38,8 +39,11 @@ import piuk.blockchain.android.ui.activity.detail.Value
 import piuk.blockchain.android.ui.activity.detail.XlmMemo
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
+import piuk.blockchain.android.util.visible
 
-class ActivityDetailInfoItemDelegate<in T> : AdapterDelegate<T> {
+class ActivityDetailInfoItemDelegate<in T>(
+    private val onLongClick: (String) -> Unit
+) : AdapterDelegate<T> {
     override fun isForViewType(items: List<T>, position: Int): Boolean {
         val item = items[position] as ActivityDetailsType
         return item !is Action && item !is Description
@@ -47,7 +51,8 @@ class ActivityDetailInfoItemDelegate<in T> : AdapterDelegate<T> {
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         InfoItemViewHolder(
-            ItemListInfoRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ItemListInfoRowBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            onLongClick
         )
 
     override fun onBindViewHolder(
@@ -59,12 +64,31 @@ class ActivityDetailInfoItemDelegate<in T> : AdapterDelegate<T> {
     )
 }
 
-private class InfoItemViewHolder(private val binding: ItemListInfoRowBinding) : RecyclerView.ViewHolder(binding.root) {
+private class InfoItemViewHolder(
+    private val binding: ItemListInfoRowBinding,
+    private val onLongClick: (String) -> Unit
+) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(item: ActivityDetailsType) {
         with(binding) {
             itemListInfoRowTitle.text = getHeaderForType(item)
             itemListInfoRowDescription.text = getValueForType(item)
+            setupCopyContentForType(item)
+        }
+    }
+
+    private fun setupCopyContentForType(infoType: ActivityDetailsType) {
+        (infoType as? Copyable)?.let { copyable ->
+            val tinyPadding = context.resources.getDimension(R.dimen.tiny_margin).toInt()
+            itemView.setPadding(itemView.paddingLeft, itemView.paddingTop, tinyPadding, itemView.paddingBottom)
+            itemView.setOnLongClickListener {
+                onLongClick(copyable.filed)
+                true
+            }
+            binding.copyTapTarget.visible()
+            binding.copyTapTarget.setOnClickListener {
+                onLongClick(copyable.filed)
+            }
         }
     }
 
@@ -104,7 +128,7 @@ private class InfoItemViewHolder(private val binding: ItemListInfoRowBinding) : 
             is SwapReceiveAmount -> context.getString(R.string.activity_details_swap_for)
             is NetworkFee -> context.getString(
                 R.string.tx_confirmation_network_fee,
-                (infoType.feeValue as CryptoValue).currency.displayTicker
+                (infoType.feeValue as CryptoValue).currency.ticker
             )
             is XlmMemo -> context.getString(R.string.xlm_memo_text)
             is RecurringBuyFrequency -> context.getString(R.string.recurring_buy_details_recurring)
@@ -152,41 +176,47 @@ private class InfoItemViewHolder(private val binding: ItemListInfoRowBinding) : 
             is FeeAmount -> infoType.fundedFiat.toStringWithSymbol()
             is TransactionId -> infoType.txId
             is BuyCryptoWallet -> context.getString(
-                R.string.custodial_wallet_default_label_2, infoType.crypto.displayTicker
+                R.string.custodial_wallet_default_label_2, infoType.crypto.ticker
             )
             is SellCryptoWallet -> context.getString(
                 R.string.fiat_currency_funds_wallet_name_1, infoType.currency
             )
             is SellPurchaseAmount -> infoType.value.toStringWithSymbol()
             is BuyPaymentMethod -> {
-                when {
-                    infoType.paymentDetails.endDigits != null &&
-                        infoType.paymentDetails.label != null -> {
-                        with(context) {
-                            infoType.paymentDetails.accountType?.let {
-                                val accType = getString(
-                                    R.string.payment_method_type_account_info,
-                                    infoType.paymentDetails.accountType,
-                                    infoType.paymentDetails.endDigits
-                                )
+                with(infoType.paymentDetails) {
+                    when {
+                        endDigits != null &&
+                            label != null -> {
+                            with(context) {
+                                accountType?.let {
+                                    val accType = getString(
+                                        R.string.payment_method_type_account_info,
+                                        accountType,
+                                        endDigits
+                                    )
 
-                                getString(
-                                    R.string.common_spaced_strings,
-                                    infoType.paymentDetails.label,
-                                    accType
+                                    getString(
+                                        R.string.common_spaced_strings,
+                                        label,
+                                        accType
+                                    )
+                                } ?: getString(
+                                    R.string.common_hyphenated_strings,
+                                    label,
+                                    endDigits
                                 )
-                            } ?: getString(
-                                R.string.common_hyphenated_strings,
-                                infoType.paymentDetails.label,
-                                infoType.paymentDetails.endDigits
-                            )
+                            }
                         }
-                    }
-                    infoType.paymentDetails.paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
-                        context.getString(R.string.checkout_funds_label)
-                    }
-                    else -> {
-                        context.getString(R.string.activity_details_payment_load_fail)
+                        paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
+                            if (label.isNullOrBlank()) {
+                                context.getString(R.string.checkout_funds_label)
+                            } else {
+                                context.getString(R.string.recurring_buy_funds_label, label)
+                            }
+                        }
+                        else -> {
+                            context.getString(R.string.activity_details_payment_load_fail)
+                        }
                     }
                 }
             }

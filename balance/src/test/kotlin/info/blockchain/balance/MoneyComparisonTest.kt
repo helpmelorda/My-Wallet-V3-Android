@@ -1,7 +1,7 @@
 package info.blockchain.balance
 
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should throw the Exception`
+import org.amshove.kluent.`should throw`
 import org.amshove.kluent.withMessage
 import org.junit.Test
 
@@ -39,7 +39,7 @@ class MoneyComparisonTest {
     fun `fiat - can't compare different currencies`() {
         val a: Money = 3.cad()
         val b: Money = 3.usd();
-        { a > b } `should throw the Exception` ValueTypeMismatchException::class withMessage "Can't compare CAD and USD"
+        { a > b } `should throw` ValueTypeMismatchException::class withMessage "Can't compare CAD and USD"
     }
 
     @Test
@@ -74,21 +74,21 @@ class MoneyComparisonTest {
     fun `crypto - can't compare different currencies`() {
         val a: Money = 3.ether()
         val b: Money = 3.bitcoin();
-        { a > b } `should throw the Exception` ValueTypeMismatchException::class withMessage "Can't compare ETH and BTC"
+        { a > b } `should throw` ValueTypeMismatchException::class withMessage "Can't compare ETH and BTC"
     }
 
     @Test
     fun `can't compare different values - fiat lhs`() {
         val a: Money = 3.usd()
         val b: Money = 3.bitcoin();
-        { a > b } `should throw the Exception` ValueTypeMismatchException::class withMessage "Can't compare USD and BTC"
+        { a > b } `should throw` ValueTypeMismatchException::class withMessage "Can't compare USD and BTC"
     }
 
     @Test
     fun `can't compare different values - crypto lhs`() {
         val a: Money = 3.bitcoin()
         val b: Money = 3.usd();
-        { a > b } `should throw the Exception` ValueTypeMismatchException::class withMessage "Can't compare BTC and USD"
+        { a > b } `should throw` ValueTypeMismatchException::class withMessage "Can't compare BTC and USD"
     }
 
     @Test

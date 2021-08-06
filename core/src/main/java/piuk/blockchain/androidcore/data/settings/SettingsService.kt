@@ -2,7 +2,7 @@ package piuk.blockchain.androidcore.data.settings
 
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import okhttp3.ResponseBody
 import piuk.blockchain.androidcore.utils.annotations.WebRequest
 

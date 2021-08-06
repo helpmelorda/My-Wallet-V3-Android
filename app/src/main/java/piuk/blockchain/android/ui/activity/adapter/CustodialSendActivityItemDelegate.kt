@@ -8,26 +8,24 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDate
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.disposables.CompositeDisposable
+import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.ActivitySummaryItem
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.CustodialTransferActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
+import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.gone
-import piuk.blockchain.android.util.setAssetIconColours
+import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionIsConfirming
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
 import java.util.Date
 
 class CustodialSendActivityItemDelegate(
     private val prefs: CurrencyPrefs,
-    private val assetResources: AssetResources,
-    private val onItemClicked: (CryptoCurrency, String, CryptoActivityType) -> Unit // crypto, txID, type
+    private val onItemClicked: (AssetInfo, String, CryptoActivityType) -> Unit // crypto, txID, type
 ) : AdapterDelegate<ActivitySummaryItem> {
 
     override fun isForViewType(items: List<ActivitySummaryItem>, position: Int): Boolean =
@@ -45,7 +43,6 @@ class CustodialSendActivityItemDelegate(
     ) = (holder as CustodialTradeActivityItemViewHolder).bind(
         items[position] as CustodialTransferActivitySummaryItem,
         prefs.selectedFiatCurrency,
-        assetResources,
         onItemClicked
     )
 }
@@ -59,17 +56,13 @@ private class CustodialTradeActivityItemViewHolder(
     fun bind(
         tx: CustodialTransferActivitySummaryItem,
         selectedFiatCurrency: String,
-        assetResources: AssetResources,
-        onAccountClicked: (CryptoCurrency, String, CryptoActivityType) -> Unit
+        onAccountClicked: (AssetInfo, String, CryptoActivityType) -> Unit
     ) {
         disposables.clear()
         with(binding) {
             if (tx.isConfirmed) {
                 icon.setTransactionDirection(tx)
-                icon.setAssetIconColours(
-                    tintColor = assetResources.assetTint(tx.cryptoCurrency),
-                    filterColor = assetResources.assetFilter(tx.cryptoCurrency)
-                )
+                icon.setAssetIconColoursWithTint(tx.asset)
             } else {
                 icon.setTransactionIsConfirming()
             }
@@ -86,7 +79,7 @@ private class CustodialTradeActivityItemViewHolder(
 
             binding.root.setOnClickListener {
                 onAccountClicked(
-                    tx.cryptoCurrency, tx.txId, CryptoActivityType.CUSTODIAL_TRANSFER
+                    tx.asset, tx.txId, CryptoActivityType.CUSTODIAL_TRANSFER
                 )
             }
         }
@@ -95,10 +88,10 @@ private class CustodialTradeActivityItemViewHolder(
     private fun TextView.setDirectionText(tx: CustodialTransferActivitySummaryItem) =
         when (tx.type) {
             TransactionType.DEPOSIT -> text = context.getString(
-                R.string.tx_title_receive, tx.cryptoCurrency.displayTicker
+                R.string.tx_title_receive, tx.asset.ticker
             )
             TransactionType.WITHDRAWAL -> text = context.getString(
-                R.string.tx_title_send, tx.cryptoCurrency.displayTicker
+                R.string.tx_title_send, tx.asset.ticker
             )
         }
 

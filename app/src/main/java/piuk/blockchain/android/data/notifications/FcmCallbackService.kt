@@ -14,10 +14,10 @@ import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.remoteconfig.FeatureFlag
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import io.reactivex.Maybe
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.rxkotlin.zipWith
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.encodeToString
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.ui.home.MainActivity
@@ -25,7 +25,7 @@ import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcoreui.ApplicationLifeCycle
+import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
 import timber.log.Timber
 
 class FcmCallbackService : FirebaseMessagingService() {
@@ -52,15 +52,22 @@ class FcmCallbackService : FirebaseMessagingService() {
             )
         } else {
             // If there is no data field, provide this default behaviour
-            NotificationsUtil(applicationContext, notificationManager, analytics).triggerNotification(
-                remoteMessage.notification?.title ?: "",
-                remoteMessage.notification?.title ?: "",
-                remoteMessage.notification?.body ?: "",
-                R.mipmap.ic_launcher,
+            NotificationsUtil(
+                context = applicationContext,
+                notificationManager = notificationManager,
+                analytics = analytics
+            ).triggerNotification(
+                title = remoteMessage.notification?.title ?: "",
+                marquee = remoteMessage.notification?.title ?: "",
+                text = remoteMessage.notification?.body ?: "",
+                icon = R.mipmap.ic_launcher,
                 // Don't want to launch an activity
-                PendingIntent.getActivity(applicationContext, 0, Intent(), PendingIntent.FLAG_UPDATE_CURRENT),
-                ID_BACKGROUND_NOTIFICATION_2FA,
-                remoteMessage.notification?.channelId
+                pendingIntent = PendingIntent.getActivity(
+                    applicationContext, 0, Intent(), PendingIntent.FLAG_UPDATE_CURRENT
+                ),
+                id = ID_BACKGROUND_NOTIFICATION_2FA,
+                appName = R.string.app_name,
+                colorRes = R.color.primary_navy_medium
             )
         }
     }
@@ -95,13 +102,19 @@ class FcmCallbackService : FirebaseMessagingService() {
                         if (foreground) {
                             startActivity(notifyIntent)
                         } else {
-                            NotificationsUtil(applicationContext, notificationManager, analytics).triggerNotification(
-                                getString(R.string.secure_channel_notif_title),
-                                getString(R.string.secure_channel_notif_title),
-                                getString(R.string.secure_channel_notif_summary),
-                                R.mipmap.ic_launcher,
-                                intent,
-                                notificationId
+                            NotificationsUtil(
+                                context = applicationContext,
+                                notificationManager = notificationManager,
+                                analytics = analytics
+                            ).triggerNotification(
+                                title = getString(R.string.secure_channel_notif_title),
+                                marquee = getString(R.string.secure_channel_notif_title),
+                                text = getString(R.string.secure_channel_notif_summary),
+                                icon = R.mipmap.ic_launcher,
+                                pendingIntent = intent,
+                                id = notificationId,
+                                appName = R.string.app_name,
+                                colorRes = R.color.primary_navy_medium
                             )
                         }
                     } else {
@@ -176,13 +189,19 @@ class FcmCallbackService : FirebaseMessagingService() {
         notificationId: Int
     ) {
 
-        NotificationsUtil(applicationContext, notificationManager, analytics).triggerNotification(
-            payload.title ?: "",
-            payload.title ?: "",
-            payload.body ?: "",
-            R.mipmap.ic_launcher,
-            pendingIntent,
-            notificationId
+        NotificationsUtil(
+            context = applicationContext,
+            notificationManager = notificationManager,
+            analytics = analytics
+        ).triggerNotification(
+            title = payload.title ?: "",
+            marquee = payload.title ?: "",
+            text = payload.body ?: "",
+            icon = R.mipmap.ic_launcher,
+            pendingIntent = pendingIntent,
+            id = notificationId,
+            appName = R.string.app_name,
+            colorRes = R.color.primary_navy_medium
         )
     }
 

@@ -8,12 +8,14 @@ import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.CampaignState
 import com.blockchain.nabu.models.responses.nabu.CampaignTransactionState
 import com.blockchain.nabu.models.responses.nabu.UserCampaignState
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.campaign.sunriverCampaignName
 import piuk.blockchain.android.ui.base.MvpPresenter
@@ -30,6 +32,7 @@ interface AirdropCentreView : MvpView {
 class AirdropCentrePresenter(
     private val nabuToken: NabuToken,
     private val nabu: NabuDataManager,
+    private val assetCatalogue: AssetCatalogue,
     private val crashLogger: CrashLogger
 ) : MvpPresenter<AirdropCentreView>() {
 
@@ -61,8 +64,8 @@ class AirdropCentrePresenter(
 
     private fun transformAirdropStatus(item: AirdropStatus): Airdrop? {
         val name = item.campaignName
-        val currency = when (name) {
-            blockstackCampaignName -> CryptoCurrency.STX
+        val asset = when (name) {
+            blockstackCampaignName -> AIRDROP_STX
             sunriverCampaignName -> CryptoCurrency.XLM
             else -> return null
         }
@@ -73,7 +76,7 @@ class AirdropCentrePresenter(
 
         return Airdrop(
             name,
-            currency,
+            asset,
             status,
             amountFiat,
             amountCrypto,
@@ -91,7 +94,7 @@ class AirdropCentrePresenter(
         return tx?.let {
             val fiat = FiatValue.fromMinor(tx.fiatCurrency, tx.fiatValue)
 
-            val cryptoCurrency = CryptoCurrency.fromNetworkTicker(tx.withdrawalCurrency)
+            val cryptoCurrency = assetCatalogue.fromNetworkTicker(tx.withdrawalCurrency)
                 ?: throw IllegalStateException("Unknown crypto currency: ${tx.withdrawalCurrency}")
 
             val crypto = CryptoValue.fromMinor(cryptoCurrency, tx.withdrawalQuantity.toBigDecimal())
@@ -115,15 +118,18 @@ class AirdropCentrePresenter(
             return if (txResponseList.isNullOrEmpty()) {
                 when (campaignName) {
                     blockstackCampaignName ->
-                        if (userState == UserCampaignState.RewardReceived)
+                        if (userState == UserCampaignState.RewardReceived) {
                             updatedAt
-                        else
+                        } else {
                             campaignEndDate
+                        }
                     sunriverCampaignName -> campaignEndDate
                     else -> null
                 }
             } else {
-                txResponseList.maxBy { it.withdrawalAt }!!.withdrawalAt
+                txResponseList.maxByOrNull {
+                    it.withdrawalAt
+                }?.withdrawalAt ?: throw IllegalStateException("Can't happen")
             }
         }
     }
@@ -132,6 +138,19 @@ class AirdropCentrePresenter(
         Timber.d("Got status!")
         view?.renderList(statusList)
     }
+
+    // STUB Asset; only used in the airdrop screen
+    @Suppress("ClassName")
+    private object AIRDROP_STX : CryptoCurrency(
+        ticker = "STX",
+        name = "Stacks",
+        categories = emptySet(),
+        precisionDp = 6,
+        requiredConfirmations = 12,
+        startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
+        colour = "#211F6D",
+        logo = "file:///android_asset/logo/blockstack/logo.png"
+    )
 }
 
 enum class AirdropState {
@@ -144,7 +163,7 @@ enum class AirdropState {
 
 data class Airdrop(
     val name: String,
-    val currency: CryptoCurrency,
+    val asset: AssetInfo,
     val status: AirdropState,
     val amountFiat: FiatValue?,
     val amountCrypto: CryptoValue?,

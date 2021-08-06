@@ -14,19 +14,19 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.DashboardPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAccount
@@ -60,9 +60,11 @@ import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.BankLinkingHost
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
+import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
@@ -74,8 +76,6 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 class EmptyDashboardItem : DashboardItem
-
-private typealias RefreshFn = () -> Unit
 
 class DashboardFragment :
     HomeScreenMviFragment<DashboardModel, DashboardIntent, DashboardState, FragmentDashboardBinding>(),
@@ -91,8 +91,9 @@ class DashboardFragment :
     private val announcements: AnnouncementList by scopedInject()
     private val analyticsReporter: BalanceAnalyticsReporter by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
+    private val dashboardPrefs: DashboardPrefs by inject()
     private val coincore: Coincore by scopedInject()
-    private val assetResources: AssetResources by scopedInject()
+    private val assetResources: AssetResources by inject()
     private val txLauncher: TransactionLauncher by inject()
 
     private val theAdapter: DashboardDelegateAdapter by lazy {
@@ -141,16 +142,7 @@ class DashboardFragment :
     private fun doRender(newState: DashboardState) {
 
         binding.swipe.isRefreshing = false
-
-        if (newState.assets.isNotEmpty()) {
-            if (displayList.isEmpty()) {
-                createDisplayList(newState)
-            } else {
-                updateDisplayList(newState)
-            }
-        } else {
-            // TODO clear display list
-        }
+        updateDisplayList(newState)
 
         if (this.state?.dashboardNavigationAction != newState.dashboardNavigationAction) {
             handleStateNavigation(newState)
@@ -162,7 +154,20 @@ class DashboardFragment :
                 clearBottomSheet()
             }
 
-            newState.activeFlow?.startFlow(childFragmentManager, this)
+            newState.activeFlow?.let {
+                if (it is TransactionFlow) {
+                    txLauncher.startFlow(
+                        activity = requireActivity(),
+                        fragmentManager = childFragmentManager,
+                        action = it.txAction,
+                        flowHost = this@DashboardFragment,
+                        sourceAccount = it.txSource,
+                        target = it.txTarget
+                    )
+                } else {
+                    it.startFlow(childFragmentManager, this)
+                }
+            }
         }
 
         // Update/show announcement
@@ -177,47 +182,33 @@ class DashboardFragment :
         this.state = newState
     }
 
-    private fun createDisplayList(newState: DashboardState) {
-        with(displayList) {
-            add(IDX_CARD_ANNOUNCE, EmptyDashboardItem()) // Placeholder for announcements
-            add(IDX_CARD_BALANCE, newState)
-            add(IDX_FUNDS_BALANCE, EmptyDashboardItem()) // Placeholder for funds
-            addAll(newState.assets.values)
-        }
-        theAdapter.notifyDataSetChanged()
-    }
-
     private fun updateDisplayList(newState: DashboardState) {
         with(displayList) {
-
-            val modList = mutableListOf<RefreshFn?>()
-            newState.assets.values.forEachIndexed { index, v ->
-                modList.add(handleUpdatedAssetState(IDX_ASSET_CARDS_START + index, v))
+            val newList = mutableListOf<DashboardItem>()
+            if (isEmpty()) {
+                newList.add(IDX_CARD_ANNOUNCE, EmptyDashboardItem())
+                newList.add(IDX_CARD_BALANCE, newState)
+                newList.add(IDX_FUNDS_BALANCE, EmptyDashboardItem()) // Placeholder for funds
+            } else {
+                newList.add(IDX_CARD_ANNOUNCE, get(IDX_CARD_ANNOUNCE))
+                newList.add(IDX_CARD_BALANCE, newState)
+                if (newState.fiatAssets?.fiatAccounts?.isNotEmpty() == true) {
+                    newList.add(IDX_FUNDS_BALANCE, newState.fiatAssets)
+                } else {
+                    newList.add(IDX_FUNDS_BALANCE, get(IDX_FUNDS_BALANCE))
+                }
             }
+            // Add assets, sorted by fiat balance then alphabetically
+            val assets = newState.assets.values.sortedWith(
+                compareByDescending<CryptoAssetState> { it.fiatBalance?.toBigInteger() }
+                    .thenBy { it.currency.name }
+            )
 
-            modList.removeAll { it == null }
-
-            if (newState.fiatAssets?.fiatAccounts?.isNotEmpty() == true) {
-                set(IDX_FUNDS_BALANCE, newState.fiatAssets)
-                modList.add { theAdapter.notifyItemChanged(IDX_FUNDS_BALANCE) }
-            }
-
-            if (modList.isNotEmpty()) {
-                set(IDX_CARD_BALANCE, newState)
-                modList.add { theAdapter.notifyItemChanged(IDX_CARD_BALANCE) }
-            }
-
-            modList.forEach { it?.invoke() }
+            newList.addAll(assets)
+            clear()
+            addAll(newList)
         }
-    }
-
-    private fun handleUpdatedAssetState(index: Int, newState: CryptoAssetState): RefreshFn? {
-        if (displayList[index] != newState) {
-            displayList[index] = newState
-            return { theAdapter.notifyItemChanged(index) }
-        } else {
-            return null
-        }
+        theAdapter.notifyDataSetChanged()
     }
 
     private fun handleStateNavigation(state: DashboardState) {
@@ -444,6 +435,13 @@ class DashboardFragment :
     }
 
     override fun onPause() {
+        // Save the sort order for use elsewhere, so that other asset lists can have the same
+        // ordering. Storing this through prefs is a bit of a hack, um, "optimisation" - we don't
+        // want to be getting all the balances every time we want to display assets in balance order.
+        // TODO This UI is due for a re-write soon, at which point this ordering should be managed better
+        dashboardPrefs.dashboardAssetOrder = displayList.filterIsInstance<CryptoAssetState>()
+            .map { it.currency.ticker }
+
         compositeDisposable.clear()
         rxBus.unregister(ActionEvent::class.java, actionEvent)
         super.onPause()
@@ -480,9 +478,9 @@ class DashboardFragment :
         model.process(ResetDashboardNavigation)
     }
 
-    private fun onAssetClicked(cryptoCurrency: CryptoCurrency) {
-        analytics.logEvent(assetActionEvent(AssetDetailsAnalytics.WALLET_DETAILS, cryptoCurrency.networkTicker))
-        model.process(LaunchAssetDetailsFlow(cryptoCurrency))
+    private fun onAssetClicked(asset: AssetInfo) {
+        analytics.logEvent(assetActionEvent(AssetDetailsAnalytics.WALLET_DETAILS, asset.ticker))
+        model.process(LaunchAssetDetailsFlow(asset))
     }
 
     private fun onFundsClicked(fiatAccount: FiatAccount) {
@@ -536,8 +534,8 @@ class DashboardFragment :
             navigator().resumeSimpleBuyKyc()
         }
 
-        override fun startSimpleBuy(cryptoCurrency: CryptoCurrency) {
-            navigator().startSimpleBuy(cryptoCurrency)
+        override fun startSimpleBuy(asset: AssetInfo) {
+            navigator().startSimpleBuy(asset)
         }
 
         override fun startBuy() {
@@ -650,13 +648,14 @@ class DashboardFragment :
         model.process(LaunchInterestWithdrawFlow(fromAccount))
     }
 
-    override fun goToSummary(account: SingleAccount, asset: CryptoCurrency) {
+    override fun goToSummary(account: SingleAccount, asset: AssetInfo) {
         model.process(UpdateSelectedCryptoAccount(account, asset))
         model.process(ShowDashboardSheet(DashboardNavigationAction.InterestSummary))
     }
 
     override fun goToSellFrom(account: CryptoAccount) {
         txLauncher.startFlow(
+            activity = requireActivity(),
             sourceAccount = account,
             action = AssetAction.Sell,
             fragmentManager = childFragmentManager,
@@ -668,7 +667,7 @@ class DashboardFragment :
         navigator().startInterestDashboard()
     }
 
-    override fun goToBuy(asset: CryptoCurrency) {
+    override fun goToBuy(asset: AssetInfo) {
         navigator().launchSimpleBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset)
     }
 

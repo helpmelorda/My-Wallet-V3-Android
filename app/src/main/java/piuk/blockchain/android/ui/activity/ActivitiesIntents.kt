@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.activity
 
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.ui.base.mvi.MviIntent
@@ -70,14 +70,14 @@ class CancelSimpleBuyOrderIntent(
 }
 
 class ShowActivityDetailsIntent(
-    private val cryptoCurrency: CryptoCurrency,
+    private val asset: AssetInfo,
     private val txHash: String,
     private val type: CryptoActivityType
 ) : ActivitiesIntent() {
     override fun reduce(oldState: ActivitiesState): ActivitiesState {
         return oldState.copy(
             bottomSheet = ActivitiesSheet.CRYPTO_ACTIVITY_DETAILS,
-            selectedCryptoCurrency = cryptoCurrency,
+            selectedCryptoCurrency = asset,
             selectedTxId = txHash,
             activityType = type
         )

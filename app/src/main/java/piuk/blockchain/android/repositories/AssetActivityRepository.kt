@@ -3,11 +3,10 @@ package piuk.blockchain.android.repositories
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.repositories.ExpiringRepository
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
+import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.ActivitySummaryList
@@ -23,23 +22,11 @@ import piuk.blockchain.android.coincore.TradeActivitySummaryItem
 import piuk.blockchain.android.coincore.TradingAccount
 import piuk.blockchain.android.coincore.impl.AllWalletsAccount
 import piuk.blockchain.android.coincore.impl.CryptoInterestAccount
-import piuk.blockchain.androidcore.data.access.AuthEvent
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import timber.log.Timber
 
 class AssetActivityRepository(
-    private val coincore: Coincore,
-    private val rxBus: RxBus
+    private val coincore: Coincore
 ) : ExpiringRepository<ActivitySummaryList>() {
-    private val event = rxBus.register(AuthEvent.LOGOUT::class.java)
-
-    init {
-        val compositeDisposable = CompositeDisposable()
-        compositeDisposable += event
-            .subscribe {
-                doOnLogout()
-            }
-    }
 
     private val transactionCache = mutableListOf<ActivitySummaryItem>()
 
@@ -60,7 +47,7 @@ class AssetActivityRepository(
                             account.includes(item.account)
                         }
                         is CryptoInterestAccount -> {
-                            account.asset == (item as? CustodialInterestActivitySummaryItem)?.cryptoCurrency
+                            account.asset == (item as? CustodialInterestActivitySummaryItem)?.asset
                         }
                         else -> {
                             account == item.account
@@ -128,17 +115,17 @@ class AssetActivityRepository(
         return activityList.toList().sorted()
     }
 
-    fun findCachedItem(cryptoCurrency: CryptoCurrency, txHash: String): ActivitySummaryItem? =
+    fun findCachedItem(asset: AssetInfo, txHash: String): ActivitySummaryItem? =
         transactionCache.filterIsInstance<CryptoActivitySummaryItem>().find {
-            it.cryptoCurrency == cryptoCurrency && it.txId == txHash
+            it.asset == asset && it.txId == txHash
         }
 
-    fun findCachedTradeItem(cryptoCurrency: CryptoCurrency, txHash: String): TradeActivitySummaryItem? =
+    fun findCachedTradeItem(asset: AssetInfo, txHash: String): TradeActivitySummaryItem? =
         transactionCache.filterIsInstance<TradeActivitySummaryItem>().find {
             when (it.currencyPair) {
-                is CurrencyPair.CryptoCurrencyPair -> it.currencyPair.source == cryptoCurrency && it.txId == txHash
+                is CurrencyPair.CryptoCurrencyPair -> it.currencyPair.source == asset && it.txId == txHash
                 is CurrencyPair.CryptoToFiatCurrencyPair ->
-                    it.currencyPair.source == cryptoCurrency && it.txId == txHash
+                    it.currencyPair.source == asset && it.txId == txHash
             }
         }
 
@@ -183,8 +170,7 @@ class AssetActivityRepository(
         return Maybe.just(transactionCache)
     }
 
-    private fun doOnLogout() {
+    fun clear() {
         transactionCache.clear()
-        rxBus.unregister(AuthEvent::class.java, event)
     }
 }

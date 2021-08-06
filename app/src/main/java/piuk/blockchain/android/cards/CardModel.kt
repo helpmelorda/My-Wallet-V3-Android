@@ -6,9 +6,9 @@ import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.google.gson.Gson
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CompleteCardActivation
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor

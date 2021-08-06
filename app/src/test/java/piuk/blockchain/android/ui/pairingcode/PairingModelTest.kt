@@ -2,15 +2,15 @@ package piuk.blockchain.android.ui.pairingcode
 
 import android.graphics.Bitmap
 import com.blockchain.android.testutils.rxInit
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.wallet.payload.data.Wallet
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
-import org.amshove.kluent.`it returns`
+
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -24,34 +24,36 @@ class PairingModelTest {
     private lateinit var model: PairingModel
 
     private val environmentConfig: EnvironmentConfig = mock {
-        on { isRunningInDebugMode() } `it returns` false
+        on { isRunningInDebugMode() }.thenReturn(false)
     }
 
     private val payloadWallet: Wallet = mock {
-        on { guid } `it returns` "1234"
-        on { sharedKey } `it returns` "sharedkey"
+        on { guid }.thenReturn("1234")
+        on { sharedKey }.thenReturn("sharedkey")
     }
 
     private val payloadDataManager: PayloadDataManager = mock {
-        on { wallet } `it returns` payloadWallet
-        on { tempPassword } `it returns` "password"
+        on { wallet }.thenReturn(payloadWallet)
+        on { tempPassword }.thenReturn("password")
     }
 
     private val bitmap: Bitmap = mock()
 
     private val qrCodeDataManager: QrCodeDataManager = mock {
-        on { generatePairingCode(any(), any(), any(), any(), any()) } `it returns`
+        on { generatePairingCode(any(), any(), any(), any(), any()) }.thenReturn(
             Single.just(bitmap)
+        )
     }
 
     private val authDataManager: AuthDataManager = mock {
-        on { getPairingEncryptionPassword(any()) } `it returns`
+        on { getPairingEncryptionPassword(any()) }.thenReturn(
             Observable.just(
                 ResponseBody.create(
                     ("application/text").toMediaTypeOrNull(),
                     "asdasdasd"
                 )
             )
+        )
     }
 
     @get:Rule

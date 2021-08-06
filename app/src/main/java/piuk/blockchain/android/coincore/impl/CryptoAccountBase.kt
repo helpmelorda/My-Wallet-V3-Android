@@ -2,18 +2,18 @@ package piuk.blockchain.android.coincore.impl
 
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.nabu.models.responses.interest.DisabledReason
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.total
 import info.blockchain.wallet.multiaddress.TransactionSummary
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.zipWith
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.ActivitySummaryList
@@ -28,6 +28,7 @@ import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.TradeActivitySummaryItem
 import piuk.blockchain.android.coincore.TxEngine
 import piuk.blockchain.android.coincore.TxSourceState
+import piuk.blockchain.android.coincore.takeEnabledIf
 import piuk.blockchain.android.identity.Feature
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
@@ -39,6 +40,7 @@ internal const val transactionFetchOffset = 0
 
 abstract class CryptoAccountBase : CryptoAccount {
     protected abstract val exchangeRates: ExchangeRateDataManager
+    protected abstract val baseActions: Set<AssetAction>
 
     final override var hasTransactions: Boolean = false
         private set
@@ -61,8 +63,8 @@ abstract class CryptoAccountBase : CryptoAccount {
     override val isEnabled: Single<Boolean>
         get() = Single.just(true)
 
-    override val disabledReason: Single<DisabledReason>
-        get() = Single.just(DisabledReason.NONE)
+    override val disabledReason: Single<IneligibilityReason>
+        get() = Single.just(IneligibilityReason.NONE)
 
     private fun custodialItemToSummary(item: TradeTransactionItem): TradeActivitySummaryItem {
         val sendingAccount = this
@@ -92,7 +94,7 @@ abstract class CryptoAccountBase : CryptoAccount {
 
     protected fun appendTradeActivity(
         custodialWalletManager: CustodialWalletManager,
-        asset: CryptoCurrency,
+        asset: AssetInfo,
         activityList: List<ActivitySummaryItem>
     ) = custodialWalletManager.getCustodialActivityForAsset(asset, directions)
         .map { swapItems ->
@@ -107,15 +109,29 @@ abstract class CryptoAccountBase : CryptoAccount {
         tradeItems: List<TradeActivitySummaryItem>,
         activity: List<ActivitySummaryItem>
     ): List<ActivitySummaryItem>
+
+    companion object {
+        val defaultActions = setOf(
+            AssetAction.ViewActivity,
+            AssetAction.Send,
+            AssetAction.InterestDeposit,
+            AssetAction.Swap,
+            AssetAction.Sell,
+            AssetAction.Receive,
+            AssetAction.Buy
+        )
+    }
 }
 
 // To handle Send to PIT
 internal class CryptoExchangeAccount(
-    override val asset: CryptoCurrency,
+    override val asset: AssetInfo,
     override val label: String,
     private val address: String,
     override val exchangeRates: ExchangeRateDataManager
 ) : CryptoAccountBase() {
+
+    override val baseActions: Set<AssetAction> = setOf()
 
     override fun requireSecondPassword(): Single<Boolean> =
         Single.just(false)
@@ -161,7 +177,7 @@ internal class CryptoExchangeAccount(
 abstract class CryptoNonCustodialAccount(
     // TODO: Build an interface on PayloadDataManager/PayloadManager for 'global' crypto calls; second password etc?
     protected val payloadDataManager: PayloadDataManager,
-    override val asset: CryptoCurrency,
+    override val asset: AssetInfo,
     private val custodialWalletManager: CustodialWalletManager,
     private val identity: UserIdentity
 ) : CryptoAccountBase(), NonCustodialAccount {
@@ -173,12 +189,26 @@ abstract class CryptoNonCustodialAccount(
         get() = custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() }.zipWith(
             identity.isEligibleFor(Feature.Interest(asset))
         ).map { (fiatAccounts, isEligibleForInterest) ->
+
+            val isActiveFunded = !isArchived && isFunded
+
             val activity = AssetAction.ViewActivity
-            val receive = AssetAction.Receive.takeIf { !isArchived }
-            val send = AssetAction.Send.takeIf { !isArchived && isFunded }
-            val swap = AssetAction.Swap.takeIf { !isArchived && isFunded }
-            val sell = AssetAction.Sell.takeIf { !isArchived && isFunded && fiatAccounts.isNotEmpty() }
-            val interest = AssetAction.InterestDeposit.takeIf { !isArchived && isFunded && isEligibleForInterest }
+            val receive = AssetAction.Receive.takeEnabledIf(baseActions) {
+                !isArchived
+            }
+            val send = AssetAction.Send.takeEnabledIf(baseActions) {
+                isActiveFunded
+            }
+            val swap = AssetAction.Swap.takeEnabledIf(baseActions) {
+                isActiveFunded
+            }
+            val sell = AssetAction.Sell.takeEnabledIf(baseActions) {
+                isActiveFunded && fiatAccounts.isNotEmpty()
+            }
+            val interest = AssetAction.InterestDeposit.takeEnabledIf(baseActions) {
+                isActiveFunded && isEligibleForInterest
+            }
+
             setOfNotNull(
                 activity, receive, send, swap, sell, interest
             )
@@ -216,7 +246,7 @@ abstract class CryptoNonCustodialAccount(
             if (hit?.transactionType == TransactionSummary.TransactionType.SENT) {
                 activityList.remove(hit)
                 val updatedSwap = custodialItem.copy(
-                    depositNetworkFee = hit.fee.first((CryptoValue(hit.cryptoCurrency, BigInteger.ZERO)))
+                    depositNetworkFee = hit.fee.first((CryptoValue(hit.asset, BigInteger.ZERO)))
                         .map { it as Money }
                 )
                 activityList.add(updatedSwap)
@@ -297,7 +327,7 @@ class CryptoAccountCustodialGroup(
 }
 
 class CryptoAccountNonCustodialGroup(
-    val asset: CryptoCurrency,
+    val asset: AssetInfo,
     override val label: String,
     override val accounts: SingleAccountList
 ) : AccountGroup {

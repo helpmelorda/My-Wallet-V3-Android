@@ -3,8 +3,8 @@ package com.blockchain.network.websocket
 import com.blockchain.serialization.JsonSerializable
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.subjects.PublishSubject
 
 interface ChannelAwareWebSocket {
     fun openChannel(name: String, params: JsonSerializable? = null): WebSocketChannel<String>

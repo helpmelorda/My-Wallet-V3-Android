@@ -31,5 +31,6 @@ private class RecurringBuyInfoCardViewHolder(
 
     fun bind(onCardClicked: () -> Unit) {
         binding.root.setOnClickListener { onCardClicked() }
+        binding.buttonLayout.setOnClickListener { onCardClicked() }
     }
 }

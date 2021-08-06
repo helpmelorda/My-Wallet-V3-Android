@@ -12,12 +12,11 @@ import com.blockchain.testutils.stroops
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
-import info.blockchain.balance.withMajorValue
 import io.fabric8.mockwebserver.DefaultMockServer
 import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.`should be less than`
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be`
 import org.amshove.kluent.`should throw`
 import org.junit.Before
@@ -75,7 +74,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         val balance =
             proxy.getBalance("GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4")
 
-        balance `should equal` 109969.99997.lumens()
+        balance `should be equal to` 109969.99997.lumens()
     }
 
     @Test
@@ -92,8 +91,8 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         }
 
         proxy.getBalanceAndMin("GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4").apply {
-            balance `should equal` 109969.99997.lumens()
-            minimumBalance `should equal` 1.lumens()
+            balance `should be equal to` 109969.99997.lumens()
+            minimumBalance `should be equal to` 1.lumens()
         }
     }
 
@@ -111,8 +110,8 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         }
 
         proxy.getBalanceAndMin("GC3OI356MOU4VUR4SMTSALQBI6HFCGKSSBWO5EMZABMN5AF3L3K6B6BK").apply {
-            balance `should equal` 100.lumens()
-            minimumBalance `should equal` ((2 + 5) * 0.5).lumens()
+            balance `should be equal to` 100.lumens()
+            minimumBalance `should be equal to` ((2 + 5) * 0.5).lumens()
         }
     }
 
@@ -132,7 +131,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         val balance =
             proxy.getBalance("GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4")
 
-        balance `should equal` 0.lumens()
+        balance `should be equal to` 0.lumens()
     }
 
     @Test
@@ -150,8 +149,8 @@ class HorizonProxyTest : AutoCloseKoinTest() {
 
         proxy.getBalanceAndMin("GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4")
             .apply {
-                balance `should equal` 0.lumens()
-                minimumBalance `should equal` 0.lumens()
+                balance `should be equal to` 0.lumens()
+                minimumBalance `should be equal to` 0.lumens()
             }
     }
 
@@ -190,7 +189,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         val transactions =
             proxy.getTransactionList("GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4")
 
-        transactions.size `should equal` 3
+        transactions.size `should be equal to` 3
         transactions[0] `should be instance of` CreateAccountOperationResponse::class.java
         transactions[1] `should be instance of` PaymentOperationResponse::class.java
         transactions[2] `should be instance of` PaymentOperationResponse::class.java
@@ -213,7 +212,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         val transactions =
             proxy.getTransactionList("GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4")
 
-        transactions.size `should equal` 0
+        transactions.size `should be equal to` 0
     }
 
     @Test
@@ -251,7 +250,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         val transaction =
             proxy.getTransaction("2dcb356e88d0c778a0c5ed8d33543f167994744ed0019b96553c310449133aba")
 
-        transaction.feeCharged `should equal` 100L
+        transaction.feeCharged `should be equal to` 100L
     }
 
     @Test
@@ -306,7 +305,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         }
 
         val source = KeyPair.fromSecretSeed("SAD6LOTFMPIGAPOF2SPQSYD4OIGIE5XVVX3FW3K7QVFUTRSUUHMZQ76I")
-        source.accountId `should equal` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
+        source.accountId `should be equal to` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
 
         proxy.sendTransaction(
             source,
@@ -320,11 +319,11 @@ class HorizonProxyTest : AutoCloseKoinTest() {
             transaction!!.operations.single().apply {
                 this `should be instance of` PaymentOperation::class
                 (this as PaymentOperation).apply {
-                    destination `should equal` "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI"
-                    amount `should equal` "123.4567891"
+                    destination `should be equal to` "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI"
+                    amount `should be equal to` "123.4567891"
                 }
             }
-            transaction.fee `should equal` 100L
+            transaction.fee `should be equal to` 100L
         }
 
         server.requestCount `should be` 5
@@ -342,7 +341,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         }
 
         val source = KeyPair.fromSecretSeed("SAD6LOTFMPIGAPOF2SPQSYD4OIGIE5XVVX3FW3K7QVFUTRSUUHMZQ76I")
-        source.accountId `should equal` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
+        source.accountId `should be equal to` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
 
         proxy.dryRunTransaction(
             source,
@@ -356,11 +355,11 @@ class HorizonProxyTest : AutoCloseKoinTest() {
             transaction!!.operations.single().apply {
                 this `should be instance of` PaymentOperation::class
                 (this as PaymentOperation).apply {
-                    destination `should equal` "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI"
-                    amount `should equal` "123.4567891"
+                    destination `should be equal to` "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI"
+                    amount `should be equal to` "123.4567891"
                 }
             }
-            transaction.fee `should equal` 100L
+            transaction.fee `should be equal to` 100L
         }
 
         server.requestCount `should be` 2
@@ -603,7 +602,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
             if (expectedReason != null) {
                 failureReason `should be` expectedReason
             }
-            failureValue `should equal` expectedFailureValue
+            failureValue `should be equal to` expectedFailureValue
         }
 
         server.requestCount `should be less than` 3
@@ -642,7 +641,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
             if (expectedReason != null) {
                 failureReason `should be` expectedReason
             }
-            failureValue `should equal` expectedFailureValue
+            failureValue `should be equal to` expectedFailureValue
         }
 
         server.requestCount `should be less than` 3
@@ -756,12 +755,12 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         }
 
         val source = KeyPair.fromSecretSeed("SAD6LOTFMPIGAPOF2SPQSYD4OIGIE5XVVX3FW3K7QVFUTRSUUHMZQ76I")
-        source.accountId `should equal` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
+        source.accountId `should be equal to` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
 
         proxy.sendTransaction(
             source,
             "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI",
-            CryptoCurrency.XLM.withMajorValue("1.23E+4".toBigDecimal()),
+            CryptoValue.fromMajor(CryptoCurrency.XLM, "1.23E+4".toBigDecimal()),
             10
         ).apply {
             success `should be` true
@@ -769,12 +768,12 @@ class HorizonProxyTest : AutoCloseKoinTest() {
             transaction!!.operations.single().apply {
                 this `should be instance of` CreateAccountOperation::class
                 (this as CreateAccountOperation).apply {
-                    destination `should equal` "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI"
-                    startingBalance `should equal` "12300.0000000"
+                    destination `should be equal to` "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI"
+                    startingBalance `should be equal to` "12300.0000000"
                 }
             }
-            transaction.fee `should equal` 100L
-            transaction.memo `should equal` Memo.none()
+            transaction.fee `should be equal to` 100L
+            transaction.memo `should be equal to` Memo.none()
         }
 
         server.requestCount `should be` 4
@@ -791,20 +790,20 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         }
 
         val source = KeyPair.fromSecretSeed("SAD6LOTFMPIGAPOF2SPQSYD4OIGIE5XVVX3FW3K7QVFUTRSUUHMZQ76I")
-        source.accountId `should equal` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
+        source.accountId `should be equal to` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
 
         val memo = Memo.text("Memo!")
         proxy.sendTransaction(
             source,
             "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI",
-            CryptoCurrency.XLM.withMajorValue("1.23E+4".toBigDecimal()),
+            CryptoValue.fromMajor(CryptoCurrency.XLM, "1.23E+4".toBigDecimal()),
             memo,
             10
         ).apply {
             success `should be` true
             transaction `should not be` null
             transaction!!.memo `should be` memo
-            transaction.fee `should equal` 100L
+            transaction.fee `should be equal to` 100L
         }
     }
 
@@ -818,19 +817,19 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         }
 
         val source = KeyPair.fromSecretSeed("SAD6LOTFMPIGAPOF2SPQSYD4OIGIE5XVVX3FW3K7QVFUTRSUUHMZQ76I")
-        source.accountId `should equal` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
+        source.accountId `should be equal to` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
 
         val memo = Memo.text("Memo!")
         proxy.dryRunTransaction(
             source,
             "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI",
-            CryptoCurrency.XLM.withMajorValue("1.23E+4".toBigDecimal()),
+            CryptoValue.fromMajor(CryptoCurrency.XLM, "1.23E+4".toBigDecimal()),
             memo = memo
         ).apply {
             success `should be` true
             transaction `should not be` null
             transaction!!.memo `should be` memo
-            transaction.fee `should equal` 100L
+            transaction.fee `should be equal to` 100L
         }
     }
 
@@ -845,13 +844,13 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         }
 
         val source = KeyPair.fromSecretSeed("SAD6LOTFMPIGAPOF2SPQSYD4OIGIE5XVVX3FW3K7QVFUTRSUUHMZQ76I")
-        source.accountId `should equal` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
+        source.accountId `should be equal to` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
 
         val memo = Memo.text("Memo!")
         proxy.sendTransaction(
             source,
             "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI",
-            CryptoCurrency.XLM.withMajorValue("1.23E+4".toBigDecimal()),
+            CryptoValue.fromMajor(CryptoCurrency.XLM, "1.23E+4".toBigDecimal()),
             timeout = 10,
             memo = memo,
             perOperationFee = 2100.stroops()
@@ -859,7 +858,7 @@ class HorizonProxyTest : AutoCloseKoinTest() {
             success `should be` true
             transaction `should not be` null
             transaction!!.memo `should be` memo
-            transaction.fee `should equal` 2100L
+            transaction.fee `should be equal to` 2100L
         }
     }
 
@@ -873,20 +872,20 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         }
 
         val source = KeyPair.fromSecretSeed("SAD6LOTFMPIGAPOF2SPQSYD4OIGIE5XVVX3FW3K7QVFUTRSUUHMZQ76I")
-        source.accountId `should equal` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
+        source.accountId `should be equal to` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
 
         val memo = Memo.text("Memo!")
         proxy.dryRunTransaction(
             source,
             "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI",
-            CryptoCurrency.XLM.withMajorValue("1.23E+4".toBigDecimal()),
+            CryptoValue.fromMajor(CryptoCurrency.XLM, "1.23E+4".toBigDecimal()),
             memo = memo,
             perOperationFee = 1700.stroops()
         ).apply {
             success `should be` true
             transaction `should not be` null
             transaction!!.memo `should be` memo
-            transaction.fee `should equal` 1700L
+            transaction.fee `should be equal to` 1700L
         }
     }
 
@@ -900,12 +899,12 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         }
 
         val source = KeyPair.fromSecretSeed("SAD6LOTFMPIGAPOF2SPQSYD4OIGIE5XVVX3FW3K7QVFUTRSUUHMZQ76I")
-        source.accountId `should equal` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
+        source.accountId `should be equal to` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
         {
             proxy.dryRunTransaction(
                 source,
                 "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI",
-                CryptoCurrency.XLM.withMajorValue("1.23E+4".toBigDecimal()),
+                CryptoValue.fromMajor(CryptoCurrency.XLM, "1.23E+4".toBigDecimal()),
                 memo = Memo.none(),
                 perOperationFee = 1.bitcoin()
             )
@@ -924,12 +923,12 @@ class HorizonProxyTest : AutoCloseKoinTest() {
         }
 
         val source = KeyPair.fromSecretSeed("SAD6LOTFMPIGAPOF2SPQSYD4OIGIE5XVVX3FW3K7QVFUTRSUUHMZQ76I")
-        source.accountId `should equal` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
+        source.accountId `should be equal to` "GC7GSOOQCBBWNUOB6DIWNVM7537UKQ353H6LCU3DB54NUTVFR2T6OHF4"
 
         proxy.sendTransaction(
             source,
             "GCO724H2FOHPBFF4OQ6IB5GB3CVE4W3UGDY4RIHHG6UPQ2YZSSCINMAI",
-            CryptoCurrency.XLM.withMajorValue("1.23E+4".toBigDecimal()),
+            CryptoValue.fromMajor(CryptoCurrency.XLM, "1.23E+4".toBigDecimal()),
             10
         ).apply {
             transaction!!.timeBounds `should not be` null

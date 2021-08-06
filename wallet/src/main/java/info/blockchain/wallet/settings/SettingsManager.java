@@ -2,7 +2,7 @@ package info.blockchain.wallet.settings;
 
 import info.blockchain.wallet.api.WalletApi;
 import info.blockchain.wallet.api.data.Settings;
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 import okhttp3.ResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

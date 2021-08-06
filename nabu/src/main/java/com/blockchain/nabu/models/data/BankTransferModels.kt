@@ -103,7 +103,7 @@ data class LinkedBank(
     val entity: String,
     val iconUrl: String,
     val callbackPath: String
-) : Serializable {
+) : Serializable, RecurringBuyPaymentDetails {
     val account: String
         get() = accountNumber
 
@@ -114,6 +114,9 @@ data class LinkedBank(
 
     fun isLinkingInFinishedState() =
         state == LinkedBankState.ACTIVE || state == LinkedBankState.BLOCKED
+
+    override val paymentDetails: PaymentMethodType
+        get() = PaymentMethodType.BANK_TRANSFER
 }
 
 enum class LinkedBankErrorState {

@@ -72,7 +72,8 @@ class AuthNewLoginSheet :
                     pubKeyHash = bundle.pubKeyHash,
                     messageInJson = bundle.message,
                     items = items,
-                    forcePin = bundle.getBoolean(FORCE_PIN)
+                    forcePin = bundle.getBoolean(FORCE_PIN),
+                    originIp = bundle.originIp
                 )
             )
         }

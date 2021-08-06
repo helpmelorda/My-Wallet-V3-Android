@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.thepit
 
-interface PitVerifyEmailView : piuk.blockchain.androidcoreui.ui.base.View {
+import piuk.blockchain.android.ui.base.View
+
+interface PitVerifyEmailView : View {
     fun mailResendFailed()
     fun mailResentSuccessfully()
     fun emailVerified()

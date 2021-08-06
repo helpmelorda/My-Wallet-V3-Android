@@ -1,12 +1,12 @@
 package info.blockchain.wallet
 
-import com.blockchain.api.NonCustodialBitcoinService
+import com.blockchain.api.services.NonCustodialBitcoinService
 import info.blockchain.wallet.BitcoinCashWallet.Companion.create
 import info.blockchain.wallet.BitcoinCashWallet.Companion.restore
 import info.blockchain.wallet.bch.BchMainNetParams
 import info.blockchain.wallet.test_data.TestVectorBip39
 import info.blockchain.wallet.test_data.TestVectorBip39List
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.mock
 import org.bitcoinj.core.NetworkParameters
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

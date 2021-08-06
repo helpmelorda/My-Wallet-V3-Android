@@ -2,10 +2,10 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import com.blockchain.nabu.status.KycTiersQueries
 import piuk.blockchain.android.campaign.SunriverCampaignRegistration
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder

@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import android.text.Html
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
@@ -33,7 +34,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
-import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.Bank
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -43,20 +43,17 @@ import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.SettingsAnalyticsEvents
+import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.notifications.analytics.Logging
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.remoteconfig.FeatureFlag
-import com.blockchain.ui.urllinks.URL_PRIVACY_POLICY
-import com.blockchain.ui.urllinks.URL_TOS_POLICY
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.mukesh.countrypicker.CountryPicker
+import info.blockchain.wallet.api.Environment
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.util.PasswordUtil
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
@@ -96,23 +93,26 @@ import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.pairingcode.PairingBottomSheet
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
+import piuk.blockchain.android.ui.settings.SettingsAnalytics.Companion.TWO_SET_MOBILE_NUMBER_OPTION
 import piuk.blockchain.android.ui.settings.preferences.BankPreference
 import piuk.blockchain.android.ui.settings.preferences.CardPreference
 import piuk.blockchain.android.ui.settings.preferences.KycStatusPreference
 import piuk.blockchain.android.ui.settings.preferences.ThePitStatusPreference
 import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
+import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
+import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.visible
+import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.utils.logging.Logging
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Locale
@@ -173,9 +173,6 @@ class SettingsFragment : PreferenceFragmentCompat(),
     private val launcherShortcutPrefs by lazy {
         findPreference<SwitchPreferenceCompat>("receive_shortcuts_enabled")
     }
-    private val swipeToReceivePrefs by lazy {
-        findPreference<SwitchPreferenceCompat>(PersistentPrefs.KEY_SWIPE_TO_RECEIVE_ENABLED)
-    }
     private val screenshotPref by lazy {
         findPreference<SwitchPreferenceCompat>("screenshots_enabled")
     }
@@ -189,9 +186,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
     private val analytics: Analytics by inject()
     private val rxBus: RxBus by inject()
     private val formatChecker: FormatChecker by inject()
-    private val mwaFF: FeatureFlag by inject(mwaFeatureFlag)
-
-    private var isMWAEnabled: Boolean = false
+    private val environmentConfig: EnvironmentConfig by inject()
 
     private var progressDialog: MaterialProgressDialog? = null
 
@@ -208,15 +203,6 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
         analytics.logEvent(AnalyticsEvents.Settings)
         Logging.logContentView(javaClass.simpleName)
-
-        val compositeDisposable = mwaFF.enabled.observeOn(Schedulers.io()).subscribe(
-            { result ->
-                isMWAEnabled = result
-            },
-            {
-                isMWAEnabled = false
-            }
-        )
 
         initReviews()
     }
@@ -236,54 +222,61 @@ class SettingsFragment : PreferenceFragmentCompat(),
         // Profile
         kycStatusPref.onClick {
             settingsPresenter.onKycStatusClicked()
-            analytics.logEvent(SettingsAnalyticsEvents.SwapLimitChecked)
+            analytics.logEvent(SettingsAnalytics.SwapLimitChecked)
         }
         kycStatusPref?.isVisible = false
 
         guidPref.onClick {
             showDialogGuid()
-            analytics.logEvent(SettingsAnalyticsEvents.WalletIdCopyClicked)
+            analytics.logEvent(SettingsAnalytics.WalletIdCopyClicked)
         }
         emailPref.onClick {
             onUpdateEmailClicked()
-            analytics.logEvent(SettingsAnalyticsEvents.EmailClicked)
+            analytics.logEvent(SettingsAnalytics.EmailClicked)
         }
         smsPref.onClick {
             settingsPresenter.onVerifySmsRequested()
-            analytics.logEvent(SettingsAnalyticsEvents.PhoneClicked)
+            analytics.logEvent(SettingsAnalytics.PhoneClicked)
+            analytics.logEvent(SettingsAnalytics.MobileChangeClicked)
         }
 
         thePit.onClick { settingsPresenter.onThePitClicked() }
         thePit?.isVisible = true
 
-        qrConnectPref?.isVisible = isMWAEnabled
+        qrConnectPref?.isVisible = environmentConfig.isRunningInDebugMode() &&
+            environmentConfig.environment != Environment.PRODUCTION
         qrConnectPref.onClick { PairingBottomSheet().show(childFragmentManager, BOTTOM_SHEET) }
 
         // Preferences
         fiatPref.onClick { showDialogFiatUnits() }
         emailNotificationPref.onClick {
             showDialogEmailNotifications()
-            analytics.logEvent(SettingsAnalyticsEvents.EmailNotificationClicked)
+            analytics.logEvent(SettingsAnalytics.EmailNotificationClicked)
         }
-        pushNotificationPref.onClick { showDialogPushNotifications() }
+        pushNotificationPref.onClick {
+            showDialogPushNotifications()
+            analytics.logEvent(SettingsAnalytics.NotificationPrefsUpdated)
+        }
 
         // Security
         fingerprintPref.onClick {
             onFingerprintClicked()
-            analytics.logEvent(SettingsAnalyticsEvents.BiometryAuthSwitch)
+            analytics.logEvent(SettingsAnalytics.BiometryAuthSwitch)
         }
         findPreference<Preference>("pin").onClick {
             showDialogChangePin()
-            analytics.logEvent(SettingsAnalyticsEvents.ChangePinClicked)
+            analytics.logEvent(SettingsAnalytics.ChangePinClicked_Old)
+            analytics.logEvent(SettingsAnalytics.ChangePinClicked)
         }
         twoStepVerificationPref.onClick {
             settingsPresenter.onTwoStepVerificationRequested()
-            analytics.logEvent(SettingsAnalyticsEvents.TwoFactorAuthClicked)
+            analytics.logEvent(SettingsAnalytics.TwoFactorAuthClicked)
+            analytics.logEvent(SettingsAnalytics.TwoStepVerificationClicked(TWO_SET_MOBILE_NUMBER_OPTION))
         }
 
         findPreference<Preference>("change_pw").onClick {
             showDialogChangePasswordWarning()
-            analytics.logEvent(SettingsAnalyticsEvents.ChangePassClicked)
+            analytics.logEvent(SettingsAnalytics.ChangePassClicked)
         }
 
         torPref?.setOnPreferenceChangeListener { _, newValue ->
@@ -312,24 +305,9 @@ class SettingsFragment : PreferenceFragmentCompat(),
             true
         }
 
-        swipeToReceivePrefs?.setOnPreferenceChangeListener { _, newValue ->
-            if (!(newValue as Boolean)) {
-                settingsPresenter.clearOfflineAddressCache()
-            } else {
-                AlertDialog.Builder(settingsActivity, R.style.AlertDialogStyle)
-                    .setTitle(R.string.swipe_receive_hint)
-                    .setMessage(R.string.swipe_receive_address_info)
-                    .setPositiveButton(android.R.string.ok) { _, _ -> }
-                    .setCancelable(false)
-                    .show()
-            }
-            analytics.logEvent(SettingsAnalyticsEvents.SwipeToReceiveSwitch)
-            true
-        }
-
         cloudBackupPref?.setOnPreferenceChangeListener { _, newValue ->
             settingsPresenter.updateCloudData(newValue as Boolean)
-            analytics.logEvent(SettingsAnalyticsEvents.CloudBackupSwitch)
+            analytics.logEvent(SettingsAnalytics.CloudBackupSwitch)
             true
         }
 
@@ -342,8 +320,12 @@ class SettingsFragment : PreferenceFragmentCompat(),
             )
         }
 
-        findPreference<Preference>("tos").onClick { onTosClicked() }
-        findPreference<Preference>("privacy").onClick { onPrivacyClicked() }
+        findPreference<Preference>("tos").onClick {
+            onTosClicked()
+        }
+        findPreference<Preference>("privacy").onClick {
+            onPrivacyClicked()
+        }
 
         settingsPresenter.checkShouldDisplayRateUs()
 
@@ -629,6 +611,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
             CardPreference(context = requireContext()).apply {
                 onClick {
                     addNewCard()
+                    analytics.logEvent(SettingsAnalytics.LinkCardClicked(LaunchOrigin.SETTINGS))
                 }
                 key = ADD_CARD_KEY
             }
@@ -779,7 +762,8 @@ class SettingsFragment : PreferenceFragmentCompat(),
         val intent = Intent(activity, PinEntryActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
-        analytics.logEvent(SettingsAnalyticsEvents.PinChanged)
+        analytics.logEvent(SettingsAnalytics.PinChanged_Old)
+        analytics.logEvent(SettingsAnalytics.PinCodeChanged)
     }
 
     override fun launchThePitLandingActivity() {
@@ -792,6 +776,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
     private fun onUpdateEmailClicked() {
         settingsPresenter.onEmailShowRequested()
+        analytics.logEvent(SettingsAnalytics.EmailChangeClicked)
     }
 
     private fun onBackupClicked() {
@@ -799,10 +784,20 @@ class SettingsFragment : PreferenceFragmentCompat(),
     }
 
     private fun onTosClicked() {
+        analytics.logEvent(
+            SettingsAnalytics.SettingsHyperlinkClicked(
+                SettingsAnalytics.AnalyticsHyperlinkDestination.TERMS_OF_SERVICE
+            )
+        )
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(URL_TOS_POLICY)))
     }
 
     private fun onPrivacyClicked() {
+        analytics.logEvent(
+            SettingsAnalytics.SettingsHyperlinkClicked(
+                SettingsAnalytics.AnalyticsHyperlinkDestination.PRIVACY_POLICY
+            )
+        )
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(URL_PRIVACY_POLICY)))
     }
 
@@ -911,7 +906,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
                 val clip = ClipData.newPlainText("guid", guidPref!!.summary)
                 clipboard.setPrimaryClip(clip)
                 showCustomToast(R.string.copied_to_clipboard)
-                analytics.logEvent(SettingsAnalyticsEvents.WalletIdCopyCopied)
+                analytics.logEvent(SettingsAnalytics.WalletIdCopyCopied)
             }
             .setNegativeButton(R.string.common_no, null)
             .show()

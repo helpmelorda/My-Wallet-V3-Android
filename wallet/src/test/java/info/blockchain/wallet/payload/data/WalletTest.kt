@@ -11,7 +11,7 @@ import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.Payment
 import info.blockchain.wallet.util.DoubleEncryptionFactory
 import info.blockchain.wallet.util.parseUnspentOutputsAsUtxoList
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

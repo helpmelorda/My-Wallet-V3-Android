@@ -11,7 +11,7 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.api.data.Settings.Companion.UNIT_FIAT
 import info.blockchain.wallet.crypto.AESUtil
 import kotlinx.serialization.decodeFromString
@@ -20,7 +20,6 @@ import kotlinx.serialization.json.Json
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.utils.PersistentPrefs.Companion.KEY_SWIPE_TO_RECEIVE_ENABLED
 import java.util.Currency
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -92,6 +91,18 @@ class PrefsUtil(
         get() = getValue(KEY_REMAINING_SENDS_WITHOUT_BACKUP, MAX_ALLOWED_SENDS)
         set(remaining) = setValue(KEY_REMAINING_SENDS_WITHOUT_BACKUP, remaining)
 
+    override var dashboardAssetOrder: List<String>
+        get() = getValue(KEY_DASHBOARD_ORDER)?.let {
+            try {
+                Json.decodeFromString<List<String>>(it)
+            } catch (t: Throwable) {
+                emptyList()
+            }
+        } ?: emptyList()
+        set(value) {
+            setValue(KEY_DASHBOARD_ORDER, Json.encodeToString(value))
+        }
+
     override val isLoggedOut: Boolean
         get() = getValue(KEY_LOGGED_OUT, true)
 
@@ -118,26 +129,16 @@ class PrefsUtil(
     override var selectedFiatCurrency: String
         get() = getValue(KEY_SELECTED_FIAT, "")
         set(fiat) {
-            // We are seeing some crashes when this is read and is invalid when creating a FiatValue object.
-            // So we'll try and catch them when it's written and find the root cause on a future iteration
-            // Check the currency is supported and throw a meaningful exception message if it's not
-            try {
-                Currency.getInstance(fiat)
-                setValue(KEY_SELECTED_FIAT, fiat)
-            } catch (e: IllegalArgumentException) {
-                crashLogger.logAndRethrowException(IllegalArgumentException("Unknown currency id: $fiat"))
-            }
+        // We are seeing some crashes when this is read and is invalid when creating a FiatValue object.
+        // So we'll try and catch them when it's written and find the root cause on a future iteration
+        // Check the currency is supported and throw a meaningful exception message if it's not
+        try {
+            Currency.getInstance(fiat)
+            setValue(KEY_SELECTED_FIAT, fiat)
+        } catch (e: IllegalArgumentException) {
+            crashLogger.logAndRethrowException(IllegalArgumentException("Unknown currency id: $fiat"))
         }
-
-    override var selectedCryptoCurrency: CryptoCurrency
-        get() =
-            try {
-                CryptoCurrency.valueOf(getValue(KEY_SELECTED_CRYPTO, DEFAULT_CRYPTO_CURRENCY.name))
-            } catch (e: IllegalArgumentException) {
-                removeValue(KEY_SELECTED_CRYPTO)
-                DEFAULT_CRYPTO_CURRENCY
-            }
-        set(crypto) = setValue(KEY_SELECTED_CRYPTO, crypto.name)
+    }
 
     override val defaultFiatCurrency: String
         get() = try {
@@ -194,11 +195,17 @@ class PrefsUtil(
         }
     }
 
-    override fun clearState() = removeValue(KEY_SIMPLE_BUY_STATE)
+    override fun clearBuyState() = removeValue(KEY_SIMPLE_BUY_STATE)
 
     override var addCardInfoDismissed: Boolean
         get() = getValue(KEY_ADD_CARD_INFO, false)
         set(dismissed) = setValue(KEY_ADD_CARD_INFO, dismissed)
+
+    override var isFirstTimeBuyer: Boolean
+        get() = getValue(KEY_FIRST_TIME_BUYER, true)
+        set(value) {
+            setValue(KEY_FIRST_TIME_BUYER, value)
+        }
 
     override var hasCompletedAtLeastOneBuy: Boolean
         get() = getValue(KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY, false)
@@ -218,25 +225,6 @@ class PrefsUtil(
     override var swapIntroCompleted: Boolean
         get() = getValue(KEY_SWAP_INTRO_COMPLETED, false)
         set(v) = setValue(KEY_SWAP_INTRO_COMPLETED, v)
-
-    override val isTourComplete: Boolean
-        get() = getValue(KEY_INTRO_TOUR_COMPLETED, false)
-
-    override val tourStage: String
-        get() = getValue(KEY_INTRO_TOUR_CURRENT_STAGE, "")
-
-    override fun setTourComplete() {
-        setValue(KEY_INTRO_TOUR_COMPLETED, true)
-        removeValue(KEY_INTRO_TOUR_CURRENT_STAGE)
-    }
-
-    override fun setTourStage(stageName: String) =
-        setValue(KEY_INTRO_TOUR_CURRENT_STAGE, stageName)
-
-    override fun resetTour() {
-        removeValue(KEY_INTRO_TOUR_COMPLETED)
-        removeValue(KEY_INTRO_TOUR_CURRENT_STAGE)
-    }
 
     // Wallet Status
     override var lastBackupTime: Long
@@ -263,11 +251,11 @@ class PrefsUtil(
 
     override fun setBitPaySuccess() = setValue(BITPAY_TRANSACTION_SUCCEEDED, true)
 
-    override fun setFeeTypeForAsset(cryptoCurrency: CryptoCurrency, type: Int) =
-        setValue(NETWORK_FEE_PRIORITY_KEY + cryptoCurrency.networkTicker, type)
+    override fun setFeeTypeForAsset(asset: AssetInfo, type: Int) =
+        setValue(NETWORK_FEE_PRIORITY_KEY + asset.ticker, type)
 
-    override fun getFeeTypeForAsset(cryptoCurrency: CryptoCurrency): Int =
-        getValue(NETWORK_FEE_PRIORITY_KEY + cryptoCurrency.networkTicker, -1)
+    override fun getFeeTypeForAsset(asset: AssetInfo): Int =
+        getValue(NETWORK_FEE_PRIORITY_KEY + asset.ticker, -1)
 
     override val hasSeenSwapPromo: Boolean
         get() = getValue(SWAP_KYC_PROMO, false)
@@ -303,31 +291,31 @@ class PrefsUtil(
         set(v) = setValue(KEY_FIREBASE_TOKEN, v)
 
     @SuppressLint("ApplySharedPref")
-    override fun backupCurrentPrefs(encryptionKey: String, aes: AESUtilWrapper) {
-        backupStore.edit()
-            .clear()
-            .putString(KEY_PIN_IDENTIFIER, getValue(KEY_PIN_IDENTIFIER, ""))
-            .putString(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, getValue(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, ""))
-            .putString(
-                KEY_ENCRYPTED_GUID,
-                aes.encrypt(
-                    getValue(KEY_WALLET_GUID, ""),
-                    encryptionKey,
-                    AESUtil.PIN_PBKDF2_ITERATIONS_GUID
+        override fun backupCurrentPrefs(encryptionKey: String, aes: AESUtilWrapper) {
+            backupStore.edit()
+                .clear()
+                .putString(KEY_PIN_IDENTIFIER, getValue(KEY_PIN_IDENTIFIER, ""))
+                .putString(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, getValue(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, ""))
+                .putString(
+                    KEY_ENCRYPTED_GUID,
+                    aes.encrypt(
+                        getValue(KEY_WALLET_GUID, ""),
+                        encryptionKey,
+                        AESUtil.PIN_PBKDF2_ITERATIONS_GUID
+                    )
                 )
-            )
-            .putString(
-                KEY_ENCRYPTED_SHARED_KEY,
-                aes.encrypt(
-                    getValue(KEY_SHARED_KEY, ""),
-                    encryptionKey,
-                    AESUtil.PIN_PBKDF2_ITERATIONS_SHAREDKEY
+                .putString(
+                    KEY_ENCRYPTED_SHARED_KEY,
+                    aes.encrypt(
+                        getValue(KEY_SHARED_KEY, ""),
+                        encryptionKey,
+                        AESUtil.PIN_PBKDF2_ITERATIONS_SHAREDKEY
+                    )
                 )
-            )
-            .commit()
+                .commit()
 
-        BackupManager.dataChanged(ctx.packageName)
-    }
+            BackupManager.dataChanged(ctx.packageName)
+        }
 
     override fun restoreFromBackup(decryptionKey: String, aes: AESUtilWrapper) {
         // Pull in the values from the backup, we don't have local state
@@ -384,22 +372,6 @@ class PrefsUtil(
         BackupManager.dataChanged(ctx.packageName)
     }
 
-    // SwipeToReceive
-    override var offlineCacheData: String?
-        get() = getValue(OFFLINE_CACHE_KEY)
-        set(value) {
-            if (value != null) {
-                setValue(OFFLINE_CACHE_KEY, value)
-            } else {
-                clearLegacyCacheData()
-                removeValue(OFFLINE_CACHE_KEY)
-            }
-        }
-
-    override var offlineCacheEnabled: Boolean
-        get() = getValue(KEY_SWIPE_TO_RECEIVE_ENABLED, true)
-        set(value) = setValue(KEY_SWIPE_TO_RECEIVE_ENABLED, value)
-
     override var encodedPin: String
         get() = decodeFromBase64ToString(getValue(KEY_ENCRYPTED_PIN_CODE, ""))
         set(value) = setValue(KEY_ENCRYPTED_PIN_CODE, encodeToBase64(value))
@@ -445,19 +417,12 @@ class PrefsUtil(
     private fun decodeFromBase64ToString(data: String): String =
         String(Base64.decode(data.toByteArray(charset("UTF-8")), Base64.DEFAULT))
 
-    private fun clearLegacyCacheData() {
-        removeValue(KEY_SWIPE_RECEIVE_BTC_ADDRESSES)
-        removeValue(KEY_SWIPE_RECEIVE_ETH_ADDRESS)
-        removeValue(KEY_SWIPE_RECEIVE_BCH_ADDRESSES)
-        removeValue(KEY_SWIPE_RECEIVE_XLM_ADDRESS)
-        removeValue(KEY_SWIPE_RECEIVE_BTC_ACCOUNT_NAME)
-        removeValue(KEY_SWIPE_RECEIVE_BCH_ACCOUNT_NAME)
-    }
-
     // internal feature flags
-    override fun isFeatureEnabled(gatedFeature: GatedFeature): Boolean = getValue(gatedFeature.name, false)
+    override fun isFeatureEnabled(gatedFeature: GatedFeature): Boolean =
+        getValue(gatedFeature.name, false)
 
-    override fun enableFeature(gatedFeature: GatedFeature) = setValue(gatedFeature.name, true)
+    override fun enableFeature(gatedFeature: GatedFeature) =
+        setValue(gatedFeature.name, true)
 
     override fun disableFeature(gatedFeature: GatedFeature) = setValue(gatedFeature.name, false)
 
@@ -531,7 +496,7 @@ class PrefsUtil(
 
     private fun getBrowserIdentityMapping() =
         Json.decodeFromString<BrowserIdentityMapping>(
-            getValue(KEY_SECURE_CHANNEL_BROWSER_MAPPINGS, """{ "mapping": {} }""")
+                getValue(KEY_SECURE_CHANNEL_BROWSER_MAPPINGS, """{ "mapping": {} }""")
         )
 
     private fun setBrowserIdentityMapping(browserIdentity: BrowserIdentityMapping) =
@@ -601,7 +566,6 @@ class PrefsUtil(
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val DEFAULT_FIAT_CURRENCY = "USD"
-        val DEFAULT_CRYPTO_CURRENCY = CryptoCurrency.BTC
 
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -617,13 +581,11 @@ class PrefsUtil(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val KEY_LOGGED_OUT = "logged_out"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val KEY_SELECTED_CRYPTO = "KEY_CURRENCY_CRYPTO_STATE"
-
         private const val KEY_PIT_LINKING_LINK_ID = "pit_wallet_link_id"
-        private const val KEY_SIMPLE_BUY_STATE = "key_simple_buy_state"
+        private const val KEY_SIMPLE_BUY_STATE = "key_simple_buy_state_2"
         private const val KEY_CARD_STATE = "key_card_state"
         private const val KEY_ADD_CARD_INFO = "key_add_card_info"
+        private const val KEY_FIRST_TIME_BUYER = "key_first_time_buyer"
         private const val KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY = "has_completed_at_least_one_buy"
 
         private const val KEY_SUPPORTED_CARDS_STATE = "key_supported_cards"
@@ -631,8 +593,6 @@ class PrefsUtil(
         private const val KEY_ONE_TIME_TOKEN_PATH = "KEY_ONE_TIME_TOKEN_PATH"
 
         private const val KEY_SWAP_INTRO_COMPLETED = "key_swap_intro_completed"
-        private const val KEY_INTRO_TOUR_COMPLETED = "key_intro_tour_complete"
-        private const val KEY_INTRO_TOUR_CURRENT_STAGE = "key_intro_tour_current_stage"
         private const val KEY_CUSTODIAL_INTRO_SEEN = "key_custodial_balance_intro_seen"
         private const val KEY_REMAINING_SENDS_WITHOUT_BACKUP = "key_remaining_sends_without_backup"
         private const val MAX_ALLOWED_SENDS = 5
@@ -668,18 +628,6 @@ class PrefsUtil(
         private const val HAS_SEEN_RATING = "has_seen_rating"
         private const val PRE_RATING_ACTION_COMPLETED_TIMES = "pre_rating_action_completed_times"
 
-        // Swipe to receive
-        // Legacy keys. Only clear, add new data with new key
-        private const val KEY_SWIPE_RECEIVE_BTC_ADDRESSES = "swipe_receive_addresses"
-        private const val KEY_SWIPE_RECEIVE_ETH_ADDRESS = "swipe_receive_eth_address"
-        private const val KEY_SWIPE_RECEIVE_BCH_ADDRESSES = "swipe_receive_bch_addresses"
-        private const val KEY_SWIPE_RECEIVE_XLM_ADDRESS = "key_swipe_receive_xlm_address"
-        private const val KEY_SWIPE_RECEIVE_BTC_ACCOUNT_NAME = "swipe_receive_account_name"
-        private const val KEY_SWIPE_RECEIVE_BCH_ACCOUNT_NAME = "swipe_receive_bch_account_name"
-
-        // New key
-        private const val OFFLINE_CACHE_KEY = "key_offline_address_cache"
-
         // Auth prefs
         private const val KEY_ENCRYPTED_PIN_CODE = "encrypted_pin_code"
         private const val KEY_FINGERPRINT_ENABLED = "fingerprint_enabled"
@@ -689,6 +637,8 @@ class PrefsUtil(
         private const val KEY_ENCRYPTED_PASSWORD = "encrypted_password"
         const val KEY_PIN_FAILS = "pin_fails"
         const val SESSION_ID = "session_id"
+
+        private const val KEY_DASHBOARD_ORDER = "dashboard_asset_order"
     }
 }
 

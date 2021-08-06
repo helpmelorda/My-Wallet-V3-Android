@@ -1,15 +1,15 @@
 package piuk.blockchain.androidcore.data.payload
 
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.ImportedAddress
 import info.blockchain.wallet.payload.data.Wallet
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -20,8 +20,7 @@ import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Balance
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Single
 
 @Suppress("IllegalIdentifier")
 class PayloadServiceTest {
@@ -29,7 +28,7 @@ class PayloadServiceTest {
     private lateinit var subject: PayloadService
     private val mockPayloadManager: PayloadManager = mock(defaultAnswer = RETURNS_DEEP_STUBS)
     private val versionController: PayloadVersionController = mock {
-        on { isFullRolloutV4 } itReturns false
+        on { isFullRolloutV4 }.thenReturn(false)
     }
 
     @Suppress("unused")
@@ -310,9 +309,9 @@ class PayloadServiceTest {
         // Arrange
         val addresses = listOf("address_one", "address_two", "address_three")
         val map = mapOf(
-            Pair("address_one", mock(Balance::class)),
-            Pair("address_two", mock(Balance::class)),
-            Pair("address_three", mock(Balance::class))
+            Pair("address_one", mock()),
+            Pair("address_two", mock()),
+            Pair("address_three", mock<Balance>())
         )
 
         val xpubs = addresses.map { XPubs(XPub(it, XPub.Format.LEGACY)) }

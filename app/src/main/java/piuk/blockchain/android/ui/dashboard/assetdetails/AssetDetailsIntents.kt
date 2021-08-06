@@ -1,8 +1,9 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
+import info.blockchain.balance.AssetInfo
 import com.blockchain.nabu.models.data.RecurringBuy
+import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.nabu.models.data.RecurringBuyState
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.prices.data.PriceDatum
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AvailableActions
@@ -173,13 +174,26 @@ object DeleteRecurringBuy : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState = oldState
 }
 
+object GetPaymentDetails : AssetDetailsIntent() {
+    override fun reduce(oldState: AssetDetailsState): AssetDetailsState = oldState
+}
+
+class UpdatePaymentDetails(
+    val recurringBuyPaymentDetails: RecurringBuyPaymentDetails
+) : AssetDetailsIntent() {
+    override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
+        oldState.copy(
+            selectedRecurringBuy = oldState.selectedRecurringBuy?.copy(paymentDetails = recurringBuyPaymentDetails)
+        )
+}
+
 object ShowInterestDashboard : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
         oldState.copy(navigateToInterestDashboard = true)
 }
 
 class ShowRelevantAssetDetailsSheet(
-    val cryptoCurrency: CryptoCurrency
+    val asset: AssetInfo
 ) : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState = oldState.updateBackstack(oldState)
 }
@@ -195,7 +209,7 @@ class ShowRecurringBuySheet(private val recurringBuy: RecurringBuy) : AssetDetai
 object UpdateRecurringBuy : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
         oldState.copy(
-            selectedRecurringBuy = oldState.selectedRecurringBuy?.copy(state = RecurringBuyState.NOT_ACTIVE)
+            selectedRecurringBuy = oldState.selectedRecurringBuy?.copy(state = RecurringBuyState.INACTIVE)
         )
 }
 

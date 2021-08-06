@@ -11,24 +11,24 @@ import com.blockchain.sunriver.fromStellarUri
 import com.blockchain.sunriver.isValidXlmQr
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
+import info.blockchain.balance.isCustodialOnly
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.CryptoAddress
-import piuk.blockchain.android.coincore.CachedAddress
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.impl.CryptoAssetBase
+import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
-import piuk.blockchain.android.coincore.SimpleOfflineCacheItem
-import piuk.blockchain.android.coincore.impl.OfflineAccountUpdater
 import piuk.blockchain.android.identity.UserIdentity
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -47,7 +47,6 @@ internal class XlmAsset(
     crashLogger: CrashLogger,
     private val walletPreferences: WalletStatus,
     identity: UserIdentity,
-    offlineAccounts: OfflineAccountUpdater,
     features: InternalFeatureFlagApi
 ) : CryptoAssetBase(
     payloadManager,
@@ -58,13 +57,15 @@ internal class XlmAsset(
     custodialManager,
     pitLinking,
     crashLogger,
-    offlineAccounts,
     identity,
     features
 ) {
 
-    override val asset: CryptoCurrency
+    override val asset: AssetInfo
         get() = CryptoCurrency.XLM
+
+    override val isCustodialOnly: Boolean = asset.isCustodialOnly
+    override val multiWallet: Boolean = false
 
     override fun initToken(): Completable =
         Completable.complete()
@@ -83,26 +84,23 @@ internal class XlmAsset(
                     custodialWalletManager = custodialManager,
                     identity = identity
                 )
-            }.doOnSuccess {
-                updateOfflineCache(it)
             }.map {
                 listOf(it)
             }
 
-    private fun updateOfflineCache(account: XlmCryptoWalletAccount) {
-        offlineAccounts.updateOfflineAddresses(
-            Single.just(
-                SimpleOfflineCacheItem(
-                    networkTicker = CryptoCurrency.XLM.networkTicker,
-                    accountLabel = account.label,
-                    address = CachedAddress(
-                        account.address,
-                        XlmAddress(account.address).toUrl()
-                    )
+    override fun loadCustodialAccounts(): Single<SingleAccountList> =
+        Single.just(
+            listOf(
+                CustodialTradingAccount(
+                    asset = asset,
+                    label = labels.getDefaultCustodialWalletLabel(),
+                    exchangeRates = exchangeRates,
+                    custodialWalletManager = custodialManager,
+                    identity = identity,
+                    features = features
                 )
             )
         )
-    }
 
     override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> =
         Maybe.fromCallable {
@@ -141,7 +139,7 @@ internal class XlmAddress(
     override val memo: String?
         get() = parts.takeIf { it.size > 1 }?.get(1)
 
-    override val asset: CryptoCurrency = CryptoCurrency.XLM
+    override val asset: AssetInfo = CryptoCurrency.XLM
 
     override fun equals(other: Any?): Boolean {
         return (other is XlmAddress) &&

@@ -3,8 +3,8 @@ package piuk.blockchain.android.deeplink
 import android.content.Intent
 import android.net.Uri
 import com.blockchain.notifications.links.PendingLink
-import io.reactivex.Maybe
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.kyc.KycLinkState
 import piuk.blockchain.android.sunriver.CampaignLinkState

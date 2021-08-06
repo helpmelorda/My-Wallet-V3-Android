@@ -1,13 +1,12 @@
 package com.blockchain.network.websocket
 
 import com.blockchain.serialization.JsonSerializable
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.reset
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import io.reactivex.Observable
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`should equal`
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.reset
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import io.reactivex.rxjava3.core.Observable
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class ChannelAwareWebSocketTest {
@@ -43,29 +42,33 @@ class ChannelAwareWebSocketTest {
     @Test
     fun `channel is filtered`() {
         val underlingSocket = mock<StringWebSocket> {
-            on { responses } `it returns` Observable.just(
-                "{\"channel\":\"ChannelName\"}",
-                "{\"x\":\"y\"}",
-                "{\"channel\":\"OtherChannel\"}",
-                "{\"channel\":\"ChannelName\",\"event\":\"subscribed\"}",
-                "{\"channel\":\"ChannelName\",\"event\":\"unsubscribed\"}",
-                "null"
+            on { responses }.thenReturn(
+                Observable.just(
+                    "{\"channel\":\"ChannelName\"}",
+                    "{\"x\":\"y\"}",
+                    "{\"channel\":\"OtherChannel\"}",
+                    "{\"channel\":\"ChannelName\",\"event\":\"subscribed\"}",
+                    "{\"channel\":\"ChannelName\",\"event\":\"unsubscribed\"}",
+                    "null"
+                )
             )
         }
         underlingSocket.channelAware()
             .openChannel("ChannelName")
             .responses
             .test()
-            .values() `should equal` listOf("{\"channel\":\"ChannelName\"}")
+            .values() `should be equal to` listOf("{\"channel\":\"ChannelName\"}")
     }
 
     @Test
     fun `two channels on one webSocket`() {
         val underlingSocket = mock<StringWebSocket> {
-            on { responses } `it returns` Observable.just(
-                "{\"channel\":\"ChannelName\"}",
-                "{\"channel\":\"OtherChannel\"}",
-                "{\"channel\":\"OtherChannel\",\"message\":\"message2\"}"
+            on { responses }.thenReturn(
+                Observable.just(
+                    "{\"channel\":\"ChannelName\"}",
+                    "{\"channel\":\"OtherChannel\"}",
+                    "{\"channel\":\"OtherChannel\",\"message\":\"message2\"}"
+                )
             )
         }
         val channelAwareWebSocket = underlingSocket.channelAware()
@@ -73,12 +76,12 @@ class ChannelAwareWebSocketTest {
             .openChannel("ChannelName")
             .responses
             .test()
-            .values() `should equal` listOf("{\"channel\":\"ChannelName\"}")
+            .values() `should be equal to` listOf("{\"channel\":\"ChannelName\"}")
         channelAwareWebSocket
             .openChannel("OtherChannel")
             .responses
             .test()
-            .values() `should equal` listOf(
+            .values() `should be equal to` listOf(
             "{\"channel\":\"OtherChannel\"}",
             "{\"channel\":\"OtherChannel\",\"message\":\"message2\"}"
         )
@@ -119,7 +122,7 @@ class ChannelAwareWebSocketTest {
     @Test
     fun `when close a channel, the observable completes`() {
         val underlingSocket = mock<StringWebSocket> {
-            on { responses } `it returns` Observable.never()
+            on { responses }.thenReturn(Observable.never())
         }
         val channelAwareWebSocket = underlingSocket.channelAware()
         val openChannel = channelAwareWebSocket
@@ -135,17 +138,19 @@ class ChannelAwareWebSocketTest {
     @Test
     fun `errors are not filtered out`() {
         val underlingSocket = mock<StringWebSocket> {
-            on { responses } `it returns` Observable.just(
-                "{\"channel\":\"ChannelName\",\"event\": \"error\"}"
+            on { responses }.thenReturn(
+                Observable.just(
+                    "{\"channel\":\"ChannelName\",\"event\": \"error\"}"
+                )
             )
         }
+
         val channelAwareWebSocket = underlingSocket.channelAware()
         channelAwareWebSocket
             .openChannel("ChannelName")
             .responses
             .test()
             .assertError(ErrorFromServer::class.java)
-            .assertErrorMessage("Server returned error")
             .assertError { (it as ErrorFromServer).fullJson == "{\"channel\":\"ChannelName\",\"event\": \"error\"}" }
     }
 

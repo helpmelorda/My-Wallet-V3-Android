@@ -10,13 +10,14 @@ import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import com.blockchain.sunriver.StellarPayment
 import com.blockchain.sunriver.fromStellarUri
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Single
+import info.blockchain.balance.isErc20
+import io.reactivex.rxjava3.core.Single
 import info.blockchain.wallet.util.FormatsUtil
 import org.bitcoinj.uri.BitcoinURI
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetResources
-import piuk.blockchain.androidcoreui.utils.logging.Logging
+import com.blockchain.notifications.analytics.Logging
 import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
@@ -26,14 +27,13 @@ import java.util.ArrayList
 import java.util.HashMap
 
 class ReceiveIntentHelper(
-    private val context: Context,
-    private val assetResources: AssetResources
+    private val context: Context
 ) {
 
     internal fun getIntentDataList(
         uri: String,
         bitmap: Bitmap,
-        cryptoCurrency: CryptoCurrency
+        asset: AssetInfo
     ): Single<List<SendPaymentCodeData>> {
 
         val file = getQrFile()
@@ -56,24 +56,24 @@ class ReceiveIntentHelper(
             val type = mime.getMimeTypeFromExtension(ext)
 
             val emailIntent = Intent(Intent.ACTION_SENDTO).apply { setupIntentForImage(type, file) }
-            val displayName = assetResources.getDisplayName(cryptoCurrency)
+            val displayName = asset.name
 
             when {
-                cryptoCurrency == CryptoCurrency.BTC -> emailIntent.setupIntentForEmailBtc(displayName, uri)
-                cryptoCurrency == CryptoCurrency.BCH -> emailIntent.setupIntentForEmailBch(displayName, uri)
-                cryptoCurrency == CryptoCurrency.XLM ->
+                asset == CryptoCurrency.BTC -> emailIntent.setupIntentForEmailBtc(displayName, uri)
+                asset == CryptoCurrency.BCH -> emailIntent.setupIntentForEmailBch(displayName, uri)
+                asset == CryptoCurrency.XLM ->
                     emailIntent.setupIntentForEmailXlm(
                         displayName = displayName,
                         payment = uri.fromStellarUri()
                     )
-                cryptoCurrency == CryptoCurrency.ETHER ||
-                    cryptoCurrency.hasFeature(CryptoCurrency.IS_ERC20) ->
+                asset == CryptoCurrency.ETHER ||
+                    asset.isErc20() ->
                     emailIntent.setupIntentForEmailERC20(
-                        ticker = cryptoCurrency.networkTicker,
+                        ticker = asset.ticker,
                         displayName = displayName,
                         uri = uri
                     )
-                else -> throw NotImplementedError("${cryptoCurrency.displayTicker} is not fully supported yet")
+                else -> throw NotImplementedError("${asset.ticker} is not fully supported yet")
             }
 
             val imageIntent = Intent().apply { setupIntentForImage(type, file) }

@@ -10,7 +10,7 @@ import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import java.util.Date
@@ -36,7 +36,7 @@ data class RecurringBuyResponse(
 ) {
     companion object {
         const val ACTIVE = "ACTIVE"
-        const val NOT_ACTIVE = "NOT_ACTIVE"
+        const val INACTIVE = "INACTIVE"
         const val DAILY = "DAILY"
         const val WEEKLY = "WEEKLY"
         const val BI_WEEKLY = "BI_WEEKLY"
@@ -44,12 +44,12 @@ data class RecurringBuyResponse(
     }
 }
 
-fun RecurringBuyResponse.toRecurringBuy(): RecurringBuy? {
-    val crypto = CryptoCurrency.fromNetworkTicker(destinationCurrency)
-    return crypto?.let {
+fun RecurringBuyResponse.toRecurringBuy(assetCatalogue: AssetCatalogue): RecurringBuy? {
+    val asset = assetCatalogue.fromNetworkTicker(destinationCurrency)
+    return asset?.let {
         RecurringBuy(
             id = id,
-            state = recurringBuyState(),
+            state = state.toRecurringBuyState(),
             recurringBuyFrequency = period.toRecurringBuyFrequency(),
             nextPaymentDate = nextPayment.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
             paymentMethodType = paymentMethod.toPaymentMethodType(),
@@ -61,15 +61,15 @@ fun RecurringBuyResponse.toRecurringBuy(): RecurringBuy? {
     }
 }
 
-private fun RecurringBuyResponse.recurringBuyState() =
-    when (state) {
+private fun String.toRecurringBuyState() =
+    when (this) {
         RecurringBuyResponse.ACTIVE -> RecurringBuyState.ACTIVE
-        RecurringBuyResponse.NOT_ACTIVE -> RecurringBuyState.NOT_ACTIVE
+        RecurringBuyResponse.INACTIVE -> RecurringBuyState.INACTIVE
         else -> throw IllegalStateException("Unsupported recurring state")
     }
 
 fun RecurringBuyResponse.toRecurringBuyOrder(): RecurringBuyOrder =
-    RecurringBuyOrder(state = recurringBuyState())
+    RecurringBuyOrder(state = this.state.toRecurringBuyState())
 
 private fun String.toRecurringBuyFrequency(): RecurringBuyFrequency =
     when (this) {
@@ -83,7 +83,8 @@ private fun String.toRecurringBuyFrequency(): RecurringBuyFrequency =
 data class RecurringBuyTransactionResponse(
     val id: String,
     val recurringBuyId: String,
-    val state: String,
+    val transactionState: String,
+    val recurringBuyState: String,
     val failureReason: String?,
     val originValue: String,
     val originCurrency: String,
@@ -108,21 +109,21 @@ data class RecurringBuyTransactionResponse(
     }
 }
 
-fun RecurringBuyTransactionResponse.toRecurringBuyTransaction(): RecurringBuyTransaction {
-    val cryptoCurrency =
-        CryptoCurrency.fromNetworkTicker(destinationCurrency)
-            ?: throw UnknownFormatConversionException("Unknown Crypto currency: $destinationCurrency")
+fun RecurringBuyTransactionResponse.toRecurringBuyTransaction(assetCatalogue: AssetCatalogue): RecurringBuyTransaction {
+    val asset = assetCatalogue.fromNetworkTicker(destinationCurrency)
+        ?: throw UnknownFormatConversionException("Unknown Crypto currency: $destinationCurrency")
 
     return RecurringBuyTransaction(
         id = id,
         recurringBuyId = recurringBuyId,
-        state = state.toRecurringBuyActivityState(),
+        transactionState = transactionState.toRecurringBuyActivityState(),
+        recurringBuyState = recurringBuyState.toRecurringBuyState(),
         failureReason = failureReason?.toRecurringBuyError(),
         destinationMoney = destinationValue?.let {
             CryptoValue.fromMinor(
-                cryptoCurrency, destinationValue.toBigInteger()
+                asset, destinationValue.toBigInteger()
             )
-        } ?: CryptoValue.zero(cryptoCurrency),
+        } ?: CryptoValue.zero(asset),
         originMoney = FiatValue.fromMinor(originCurrency, originValue.toLong()),
         paymentMethodId = paymentMethodId,
         paymentMethod = paymentMethod.toPaymentMethodType(),

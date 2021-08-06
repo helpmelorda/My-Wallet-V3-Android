@@ -45,8 +45,8 @@ public class HDAccount {
         strXPUB = aKey.serializePubB58(params);
 
         chains = new ArrayList<>();
-        chains.add(new HDChain(params, aKey, true));
-        chains.add(new HDChain(params, aKey, false));
+        chains.add(HDChain.Companion.receiveChain(params, aKey));
+        chains.add(HDChain.Companion.changeChain(params, aKey));
 
         strPath = aKey.getPathAsString();
     }
@@ -68,8 +68,8 @@ public class HDAccount {
         strXPUB = xpub;
 
         chains = new ArrayList<>();
-        chains.add(new HDChain(params, aKey, true));
-        chains.add(new HDChain(params, aKey, false));
+        chains.add(HDChain.Companion.receiveChain(params, aKey));
+        chains.add(HDChain.Companion.changeChain(params, aKey));
     }
 
     /**
@@ -87,8 +87,8 @@ public class HDAccount {
         strXPUB = xpub;
 
         chains = new ArrayList<>();
-        chains.add(new HDChain(params, aKey, true));
-        chains.add(new HDChain(params, aKey, false));
+        chains.add(HDChain.Companion.receiveChain(params, aKey));
+        chains.add(HDChain.Companion.changeChain(params, aKey));
     }
 
     /**

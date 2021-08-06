@@ -2,29 +2,29 @@ package piuk.blockchain.android.thepit
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.annotations.CommonCode
+import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.sunriver.XlmAccountReference
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.argumentCaptor
-import com.nhaarman.mockito_kotlin.doAnswer
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.times
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.doAnswer
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.payload.data.Account
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import junit.framework.Assert.assertEquals
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
@@ -125,16 +125,6 @@ class PitLinkingImplTest {
         }
     }
 
-//    @Test
-//    fun `isPitLinked continues to work after a first call fails`() {
-//      TODO: Write me
-//    }
-
-//    @Test
-//    fun `isPitLinked() defaults to false when an error occurs`() {
-//      TODO: Write me
-//    }
-
     @Test
     fun `upload pit addresses correctly formats address map`() {
         // Arrange
@@ -158,12 +148,11 @@ class PitLinkingImplTest {
         assertEquals(tokenCapture.firstValue, validOfflineToken)
 
         val map = mapCapture.firstValue
-        assertEquals(map.size, 5)
+        assertEquals(map.size, 4)
         assertEquals(map["BTC"], BTC_ACCOUNT_ADDRESS)
         assertEquals(map["BCH"], BCH_ACCOUNT_ADDRESS)
         assertEquals(map["ETH"], ETH_ACCOUNT_ADDRESS)
         assertEquals(map["XLM"], XLM_ACCOUNT_ADDRESS)
-        assertEquals(map["PAX"], ETH_ACCOUNT_ADDRESS)
 
         verifyNoMoreInteractions(nabu)
     }
@@ -191,12 +180,11 @@ class PitLinkingImplTest {
         assertEquals(tokenCapture.firstValue, validOfflineToken)
 
         val map = mapCapture.firstValue
-        assertEquals(map.size, 4)
-        assertEquals(map["BTC"], BTC_ACCOUNT_ADDRESS)
-        assertEquals(map["BCH"], null)
-        assertEquals(map["ETH"], ETH_ACCOUNT_ADDRESS)
-        assertEquals(map["XLM"], XLM_ACCOUNT_ADDRESS)
-        assertEquals(map["PAX"], ETH_ACCOUNT_ADDRESS)
+        assertEquals(3, map.size)
+        assertEquals(BTC_ACCOUNT_ADDRESS, map["BTC"])
+        assertEquals(null, map["BCH"])
+        assertEquals(ETH_ACCOUNT_ADDRESS, map["ETH"])
+        assertEquals(XLM_ACCOUNT_ADDRESS, map["XLM"])
 
         verifyNoMoreInteractions(nabu)
     }
@@ -271,7 +259,7 @@ class PitLinkingImplTest {
     }
 
     private fun ethManagerReturnsGoodAddress() {
-        whenever(ethDataManager.getDefaultEthAddress()).thenReturn(Single.just(ETH_ACCOUNT_ADDRESS))
+        whenever(ethDataManager.accountAddress).thenReturn(ETH_ACCOUNT_ADDRESS)
     }
 
     private fun xlmManagerReturnsGoodAddress() {
@@ -294,7 +282,7 @@ class PitLinkingImplTest {
     }
 
     private fun ethManagerFailsWhenReturningAddress() {
-        whenever(ethDataManager.getDefaultEthAddress()).thenReturn(Single.error(Throwable("ooooopsie")))
+        whenever(ethDataManager.accountAddress).thenAnswer { throw Throwable("ooooopsie") }
     }
 
     private fun xlmManagerFailsWhenReturningAddress() {
@@ -316,7 +304,7 @@ class PitLinkingImplTest {
     }
 
     private fun ethManagerReturnsEmptyAddress() {
-        whenever(ethDataManager.getDefaultEthAddress()).thenReturn(Single.just(""))
+        whenever(ethDataManager.accountAddress).thenReturn("")
     }
 
     private fun xlmManagerReturnsEmptyAddress() {
@@ -326,8 +314,6 @@ class PitLinkingImplTest {
     }
 
     companion object {
-        private const val USER_NAME = "Smaug"
-
         private const val BTC_ACCOUNT_ADDRESS = "btc_account_address"
         private const val BCH_ACCOUNT_ADDRESS = "bch_account_address"
         private const val ETH_ACCOUNT_ADDRESS = "eth_account_address"

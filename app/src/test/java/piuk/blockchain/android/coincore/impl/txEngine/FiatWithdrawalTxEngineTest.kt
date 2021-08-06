@@ -3,14 +3,14 @@ package piuk.blockchain.android.coincore.impl.txEngine
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatValue
-import io.reactivex.Completable
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -96,9 +96,9 @@ class FiatWithdrawalTxEngineTest {
         val expectedBalance = FiatValue.fromMinor(TGT_ASSET, 10000L)
         val expectedAccountBalance = FiatValue.fromMinor(TGT_ASSET, 100000L)
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency } itReturns SELECTED_FIAT
-            on { actionableBalance } itReturns Single.just(expectedBalance)
-            on { accountBalance } itReturns Single.just(expectedAccountBalance)
+            on { fiatCurrency }.thenReturn(SELECTED_FIAT)
+            on { actionableBalance }.thenReturn(Single.just(expectedBalance))
+            on { accountBalance }.thenReturn(Single.just(expectedAccountBalance))
         }
 
         val expectedMinAmountAndFee = FiatWithdrawalFeeAndLimit(
@@ -107,8 +107,8 @@ class FiatWithdrawalTxEngineTest {
         )
 
         val txTarget: LinkedBankAccount = mock {
-            on { fiatCurrency } itReturns TGT_ASSET
-            on { getWithdrawalFeeAndMinLimit() } itReturns Single.just(expectedMinAmountAndFee)
+            on { fiatCurrency }.thenReturn(TGT_ASSET)
+            on { getWithdrawalFeeAndMinLimit() }.thenReturn(Single.just(expectedMinAmountAndFee))
         }
 
         // Act
@@ -141,7 +141,7 @@ class FiatWithdrawalTxEngineTest {
     @Test
     fun `update amount modifies the pendingTx correctly`() {
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency } itReturns SELECTED_FIAT
+            on { fiatCurrency }.thenReturn(SELECTED_FIAT)
         }
         val txTarget: LinkedBankAccount = mock()
 
@@ -182,7 +182,7 @@ class FiatWithdrawalTxEngineTest {
     @Test
     fun `validate amount when pendingTx uninitialised`() {
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency } itReturns SELECTED_FIAT
+            on { fiatCurrency }.thenReturn(SELECTED_FIAT)
         }
         val txTarget: LinkedBankAccount = mock()
 
@@ -221,7 +221,7 @@ class FiatWithdrawalTxEngineTest {
     @Test
     fun `validate amount when limits not set`() {
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency } itReturns SELECTED_FIAT
+            on { fiatCurrency }.thenReturn(SELECTED_FIAT)
         }
         val txTarget: LinkedBankAccount = mock()
 
@@ -257,7 +257,7 @@ class FiatWithdrawalTxEngineTest {
     @Test
     fun `validate amount when under min limit`() {
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency } itReturns SELECTED_FIAT
+            on { fiatCurrency }.thenReturn(SELECTED_FIAT)
         }
         val txTarget: LinkedBankAccount = mock()
 
@@ -296,7 +296,7 @@ class FiatWithdrawalTxEngineTest {
     @Test
     fun `validate amount when over max limit`() {
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency } itReturns SELECTED_FIAT
+            on { fiatCurrency }.thenReturn(SELECTED_FIAT)
         }
         val txTarget: LinkedBankAccount = mock()
 
@@ -335,7 +335,7 @@ class FiatWithdrawalTxEngineTest {
     @Test
     fun `validate amount when over available balance`() {
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency } itReturns SELECTED_FIAT
+            on { fiatCurrency }.thenReturn(SELECTED_FIAT)
         }
         val txTarget: LinkedBankAccount = mock()
 
@@ -374,7 +374,7 @@ class FiatWithdrawalTxEngineTest {
     @Test
     fun `validate amount when correct`() {
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency } itReturns SELECTED_FIAT
+            on { fiatCurrency }.thenReturn(SELECTED_FIAT)
         }
         val txTarget: LinkedBankAccount = mock()
 
@@ -419,10 +419,10 @@ class FiatWithdrawalTxEngineTest {
     fun `executing tx works`() {
         val bankAccountAddress = LinkedBankAccount.BankAccountAddress("address", "label")
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency } itReturns SELECTED_FIAT
+            on { fiatCurrency }.thenReturn(SELECTED_FIAT)
         }
         val txTarget: LinkedBankAccount = mock {
-            on { receiveAddress } itReturns Single.just(bankAccountAddress)
+            on { receiveAddress }.thenReturn(Single.just(bankAccountAddress))
         }
 
         subject.start(
@@ -469,10 +469,10 @@ class FiatWithdrawalTxEngineTest {
     fun `executing tx throws exception`() {
         val bankAccountAddress = LinkedBankAccount.BankAccountAddress("address", "label")
         val sourceAccount: FiatAccount = mock {
-            on { fiatCurrency } itReturns SELECTED_FIAT
+            on { fiatCurrency }.thenReturn(SELECTED_FIAT)
         }
         val txTarget: LinkedBankAccount = mock {
-            on { receiveAddress } itReturns Single.just(bankAccountAddress)
+            on { receiveAddress }.thenReturn(Single.just(bankAccountAddress))
         }
 
         subject.start(

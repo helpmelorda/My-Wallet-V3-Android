@@ -2,8 +2,8 @@ package info.blockchain.wallet.prices
 
 import com.blockchain.testutils.rxInit
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.schedulers.TestScheduler
-import org.amshove.kluent.`should equal`
+import io.reactivex.rxjava3.schedulers.TestScheduler
+import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test
 import java.math.BigDecimal
@@ -61,12 +61,12 @@ class CachedIndicativeFiatPriceServiceSharingTest {
 
         mockPriceApi.verifyNumberOfApiCalls(2)
 
-        sub1.cancel()
+        sub1.dispose()
 
         testScheduler.advanceTimeBy(1, TimeUnit.SECONDS)
         mockPriceApi.verifyNumberOfApiCalls(3)
 
-        sub2.values().map { it.rate } `should equal` listOf(
+        sub2.values().map { it.rate } `should be equal to` listOf(
             BigDecimal.valueOf(99.0),
             BigDecimal.valueOf(99.0),
             BigDecimal.valueOf(99.0)

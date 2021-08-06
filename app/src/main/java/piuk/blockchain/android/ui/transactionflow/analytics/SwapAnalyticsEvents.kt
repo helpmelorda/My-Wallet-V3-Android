@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.transactionflow.analytics
 
 import com.blockchain.notifications.analytics.AnalyticsEvent
+import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics.Companion.constructMap
 import java.io.Serializable
@@ -28,22 +28,22 @@ sealed class SwapAnalyticsEvents(
     object CancelTransaction : SwapAnalyticsEvents("swap_checkout_cancel")
     object SwapTabItemClick : SwapAnalyticsEvents("swap_tab_item_click")
     data class SwapConfirmPair(
-        val asset: CryptoCurrency,
+        val asset: AssetInfo,
         val target: String
     ) : SwapAnalyticsEvents("swap_pair_locked_confirm", params = constructMap(asset = asset, target = target))
 
     data class EnterAmountCtaClick(
-        val source: CryptoCurrency,
+        val source: AssetInfo,
         val target: String
     ) : SwapAnalyticsEvents("swap_amount_screen_confirm", params = constructMap(source, target))
 
     data class SwapConfirmCta(
-        val source: CryptoCurrency,
+        val source: AssetInfo,
         val target: String
     ) : SwapAnalyticsEvents("swap_checkout_confirm", params = constructMap(source, target))
 
     data class TransactionSuccess(
-        val asset: CryptoCurrency,
+        val asset: AssetInfo,
         val source: String,
         val target: String
     ) : SwapAnalyticsEvents(
@@ -55,7 +55,7 @@ sealed class SwapAnalyticsEvents(
     )
 
     data class TransactionFailed(
-        val asset: CryptoCurrency,
+        val asset: AssetInfo,
         val target: String?,
         val source: String?,
         val error: String

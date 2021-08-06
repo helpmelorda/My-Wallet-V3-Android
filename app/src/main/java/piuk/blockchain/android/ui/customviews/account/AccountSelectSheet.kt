@@ -5,8 +5,8 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.activityShown
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.Coincore

@@ -1,24 +1,25 @@
 package piuk.blockchain.android.thepit
 
+import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.Singles
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.BehaviorSubject
+import io.reactivex.rxjava3.subjects.PublishSubject
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import timber.log.Timber
+import java.lang.IllegalStateException
 
 interface PitLinking {
 
@@ -104,12 +105,11 @@ class PitLinkingImpl(
                 getBtcReceiveAddress(),
                 getBchReceiveAddress(),
                 getEthReceiveAddress(),
-                getXlmReceiveAddress(),
-                getPaxReceiveAddress()
+                getXlmReceiveAddress()
             )
         )
             .filter { it.isNotEmpty() }
-            .collect({ HashMap<String, String>() }, { m, i -> m[i.first] = i.second })
+            .collect({ HashMap() }, { m, i -> m[i.first] = i.second })
 
     private fun Pair<String, String>.isNotEmpty() = first.isNotEmpty() && second.isNotEmpty()
 
@@ -120,30 +120,25 @@ class PitLinkingImpl(
                 1
             )
         }
-            .map { Pair(CryptoCurrency.BTC.networkTicker, it) }
+            .map { Pair(CryptoCurrency.BTC.ticker, it ?: throw IllegalStateException("address is null")) }
             .onErrorReturn { Pair("", "") }
     }
 
     private fun getBchReceiveAddress(): Single<Pair<String, String>> {
         val pos = bchDataManager.getDefaultAccountPosition()
         return bchDataManager.getNextCashReceiveAddress(pos)
-            .map { Pair(CryptoCurrency.BCH.networkTicker, it) }
+            .map { Pair(CryptoCurrency.BCH.ticker, it) }
             .singleOrError()
             .onErrorReturn { Pair("", "") }
     }
 
     private fun getEthReceiveAddress(): Single<Pair<String, String>> =
-        ethDataManager.getDefaultEthAddress()
-            .map { Pair(CryptoCurrency.ETHER.networkTicker, it) }
+        Single.fromCallable { ethDataManager.accountAddress }
+            .map { Pair(CryptoCurrency.ETHER.ticker, it.orEmpty()) }
             .onErrorReturn { Pair("", "") }
 
     private fun getXlmReceiveAddress(): Single<Pair<String, String>> =
         xlmDataManager.defaultAccount()
-            .map { Pair(CryptoCurrency.XLM.networkTicker, it.accountId) }
-            .onErrorReturn { Pair("", "") }
-
-    private fun getPaxReceiveAddress(): Single<Pair<String, String>> =
-        ethDataManager.getDefaultEthAddress()
-            .map { Pair(CryptoCurrency.PAX.networkTicker, it) }
+            .map { Pair(CryptoCurrency.XLM.ticker, it.accountId) }
             .onErrorReturn { Pair("", "") }
 }

@@ -3,17 +3,17 @@ package piuk.blockchain.android.kyc
 import android.net.Uri
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.notifications.links.PendingLink
-import com.nhaarman.mockito_kotlin.mock
-import io.reactivex.Maybe
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.any
+import com.nhaarman.mockitokotlin2.mock
+import io.reactivex.rxjava3.core.Maybe
+
+import com.nhaarman.mockitokotlin2.any
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import piuk.blockchain.android.BlockchainTestApplication
 
-@Config(sdk = [23], application = BlockchainTestApplication::class)
+@Config(sdk = [24], application = BlockchainTestApplication::class)
 @RunWith(RobolectricTestRunner::class)
 class KycDeepLinkHelperTest {
 
@@ -21,7 +21,7 @@ class KycDeepLinkHelperTest {
     fun `no uri`() {
         KycDeepLinkHelper(
             mock {
-                on { getPendingLinks(any()) } `it returns` Maybe.empty()
+                on { getPendingLinks(any()) }.thenReturn(Maybe.empty())
             }
         ).getLink(mock())
             .test()
@@ -79,5 +79,5 @@ class KycDeepLinkHelperTest {
 
 private fun givenPendingUri(uri: String): PendingLink =
     mock {
-        on { getPendingLinks(any()) } `it returns` Maybe.just(Uri.parse(uri))
+        on { getPendingLinks(any()) }.thenReturn(Maybe.just(Uri.parse(uri)))
     }

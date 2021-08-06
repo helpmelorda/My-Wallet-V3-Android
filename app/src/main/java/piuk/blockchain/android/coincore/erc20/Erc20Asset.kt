@@ -1,38 +1,38 @@
 package piuk.blockchain.android.coincore.erc20
 
 import com.blockchain.annotations.CommonCode
+import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.isCustodialOnly
 import info.blockchain.wallet.util.FormatsUtil
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AddressParseError
-import piuk.blockchain.android.coincore.CachedAddress
+import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.ReceiveAddress
-import piuk.blockchain.android.coincore.SimpleOfflineCacheItem
 import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.impl.CryptoAssetBase
-import piuk.blockchain.android.coincore.impl.OfflineAccountUpdater
+import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class Erc20Asset(
-    override val asset: CryptoCurrency,
-    payloadManager: PayloadDataManager,
-    private val ethDataManager: EthDataManager,
+    override val asset: AssetInfo,
+    private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatus,
+    payloadManager: PayloadDataManager,
     custodialManager: CustodialWalletManager,
     exchangeRates: ExchangeRateDataManager,
     historicRates: ExchangeRateService,
@@ -40,9 +40,10 @@ internal class Erc20Asset(
     labels: DefaultLabels,
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
-    offlineAccounts: OfflineAccountUpdater,
     identity: UserIdentity,
-    features: InternalFeatureFlagApi
+    features: InternalFeatureFlagApi,
+    private val availableCustodialActions: Set<AssetAction>,
+    private val availableNonCustodialActions: Set<AssetAction>
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -52,57 +53,56 @@ internal class Erc20Asset(
     custodialManager,
     pitLinking,
     crashLogger,
-    offlineAccounts,
     identity,
     features
 ) {
-    override fun initToken(): Completable =
-        ethDataManager.fetchErc20DataModel(asset)
-                .ignoreElements()
+    private val erc20address
+        get() = erc20DataManager.accountHash
+
+    override val isCustodialOnly: Boolean = asset.isCustodialOnly
+    override val multiWallet: Boolean = false
+
+    override fun initToken(): Completable = Completable.complete()
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         Single.just(getNonCustodialAccount())
-            .doOnSuccess { updateOfflineCache(it) }
             .map { listOf(it) }
 
-    private fun getNonCustodialAccount(): Erc20NonCustodialAccount {
-        val erc20Address = ethDataManager.getEthWallet()?.account?.address
-            ?: throw Exception("No ${asset.networkTicker} wallet found")
-
-        return Erc20NonCustodialAccount(
-            payloadManager,
-            asset,
-            ethDataManager,
-            erc20Address,
-            feeDataManager,
-            labels.getDefaultNonCustodialWalletLabel(asset),
-            exchangeRates,
-            walletPreferences,
-            custodialManager,
-            identity
-        )
-    }
-
-    private fun updateOfflineCache(account: Erc20NonCustodialAccount) {
-        offlineAccounts.updateOfflineAddresses(
-            Single.just(
-                SimpleOfflineCacheItem(
-                    networkTicker = asset.networkTicker,
-                    accountLabel = account.label,
-                    address = CachedAddress(
-                        account.address,
-                        account.address
-                    )
+    override fun loadCustodialAccounts(): Single<SingleAccountList> =
+        Single.just(
+            listOf(
+                CustodialTradingAccount(
+                    asset = asset,
+                    label = labels.getDefaultCustodialWalletLabel(),
+                    exchangeRates = exchangeRates,
+                    custodialWalletManager = custodialManager,
+                    identity = identity,
+                    features = features,
+                    baseActions = availableCustodialActions
                 )
             )
         )
-    }
+
+    private fun getNonCustodialAccount(): Erc20NonCustodialAccount =
+        Erc20NonCustodialAccount(
+            payloadManager,
+            asset,
+            erc20DataManager,
+            erc20address,
+            feeDataManager,
+            labels.getDefaultNonCustodialWalletLabel(),
+            exchangeRates,
+            walletPreferences,
+            custodialManager,
+            availableNonCustodialActions,
+            identity
+        )
 
     @CommonCode("Exists in EthAsset")
     override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> =
         Single.just(isValidAddress(address)).flatMapMaybe { isValid ->
             if (isValid) {
-                ethDataManager.isContractAddress(address)
+                erc20DataManager.isContractAddress(address)
                     .flatMapMaybe { isContract ->
                         if (isContract) {
                             throw AddressParseError(AddressParseError.Error.ETH_UNEXPECTED_CONTRACT_ADDRESS)

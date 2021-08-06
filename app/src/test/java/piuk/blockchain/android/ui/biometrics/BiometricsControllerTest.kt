@@ -2,18 +2,17 @@ package piuk.blockchain.android.ui.biometrics
 
 import android.content.Context
 import android.security.keystore.KeyPermanentlyInvalidatedException
-import android.security.keystore.KeyProperties
 import androidx.biometric.BiometricPrompt
 import com.blockchain.logging.CrashLogger
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.doNothing
-import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.spy
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.verifyZeroInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doNothing
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.spy
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -39,9 +38,8 @@ import java.security.Signature
 import javax.crypto.Cipher
 
 @Suppress("PrivatePropertyName")
-@Config(sdk = [23], application = BlockchainTestApplication::class) @RunWith(
-    RobolectricTestRunner::class
-)
+@Config(sdk = [24], application = BlockchainTestApplication::class)
+@RunWith(RobolectricTestRunner::class)
 class BiometricsControllerTest {
     private lateinit var subject: BiometricsController
 
@@ -50,11 +48,7 @@ class BiometricsControllerTest {
     private val accessState: AccessState = mock()
     private val cryptographyManager: CryptographyManager = mock()
     private val crashLogger: CrashLogger = mock()
-    private val ENCRYPTION_BLOCK_MODE = KeyProperties.BLOCK_MODE_CBC
-    private val ENCRYPTION_PADDING = KeyProperties.ENCRYPTION_PADDING_PKCS7
-    private val ENCRYPTION_ALGORITHM = KeyProperties.KEY_ALGORITHM_AES
-    private val transformation = "$ENCRYPTION_ALGORITHM/$ENCRYPTION_BLOCK_MODE/$ENCRYPTION_PADDING"
-    private val cipher = Cipher.getInstance(transformation)
+    private val cipher = mock<Cipher>()
     private lateinit var cryptoObject: BiometricPrompt.CryptoObject
 
     @Before @Throws(java.lang.Exception::class)

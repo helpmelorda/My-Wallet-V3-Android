@@ -1,12 +1,12 @@
 package com.blockchain.network.websocket
 
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import com.squareup.moshi.Moshi
-import io.reactivex.Observable
-import org.amshove.kluent.`it returns`
+import io.reactivex.rxjava3.core.Observable
+
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class MoshiJsonWebSocketDecoratorTest {
@@ -38,7 +38,7 @@ class MoshiJsonWebSocketDecoratorTest {
     fun `connection events delegates to inner property`() {
         val events = mock<Observable<ConnectionEvent>>()
         val inner = mock<WebSocket<String, String>> {
-            on { connectionEvents } `it returns` events
+            on { connectionEvents }.thenReturn(events)
         }
         inner.toJsonSocket<TypeOut, TypeIn>(moshi)
             .connectionEvents `should be` events
@@ -55,15 +55,17 @@ class MoshiJsonWebSocketDecoratorTest {
     @Test
     fun `incoming message is formatted from json`() {
         val inner = mock<WebSocket<String, String>> {
-            on { responses } `it returns` Observable.just(
-                "{\"fieldC\":\"Message1\",\"fieldD\":1234}",
-                "{\"fieldC\":\"Message2\",\"fieldD\":5678}"
+            on { responses }.thenReturn(
+                Observable.just(
+                    "{\"fieldC\":\"Message1\",\"fieldD\":1234}",
+                    "{\"fieldC\":\"Message2\",\"fieldD\":5678}"
+                )
             )
         }
         inner.toJsonSocket<TypeOut, TypeIn>(moshi)
             .responses
             .test()
-            .values() `should equal`
+            .values() `should be equal to`
             listOf(
                 TypeIn(fieldC = "Message1", fieldD = 1234),
                 TypeIn(fieldC = "Message2", fieldD = 5678)

@@ -2,13 +2,13 @@ package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import androidx.fragment.app.FragmentManager
 import com.blockchain.koin.scopedInject
+import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.LaunchOrigin
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import piuk.blockchain.android.R
@@ -39,7 +39,7 @@ enum class AssetDetailsStep(val addToBackStack: Boolean = false) {
 }
 
 class AssetDetailsFlow(
-    val cryptoCurrency: CryptoCurrency,
+    val asset: AssetInfo,
     val coincore: Coincore
 ) : DialogFlow(), KoinComponent, AccountSelectSheet.SelectAndBackHost {
 
@@ -48,9 +48,9 @@ class AssetDetailsFlow(
         fun goToSellFrom(account: CryptoAccount)
         fun goToInterestDeposit(toAccount: InterestAccount)
         fun goToInterestWithdraw(fromAccount: InterestAccount)
-        fun goToSummary(account: SingleAccount, asset: CryptoCurrency)
         fun goToInterestDashboard()
-        fun goToBuy(asset: CryptoCurrency)
+        fun goToSummary(account: SingleAccount, asset: AssetInfo)
+        fun goToBuy(asset: AssetInfo)
     }
 
     private var currentStep: AssetDetailsStep = AssetDetailsStep.ZERO
@@ -73,7 +73,7 @@ class AssetDetailsFlow(
             )
         }
 
-        model.process(ShowRelevantAssetDetailsSheet(cryptoCurrency))
+        model.process(ShowRelevantAssetDetailsSheet(asset))
     }
 
     private fun handleStateChange(
@@ -105,7 +105,7 @@ class AssetDetailsFlow(
             when (step) {
                 AssetDetailsStep.ZERO -> null
                 AssetDetailsStep.CUSTODY_INTRO_SHEET -> CustodyWalletIntroSheet.newInstance()
-                AssetDetailsStep.ASSET_DETAILS -> AssetDetailSheet.newInstance(cryptoCurrency)
+                AssetDetailsStep.ASSET_DETAILS -> AssetDetailSheet.newInstance(asset)
                 AssetDetailsStep.ASSET_ACTIONS -> AssetActionsSheet.newInstance()
                 AssetDetailsStep.SELECT_ACCOUNT -> AccountSelectSheet.newInstance(
                     this,
@@ -124,8 +124,8 @@ class AssetDetailsFlow(
     private fun filterNonCustodialAccounts(
         action: AssetAction?
     ): Single<List<BlockchainAccount>> =
-        coincore[cryptoCurrency].accountGroup(AssetFilter.NonCustodial)
-            .map { it.accounts }.toSingle(emptyList())
+        coincore[asset].accountGroup(AssetFilter.NonCustodial)
+            .map { it.accounts }.defaultIfEmpty(emptyList())
             .flattenAsObservable { it }
             .flatMapSingle { account ->
                 account.actions.map { actions ->
@@ -187,7 +187,7 @@ class AssetDetailsFlow(
                     }
                 )
             }
-            AssetAction.Summary -> assetFlowHost.goToSummary(
+            AssetAction.ViewStatement -> assetFlowHost.goToSummary(
                 newState.selectedAccount.selectFirstAccount(), newState.selectedAccount.selectFirstAccount().asset
             )
             AssetAction.InterestDeposit -> {

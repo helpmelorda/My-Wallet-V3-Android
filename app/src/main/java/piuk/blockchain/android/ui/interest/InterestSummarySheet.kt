@@ -10,19 +10,18 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.AssetInfo
 import com.blockchain.utils.secondsToDays
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRates
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.Singles
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAccount
@@ -53,7 +52,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
     }
 
     private lateinit var account: SingleAccount
-    private lateinit var cryptoCurrency: CryptoCurrency
+    private lateinit var asset: AssetInfo
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogSheetInterestDetailsBinding =
         DialogSheetInterestDetailsBinding.inflate(inflater, container, false)
@@ -63,7 +62,6 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
     private val exchangeRates: ExchangeRates by scopedInject()
     private val currencyPrefs: CurrencyPrefs by scopedInject()
     private val coincore: Coincore by scopedInject()
-    private val assetResources: AssetResources by scopedInject()
     private val features: InternalFeatureFlagApi by inject()
 
     private val listAdapter: InterestSummaryAdapter by lazy { InterestSummaryAdapter() }
@@ -77,13 +75,13 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
 
         binding.apply {
             interestDetailsTitle.text = account.label
-            interestDetailsSheetHeader.text = getString(assetResources.assetNameRes(cryptoCurrency))
-            interestDetailsLabel.text = getString(assetResources.assetNameRes(cryptoCurrency))
+            interestDetailsSheetHeader.text = asset.name
+            interestDetailsLabel.text = asset.name
 
             interestDetailsAssetWithIcon.updateIcon(account as CryptoAccount)
 
             disposables += coincore.allWalletsWithActions(setOf(AssetAction.InterestDeposit)).map { accounts ->
-                accounts.filter { account -> account is CryptoAccount && account.asset == cryptoCurrency }
+                accounts.filter { account -> account is CryptoAccount && account.asset == asset }
             }
                 .onErrorReturn { emptyList() }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -91,7 +89,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                     if (accounts.isNotEmpty()) {
                         interestDetailsDepositCta.visible()
                         interestDetailsDepositCta.text =
-                            getString(R.string.tx_title_deposit, cryptoCurrency.displayTicker)
+                            getString(R.string.tx_title_deposit, asset.ticker)
                         interestDetailsDepositCta.setOnClickListener {
                             analytics.logEvent(InterestAnalytics.InterestSummaryDepositCta)
                             host.goToInterestDeposit(account as InterestAccount)
@@ -103,9 +101,9 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
         }
 
         disposables += Singles.zip(
-            custodialWalletManager.getInterestAccountDetails(cryptoCurrency),
-            custodialWalletManager.getInterestLimits(cryptoCurrency).toSingle(),
-            custodialWalletManager.getInterestAccountRates(cryptoCurrency)
+            custodialWalletManager.getInterestAccountDetails(asset),
+            custodialWalletManager.getInterestLimits(asset).toSingle(),
+            custodialWalletManager.getInterestAccountRates(asset)
         ).observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onSuccess = { (details, limits, interestRate) ->
@@ -128,20 +126,21 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
 
     private fun compositeToView(composite: CompositeInterestDetails) {
         with(binding) {
-                if (composite.balance.isPositive) {
-                    interestDetailsWithdrawCta.text =
-                        getString(R.string.tx_title_withdraw, cryptoCurrency.displayTicker)
-                    interestDetailsWithdrawCta.visible()
-                    interestDetailsWithdrawCta.setOnClickListener {
-                        analytics.logEvent(InterestAnalytics.InterestWithdrawalClicked(
-                            currency = composite.balance.currencyCode,
-                            origin = LaunchOrigin.SAVINGS_PAGE
-                        ))
-                        analytics.logEvent(InterestAnalytics.InterestSummaryWithdrawCta)
-                        host.goToInterestWithdraw(account as InterestAccount)
-                    }
+            if (composite.balance.isPositive) {
+                interestDetailsWithdrawCta.text =
+                    getString(R.string.tx_title_withdraw, asset.ticker)
+                interestDetailsWithdrawCta.visible()
+                interestDetailsWithdrawCta.setOnClickListener {
+                    analytics.logEvent(InterestAnalytics.InterestWithdrawalClicked(
+                        currency = composite.balance.currencyCode,
+                        origin = LaunchOrigin.SAVINGS_PAGE
+                    ))
+                    analytics.logEvent(InterestAnalytics.InterestSummaryWithdrawCta)
+                    host.goToInterestWithdraw(account as InterestAccount)
                 }
+            }
         }
+
         val itemList = mutableListOf<InterestSummaryInfoItem>()
         itemList.apply {
             add(
@@ -186,11 +185,11 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
     companion object {
         fun newInstance(
             singleAccount: SingleAccount,
-            selectedAsset: CryptoCurrency
+            selectedAsset: AssetInfo
         ): InterestSummarySheet =
             InterestSummarySheet().apply {
                 account = singleAccount
-                cryptoCurrency = selectedAsset
+                asset = selectedAsset
             }
     }
 

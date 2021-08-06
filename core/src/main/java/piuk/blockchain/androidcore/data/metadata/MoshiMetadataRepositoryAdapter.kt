@@ -3,9 +3,9 @@ package piuk.blockchain.androidcore.data.metadata
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.serialization.JsonSerializable
 import com.squareup.moshi.Moshi
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 internal class MoshiMetadataRepositoryAdapter(
     private val metadataManager: MetadataManager,

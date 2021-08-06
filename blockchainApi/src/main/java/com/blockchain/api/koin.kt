@@ -2,31 +2,43 @@ package com.blockchain.api
 
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.analytics.AnalyticsApiInterface
-import com.blockchain.api.bitcoin.BitcoinApiInterface
+import com.blockchain.api.bitcoin.BitcoinApi
+import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.wallet.WalletApiInterface
+import com.blockchain.api.ethereum.EthereumApiInterface
+import com.blockchain.api.custodial.CustodialBalanceApi
+import com.blockchain.api.services.AddressMappingService
+import com.blockchain.api.services.AnalyticsService
+import com.blockchain.api.services.CustodialBalanceService
+import com.blockchain.api.services.NabuUserService
+import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.api.services.NonCustodialErc20Service
+import com.blockchain.api.services.TradeService
+import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.api.trade.TradeApi
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import org.koin.core.qualifier.StringQualifier
 import org.koin.core.scope.Scope
 import org.koin.dsl.module
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 
 val blockchainApi = StringQualifier("blockchain-api")
 val explorerApi = StringQualifier("explorer-api")
-val addressResolutionApi = StringQualifier("address-resolution-api")
+val nabuApi = StringQualifier("nabu-api")
 
 val blockchainApiModule = module {
 
-    single { RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()) }
+    single { RxJava3CallAdapterFactory.createWithScheduler(Schedulers.io()) }
 
     single(blockchainApi) {
         Retrofit.Builder()
             .baseUrl(getBaseUrl("blockchain-api"))
             .client(get())
-            .addCallAdapterFactory(get<RxJava2CallAdapterFactory>())
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addConverterFactory(
                 Json {
                     ignoreUnknownKeys = true
@@ -40,7 +52,7 @@ val blockchainApiModule = module {
         Retrofit.Builder()
             .baseUrl(getBaseUrl("explorer-api"))
             .client(get())
-            .addCallAdapterFactory(get<RxJava2CallAdapterFactory>())
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addConverterFactory(
                 Json {
                     ignoreUnknownKeys = true
@@ -50,24 +62,31 @@ val blockchainApiModule = module {
             .build()
     }
 
-    single(addressResolutionApi) {
+    single(nabuApi) {
         Retrofit.Builder()
-            .baseUrl(getBaseUrl("blockchain-api"))
+            .baseUrl(getBaseUrl("nabu-api"))
             .client(get())
-            .addCallAdapterFactory(get<RxJava2CallAdapterFactory>())
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addConverterFactory(
                 Json {
                     ignoreUnknownKeys = true
                     isLenient = true
-                    classDiscriminator = "typeOf" // Override this?
                 }.asConverterFactory("application/json".toMediaType())
             )
             .build()
     }
 
     factory {
-        val api = get<Retrofit>(blockchainApi).create(BitcoinApiInterface::class.java)
+        val api = get<Retrofit>(blockchainApi).create(BitcoinApi::class.java)
         NonCustodialBitcoinService(
+            api,
+            getProperty("api-code")
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(blockchainApi).create(EthereumApiInterface::class.java)
+        NonCustodialErc20Service(
             api,
             getProperty("api-code")
         )
@@ -82,10 +101,9 @@ val blockchainApiModule = module {
     }
 
     factory {
-        val api = get<Retrofit>(addressResolutionApi).create(AddressMappingApiInterface::class.java)
+        val api = get<Retrofit>(blockchainApi).create(AddressMappingApiInterface::class.java)
         AddressMappingService(
-            api,
-            getProperty("api-code")
+            api
         )
     }
 
@@ -93,6 +111,27 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(blockchainApi).create(AnalyticsApiInterface::class.java)
         AnalyticsService(
             api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(NabuUserApi::class.java)
+        NabuUserService(
+            api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(CustodialBalanceApi::class.java)
+        CustodialBalanceService(
+            api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(TradeApi::class.java)
+        TradeService(
+            api = api
         )
     }
 }

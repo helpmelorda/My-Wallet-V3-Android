@@ -8,7 +8,7 @@ import com.blockchain.nabu.NabuToken
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.KycNavXmlDirections
 
 interface ReentryDecision {

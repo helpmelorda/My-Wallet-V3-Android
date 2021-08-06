@@ -5,12 +5,12 @@ import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.metadata.NabuCredentialsMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.mapToMetadata
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.schedulers.Schedulers
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.schedulers.Schedulers
+import piuk.blockchain.android.ui.base.BasePresenter
 import timber.log.Timber
 
 class KycInvalidCountryPresenter(

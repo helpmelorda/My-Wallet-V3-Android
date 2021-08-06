@@ -8,7 +8,7 @@ import android.widget.Toast
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.serialization.JsonSerializable
 import info.blockchain.wallet.payload.PayloadManagerWiper
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.core.context.GlobalContext
 import piuk.blockchain.androidcore.data.access.AccessState
 import timber.log.Timber

@@ -3,12 +3,12 @@ package piuk.blockchain.androidcore.utils
 import android.content.Context
 import android.content.SharedPreferences
 import com.blockchain.logging.CrashLogger
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.validateMockitoUsage
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.validateMockitoUsage
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import junit.framework.Assert.assertEquals
 import org.junit.After
 import org.junit.Before
@@ -105,20 +105,6 @@ class PrefsUtilTest {
         verify(store).getBoolean(PrefsUtil.KEY_IS_DEVICE_ID_RANDOMISED, false)
         verify(store, never()).getString(PrefsUtil.KEY_PRE_IDV_DEVICE_ID, "")
         verify(uuidGenerator).generateUUID()
-    }
-
-    @Test
-    fun getSelectedCrypto_corruptedStore_returnDefault() {
-        // Arrange
-        whenever(store.getString(PrefsUtil.KEY_SELECTED_CRYPTO, PrefsUtil.DEFAULT_CRYPTO_CURRENCY.name))
-            .thenReturn("NOPE")
-
-        // Act
-        val currency = subject.selectedCryptoCurrency
-
-        // Arrange
-        assertEquals(currency, PrefsUtil.DEFAULT_CRYPTO_CURRENCY)
-        verify(editor).remove(PrefsUtil.KEY_SELECTED_CRYPTO)
     }
 
     companion object {

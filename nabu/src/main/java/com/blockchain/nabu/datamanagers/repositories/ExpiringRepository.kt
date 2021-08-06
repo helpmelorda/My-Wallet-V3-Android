@@ -1,6 +1,6 @@
 package com.blockchain.nabu.datamanagers.repositories
 
-import io.reactivex.Maybe
+import io.reactivex.rxjava3.core.Maybe
 
 private const val CACHE_LIFETIME = 60 * 1000
 abstract class ExpiringRepository<T> {

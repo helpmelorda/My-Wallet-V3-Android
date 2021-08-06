@@ -11,8 +11,8 @@ import piuk.blockchain.android.databinding.ItemYapilyInfoBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.util.context
+import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.visibleIf
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
 
 class YapilyExpandableListItemDelegate(
     private val onExpandableItemClicked: (Int) -> Unit

@@ -7,15 +7,15 @@ import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Singles
-import io.reactivex.rxkotlin.zipWith
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.zipWith
+import io.reactivex.rxjava3.subjects.PublishSubject
 import piuk.blockchain.android.coincore.AddressFactory
 import piuk.blockchain.android.coincore.AddressParseError
 import piuk.blockchain.android.coincore.AssetAction
@@ -67,7 +67,7 @@ class TransactionInteractor(
     fun validatePassword(password: String): Single<Boolean> =
         Single.just(coincore.validateSecondPassword(password))
 
-    fun validateTargetAddress(address: String, asset: CryptoCurrency): Single<ReceiveAddress> =
+    fun validateTargetAddress(address: String, asset: AssetInfo): Single<ReceiveAddress> =
         addressFactory.parse(address, asset)
             .switchIfEmpty(
                 Single.error(

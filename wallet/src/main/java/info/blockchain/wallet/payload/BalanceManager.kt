@@ -1,8 +1,8 @@
 package info.blockchain.wallet.payload
 
-import com.blockchain.api.NonCustodialBitcoinService
+import info.blockchain.balance.AssetInfo
+import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.bitcoin.data.BalanceResponseDto
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
@@ -12,7 +12,7 @@ import java.math.BigInteger
 
 abstract class BalanceManager constructor(
     val bitcoinApi: NonCustodialBitcoinService,
-    private val cryptoCurrency: CryptoCurrency
+    private val asset: AssetInfo
 ) {
     private var balanceMap: CryptoBalanceMap
 
@@ -23,14 +23,14 @@ abstract class BalanceManager constructor(
         get() = balanceMap.totalSpendableImported.toBigInteger()
 
     private val balanceQuery: BalanceCall
-        get() = BalanceCall(bitcoinApi, cryptoCurrency)
+        get() = BalanceCall(bitcoinApi, asset)
 
     init {
-        balanceMap = CryptoBalanceMap.zero(cryptoCurrency)
+        balanceMap = CryptoBalanceMap.zero(asset)
     }
 
     fun subtractAmountFromAddressBalance(address: String, amount: BigInteger) {
-        balanceMap = balanceMap.subtractAmountFromAddress(address, CryptoValue(cryptoCurrency, amount))
+        balanceMap = balanceMap.subtractAmountFromAddress(address, CryptoValue(asset, amount))
     }
 
     fun getAddressBalance(xpub: XPubs): CryptoValue =
@@ -40,14 +40,14 @@ abstract class BalanceManager constructor(
     private fun getXpubBalance(xpub: XPub?): CryptoValue =
         xpub?.address?.let {
             return balanceMap[it]
-        } ?: CryptoValue.zero(cryptoCurrency)
+        } ?: CryptoValue.zero(asset)
 
     fun updateAllBalances(
         xpubs: List<XPubs>,
         importedAddresses: List<String>
     ) {
         balanceMap = calculateCryptoBalanceMap(
-            cryptoCurrency = cryptoCurrency,
+            asset = asset,
             balanceQuery = balanceQuery,
             xpubs = xpubs,
             imported = importedAddresses

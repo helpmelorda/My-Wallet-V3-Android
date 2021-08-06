@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.isErc20
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.TxConfirmation
 import piuk.blockchain.android.coincore.TxConfirmationValue
@@ -17,9 +18,9 @@ import piuk.blockchain.android.ui.transactionflow.flow.ConfirmationPropertyKey
 import piuk.blockchain.android.ui.transactionflow.flow.FeeInfo
 import piuk.blockchain.android.ui.transactionflow.flow.TxConfirmReadOnlyMapperCheckout
 import piuk.blockchain.android.util.context
+import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.goneIf
 import piuk.blockchain.android.util.visibleIf
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
 
 class CompoundExpandableFeeConfirmationCheckoutDelegate(private val mapper: TxConfirmReadOnlyMapperCheckout) :
     AdapterDelegate<TxConfirmationValue> {
@@ -98,13 +99,13 @@ private class CompoundExpandableFeeConfirmationCheckoutDelegateItemViewHolder(
     }
 
     private fun getFeeLabel(item: FeeInfo) =
-        if (item.asset.hasFeature(CryptoCurrency.IS_ERC20)) {
+        if (item.asset.isErc20()) {
             context.getString(
-                R.string.checkout_item_erc20_network_fee, CryptoCurrency.ETHER.displayTicker,
-                item.asset.displayTicker
+                R.string.checkout_item_erc20_network_fee, CryptoCurrency.ETHER.ticker,
+                item.asset.ticker
             )
         } else {
-            context.getString(R.string.checkout_item_network_fee, item.asset.displayTicker)
+            context.getString(R.string.checkout_item_network_fee, item.asset.ticker)
         }
 
     private fun updateIcon() {

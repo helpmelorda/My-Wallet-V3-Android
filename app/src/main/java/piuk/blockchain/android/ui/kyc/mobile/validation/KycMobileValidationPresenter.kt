@@ -2,11 +2,11 @@ package piuk.blockchain.android.ui.kyc.mobile.validation
 
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.nabu.NabuUserSync
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.androidcore.data.settings.PhoneNumberUpdater
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
 import timber.log.Timber
 
 class KycMobileValidationPresenter(

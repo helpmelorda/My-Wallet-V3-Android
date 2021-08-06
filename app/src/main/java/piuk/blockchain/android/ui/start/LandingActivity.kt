@@ -6,11 +6,18 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
+import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
 import com.blockchain.koin.ssoLoginFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
-import com.blockchain.ui.urllinks.WALLET_STATUS_URL
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
+import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
@@ -21,7 +28,7 @@ import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
 import piuk.blockchain.android.util.copyHashOnLongClick
 import piuk.blockchain.android.ui.customviews.toast
-import piuk.blockchain.android.ui.login.LoginFragment
+import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.visible
 
@@ -30,7 +37,9 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
     override val presenter: LandingPresenter by scopedInject()
     private val stringUtils: StringUtils by inject()
     private val ssoLoginFF: FeatureFlag by inject(ssoLoginFeatureFlag)
-    private var isSSOLoginEnabled = false
+    private val ssoARFF: FeatureFlag by inject(ssoAccountRecoveryFeatureFlag)
+    private val internalFlags: InternalFeatureFlagApi by inject()
+    private val compositeDisposable = CompositeDisposable()
     override val view: LandingView = this
 
     private val binding: ActivityLandingBinding by lazy {
@@ -41,26 +50,8 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val compositeDisposable = ssoLoginFF.enabled.observeOn(Schedulers.io()).subscribe(
-            { result ->
-                isSSOLoginEnabled = result
-            },
-            { isSSOLoginEnabled = false }
-        )
-
         with(binding) {
             btnCreate.setOnClickListener { launchCreateWalletActivity() }
-            btnLogin.setOnClickListener {
-                if (isSSOLoginEnabled) {
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.content_frame, LoginFragment(), LoginFragment::class.simpleName)
-                        .addToBackStack(LoginFragment::class.simpleName)
-                        .commitAllowingStateLoss()
-                } else {
-                    launchLoginActivity()
-                }
-            }
-            btnRecover.setOnClickListener { showFundRecoveryWarning() }
 
             if (!ConnectivityStatus.hasConnectivity(this@LandingActivity)) {
                 showConnectivityWarning()
@@ -75,10 +66,61 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        setupSSOControls()
+    }
+
+    override fun onStop() {
+        compositeDisposable.clear()
+        super.onStop()
+    }
+
+    private fun launchSSOAccountRecoveryFlow() =
+        startActivity(Intent(this, AccountRecoveryActivity::class.java))
+
+    private fun setupSSOControls() {
+        with(binding) {
+            compositeDisposable += ssoLoginFF.enabled.zipWith(ssoARFF.enabled)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeBy(
+                    onSuccess = { (isSSOLoginEnabled, isAccountRecoveryEnabled) ->
+                        btnLogin.setOnClickListener {
+                            if (isSSOLoginEnabled) {
+                                launchSSOLoginActivity()
+                            } else {
+                                launchLoginActivity()
+                            }
+                        }
+                        btnRecover.apply {
+                            if (isAccountRecoveryEnabled &&
+                                internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY)) {
+                                text = getString(R.string.restore_wallet_cta)
+                                setOnClickListener { launchSSOAccountRecoveryFlow() }
+                            } else {
+                                text = getString(R.string.recover_funds)
+                                setOnClickListener { showFundRecoveryWarning() }
+                            }
+                        }
+                    },
+                    onError = {
+                        btnLogin.setOnClickListener { launchLoginActivity() }
+                        btnRecover.apply {
+                            text = getString(R.string.recover_funds)
+                            setOnClickListener { showFundRecoveryWarning() }
+                        }
+                    }
+                )
+        }
+    }
+
     private fun launchCreateWalletActivity() = CreateWalletActivity.start(this)
 
     private fun launchLoginActivity() =
         startActivity(Intent(this, LoginActivity::class.java))
+
+    private fun launchSSOLoginActivity() =
+        startActivity(Intent(this, piuk.blockchain.android.ui.login.LoginActivity::class.java))
 
     private fun startRecoverFundsActivity() = RecoverFundsActivity.start(this)
 

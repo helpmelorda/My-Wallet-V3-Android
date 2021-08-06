@@ -11,17 +11,8 @@ class HDChainTest {
     private val key = HDKeyDerivation.createMasterPrivateKey(seed.toByteArray())
 
     @Test
-    fun isReceive() {
-        val chain1 = HDChain(MainNetParams.get(), key, true)
-        Assert.assertTrue(chain1.isReceive)
-
-        val chain2 = HDChain(MainNetParams.get(), key, false)
-        Assert.assertFalse(chain2.isReceive)
-    }
-
-    @Test
     fun getAddressAt() {
-        val chain = HDChain(MainNetParams.get(), key, true)
+        val chain = HDChain.receiveChain(MainNetParams.get(), key)
         Assert.assertEquals(
             "1HxBEXhu5LPibpTAQ1EoNTJavDSbwajJTg",
             chain.getAddressAt(0, Derivation.LEGACY_PURPOSE).formattedAddress
@@ -30,7 +21,7 @@ class HDChainTest {
 
     @Test
     fun getSegwitAddressAt() {
-        val chain = HDChain(MainNetParams.get(), key, true)
+        val chain = HDChain.receiveChain(MainNetParams.get(), key)
         Assert.assertEquals(
             "bc1qh8cka3lk4k74dnr7pqzyct8em57ky43a2x05lq",
             chain.getAddressAt(0, Derivation.SEGWIT_BECH32_PURPOSE).formattedAddress
@@ -39,7 +30,7 @@ class HDChainTest {
 
     @Test
     fun getPath() {
-        val chain = HDChain(MainNetParams.get(), key, true)
+        val chain = HDChain.receiveChain(MainNetParams.get(), key)
         Assert.assertEquals("M/0", chain.path)
     }
 }

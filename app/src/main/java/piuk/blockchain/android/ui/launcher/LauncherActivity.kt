@@ -7,6 +7,7 @@ import android.os.Handler
 import android.text.InputType
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.appcompat.widget.Toolbar
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.Analytics
@@ -17,6 +18,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLauncherBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
+import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
@@ -27,7 +29,6 @@ import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
-import piuk.blockchain.androidcoreui.ui.base.BaseMvpActivity
 import timber.log.Timber
 
 class LauncherActivity : BaseMvpActivity<LauncherView, LauncherPresenter>(), LauncherView, EmailEntryHost {
@@ -39,11 +40,14 @@ class LauncherActivity : BaseMvpActivity<LauncherView, LauncherPresenter>(), Lau
         ActivityLauncherBinding.inflate(layoutInflater)
     }
 
+    private val toolbar: Toolbar
+        get() = binding.toolbarGeneral.toolbarGeneral
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        setSupportActionBar(binding.toolbarGeneral.toolbarGeneral)
-        binding.toolbarGeneral.toolbarGeneral.gone()
+        setSupportActionBar(toolbar)
+        toolbar.gone()
 
         if (intent.hasExtra(NotificationsUtil.INTENT_FROM_NOTIFICATION) &&
             intent.getBooleanExtra(NotificationsUtil.INTENT_FROM_NOTIFICATION, false)
@@ -162,7 +166,7 @@ class LauncherActivity : BaseMvpActivity<LauncherView, LauncherPresenter>(), Lau
     }
 
     override fun onEmailEntryFragmentShown() {
-        with(binding.toolbarGeneral.toolbarGeneral) {
+        with(toolbar) {
             setupToolbar(this, R.string.security_check)
             navigationIcon = null
             visible()
@@ -175,5 +179,6 @@ class LauncherActivity : BaseMvpActivity<LauncherView, LauncherPresenter>(), Lau
 
     override fun onEmailVerificationSkipped() {
         presenter.onEmailVerificationFinished()
+        analytics.logEvent(KYCAnalyticsEvents.EmailVeriffSkipped(LaunchOrigin.SIGN_UP))
     }
 }

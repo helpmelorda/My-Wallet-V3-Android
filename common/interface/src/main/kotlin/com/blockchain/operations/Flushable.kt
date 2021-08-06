@@ -1,6 +1,6 @@
 package com.blockchain.operations
 
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 
 interface Flushable {
     fun flush(): Completable

@@ -8,12 +8,12 @@ import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.utils.Optional
 import com.blockchain.utils.toUtcIso8601
-import com.blockchain.api.AnalyticsService
-import com.blockchain.api.NabuAnalyticsEvent
-import io.reactivex.Completable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.schedulers.Schedulers
+import com.blockchain.api.services.AnalyticsService
+import com.blockchain.api.services.NabuAnalyticsEvent
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.extensions.then
@@ -100,6 +100,7 @@ class NabuAnalytics(
                 id = id,
                 analyticsContext = analyticsContextProvider.context(),
                 platform = "WALLET",
+                device = "APP-Android",
                 authorization = if (it is Optional.Some) it.element.authHeader else null
             )
         }

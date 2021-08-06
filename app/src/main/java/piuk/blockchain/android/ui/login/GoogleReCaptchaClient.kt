@@ -25,13 +25,17 @@ class GoogleReCaptchaClient(private val activity: Activity) {
     }
 
     fun close() {
-        Recaptcha.getClient(activity).close(recaptchaHandle)
+        if (this::recaptchaHandle.isInitialized) {
+            Recaptcha.getClient(activity).close(recaptchaHandle)
+        }
     }
 
     fun verifyForLogin(onSuccess: (RecaptchaResultData) -> Unit, onError: (Exception) -> Unit) {
-        Recaptcha.getClient(activity)
-            .execute(recaptchaHandle, RecaptchaAction(RecaptchaActionType(RecaptchaActionType.LOGIN)))
-            .addOnSuccessListener(onSuccess)
-            .addOnFailureListener(onError)
+        if (this::recaptchaHandle.isInitialized) {
+            Recaptcha.getClient(activity)
+                .execute(recaptchaHandle, RecaptchaAction(RecaptchaActionType(RecaptchaActionType.LOGIN)))
+                .addOnSuccessListener(onSuccess)
+                .addOnFailureListener(onError)
+        }
     }
 }

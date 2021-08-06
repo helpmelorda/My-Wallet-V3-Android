@@ -11,8 +11,8 @@ import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.ImportedAddress
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AvailableActions
@@ -46,7 +46,7 @@ internal class BtcCryptoWalletAccount(
     private val refreshTrigger: AccountRefreshTrigger,
     identity: UserIdentity
 ) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.BTC, custodialWalletManager, identity) {
-
+    override val baseActions: Set<AssetAction> = defaultActions
     private val hasFunds = AtomicBoolean(false)
 
     override val label: String
@@ -93,7 +93,7 @@ internal class BtcCryptoWalletAccount(
 
     override val activity: Single<ActivitySummaryList>
         get() = payloadDataManager.getAccountTransactions(
-            xpubAddress,
+            xpubs,
             transactionFetchCount,
             transactionFetchOffset
         ).onErrorReturn { emptyList() }

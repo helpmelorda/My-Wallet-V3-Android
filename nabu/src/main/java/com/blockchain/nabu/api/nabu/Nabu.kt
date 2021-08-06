@@ -15,7 +15,6 @@ import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
 import com.blockchain.nabu.models.responses.interest.InterestAccountDetailsResponse
 import com.blockchain.nabu.models.responses.interest.InterestActivityResponse
 import com.blockchain.nabu.models.responses.interest.InterestAddressResponse
-import com.blockchain.nabu.models.responses.interest.InterestEligibilityFullResponse
 import com.blockchain.nabu.models.responses.interest.InterestEnabledResponse
 import com.blockchain.nabu.models.responses.interest.InterestLimitsFullResponse
 import com.blockchain.nabu.models.responses.interest.InterestRateResponse
@@ -43,7 +42,6 @@ import com.blockchain.nabu.models.responses.sdd.SDDStatusResponse
 import com.blockchain.nabu.models.responses.simplebuy.ActivateCardResponse
 import com.blockchain.nabu.models.responses.simplebuy.AddNewCardBodyRequest
 import com.blockchain.nabu.models.responses.simplebuy.AddNewCardResponse
-import com.blockchain.nabu.models.responses.simplebuy.AllAssetBalancesResponse
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuyOrderListResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
@@ -56,7 +54,6 @@ import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyEligibilityRes
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyResponse
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyTransactionResponse
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyBalanceResponse
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
@@ -77,8 +74,8 @@ import com.blockchain.nabu.models.responses.swap.UpdateSwapOrderBody
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenRequest
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -406,17 +403,6 @@ internal interface Nabu {
         @Header("authorization") authorization: String
     ): Single<List<CardResponse>>
 
-    @GET(NABU_SIMPLE_BUY_ASSET_BALANCE)
-    fun getBalanceForAsset(
-        @Header("authorization") authorization: String,
-        @Query("ccy") cryptoSymbol: String
-    ): Single<Response<SimpleBuyBalanceResponse>>
-
-    @GET(NABU_SIMPLE_BUY_ASSET_BALANCE)
-    fun getCustodialWalletBalanceForAllAssets(
-        @Header("authorization") authorization: String
-    ): Single<AllAssetBalancesResponse>
-
     @Headers("blockchain-origin: simplebuy")
     @POST(NABU_SIMPLE_BUY_BALANCE_TRANSFER)
     fun transferFunds(
@@ -465,11 +451,6 @@ internal interface Nabu {
     fun getInterestEnabled(
         @Header("authorization") authorization: String
     ): Single<InterestEnabledResponse>
-
-    @GET(NABU_INTEREST_ELIGIBILITY)
-    fun getInterestEligibility(
-        @Header("authorization") authorization: String
-    ): Single<InterestEligibilityFullResponse>
 
     @POST(NABU_QUOTES)
     fun fetchQuote(

@@ -2,19 +2,24 @@ package piuk.blockchain.android.ui.dashboard
 
 import com.blockchain.notifications.analytics.UserAnalytics
 import com.blockchain.notifications.analytics.UserProperty
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
+import piuk.blockchain.android.coincore.Coincore
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.math.BigDecimal
 
 class BalanceAnalyticsReporter(
-    private val analytics: UserAnalytics
+    private val analytics: UserAnalytics,
+    coincore: Coincore
 ) {
-    private val collectedBalances = mutableMapOf<CryptoCurrency, Money>()
-    private val assetCount = CryptoCurrency.activeCurrencies().size
+    private val collectedBalances = mutableMapOf<AssetInfo, Money>()
+    private val assetCount by unsafeLazy {
+        coincore.activeCryptoAssets().size
+    }
 
     private var totalBalance: Money? = null
 
-    fun gotAssetBalance(crypto: CryptoCurrency, amount: Money) {
+    fun gotAssetBalance(crypto: AssetInfo, amount: Money) {
         collectedBalances[crypto] = amount
         if (collectedBalances.size == assetCount) {
             sendAssetData()

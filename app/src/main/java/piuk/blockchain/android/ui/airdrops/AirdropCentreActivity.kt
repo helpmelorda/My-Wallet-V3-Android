@@ -9,15 +9,15 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.koin.scopedInject
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.AssetResources
+import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.databinding.ActivityAirdropsBinding
 import piuk.blockchain.android.databinding.ItemAirdropHeaderBinding
 import piuk.blockchain.android.databinding.ItemAirdropStatusBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.util.context
-import piuk.blockchain.android.util.setImageDrawable
 import piuk.blockchain.android.util.setOnClickListenerDebounced
 import java.text.DateFormat
 import kotlin.math.max
@@ -26,11 +26,10 @@ class AirdropCentreActivity : MvpActivity<AirdropCentreView, AirdropCentrePresen
     AirdropCentreView,
     SlidingModalBottomDialog.Host {
 
-    private val assetResources: AssetResources by scopedInject()
-
     override val presenter: AirdropCentrePresenter by scopedInject()
     override val view: AirdropCentreView = this
 
+    private val assetResources: AssetResources by inject()
     private val binding: ActivityAirdropsBinding by lazy {
         ActivityAirdropsBinding.inflate(layoutInflater)
     }
@@ -96,8 +95,8 @@ class StatusViewHolder(private val binding: ItemAirdropStatusBinding) :
 
     fun bind(item: ListItem.AirdropItem, assetResources: AssetResources, onClick: (String) -> Unit) {
         with(binding) {
-            icon.setImageDrawable(assetResources.drawableResFilled(item.airdrop.currency))
-            currency.text = item.airdrop.currency.displayTicker
+            assetResources.loadAssetIcon(icon, item.airdrop.asset)
+            currency.text = item.airdrop.asset.ticker
             val formatted = DateFormat.getDateInstance(DateFormat.SHORT).format(item.airdrop.date)
             binding.root.setOnClickListenerDebounced { onClick(item.airdrop.name) }
             date.text = context.resources.getString(

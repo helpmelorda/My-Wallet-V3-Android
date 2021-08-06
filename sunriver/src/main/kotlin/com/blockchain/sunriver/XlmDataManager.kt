@@ -12,11 +12,11 @@ import com.blockchain.sunriver.models.XlmTransaction
 import com.blockchain.utils.toHex
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Singles
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.stellar.sdk.KeyPair
 
 data class XlmAccountReference(
@@ -139,8 +139,8 @@ class XlmDataManager internal constructor(
                 .flatMap { (accountRef, fee) ->
                     getBalanceAndMin(accountRef).map {
                         (it.balance - it.minimumBalance - fee) as CryptoValue
-                    }
-                }.toMaybe(),
+                    }.toMaybe()
+                },
             Maybe.just(CryptoValue.zero(CryptoCurrency.XLM))
         ).firstOrError()
 

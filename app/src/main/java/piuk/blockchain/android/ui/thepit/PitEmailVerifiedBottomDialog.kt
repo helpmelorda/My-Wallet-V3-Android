@@ -5,9 +5,9 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.ui.extensions.throttledClicks
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import piuk.blockchain.android.util.throttledClicks
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.databinding.PitEmailVerifiedBottomDialogBinding
 import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
 import piuk.blockchain.android.util.gone

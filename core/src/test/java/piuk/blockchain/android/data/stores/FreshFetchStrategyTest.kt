@@ -1,10 +1,10 @@
 package piuk.blockchain.android.data.stores
 
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Observable
-import org.amshove.kluent.`should equal to`
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Observable
+import org.amshove.kluent.`should be equal to`
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 import piuk.blockchain.android.testutils.RxTest
 import piuk.blockchain.androidcore.data.datastores.persistentstore.FreshFetchStrategy
@@ -29,6 +29,6 @@ class FreshFetchStrategyTest : RxTest() {
         val testObserver = subject.fetch().test()
         // Assert
         verify(memoryStore).store(value)
-        testObserver.values()[0] `should equal to` value
+        testObserver.values()[0] `should be equal to` value
     }
 }

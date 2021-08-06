@@ -2,13 +2,13 @@ package piuk.blockchain.android.coincore.impl
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.nhaarman.mockito_kotlin.times
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Single
-import org.amshove.kluent.mock
+import io.reactivex.rxjava3.core.Single
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.coincore.CryptoAccount

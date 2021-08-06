@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -28,21 +29,19 @@ import com.blockchain.notifications.analytics.SendAnalytics
 import com.blockchain.notifications.analytics.TransactionsAnalyticsEvents
 import com.blockchain.notifications.analytics.activityShown
 import com.blockchain.remoteconfig.FeatureFlag
-import com.blockchain.ui.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.CryptoTarget
@@ -62,6 +61,7 @@ import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ToastCustom
+import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.dashboard.DashboardFragment
 import piuk.blockchain.android.ui.home.analytics.SideNavEvent
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
@@ -86,22 +86,22 @@ import piuk.blockchain.android.ui.swap.SwapFragment
 import piuk.blockchain.android.ui.thepit.PitLaunchBottomDialog
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
+import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transfer.TransferFragment
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.ReceiveSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.ui.upsell.UpsellHost
+import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import piuk.blockchain.android.util.AndroidUtils
-import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
 import piuk.blockchain.android.util.getAccount
+import piuk.blockchain.android.util.getResolvedColor
+import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedColor
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedDrawable
 import timber.log.Timber
 import java.net.URLDecoder
 
@@ -120,7 +120,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override val presenter: MainPresenter by scopedInject()
     private val qrProcessor: QrScanResultProcessor by scopedInject()
-    private val assetResources: AssetResources by scopedInject()
     private val mwaFF: FeatureFlag by inject(mwaFeatureFlag)
     private val txLauncher: TransactionLauncher by inject()
 
@@ -138,6 +137,9 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     private val _refreshAnnouncements = PublishSubject.create<Unit>()
     val refreshAnnouncements: Observable<Unit>
         get() = _refreshAnnouncements
+
+    private val toolbar: Toolbar
+        get() = binding.toolbarGeneral.toolbarGeneral
 
     private var activityResultAction: () -> Unit = {}
 
@@ -172,7 +174,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                         startTransferFragment()
                     }
                 }
-                ViewUtils.setElevation(binding.appbarLayout, 4f)
+                binding.appbarLayout.elevation = 4f
             }
             true
         }
@@ -216,7 +218,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         })
 
         // Set up toolbar_constraint
-        with(binding.toolbarGeneral.toolbarGeneral) {
+        with(toolbar) {
             navigationIcon = this@MainActivity.getResolvedDrawable(R.drawable.vector_menu)
             title = ""
             setSupportActionBar(this)
@@ -493,7 +495,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     }
 
     private fun resetUi() {
-        binding.toolbarGeneral.toolbarGeneral.title = ""
+        toolbar.title = ""
 
         // Set selected appropriately.
         with(binding.bottomNavigation) {
@@ -574,16 +576,29 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 .subscribeBy(
                     onSuccess = { sourceAccount ->
                         txLauncher.startFlow(
-                            sourceAccount = sourceAccount,
-                            target = targetAddress,
-                            action = AssetAction.Send,
+                            activity = this,
                             fragmentManager = currentFragment.childFragmentManager,
-                            flowHost = this@MainActivity
+                            action = AssetAction.Send,
+                            flowHost = this@MainActivity,
+                            sourceAccount = sourceAccount,
+                            target = targetAddress
                         )
                     },
-                    onError = { Timber.e("Unable to select source account for scan") }
+                    onComplete = {
+                        Timber.d("No source accounts available for scan target")
+                        showNoAccountFromScanToast(targetAddress.asset)
+                    },
+                    onError = {
+                        Timber.e("Unable to select source account for scan")
+                        showNoAccountFromScanToast(targetAddress.asset)
+                    }
                 )
         }
+    }
+
+    private fun showNoAccountFromScanToast(asset: AssetInfo) {
+        val msg = getString(R.string.scan_no_available_account, asset.ticker)
+        toast(msg)
     }
 
     override fun showScanTargetError(error: QrScanError) {
@@ -611,10 +626,13 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     @SuppressLint("CheckResult")
     private fun disambiguateSendScan(targets: Collection<CryptoTarget>) {
-        qrProcessor.disambiguateScan(this, targets, assetResources)
+        qrProcessor.disambiguateScan(this, targets)
             .subscribeBy(
                 onSuccess = {
                     startTransactionFlowWithTarget(listOf(it))
+                },
+                onError = {
+                    Timber.e("Failed to disambiguate scan: $it")
                 }
             )
     }
@@ -654,7 +672,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         viewToShow: TransferFragment.TransferViewType = TransferFragment.TransferViewType.TYPE_SEND
     ) {
         setCurrentTabItem(ITEM_TRANSFER)
-        binding.toolbarGeneral.toolbarGeneral.title = getString(R.string.transfer)
+        toolbar.title = getString(R.string.transfer)
 
         val transferFragment = TransferFragment.newInstance(viewToShow)
         replaceContentFragment(transferFragment)
@@ -663,11 +681,12 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     private fun startSwapFlow(sourceAccount: CryptoAccount? = null, destinationAccount: CryptoAccount? = null) {
         if (sourceAccount == null && destinationAccount == null) {
             setCurrentTabItem(ITEM_SWAP)
-            binding.toolbarGeneral.toolbarGeneral.title = getString(R.string.common_swap)
+            toolbar.title = getString(R.string.common_swap)
             val swapFragment = SwapFragment.newInstance()
             replaceContentFragment(swapFragment)
         } else if (sourceAccount != null) {
             txLauncher.startFlow(
+                activity = this,
                 sourceAccount = sourceAccount,
                 target = destinationAccount ?: NullCryptoAccount(),
                 action = AssetAction.Swap,
@@ -697,12 +716,12 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         )
     }
 
-    override fun startSimpleBuy(cryptoCurrency: CryptoCurrency) {
+    override fun startSimpleBuy(asset: AssetInfo) {
         startActivity(
             SimpleBuyActivity.newInstance(
                 context = this,
                 launchFromNavigationBar = true,
-                cryptoCurrency = cryptoCurrency
+                asset = asset
             )
         )
     }
@@ -722,7 +741,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         setCurrentTabItem(ITEM_ACTIVITY)
         val fragment = ActivitiesFragment.newInstance(account)
         replaceContentFragment(fragment)
-        binding.toolbarGeneral.toolbarGeneral.title = ""
+        toolbar.title = ""
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
     }
 
@@ -811,10 +830,10 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         }
     }
 
-    override fun launchSimpleBuySell(viewType: BuySellFragment.BuySellViewType, asset: CryptoCurrency?) {
+    override fun launchSimpleBuySell(viewType: BuySellFragment.BuySellViewType, asset: AssetInfo?) {
         setCurrentTabItem(ITEM_BUY_SELL)
 
-        val buySellFragment = BuySellFragment.newInstance(viewType, asset)
+        val buySellFragment = BuySellFragment.newInstance(asset, viewType)
         replaceContentFragment(buySellFragment)
     }
 
@@ -860,7 +879,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 state.fiatCurrency, getString(R.string.yapily_payment_to_fiat_wallet_title, state.fiatCurrency),
                 getString(
                     R.string.yapily_payment_to_fiat_wallet_subtitle,
-                    state.selectedCryptoCurrency?.displayTicker ?: getString(
+                    state.selectedCryptoAsset?.ticker ?: getString(
                         R.string.yapily_payment_to_fiat_wallet_default
                     ),
                     state.fiatCurrency

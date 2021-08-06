@@ -2,11 +2,11 @@ package com.blockchain.network.websocket
 
 import com.blockchain.logging.Logger
 import com.blockchain.logging.NullLogger
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import io.reactivex.Observable
-import org.amshove.kluent.`it returns`
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import io.reactivex.rxjava3.core.Observable
+
 import org.amshove.kluent.`should be`
 import org.junit.Before
 import org.junit.Test
@@ -48,7 +48,7 @@ class LoggingWebSocketTest : AutoCloseKoinTest() {
     @Test
     fun `logs receives`() {
         mock<WebSocket<String, String>> {
-            on { responses } `it returns` Observable.just("A response")
+            on { responses }.thenReturn(Observable.just("A response"))
         }
             .debugLog("Y")
             .responses
@@ -61,7 +61,7 @@ class LoggingWebSocketTest : AutoCloseKoinTest() {
     @Test
     fun `logs connection events`() {
         mock<WebSocket<String, String>> {
-            on { connectionEvents } `it returns` Observable.just<ConnectionEvent>(ConnectionEvent.Connected)
+            on { connectionEvents }.thenReturn(Observable.just(ConnectionEvent.Connected))
         }
             .debugLog("Z")
             .connectionEvents

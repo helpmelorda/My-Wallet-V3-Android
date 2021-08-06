@@ -1,7 +1,7 @@
 package piuk.blockchain.androidcore.data.rxjava
 
-import com.nhaarman.mockito_kotlin.mock
-import io.reactivex.Observable
+import com.nhaarman.mockitokotlin2.mock
+import io.reactivex.rxjava3.core.Observable
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldHaveKey
 import org.amshove.kluent.shouldNotHaveKey

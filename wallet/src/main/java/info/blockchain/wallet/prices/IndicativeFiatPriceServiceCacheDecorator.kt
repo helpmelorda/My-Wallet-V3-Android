@@ -1,9 +1,9 @@
 package info.blockchain.wallet.prices
 
-import com.jakewharton.rx.replayingShare
-import info.blockchain.balance.CryptoCurrency
+import com.jakewharton.rx3.replayingShare
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -24,12 +24,11 @@ private fun IndicativeFiatPriceService.cache(): IndicativeFiatPriceService =
 private class IndicativeFiatPriceServiceCacheDecorator(private val inner: IndicativeFiatPriceService) :
     IndicativeFiatPriceService {
 
-    private val c2fMap: MutableMap<Pair<CryptoCurrency, String>, Observable<ExchangeRate.CryptoToFiat>> =
+    private val c2fMap: MutableMap<Pair<AssetInfo, String>, Observable<ExchangeRate.CryptoToFiat>> =
         ConcurrentHashMap()
 
-    override fun indicativeRateStream(from: CryptoCurrency, toFiat: String) =
+    override fun indicativeRateStream(from: AssetInfo, toFiat: String) =
         c2fMap.getOrPut(from to toFiat) {
             inner.indicativeRateStream(from, toFiat)
-                .replayingShare()
-        }
+        }.replayingShare()
 }

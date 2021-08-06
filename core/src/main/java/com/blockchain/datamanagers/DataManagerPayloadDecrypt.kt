@@ -1,7 +1,7 @@
 package com.blockchain.datamanagers
 
+import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.payload.PayloadDecrypt
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class DataManagerPayloadDecrypt(

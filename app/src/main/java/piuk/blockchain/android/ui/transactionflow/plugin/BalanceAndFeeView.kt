@@ -12,8 +12,8 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.subjects.PublishSubject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.FeeLevel
 import piuk.blockchain.android.databinding.ViewTxFlowFeeAndBalanceBinding
@@ -65,8 +65,6 @@ class BalanceAndFeeView @JvmOverloads constructor(
         binding.root.setOnClickListener {
             toggleDropdown()
         }
-
-        binding.toggleIndicator.rotation += 180f
     }
 
     override fun update(state: TransactionState) {
@@ -127,7 +125,7 @@ class BalanceAndFeeView @JvmOverloads constructor(
                 value
             )
         } else {
-            "--"
+            customiser.enterAmountGetNoBalanceMessage(state)
         }
 
     private fun showFiatOrCryptoValues(currencyType: CurrencyType, rate: ExchangeRate, value: Money) =

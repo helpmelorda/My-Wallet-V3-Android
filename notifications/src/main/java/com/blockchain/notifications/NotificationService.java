@@ -2,7 +2,7 @@ package com.blockchain.notifications;
 
 import info.blockchain.wallet.api.WalletApi;
 
-import io.reactivex.Completable;
+import io.reactivex.rxjava3.core.Completable;
 
 public class NotificationService {
 

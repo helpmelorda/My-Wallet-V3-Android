@@ -1,6 +1,6 @@
 package info.blockchain.balance
 
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 import java.util.Locale
 
@@ -12,10 +12,10 @@ class CryptoValuePartsTest {
 
         1.2.bitcoin()
             .toStringParts().apply {
-                symbol `should equal` "BTC"
-                major `should equal` "1"
-                minor `should equal` "2"
-                majorAndMinor`should equal` "1.2"
+                symbol `should be equal to` "BTC"
+                major `should be equal to` "1"
+                minor `should be equal to` "2"
+                majorAndMinor`should be equal to` "1.2"
             }
     }
 
@@ -25,10 +25,10 @@ class CryptoValuePartsTest {
 
         9.89.ether()
             .toStringParts().apply {
-                symbol `should equal` "ETH"
-                major `should equal` "9"
-                minor `should equal` "89"
-                majorAndMinor`should equal` "9.89"
+                symbol `should be equal to` "ETH"
+                major `should be equal to` "9"
+                minor `should be equal to` "89"
+                majorAndMinor`should be equal to` "9.89"
             }
     }
 
@@ -38,10 +38,10 @@ class CryptoValuePartsTest {
 
         5.12345678.ether()
             .toStringParts().apply {
-                symbol `should equal` "ETH"
-                major `should equal` "5"
-                minor `should equal` "12345678"
-                majorAndMinor`should equal` "5.12345678"
+                symbol `should be equal to` "ETH"
+                major `should be equal to` "5"
+                minor `should be equal to` "12345678"
+                majorAndMinor`should be equal to` "5.12345678"
             }
     }
 
@@ -51,10 +51,10 @@ class CryptoValuePartsTest {
 
         5345678.ether()
             .toStringParts().apply {
-                symbol `should equal` "ETH"
-                major `should equal` "5,345,678"
-                minor `should equal` "0"
-                majorAndMinor`should equal` "5,345,678.0"
+                symbol `should be equal to` "ETH"
+                major `should be equal to` "5,345,678"
+                minor `should be equal to` "0"
+                majorAndMinor`should be equal to` "5,345,678.0"
             }
     }
 
@@ -64,10 +64,10 @@ class CryptoValuePartsTest {
 
         5345678.987.ether()
             .toStringParts().apply {
-                symbol `should equal` "ETH"
-                major `should equal` "5 345 678"
-                minor `should equal` "987"
-                majorAndMinor`should equal` "5 345 678,987"
+                symbol `should be equal to` "ETH"
+                major `should be equal to` "5 345 678"
+                minor `should be equal to` "987"
+                majorAndMinor`should be equal to` "5 345 678,987"
             }
     }
 
@@ -77,10 +77,10 @@ class CryptoValuePartsTest {
 
         9345678.987.ether()
             .toStringParts().apply {
-                symbol `should equal` "ETH"
-                major `should equal` "9.345.678"
-                minor `should equal` "987"
-                majorAndMinor`should equal` "9.345.678,987"
+                symbol `should be equal to` "ETH"
+                major `should be equal to` "9.345.678"
+                minor `should be equal to` "987"
+                majorAndMinor`should be equal to` "9.345.678,987"
             }
     }
 }

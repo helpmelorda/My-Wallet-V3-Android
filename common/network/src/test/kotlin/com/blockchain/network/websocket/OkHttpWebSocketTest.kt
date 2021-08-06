@@ -3,7 +3,7 @@ package com.blockchain.network.websocket
 import com.blockchain.network.initRule
 import io.fabric8.mockwebserver.DefaultMockServer
 import okhttp3.OkHttpClient
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test
 
@@ -34,7 +34,7 @@ class OkHttpWebSocketTest {
             open()
             send("subscribe")
             waiter.waitForAllMessages()
-            test.values() `should equal` listOf("SUBSCRIBED")
+            test.values() `should be equal to` listOf("SUBSCRIBED")
         }
     }
 
@@ -58,7 +58,7 @@ class OkHttpWebSocketTest {
             send("subscribeA")
             send("subscribeB")
             waiter.waitForAllMessages()
-            test.values() `should equal` listOf("SUBSCRIBED_A", "SUBSCRIBED_B")
+            test.values() `should be equal to` listOf("SUBSCRIBED_A", "SUBSCRIBED_B")
         }
     }
 

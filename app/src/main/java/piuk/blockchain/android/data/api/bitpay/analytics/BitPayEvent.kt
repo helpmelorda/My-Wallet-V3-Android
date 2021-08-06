@@ -1,7 +1,7 @@
 package piuk.blockchain.android.data.api.bitpay.analytics
 
 import com.blockchain.notifications.analytics.AnalyticsEvent
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 
 sealed class BitPayEvent(
@@ -14,7 +14,7 @@ sealed class BitPayEvent(
             PAYMENT_SUCCESS,
             mapOf(
                 PARAM_AMOUNT to amount.toString(),
-                PARAM_ASSET to amount.currency.networkTicker
+                PARAM_ASSET to amount.currency.ticker
             )
         )
 
@@ -26,10 +26,10 @@ sealed class BitPayEvent(
 
     object InvoiceExpired : BitPayEvent(INVOICE_EXPIRED)
 
-    data class QrCodeScanned(val asset: CryptoCurrency) :
+    data class QrCodeScanned(val asset: AssetInfo) :
         BitPayEvent(
             ADDRESS_SCANNED,
-            mapOf(PARAM_ASSET to asset.networkTicker)
+            mapOf(PARAM_ASSET to asset.ticker)
         )
 
     companion object {

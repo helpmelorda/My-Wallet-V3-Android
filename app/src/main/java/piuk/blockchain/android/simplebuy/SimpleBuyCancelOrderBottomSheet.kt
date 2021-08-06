@@ -27,8 +27,8 @@ class SimpleBuyCancelOrderBottomSheet : SlidingModalBottomDialog<SimpleBuyCancel
 
     override fun initControls(binding: SimpleBuyCancelOrderBottomSheetBinding) {
         val state = stateFactory.currentState()
-
-        if (state?.selectedCryptoCurrency != null) {
+        val asset = state?.selectedCryptoAsset
+        if (asset != null) {
             with(binding) {
 
                 if (arguments.fromDashboard()) {
@@ -38,7 +38,7 @@ class SimpleBuyCancelOrderBottomSheet : SlidingModalBottomDialog<SimpleBuyCancel
 
                 cancelOrderToken.text = getString(
                     R.string.cancel_token_instruction,
-                    state.selectedCryptoCurrency.displayTicker
+                    asset.ticker
                 )
                 cancelOrder.setOnClickListenerDebounced {
                     analytics.logEvent(SimpleBuyAnalytics.BANK_DETAILS_CANCEL_CONFIRMED)

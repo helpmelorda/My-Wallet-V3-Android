@@ -16,11 +16,12 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
-import com.blockchain.ui.urllinks.ORDER_PRICE_EXPLANATION
-import com.blockchain.ui.urllinks.PRIVATE_KEY_EXPLANATION
+import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
+import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
+import info.blockchain.balance.AssetInfo
 import com.blockchain.utils.secondsToDays
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
+import info.blockchain.balance.isCustodialOnly
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimplebuyCheckoutBinding
 import piuk.blockchain.android.ui.base.ErrorDialogData
@@ -105,7 +106,7 @@ class SimpleBuyCheckoutFragment :
             lastState = newState
         }
 
-        newState.selectedCryptoCurrency?.let { renderPrivateKeyLabel(it) }
+        newState.selectedCryptoAsset?.let { renderPrivateKeyLabel(it) }
         binding.progress.visibleIf { newState.isLoading }
         val payment = newState.selectedPaymentMethod
         val note = when {
@@ -165,8 +166,8 @@ class SimpleBuyCheckoutFragment :
         }
     }
 
-    private fun renderPrivateKeyLabel(selectedCryptoCurrency: CryptoCurrency) {
-        if (selectedCryptoCurrency.hasFeature(CryptoCurrency.CUSTODIAL_ONLY)) {
+    private fun renderPrivateKeyLabel(selectedCryptoAsset: AssetInfo) {
+        if (selectedCryptoAsset.isCustodialOnly) {
             val map = mapOf("learn_more_link" to Uri.parse(PRIVATE_KEY_EXPLANATION))
             val learnMoreLink = StringUtils.getStringWithMappedAnnotations(
                 requireContext(),
@@ -176,7 +177,7 @@ class SimpleBuyCheckoutFragment :
 
             val sb = SpannableStringBuilder()
             val privateKeyExplanation =
-                getString(R.string.checkout_item_private_key_wallet_explanation, selectedCryptoCurrency.displayTicker)
+                getString(R.string.checkout_item_private_key_wallet_explanation, selectedCryptoAsset.ticker)
             sb.append(privateKeyExplanation)
                 .append(learnMoreLink)
                 .setSpan(
@@ -242,7 +243,7 @@ class SimpleBuyCheckoutFragment :
 
         return listOfNotNull(
             SimpleBuyCheckoutItem.ExpandableCheckoutItem(
-                getString(R.string.quote_price, state.selectedCryptoCurrency?.displayTicker),
+                getString(R.string.quote_price, state.selectedCryptoAsset?.ticker),
                 state.orderExchangePrice?.toStringWithSymbol().orEmpty(),
                 priceExplanation
             ),
@@ -341,7 +342,7 @@ class SimpleBuyCheckoutFragment :
                     text = if (isOrderAwaitingFunds && !isForPendingPayment) {
                         getString(R.string.complete_payment)
                     } else {
-                        getString(R.string.ok_cap)
+                        getString(R.string.common_ok)
                     }
                     setOnClickListener {
                         if (isForPendingPayment) {
@@ -365,15 +366,6 @@ class SimpleBuyCheckoutFragment :
             }
         }
     }
-
-    private fun paymentMethodLabel(
-        selectedPaymentMethod: SelectedPaymentMethod,
-        fiatCurrency: String
-    ): String =
-        when (selectedPaymentMethod.paymentMethodType) {
-            PaymentMethodType.FUNDS -> getString(R.string.fiat_currency_funds_wallet_name_1, fiatCurrency)
-            else -> selectedPaymentMethod.label.orEmpty()
-        }
 
     private fun showErrorState(errorState: ErrorState) {
         when (errorState) {

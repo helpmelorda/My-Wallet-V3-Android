@@ -2,7 +2,7 @@ package piuk.blockchain.android.util
 
 import androidx.appcompat.app.AppCompatActivity
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 
 class CurrentContextAccessTest {

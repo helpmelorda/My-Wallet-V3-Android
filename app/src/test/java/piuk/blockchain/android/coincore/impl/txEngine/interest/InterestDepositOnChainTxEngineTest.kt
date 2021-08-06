@@ -6,20 +6,19 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.bitcoin
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.argThat
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argThat
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
-import io.reactivex.Maybe
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.shouldEqual
 import org.junit.After
 import org.junit.Before
@@ -55,7 +54,7 @@ class InterestDepositOnChainTxEngineTest {
     private val exchangeRates: ExchangeRateDataManager = mock()
 
     private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency } itReturns SELECTED_FIAT
+        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
     }
 
     private val onChainEngine: OnChainTxEngineBase = mock()
@@ -112,7 +111,7 @@ class InterestDepositOnChainTxEngineTest {
     fun `inputs fail validation when target account incorrect`() {
         val sourceAccount = mockSourceAccount()
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         // Act
@@ -146,7 +145,7 @@ class InterestDepositOnChainTxEngineTest {
     fun `inputs fail validation when assets mismatched`() {
         val sourceAccount = mockSourceAccount()
         val txTarget: CryptoInterestAccount = mock {
-            on { asset } itReturns WRONG_ASSET
+            on { asset }.thenReturn(WRONG_ASSET)
         }
 
         // Act
@@ -212,7 +211,7 @@ class InterestDepositOnChainTxEngineTest {
         whenever(onChainEngine.doInitialiseTx()).thenReturn(Single.just(pendingTx))
 
         val limits = mock<InterestLimits> {
-            on { minDepositAmount } itReturns MIN_DEPOSIT_AMOUNT
+            on { minDepositAmount }.thenReturn(MIN_DEPOSIT_AMOUNT)
         }
 
         whenever(walletManager.getInterestLimits(ASSET)).thenReturn(Maybe.just(limits))
@@ -503,13 +502,13 @@ class InterestDepositOnChainTxEngineTest {
         totalBalance: Money = CryptoValue.zero(ASSET),
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<BtcCryptoWalletAccount> {
-        on { asset } itReturns ASSET
-        on { accountBalance } itReturns Single.just(totalBalance)
-        on { actionableBalance } itReturns Single.just(availableBalance)
+        on { asset }.thenReturn(ASSET)
+        on { accountBalance }.thenReturn(Single.just(totalBalance))
+        on { actionableBalance }.thenReturn(Single.just(availableBalance))
     }
 
     private fun mockTransactionTarget() = mock<CryptoInterestAccount> {
-        on { asset } itReturns ASSET
+        on { asset }.thenReturn(ASSET)
     }
 
     private fun verifyOnChainEngineStarted(sourceAccount: CryptoAccount) {

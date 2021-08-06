@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.kyc.address.models
 
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 
 class AddressDialog(intents: Observable<AddressIntent>, initial: AddressModel) {
 

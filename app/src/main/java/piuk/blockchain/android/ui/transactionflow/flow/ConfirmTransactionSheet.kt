@@ -8,7 +8,6 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.ExchangeRates
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.databinding.DialogTxFlowConfirmBinding
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -29,7 +28,6 @@ class ConfirmTransactionSheet : TransactionFlowSheet<DialogTxFlowConfirmBinding>
     private val prefs: CurrencyPrefs by scopedInject()
     private val mapper: TxConfirmReadOnlyMapperCheckout by scopedInject()
     private val customiser: TransactionConfirmationCustomisations by inject()
-    private val assetResources: AssetResources by scopedInject()
 
     private var headerSlot: TxFlowWidget? = null
 
@@ -38,11 +36,9 @@ class ConfirmTransactionSheet : TransactionFlowSheet<DialogTxFlowConfirmBinding>
             model = model,
             stringUtils = stringUtils,
             activityContext = requireActivity(),
-            analytics = analyticsHooks,
             mapper = mapper,
             selectedCurrency = prefs.selectedFiatCurrency,
-            exchangeRates = exchangeRates,
-            assetResources = assetResources
+            exchangeRates = exchangeRates
         )
     }
 
@@ -106,7 +102,6 @@ class ConfirmTransactionSheet : TransactionFlowSheet<DialogTxFlowConfirmBinding>
         }
 
         binding.confirmSheetBack.setOnClickListener {
-            analyticsHooks.onStepBackClicked(state)
             model.process(TransactionIntent.ReturnToPreviousStep)
         }
 

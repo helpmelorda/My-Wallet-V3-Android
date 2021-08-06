@@ -7,15 +7,15 @@ import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.subjects.BehaviorSubject
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import piuk.blockchain.android.ui.linkbank.BankPaymentApproval
@@ -66,7 +66,7 @@ data class FeeSelection(
     val availableLevels: Set<FeeLevel> = setOf(FeeLevel.None),
     val customLevelRates: FeeLevelRates? = null,
     val feeState: FeeState? = null,
-    val asset: CryptoCurrency? = null
+    val asset: AssetInfo? = null
 )
 
 data class PendingTx(
@@ -167,7 +167,7 @@ abstract class TxEngine : KoinComponent {
     fun refreshConfirmations(revalidate: Boolean = false) =
         _refresh.refreshConfirmations(revalidate).emptySubscribe()
 
-    fun buildNewFee(feeAmount: Money, exchangeAmount: Money, asset: CryptoCurrency): TxConfirmationValue? {
+    fun buildNewFee(feeAmount: Money, exchangeAmount: Money, asset: AssetInfo): TxConfirmationValue? {
         return if (!feeAmount.isZero) {
             TxConfirmationValue.NetworkFee(
                 feeAmount = feeAmount as CryptoValue,
@@ -210,7 +210,7 @@ abstract class TxEngine : KoinComponent {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     // workaround for using engine without cryptocurrency source
-    val sourceAsset: CryptoCurrency
+    val sourceAsset: AssetInfo
         get() = (sourceAccount as? CryptoAccount)?.asset ?: throw IllegalStateException(
             "Trying to use cryptocurrency with non-crypto source"
         )

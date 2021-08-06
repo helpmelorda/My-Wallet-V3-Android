@@ -3,9 +3,9 @@ package piuk.blockchain.android.ui.interest
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import info.blockchain.balance.AssetInfo
 import com.blockchain.notifications.analytics.LaunchOrigin
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -69,6 +69,7 @@ class InterestDashboardActivity : BlockchainActivity(),
         clearBottomSheet()
         require(toAccount is CryptoAccount)
         txLauncher.startFlow(
+            activity = this,
             target = toAccount,
             action = AssetAction.InterestDeposit,
             fragmentManager = supportFragmentManager,
@@ -80,6 +81,7 @@ class InterestDashboardActivity : BlockchainActivity(),
         clearBottomSheet()
         require(fromAccount is CryptoAccount)
         txLauncher.startFlow(
+            activity = this,
             sourceAccount = fromAccount,
             action = AssetAction.InterestWithdraw,
             fragmentManager = supportFragmentManager,
@@ -96,8 +98,8 @@ class InterestDashboardActivity : BlockchainActivity(),
         KycNavHostActivity.start(this, CampaignType.Interest)
     }
 
-    override fun showInterestSummarySheet(account: SingleAccount, cryptoCurrency: CryptoCurrency) {
-        showBottomSheet(InterestSummarySheet.newInstance(account, cryptoCurrency))
+    override fun showInterestSummarySheet(account: SingleAccount, asset: AssetInfo) {
+        showBottomSheet(InterestSummarySheet.newInstance(account, asset))
     }
 
     override fun startAccountSelection(
@@ -110,7 +112,7 @@ class InterestDashboardActivity : BlockchainActivity(),
                     startDeposit(account as SingleAccount, toAccount)
                     analytics.logEvent(
                         InterestAnalytics.InterestDepositClicked(
-                            currency = (toAccount as CryptoAccount).asset.networkTicker,
+                            currency = (toAccount as CryptoAccount).asset.ticker,
                             origin = LaunchOrigin.SAVINGS_PAGE
                         )
                     )
@@ -128,6 +130,7 @@ class InterestDashboardActivity : BlockchainActivity(),
         toAccount: SingleAccount
     ) {
         txLauncher.startFlow(
+            activity = this,
             sourceAccount = fromAccount as CryptoAccount,
             target = toAccount,
             action = AssetAction.InterestDeposit,

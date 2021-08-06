@@ -2,9 +2,9 @@ package com.blockchain.logging
 
 import com.blockchain.testutils.after
 import com.blockchain.testutils.before
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import org.junit.Rule
 import org.junit.Test
 import timber.log.Timber

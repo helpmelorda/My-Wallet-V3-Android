@@ -3,9 +3,6 @@ package info.blockchain.wallet.api.data
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 
-import info.blockchain.balance.CryptoCurrency
-import org.web3j.tx.Transfer
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 class FeeOptions constructor(
     /**
@@ -46,7 +43,7 @@ class FeeOptions constructor(
         /**
          * @return the default FeeOptions for XLM.
          */
-        private fun defaultForXlm(): FeeOptions {
+        fun defaultForXlm(): FeeOptions {
             return FeeOptions(
                 priorityFee = 100,
                 regularFee = 100
@@ -56,7 +53,7 @@ class FeeOptions constructor(
         /**
          * @return the default FeeOptions for Ethereum.
          */
-        private fun defaultForEth(): FeeOptions {
+        fun defaultForEth(): FeeOptions {
             return FeeOptions(
                 gasLimit = 21000,
                 priorityFee = 23,
@@ -69,7 +66,7 @@ class FeeOptions constructor(
         /**
          * @return the default FeeOptions for Bitcoin.
          */
-        private fun defaultForBtc(): FeeOptions {
+        fun defaultForBtc(): FeeOptions {
             return FeeOptions(
                 priorityFee = 11,
                 regularFee = 5,
@@ -77,51 +74,13 @@ class FeeOptions constructor(
             )
         }
 
-        private fun defaultForBch(): FeeOptions {
+        fun defaultForBch(): FeeOptions {
             return FeeOptions(
                 regularFee = 4,
                 priorityFee = 4
             )
         }
 
-        private fun defaultForAlg(): FeeOptions {
-            return FeeOptions(
-                regularFee = 4, // TODO what is the right amount here?
-                priorityFee = 4
-            )
-        }
-
-        private fun defaultForDot(): FeeOptions {
-            return FeeOptions(
-                regularFee = 4, // TODO what is the right amount here?
-                priorityFee = 4
-            )
-        }
-
-        /**
-         * @param currency the currency
-         * @return the default FeeOptions given a currency
-         */
-        fun defaultFee(currency: CryptoCurrency): FeeOptions {
-            return when {
-                currency == CryptoCurrency.BTC -> defaultForBtc()
-                currency == CryptoCurrency.ETHER ||
-                currency.hasFeature(CryptoCurrency.IS_ERC20) -> defaultForEth()
-                currency == CryptoCurrency.BCH -> defaultForBch()
-                currency == CryptoCurrency.XLM -> defaultForXlm()
-                currency == CryptoCurrency.ALGO -> defaultForAlg()
-                currency == CryptoCurrency.DOT -> defaultForDot()
-                else -> throw NotImplementedError("STUB: ${currency.displayTicker} NOT IMPLEMENTED")
-            }
-        }
-
-        fun testnetFeeOptions(): FeeOptions {
-            return FeeOptions(
-                regularFee = 1_000L,
-                priorityFee = 10_000L,
-                limits = FeeLimits(23, 23),
-                gasLimit = Transfer.GAS_LIMIT.toLong()
-            )
-        }
+        fun defaultForErc20(): FeeOptions = defaultForEth()
     }
 }

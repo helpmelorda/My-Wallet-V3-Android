@@ -13,13 +13,13 @@ import com.blockchain.nabu.metadata.NabuCredentialsMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.mapFromMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.mapToMetadata
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -46,8 +46,8 @@ class KycProfilePresenter(
     }
 
     internal fun onContinueClicked(campaignType: CampaignType? = null) {
-        check(!view.firstName.isEmpty()) { "firstName is empty" }
-        check(!view.lastName.isEmpty()) { "lastName is empty" }
+        check(view.firstName.isNotEmpty()) { "firstName is empty" }
+        check(view.lastName.isNotEmpty()) { "lastName is empty" }
         check(view.dateOfBirth != null) { "dateOfBirth is null" }
 
         compositeDisposable +=

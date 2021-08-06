@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- common -->
+    <string name="app_name" translatable="false">Blockchain</string>
+    <string name="alpha_app_name" translatable="false">Blockchain Alpha</string>
+    <string name="staging_app_name" translatable="false">BlockStaging</string>
+    <string name="dev_app_name" translatable="false">BlockDev</string>
     <string name="debug_app_shortcut">BC Debug Opts</string>
     <string name="debug_app_shortcut_short">BC Opts</string>
-    <string name="common_replaceable_value">%1$s</string>
-    <string name="common_hyphenated_strings">%1$s - %2$s</string>
-    <string name="common_newlined_strings">%1$s\n%2$s</string>
-    <string name="common_spaced_strings">%1$s&#160;%2$s</string>
+    <string name="common_company_name" translatable="false">Blockchain.com</string>
+    <string name="common_replaceable_value" translatable="false">%1$s</string>
+    <string name="common_hyphenated_strings" translatable="false">%1$s - %2$s</string>
+    <string name="common_newlined_strings" translatable="false">%1$s\n%2$s</string>
+    <string name="common_spaced_strings" translatable="false">%1$s&#160;%2$s</string>
     <string name="common_send">Send</string>
     <string name="common_receive">Receive</string>
     <string name="common_swap">Swap</string>
@@ -24,15 +28,15 @@
     <string name="common_deposit">Deposit</string>
     <string name="common_transfer">Transfer</string>
     <string name="common_error">Something went wrong, please try again</string>
-    <string name="common_company_name">Blockchain.com</string>
     <string name="common_confirm">Confirm</string>
+    <string name="common_parametrised_confirm">Confirm %1$s</string>
     <string name="common_linked_learn_more"><annotation link="learn_more_link">Learn more.</annotation></string>
     <string name="common_empty_title">Can’t load your Wallets</string>
     <string name="common_empty_details">Looks like there is an issue with your internet connection. Please check and try again</string>
     <string name="common_empty_cta">Tap to refresh</string>
     <string name="common_pending">Pending</string>
     <string name="common_free">Free</string>
-    <string name="common_zero">0</string>
+    <string name="common_zero" translatable="false">0</string>
     <string name="common_retry">Retry</string>
     <string name="common_continue">Continue</string>
     <string name="common_try_again">Try Again</string>
@@ -45,6 +49,21 @@
     <string name="common_payment">Payment</string>
     <string name="common_unknown">Unknown</string>
     <string name="common_wallets">Wallets</string>
+    <string name="common_go_back">Go Back</string>
+
+    <string name="exit">Exit</string>
+    <string name="screen_overlay_warning">Screen overlay detected!</string>
+    <string name="screen_overlay_note">Apps that use screen overlays have the ability to trick you
+        into tapping on unseen objects and potentially steal funds. Note that this warning will also be triggered by screen dimming apps. If you are confident that there
+        is no threat you may continue.
+    </string>
+    <string name="unexpected_error">Unexpected error, please try again later.</string>
+
+    <string name="dialog_continue">Continue</string>
+    <string name="search">Search</string>
+
+    <string name="bitcoin" translatable="false">Bitcoin</string>
+    <string name="bitcoin_cash" translatable="false">Bitcoin Cash</string>
 
     <plurals name="transfer_label_plural">
         <item quantity="one">1 imported address</item>
@@ -591,7 +610,7 @@
     <string name="tx_title_swap">Swap %1$s → %2$s</string>
     <string name="tx_title_transfer">Transfer %1s</string>
     <string name="tx_title_fee">Fee %1s</string>
-    <string name="tx_title_interest">%1$s Interest Earned</string>
+    <string name="tx_title_interest">%1s Interest Earned</string>
     <string name="tx_title_fiat_deposit">Deposit %1$s</string>
 
     <!-- TRANSACTION DETAILS -->
@@ -670,24 +689,8 @@
     </string>
     <string name="shortcut_settings_enable">Launcher Shortcuts</string>
 
-    <string name="swipe_receive_hint">Swipe to receive</string>
-
-    <!-- SWIPE TO RECEIVE -->
-    <string name="swipe_receive_preference_summary">Reveal a receive address when you swipe left on
-        the PIN screen, making receiving funds even faster.
-    </string>
-    <string name="swipe_receive_address_info">Five addresses will be loaded consecutively, after
-        which logging in is required to show new addresses.
-    </string>
-    <string name="swipe_receive_no_addresses">No more addresses can be loaded right now. Log in to
-        the app to load more.
-    </string>
-    <string name="swipe_to_receive_request">Receive %1$s</string>
-    <string name="swipe_receive_left_arrow">Swipe to Receive Left Arrow</string>
-    <string name="swipe_receive_right_arrow">Swipe to Receive Right Arrow</string>
-    <string name="onboarding_fingerprint_title_1">Biometric Login</string>
-
     <!-- ONBOARDING -->
+    <string name="onboarding_fingerprint_title_1">Biometric Login</string>
     <string name="onboarding_fingerprint_summary_1">Use biometric login instead of your PIN to
         authenticate and access your wallet.
     </string>
@@ -808,16 +811,6 @@
     </string>
     <string name="sunriver_generic_error">Oops! We had trouble processing your airdrop. Please try again.</string>
 
-    <!--STABLECOIN-->
-
-    <!-- Airdrop Program Card -->
-
-    <!-- PAX No Transactions Screen -->
-
-    <!-- Claim Your Free Crypto Card -->
-
-    <!-- HISTORY -->
-
     <!-- CONFIRMATION -->
     <string name="morph_exchange_rate">Exchange Rate</string>
     <string name="swap_now">Swap Now</string>
@@ -882,8 +875,11 @@
     <string name="cloud_backup_card_body">You can now backup your wallet securely to the cloud. You can opt-out of backups in your wallet settings.</string>
     <string name="cloud_backup_card_cta">Learn More</string>
 
-    <!-- Buy Bitcoin announcement -->
+    <!-- Pax Renamed announcement -->
+    <string name="pax_renamed_card_title"> USD Digital is Now Paxos Standard</string>
+    <string name="pax_renamed_card_body">We\'ve updated the name of USD Digital (USD-D) to Paxos Standard (PAX). Any held funds are not affected.</string>
 
+    <!-- Buy Bitcoin announcement -->
     <string name="buy_crypto_card_title">Buy Crypto</string>
     <string name="buy_crypto_card_body">We can help you buy in just a few simple steps.</string>
     <string name="buy_crypto_card_sdd_body">Select the crypto you want to buy, verify your identity and buy instantly.</string>
@@ -1575,8 +1571,7 @@
     <string name="withdrawal_success_message">Success! We’re are withdrawing the cash from your %1$s Wallet now. The funds should be in your bank in 1&#8211;3 business days.</string>
 
     <string name="dashboard_asset_item_label_title">Please note.</string>
-    <string name="algorand_asset_label">Functionality to withdraw ALGO from your trading wallet is currently unavailable, but coming soon.</string>
-    <string name="polkadot_asset_label">Functionality to withdraw DOT from your trading wallet is currently unavailable, but coming soon.</string>
+    <string name="custodial_only_asset_label">Functionality to withdraw %1$s from your trading account is currently unavailable, but coming soon.</string>
 
     <!-- Transaction flows -->
     <string name="send_enter_amount_from">From: %1$s</string>
@@ -1614,6 +1609,7 @@
     <string name="deposit_confirmation_cta_button">Deposit %1$s</string>
     <string name="deposit_enter_amount_limit_title">Daily Limit</string>
     <string name="deposit_enter_amount_limit_label">%1$s Available</string>
+    <string name="enter_amount_not_enough_balance">Insufficient balance for fee</string>
     <string name="deposit_confirmation_progress_title">Depositing %1$s</string>
     <string name="deposit_confirmation_progress_message">We’re completing your deposit now.</string>
     <string name="deposit_confirmation_success_title">%1$s Deposited!</string>
@@ -1657,6 +1653,7 @@
     <string name="send_enter_asset_address_hint">%1s Address</string>
     <string name="send_warn_internal_send_only">Internal Send Only</string>
     <string name="send_scan_qr_code">Scan QR Code</string>
+
     <string name="send_error_not_valid_asset_address">Not a valid %1s address</string>
     <string name="send_error_address_is_eth_contract">Address is not a user address</string>
     <string name="send_enter_amount_error_insufficient_funds">Not enough %1$s in your wallet.</string>
@@ -1746,6 +1743,7 @@
 
     <string name="scan_mismatch_transaction_target">The scanned code is not a %1$s QR code.</string>
     <string name="scan_failed">QR code not recognised, please try again.</string>
+    <string name="scan_no_available_account">No funded source accounts available to send %1$s</string>
 
     <string name="could_not_save_card">We could not save your card. Please contact support.</string>
     <string name="could_not_activate_card">We could not activate your card. Please contact support.</string>
@@ -2110,22 +2108,28 @@
     <string name="reset_account_notice">Can’t find your recovery phrase? <annotation link="reset_account">Reset your account</annotation></string>
     <string name="reset_kyc_notice">For your security, you may have to re-verify your identity before accessing your trading or interest account.\n<annotation link="learn_more">Learn more</annotation></string>
     <string name="reset_kyc_failed">Restoring account failed. Please try again.</string>
+    <string name="reset_account_title">Reset Account?</string>
+    <string name="reset_account_description">Resetting will restore your Trading, Interest, and Exchange accounts.</string>
+    <string name="reset_account_cta">Reset Account</string>
+    <string name="retry_recovery_phrase_cta">Retry Recovery Phrase</string>
+    <string name="reset_account_warning_title">Resetting Account may result in lost funds</string>
+    <string name="reset_account_warning_description">This means that if you lose your recovery phrase, you will lose access to your Private Key Wallet funds. You can always restore your Private Key Wallet funds later if you find your recovery phrase.</string>
+    <string name="restore_wallet_cta">Restore Wallet</string>
 
     <!-- Recurring buy screens -->
     <string name="recurring_buy_toolbar">Recurring Buys</string>
-    <string name="recurring_buy_cta">Set up recurring buy</string>
-    <string name="recurring_buy_title_1">Instead of timing the market, many smart investors use</string>
-    <string name="recurring_buy_title_2">The strategy is pretty simple</string>
-    <string name="recurring_buy_title_3">When the price goes down,</string>
-    <string name="recurring_buy_title_4">When the price goes up,</string>
-    <string name="recurring_buy_title_5">But does it work?</string>
-    <string name="recurring_buy_subtitle_1">Dollar cost averaging</string>
-    <string name="recurring_buy_subtitle_2">Invest the same amount every week</string>
-    <string name="recurring_buy_subtitle_3">You’ll buy more crypto.</string>
-    <string name="recurring_buy_subtitle_4">You’ll buy less.</string>
-    <string name="recurring_buy_subtitle_5_1">Over the past 5 years, buying Bitcoin every week performed better than timing the market&#160;</string>
-    <string name="recurring_buy_subtitle_5_2">82% of the time.</string>
-    <string name="recurring_buy_label">Frequency</string>
+    <string name="recurring_buy_cta_1">Get Started</string>
+    <string name="recurring_buy_title_1_1">Instead of timing the market, many smart investors use</string>
+    <string name="recurring_buy_title_1_2">\nDollar Cost Averaging.</string>
+    <string name="recurring_buy_title_2_1">The strategy is pretty simple</string>
+    <string name="recurring_buy_title_2_2">\nInvest the same amount every week.</string>
+    <string name="recurring_buy_title_3_1">When the price goes down,</string>
+    <string name="recurring_buy_title_3_2">\nYou’ll buy more crypto.</string>
+    <string name="recurring_buy_title_4_1">When the price goes up.</string>
+    <string name="recurring_buy_title_4_2">\nYou’ll buy less crypto.</string>
+    <string name="recurring_buy_title_5_1">But does it work?\nOver the past 5 years, buying Bitcoin every week performed better than timing the market</string>
+    <string name="recurring_buy_title_5_2">\n86% of the time.</string>
+    <string name="recurring_buy_note">Calculation is based on one $30 purchase a week on a random day. \"Timing the market\" is defined as buying Bitcoin on every 6% dip.\n<annotation link="learn_more">Learn more -></annotation></string>
     <string name="recurring_buy_one_time_short">One time</string>
     <string name="recurring_buy_one_time">One time purchase</string>
     <string name="recurring_buy_daily">Every day</string>
@@ -2163,10 +2167,9 @@
     <string name="recurring_buy_details_total_cost">Total Cost</string>
     <string name="recurring_buy_details_fees">Fees</string>
     <string name="activity_details_label_btn_cash">Add Cash</string>
-
+    <string name="recurring_buy_funds_label">%s Account</string>
     <string name="recurring_buy_short_error">Failed</string>
     <string name="recurring_buy_insufficient_funds_short_error">Failed. Low Balance</string>
-
     <string name="recurring_buy_insufficient_funds_error">Your payment method has insufficient funds. Add more to complete the recurring buy.</string>
     <string name="recurring_buy_internal_server_error">There has been an error with your purchase. We will retry shortly.</string>
     <string name="recurring_buy_final_attempt_error">There has been an error with your purchase. <annotation link="contact_support_link">Contact support</annotation> for more information.</string>
@@ -2174,4 +2177,11 @@
     <string name="recurring_buy_limits_exceed_error">Your account has exceeded its trading limits. <annotation link="contact_support_link">Contact support</annotation> for more information.</string>
     <string name="recurring_buy_generic_error">There has been an error with your purchase. <annotation link="contact_support_link">Contact support</annotation> for more information.</string>
     <string name="fee_calculated_at_checkout">Calculated at checkout</string>
+    <string name="recurring_buy_on_boarding_header">Set an easy, automatic Recurring Buy for every day, week or month. Tap into the power of Dollar Cost Averaging.</string>
+    <string name="recurring_buy_set_up_title">Set Up a Recurring Buy</string>
+    <string name="recurring_buy_first_time_toolbar">Recurring Buy</string>
+    <string name="recurring_buy_first_time_title">Buy %1$s of %2$s</string>
+    <string name="recurring_buy_first_time_success_title">Recurring Buy Started!</string>
+    <string name="recurring_buy_first_time_info">Buy %1$s of %2$s every day, week or month with a Recurring Buy. No need to ever time the market.</string>
+    <string name="recurring_buy_first_time_success_subtitle">We will buy %1$s of %2$s %3$s at that moment’s market price. Cancel this recurring buy at anytime.</string>
 </resources>

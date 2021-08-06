@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.kyc.mobile.entry
 import androidx.annotation.StringRes
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneDisplayModel
 import piuk.blockchain.androidcore.data.settings.PhoneNumber
-import io.reactivex.Observable
-import piuk.blockchain.androidcoreui.ui.base.View
+import io.reactivex.rxjava3.core.Observable
+import piuk.blockchain.android.ui.base.View
 
 interface KycMobileEntryView : View {
 

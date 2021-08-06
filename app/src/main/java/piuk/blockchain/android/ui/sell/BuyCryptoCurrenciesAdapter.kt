@@ -7,12 +7,14 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.RecyclerView
-import piuk.blockchain.android.coincore.AssetResources
 import piuk.blockchain.android.databinding.BuyCryptoItemLayoutBinding
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
+import piuk.blockchain.android.ui.resources.AssetResources
 
-class BuyCryptoCurrenciesAdapter(private val items: List<BuyCryptoItem>, val assetResources: AssetResources) :
-    RecyclerView.Adapter<BuyCryptoCurrenciesAdapter.ViewHolder>() {
+class BuyCryptoCurrenciesAdapter(
+    private val items: List<BuyCryptoItem>,
+    val assetResources: AssetResources
+) : RecyclerView.Adapter<BuyCryptoCurrenciesAdapter.ViewHolder>() {
 
     override fun getItemCount(): Int = items.size
 
@@ -33,8 +35,8 @@ class BuyCryptoCurrenciesAdapter(private val items: List<BuyCryptoItem>, val ass
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         with(holder) {
-            iconView.setImageResource(assetResources.drawableResFilled(item.cryptoCurrency))
-            currency.setText(assetResources.assetNameRes(item.cryptoCurrency))
+            assetResources.loadAssetIcon(iconView, item.asset)
+            currency.text = item.asset.name
             priceDelta.asDeltaPercent(item.percentageDelta)
             price.text = item.price.toStringWithSymbol()
             container.setOnClickListener {

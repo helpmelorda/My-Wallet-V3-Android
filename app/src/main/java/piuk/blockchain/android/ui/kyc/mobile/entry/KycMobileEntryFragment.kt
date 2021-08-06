@@ -8,29 +8,29 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.blockchain.koin.scopedInject
-import com.blockchain.ui.extensions.throttledClicks
-import com.jakewharton.rxbinding2.widget.afterTextChangeEvents
+import piuk.blockchain.android.util.throttledClicks
+import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.Observables
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.Observables
+import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycAddPhoneNumberBinding
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
-import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.extensions.skipFirstUnless
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneDisplayModel
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
-import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.util.getTextString
 import piuk.blockchain.androidcore.data.settings.PhoneNumber
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BaseFragment
+import piuk.blockchain.android.ui.base.BaseFragment
+import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.kyc.navigate
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -57,7 +57,7 @@ class KycMobileEntryFragment : BaseFragment<KycMobileEntryView, KycMobileEntryPr
             .debounce(300, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .doOnNext {
-                val string = it.editable().toString()
+                val string = it.editable.toString()
                 // Force plus sign even if user deletes it
                 if (string.firstOrNull() != '+') {
                     binding.editTextKycMobileNumber.apply {
@@ -162,8 +162,8 @@ class KycMobileEntryFragment : BaseFragment<KycMobileEntryView, KycMobileEntryPr
     ): Observable<Boolean> =
         this.afterTextChangeEvents()
             .debounce(300, TimeUnit.MILLISECONDS)
-            .map { it.editable()?.toString() ?: "" }
-            .skipFirstUnless { !it.isEmpty() }
+            .map { it.editable.toString() }
+            .skipFirstUnless { it.isNotEmpty() }
             .observeOn(AndroidSchedulers.mainThread())
             .map { mapToCompleted(it) }
             .distinctUntilChanged()

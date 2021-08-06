@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.transactionflow
 
 import android.content.Context
 import com.blockchain.koin.payloadScope
-import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -30,6 +30,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmoun
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.SourceSelectionCustomisations
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TargetSelectionCustomisations
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionConfirmationCustomisations
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomisations
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiser
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionProgressCustomisations
@@ -50,11 +51,11 @@ val transactionModule = module {
         .bind(TargetSelectionCustomisations::class)
         .bind(TransactionConfirmationCustomisations::class)
         .bind(TransactionProgressCustomisations::class)
+        .bind(TransactionFlowCustomisations::class)
 
     factory {
         TransactionLauncher(
-            flags = get(),
-            context = get()
+            flags = get()
         )
     }
 
@@ -104,8 +105,7 @@ val transactionModule = module {
 
     factory {
         NetworkFormatter(
-            context = get(),
-            assetResources = get()
+            context = get()
         )
     }.bind(TxOptionsFormatterCheckout::class)
 
@@ -117,8 +117,7 @@ val transactionModule = module {
 
     factory {
         CompoundNetworkFeeFormatter(
-            context = get(),
-            assetResources = get()
+            context = get()
         )
     }.bind(TxOptionsFormatterCheckout::class)
 
@@ -163,7 +162,7 @@ val transactionModule = module {
                 custodialWalletManager = payloadScope.get(),
                 currencyPrefs = get(),
                 eligibilityProvider = payloadScope.get(),
-                accountsSorting = get(),
+                accountsSorting = payloadScope.get(),
                 linkedBanksFactory = payloadScope.get(),
                 bankLinkingPrefs = payloadScope.get()
             )

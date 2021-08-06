@@ -12,10 +12,10 @@ import androidx.preference.PreferenceViewHolder
 import com.blockchain.nabu.datamanagers.Bank
 import com.bumptech.glide.Glide
 import piuk.blockchain.android.R
+import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.loadInterMedium
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.androidcoreui.utils.extensions.getResolvedDrawable
 
 class BankPreference(
     fiatCurrency: String,

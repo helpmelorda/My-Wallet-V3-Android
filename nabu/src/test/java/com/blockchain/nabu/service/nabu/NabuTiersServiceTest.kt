@@ -1,27 +1,26 @@
 package com.blockchain.nabu.service.nabu
 
+import com.blockchain.android.testutils.rxInit
+import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.api.nabu.NABU_KYC_TIERS
+import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycTierStateAdapter
+import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.LimitsJson
 import com.blockchain.nabu.models.responses.nabu.TierResponse
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
-import com.blockchain.serialization.BigDecimalAdaptor
-import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.service.NabuTierService
+import com.blockchain.serialization.BigDecimalAdaptor
 import com.blockchain.testutils.MockedRetrofitTest
 import com.blockchain.testutils.getStringFromResource
 import com.blockchain.testutils.mockWebServerInit
 import com.squareup.moshi.Moshi
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import okhttp3.mockwebserver.MockResponse
-import com.blockchain.android.testutils.rxInit
-import io.reactivex.Maybe
 import okhttp3.mockwebserver.MockWebServer
-import org.amshove.kluent.`should equal to`
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -65,10 +64,11 @@ class NabuTiersServiceTest {
         )
         subject.tiers()
             .test()
+            .await()
             .assertComplete()
             .assertNoErrors()
             .values()
-            .single() `should equal`
+            .single() `should be equal to`
             KycTiers(
                 tiersResponse = listOf(
                     TierResponse(
@@ -103,7 +103,7 @@ class NabuTiersServiceTest {
                     )
                 )
             )
-        server.urlRequested!! `should equal to` "/$NABU_KYC_TIERS"
+        server.urlRequested!! `should be equal to` "/$NABU_KYC_TIERS"
     }
 
     @Test
@@ -115,12 +115,13 @@ class NabuTiersServiceTest {
         )
         subject.setUserTier(1)
             .test()
+            .await()
             .assertComplete()
             .assertNoErrors()
         server.takeRequest().apply {
-            path!! `should equal to` "/$NABU_KYC_TIERS"
-            body.toString() `should equal to` """[text={"selectedTier":1}]"""
-            headers.get("authorization") `should equal` "Bearer Token1"
+            path!! `should be equal to` "/$NABU_KYC_TIERS"
+            body.toString() `should be equal to` """[text={"selectedTier":1}]"""
+            headers["authorization"] `should be equal to` "Bearer Token1"
         }
     }
 

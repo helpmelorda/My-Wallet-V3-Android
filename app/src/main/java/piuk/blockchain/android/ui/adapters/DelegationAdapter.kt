@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.adapters
 import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 /**
  * An abstract class which delegates all important functions to registered [AdapterDelegate]

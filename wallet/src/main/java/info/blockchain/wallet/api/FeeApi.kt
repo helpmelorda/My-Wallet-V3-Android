@@ -1,10 +1,9 @@
 package info.blockchain.wallet.api
 
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.api.FeeApi.Companion.cacheTime
 import info.blockchain.wallet.api.FeeApi.Companion.feeCache
 import info.blockchain.wallet.api.data.FeeOptions
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import java.util.concurrent.TimeUnit
 
 data class FeeApi(private val feeEndpoints: FeeEndpoints) {
@@ -35,7 +34,7 @@ data class FeeApi(private val feeEndpoints: FeeEndpoints) {
      */
     val xlmFeeOptions: Observable<FeeOptions>
         get() = byCache("XLM") {
-            feeEndpoints.getFeeOptions(CryptoCurrency.XLM.networkTicker.toLowerCase())
+            feeEndpoints.getFeeOptions("xlm")
         }
 
     /**

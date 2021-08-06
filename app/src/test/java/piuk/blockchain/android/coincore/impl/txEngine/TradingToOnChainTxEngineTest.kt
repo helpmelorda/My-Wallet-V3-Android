@@ -6,17 +6,16 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.models.data.CryptoWithdrawalFeeAndLimit
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.testutils.usdPax
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.blockchain.testutils.lumens
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Single
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -50,7 +49,7 @@ class TradingToOnChainTxEngineTest {
     private val exchangeRates: ExchangeRateDataManager = mock()
 
     private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency } itReturns SELECTED_FIAT
+        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
     }
 
     private val subject = TradingToOnChainTxEngine(
@@ -80,7 +79,7 @@ class TradingToOnChainTxEngineTest {
     fun `inputs validate when correct`() {
         val sourceAccount = mockSourceAccount()
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         // Act
@@ -102,11 +101,11 @@ class TradingToOnChainTxEngineTest {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source Asset incorrect`() {
         val sourceAccount = mock<Erc20NonCustodialAccount> {
-            on { asset } itReturns WRONG_ASSET
+            on { asset }.thenReturn(WRONG_ASSET)
         }
 
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         // Act
@@ -130,7 +129,7 @@ class TradingToOnChainTxEngineTest {
         // Arrange
         val sourceAccount = mockSourceAccount()
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         // Act
@@ -152,9 +151,11 @@ class TradingToOnChainTxEngineTest {
     @Test
     fun `PendingTx is correctly initialised`() {
         // Arrange
-        val sourceAccount = mockSourceAccount()
+        val totalBalance = 21.lumens()
+        val actionableBalance = 20.lumens()
+        val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         val feesAndLimits = CryptoWithdrawalFeeAndLimit(minLimit = 5000.toBigInteger(), fee = BigInteger.ONE)
@@ -171,11 +172,12 @@ class TradingToOnChainTxEngineTest {
         subject.doInitialiseTx()
             .test()
             .assertValue {
-                it.amount == CryptoValue.zero(ASSET) &&
-                    it.totalBalance == CryptoValue.zero(ASSET) &&
-                    it.availableBalance == CryptoValue.zero(ASSET) &&
-                    it.feeForFullAvailable == CryptoValue.zero(ASSET) &&
-                    it.feeAmount == CryptoValue.fromMinor(ASSET, feesAndLimits.fee) &&
+                it.amount == CryptoValue.zero(txTarget.asset) &&
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance ==
+                    actionableBalance.minus(CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee)) &&
+                    it.feeForFullAvailable == CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee) &&
+                    it.feeAmount == CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee) &&
                     it.selectedFiat == SELECTED_FIAT &&
                     it.confirmations.isEmpty() &&
                     it.minLimit == CryptoValue.fromMinor(ASSET, feesAndLimits.minLimit) &&
@@ -188,21 +190,21 @@ class TradingToOnChainTxEngineTest {
             .assertComplete()
 
         verify(sourceAccount, atLeastOnce()).asset
-        verify(currencyPrefs).selectedFiatCurrency
-        verify(walletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.BUY)
-
-        noMoreInteractions(sourceAccount, txTarget)
     }
 
     @Test
     fun `update amount modifies the pendingTx correctly`() {
         // Arrange
-        val totalBalance = 21.usdPax()
-        val actionableBalance = 20.usdPax()
+        val totalBalance = 21.lumens()
+        val actionableBalance = 20.lumens()
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
+
+        val feesAndLimits = CryptoWithdrawalFeeAndLimit(minLimit = 5000.toBigInteger(), fee = BigInteger.ONE)
+        whenever(walletManager.fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.BUY))
+            .thenReturn(Single.just(feesAndLimits))
 
         subject.start(
             sourceAccount,
@@ -211,17 +213,18 @@ class TradingToOnChainTxEngineTest {
         )
 
         val pendingTx = PendingTx(
-            amount = CryptoValue.zero(ASSET),
-            totalBalance = CryptoValue.zero(ASSET),
-            availableBalance = CryptoValue.zero(ASSET),
-            feeForFullAvailable = CryptoValue.zero(ASSET),
-            feeAmount = CryptoValue.zero(ASSET),
+            amount = CryptoValue.zero(txTarget.asset),
+            totalBalance = totalBalance,
+            availableBalance = actionableBalance.minus(
+                CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee)
+            ),
+            feeForFullAvailable = CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee),
+            feeAmount = CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee),
             selectedFiat = SELECTED_FIAT,
             feeSelection = FeeSelection()
         )
 
-        val inputAmount = 2.usdPax()
-        val expectedFee = 0.usdPax()
+        val inputAmount = 2.lumens()
 
         // Act
         subject.doUpdateAmount(
@@ -231,8 +234,8 @@ class TradingToOnChainTxEngineTest {
             .assertValue {
                 it.amount == inputAmount &&
                     it.totalBalance == totalBalance &&
-                    it.availableBalance == actionableBalance &&
-                    it.feeAmount == expectedFee
+                    it.availableBalance ==
+                    actionableBalance.minus(CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee))
             }
             .assertValue { verifyFeeLevels(it.feeSelection) }
             .assertComplete()
@@ -241,20 +244,18 @@ class TradingToOnChainTxEngineTest {
         verify(sourceAccount, atLeastOnce()).asset
         verify(sourceAccount).accountBalance
         verify(sourceAccount).actionableBalance
-
-        noMoreInteractions(sourceAccount, txTarget)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun `update fee level from NONE to PRIORITY is rejected`() {
-        val totalBalance = 21.usdPax()
-        val actionableBalance = 20.usdPax()
-        val inputAmount = 2.usdPax()
-        val zeroPax = 0.usdPax()
+        val totalBalance = 21.lumens()
+        val actionableBalance = 20.lumens()
+        val inputAmount = 2.lumens()
+        val zeroPax = 0.lumens()
 
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         subject.start(
@@ -283,14 +284,14 @@ class TradingToOnChainTxEngineTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun `update fee level from NONE to REGULAR is rejected`() {
-        val totalBalance = 21.usdPax()
-        val actionableBalance = 20.usdPax()
-        val inputAmount = 2.usdPax()
-        val zeroPax = 0.usdPax()
+        val totalBalance = 21.lumens()
+        val actionableBalance = 20.lumens()
+        val inputAmount = 2.lumens()
+        val zeroPax = 0.lumens()
 
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         subject.start(
@@ -319,14 +320,14 @@ class TradingToOnChainTxEngineTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun `update fee level from NONE to CUSTOM is rejected`() {
-        val totalBalance = 21.usdPax()
-        val actionableBalance = 20.usdPax()
-        val inputAmount = 2.usdPax()
-        val zeroPax = 0.usdPax()
+        val totalBalance = 21.lumens()
+        val actionableBalance = 20.lumens()
+        val inputAmount = 2.lumens()
+        val zeroPax = 0.lumens()
 
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         subject.start(
@@ -355,14 +356,14 @@ class TradingToOnChainTxEngineTest {
 
     @Test
     fun `update fee level from NONE to NONE has no effect`() {
-        val totalBalance = 21.usdPax()
-        val actionableBalance = 20.usdPax()
-        val inputAmount = 2.usdPax()
-        val zeroPax = 0.usdPax()
+        val totalBalance = 21.lumens()
+        val actionableBalance = 20.lumens()
+        val inputAmount = 2.lumens()
+        val zeroPax = 0.lumens()
 
         val sourceAccount = mockSourceAccount(totalBalance, actionableBalance)
         val txTarget: CryptoAddress = mock {
-            on { asset } itReturns ASSET
+            on { asset }.thenReturn(ASSET)
         }
 
         subject.start(
@@ -404,9 +405,9 @@ class TradingToOnChainTxEngineTest {
         totalBalance: Money = CryptoValue.zero(ASSET),
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<Erc20NonCustodialAccount> {
-        on { asset } itReturns ASSET
-        on { accountBalance } itReturns Single.just(totalBalance)
-        on { actionableBalance } itReturns Single.just(availableBalance)
+        on { asset }.thenReturn(ASSET)
+        on { accountBalance }.thenReturn(Single.just(totalBalance))
+        on { actionableBalance }.thenReturn(Single.just(availableBalance))
     }
 
     private fun verifyFeeLevels(feeSelection: FeeSelection) =
@@ -425,7 +426,7 @@ class TradingToOnChainTxEngineTest {
     }
 
     companion object {
-        private val ASSET = CryptoCurrency.PAX
+        private val ASSET = CryptoCurrency.XLM
         private val WRONG_ASSET = CryptoCurrency.BTC
         private const val SELECTED_FIAT = "INR"
     }

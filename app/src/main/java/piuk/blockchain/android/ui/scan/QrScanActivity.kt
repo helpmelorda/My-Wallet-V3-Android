@@ -45,7 +45,7 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.DecodeHintType
 import com.google.zxing.Result
 import com.karumi.dexter.Dexter
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityScanBinding
@@ -79,7 +79,8 @@ sealed class QrExpected : Parcelable {
     object AnyAssetAddressQr : QrExpected()
 
     @Parcelize
-    data class AssetAddressQr(val asset: CryptoCurrency) : QrExpected()
+    data class AssetAddressQr(val assetTicker: String) : QrExpected()
+
     @Parcelize
     object BitPayQr : QrExpected()
 
@@ -98,7 +99,7 @@ sealed class QrExpected : Parcelable {
         val MAIN_ACTIVITY_QR = setOf(AnyAssetAddressQr /*, WebLoginQr */, BitPayQr)
 
         @Suppress("FunctionName")
-        fun ASSET_ADDRESS_QR(asset: CryptoCurrency) = setOf(AssetAddressQr(asset))
+        fun ASSET_ADDRESS_QR(asset: AssetInfo) = setOf(AssetAddressQr(asset.ticker))
     }
 }
 
@@ -202,7 +203,7 @@ class QrScanActivity : BlockchainActivity() {
         } else {
             when (val expect = expectedSet.first()) {
                 is QrExpected.AnyAssetAddressQr -> getString(R.string.qr_activity_hint_any_asset)
-                is QrExpected.AssetAddressQr -> getString(R.string.qr_activity_hint_asset_address, expect.asset)
+                is QrExpected.AssetAddressQr -> getString(R.string.qr_activity_hint_asset_address, expect.assetTicker)
                 is QrExpected.BitPayQr -> getString(R.string.qr_activity_hint_bitpay)
                 is QrExpected.ImportWalletKeysQr -> getString(R.string.qr_activity_hint_import_wallet)
                 is QrExpected.LegacyPairingQr -> getString(R.string.qr_activity_hint_pairing_code)

@@ -1,8 +1,8 @@
 package info.blockchain.wallet.prices
 
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import java.util.concurrent.TimeUnit
 
 internal fun CurrentPriceApi.toIndicativeFiatPriceService(): IndicativeFiatPriceService {
@@ -13,7 +13,7 @@ private class CurrentPriceApiIndicativeFiatPriceServiceAdapter(
     private val currentPriceApi: CurrentPriceApi
 ) : IndicativeFiatPriceService {
 
-    override fun indicativeRateStream(from: CryptoCurrency, toFiat: String): Observable<ExchangeRate.CryptoToFiat> =
+    override fun indicativeRateStream(from: AssetInfo, toFiat: String): Observable<ExchangeRate.CryptoToFiat> =
         Observable.defer {
             currentPriceApi.currentPrice(from, toFiat).toObservable()
         }

@@ -15,21 +15,22 @@ import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.bitcoin
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.argThat
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argThat
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Observable
-import io.reactivex.Single
-import org.amshove.kluent.itReturns
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+
 import org.amshove.kluent.shouldEqual
 import org.junit.After
 import org.junit.Before
@@ -70,15 +71,15 @@ class OnChainSwapEngineTest {
     private val internalFeatureFlagApi: InternalFeatureFlagApi = mock()
 
     private val exchangeRates: ExchangeRateDataManager = mock {
-        on { getLastPrice(SRC_ASSET, SELECTED_FIAT) } itReturns EXCHANGE_RATE
+        on { getLastPrice(SRC_ASSET, SELECTED_FIAT) }.thenReturn(EXCHANGE_RATE)
     }
 
     private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency } itReturns SELECTED_FIAT
+        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
     }
 
     private val onChainEngine: OnChainTxEngineBase = mock {
-        on { sourceAsset } itReturns SRC_ASSET
+        on { sourceAsset }.thenReturn(SRC_ASSET)
     }
 
     private val subject = OnChainSwapTxEngine(
@@ -135,7 +136,7 @@ class OnChainSwapEngineTest {
         val sourceAccount = mockSourceAccount()
 
         val txTarget: CustodialTradingAccount = mock {
-            on { asset } itReturns TGT_ASSET
+            on { asset }.thenReturn(TGT_ASSET)
         }
 
         // Act
@@ -163,7 +164,7 @@ class OnChainSwapEngineTest {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when source Account incorrect`() {
         val sourceAccount: CustodialTradingAccount = mock {
-            on { asset } itReturns SRC_ASSET
+            on { asset }.thenReturn(SRC_ASSET)
         }
 
         val txTarget = mockTransactionTarget()
@@ -182,7 +183,7 @@ class OnChainSwapEngineTest {
     fun `inputs fail validation when Account assets match`() {
         val sourceAccount = mockSourceAccount()
         val txTarget: CustodialTradingAccount = mock {
-            on { asset } itReturns SRC_ASSET
+            on { asset }.thenReturn(SRC_ASSET)
         }
 
         // Act
@@ -199,7 +200,7 @@ class OnChainSwapEngineTest {
     fun `inputs fail validation when target account incorrect`() {
         val sourceAccount = mockSourceAccount()
         val txTarget: FiatAccount = mock {
-            on { fiatCurrency } itReturns SELECTED_FIAT
+            on { fiatCurrency }.thenReturn(SELECTED_FIAT)
         }
 
         // Act
@@ -271,13 +272,13 @@ class OnChainSwapEngineTest {
         val txTarget = mockTransactionTarget()
 
         val txQuote: TransferQuote = mock {
-            on { sampleDepositAddress } itReturns SAMPLE_DEPOSIT_ADDRESS
-            on { networkFee } itReturns NETWORK_FEE
+            on { sampleDepositAddress }.thenReturn(SAMPLE_DEPOSIT_ADDRESS)
+            on { networkFee }.thenReturn(NETWORK_FEE)
         }
 
         val pricedQuote: PricedQuote = mock {
-            on { transferQuote } itReturns txQuote
-            on { price } itReturns INITIAL_QUOTE_PRICE
+            on { transferQuote }.thenReturn(txQuote)
+            on { price }.thenReturn(INITIAL_QUOTE_PRICE)
         }
 
         whenever(quotesEngine.pricedQuote).thenReturn(Observable.just(pricedQuote))
@@ -338,13 +339,13 @@ class OnChainSwapEngineTest {
         val txTarget = mockTransactionTarget()
 
         val txQuote: TransferQuote = mock {
-            on { sampleDepositAddress } itReturns SAMPLE_DEPOSIT_ADDRESS
-            on { networkFee } itReturns NETWORK_FEE
+            on { sampleDepositAddress }.thenReturn(SAMPLE_DEPOSIT_ADDRESS)
+            on { networkFee }.thenReturn(NETWORK_FEE)
         }
 
         val pricedQuote: PricedQuote = mock {
-            on { transferQuote } itReturns txQuote
-            on { price } itReturns INITIAL_QUOTE_PRICE
+            on { transferQuote }.thenReturn(txQuote)
+            on { price }.thenReturn(INITIAL_QUOTE_PRICE)
         }
 
         whenever(quotesEngine.pricedQuote).thenReturn(Observable.just(pricedQuote))
@@ -404,7 +405,7 @@ class OnChainSwapEngineTest {
         val txTarget = mockTransactionTarget()
 
         val error: NabuApiException = mock {
-            on { getErrorCode() } itReturns NabuErrorCodes.PendingOrdersLimitReached
+            on { getErrorCode() }.thenReturn(NabuErrorCodes.PendingOrdersLimitReached)
         }
 
         whenever(quotesEngine.pricedQuote).thenReturn(Observable.error(error))
@@ -586,13 +587,13 @@ class OnChainSwapEngineTest {
         totalBalance: Money = CryptoValue.zero(SRC_ASSET),
         availableBalance: Money = CryptoValue.zero(SRC_ASSET)
     ) = mock<BtcCryptoWalletAccount> {
-        on { asset } itReturns SRC_ASSET
-        on { accountBalance } itReturns Single.just(totalBalance)
-        on { actionableBalance } itReturns Single.just(availableBalance)
+        on { asset }.thenReturn(SRC_ASSET)
+        on { accountBalance }.thenReturn(Single.just(totalBalance))
+        on { actionableBalance }.thenReturn(Single.just(availableBalance))
     }
 
     private fun mockTransactionTarget() = mock<BchCryptoWalletAccount> {
-        on { asset } itReturns TGT_ASSET
+        on { asset }.thenReturn(TGT_ASSET)
     }
 
     private fun whenOnChainEngineInitOK(
@@ -620,7 +621,7 @@ class OnChainSwapEngineTest {
         whenever(kycTierService.tiers()).thenReturn(Single.just(kycTiers))
 
         whenever(walletManager.getProductTransferLimits(SELECTED_FIAT, Product.TRADE, TransferDirection.ON_CHAIN))
-            .itReturns(
+            .thenReturn(
                 Single.just(
                     TransferLimits(
                         minLimit = MIN_GOLD_LIMIT,
@@ -654,7 +655,7 @@ class OnChainSwapEngineTest {
 
     private fun verifyFeeLevels(
         feeSelection: FeeSelection,
-        feeAsset: CryptoCurrency? = FEE_ASSET
+        feeAsset: AssetInfo? = FEE_ASSET
     ) = feeSelection.selectedLevel == EXPECTED_FEE_LEVEL &&
         feeSelection.availableLevels == EXPECTED_FEE_OPTIONS &&
         feeSelection.availableLevels.contains(feeSelection.selectedLevel) &&

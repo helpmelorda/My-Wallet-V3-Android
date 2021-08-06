@@ -1,7 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.novoda.build-properties'
-apply from: '../quality/jacocoLibrary.gradle'
 apply from: '../quality/ktlint.gradle'
 
 buildProperties {
@@ -65,8 +64,7 @@ dependencies {
     implementation project(':balance')
     implementation project(':wallet')
     implementation project(':blockchainApi')
-
-    api project(':notifications')
+    implementation project(':core')
     implementation project(':veriff')
 
     coreLibraryDesugaring Libraries.desugaring

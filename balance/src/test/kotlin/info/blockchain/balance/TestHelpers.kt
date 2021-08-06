@@ -38,5 +38,3 @@ internal fun Number.bitcoinCash() = CryptoValue.fromMajor(CryptoCurrency.BCH, nu
 internal fun Number.satoshiCash() = CryptoValue.fromMinor(CryptoCurrency.BCH, numberToBigDecimal())
 internal fun Number.lumens() = CryptoValue.fromMajor(CryptoCurrency.XLM, numberToBigDecimal())
 internal fun Number.stroops() = CryptoValue.fromMinor(CryptoCurrency.XLM, numberToBigInteger())
-internal fun Number.usdPax() = CryptoValue.fromMajor(CryptoCurrency.PAX, numberToBigDecimal())
-internal fun Number.usdt() = CryptoValue.fromMajor(CryptoCurrency.USDT, numberToBigDecimal())

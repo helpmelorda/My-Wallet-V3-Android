@@ -4,7 +4,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.models.responses.simplebuy.EveryPayAttrs
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.cards.CardData
 import piuk.blockchain.android.everypay.models.CardDetailRequest
 import piuk.blockchain.android.everypay.models.CardDetailResponse

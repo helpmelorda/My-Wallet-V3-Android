@@ -4,7 +4,7 @@ import com.blockchain.nabu.datamanagers.NabuDataManager
 import info.blockchain.wallet.metadata.Metadata
 import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.metadata.MetadataInteractor
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import piuk.blockchain.androidcore.data.auth.metadata.WalletRecoveryMetadata

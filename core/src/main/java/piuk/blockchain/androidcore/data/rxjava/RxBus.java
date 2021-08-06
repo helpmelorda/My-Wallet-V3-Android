@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 
-import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.subjects.PublishSubject;
+import io.reactivex.rxjava3.subjects.Subject;
 import timber.log.Timber;
 
 /**

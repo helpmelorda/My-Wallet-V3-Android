@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.bch
 
+import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.CryptoCurrency
@@ -8,10 +9,11 @@ import info.blockchain.balance.Money
 import info.blockchain.wallet.bch.BchMainNetParams
 import info.blockchain.wallet.bch.CashAddress
 import info.blockchain.wallet.coin.GenericMetadataAccount
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import org.bitcoinj.core.LegacyAddress
 import piuk.blockchain.android.coincore.ActivitySummaryList
+import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.TxEngine
@@ -20,7 +22,6 @@ import piuk.blockchain.android.coincore.impl.CryptoNonCustodialAccount
 import piuk.blockchain.android.coincore.impl.transactionFetchCount
 import piuk.blockchain.android.coincore.impl.transactionFetchOffset
 import piuk.blockchain.android.identity.UserIdentity
-import piuk.blockchain.androidcore.data.bitcoincash.BchDataManager
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -43,6 +44,8 @@ internal class BchCryptoWalletAccount private constructor(
     private val refreshTrigger: AccountRefreshTrigger,
     identity: UserIdentity
 ) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.BCH, custodialWalletManager, identity) {
+
+    override val baseActions: Set<AssetAction> = defaultActions
 
     private val hasFunds = AtomicBoolean(false)
 
@@ -121,14 +124,14 @@ internal class BchCryptoWalletAccount private constructor(
         if (!isArchived && !isDefault) {
             toggleArchived()
         } else {
-            Completable.error(IllegalStateException("${asset.networkTicker} Account $label cannot be archived"))
+            Completable.error(IllegalStateException("${asset.ticker} Account $label cannot be archived"))
         }
 
     override fun unarchive(): Completable =
         if (isArchived) {
             toggleArchived()
         } else {
-            Completable.error(IllegalStateException("${asset.networkTicker} Account $label cannot be unarchived"))
+            Completable.error(IllegalStateException("${asset.ticker} Account $label cannot be unarchived"))
         }
 
     private fun toggleArchived(): Completable {

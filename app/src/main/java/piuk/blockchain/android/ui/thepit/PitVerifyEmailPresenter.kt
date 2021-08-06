@@ -2,14 +2,14 @@ package piuk.blockchain.android.ui.thepit
 
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.NabuToken
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.deeplink.EmailVerificationDeepLinkHelper
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.androidcore.data.settings.Email
 import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
 import java.util.concurrent.TimeUnit
 
 class PitVerifyEmailPresenter(

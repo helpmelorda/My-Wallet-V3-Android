@@ -10,7 +10,6 @@ import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.api.data.UpdateType
 import info.blockchain.wallet.exceptions.AccountLockedException
 import info.blockchain.wallet.exceptions.DecryptionException
@@ -18,17 +17,17 @@ import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import info.blockchain.wallet.exceptions.ServerConnectionException
 import info.blockchain.wallet.exceptions.UnsupportedVersionException
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.spongycastle.crypto.InvalidCipherTextException
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.data.biometrics.BiometricsController
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.util.AppUtil
@@ -38,9 +37,9 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrngFixer
-import piuk.blockchain.androidcoreui.ui.base.BasePresenter
-import piuk.blockchain.androidcoreui.utils.logging.Logging
-import piuk.blockchain.androidcoreui.utils.logging.walletUpgradeEvent
+import com.blockchain.notifications.analytics.Logging
+import com.blockchain.notifications.analytics.walletUpgradeEvent
+import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 import java.net.SocketTimeoutException
 
@@ -202,7 +201,7 @@ class PinEntryPresenter(
                     }
                 )
 
-            // If user is changing their PIN and it matches their old one, disallow it
+                // If user is changing their PIN and it matches their old one, disallow it
             } else if (isChangingPin && userEnteredConfirmationPin == null && accessState.pin == userEnteredPin) {
                 showErrorToast(R.string.change_pin_new_matches_current)
                 clearPinViewAndReset()
@@ -260,13 +259,15 @@ class PinEntryPresenter(
             prefs.walletGuid,
             password
         )
-        .handleProgress(R.string.decrypting_wallet)
-        .subscribeBy(
-            onComplete = {
-                canShowFingerprintDialog = true
-                handlePayloadUpdateComplete(isFromPinCreation) },
-            onError = { handlePayloadUpdateError(it) }
-        )
+            .then { verifyCloudBackup() }
+            .handleProgress(R.string.decrypting_wallet)
+            .subscribeBy(
+                onComplete = {
+                    canShowFingerprintDialog = true
+                    handlePayloadUpdateComplete(isFromPinCreation)
+                },
+                onError = { handlePayloadUpdateError(it) }
+            )
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -289,22 +290,22 @@ class PinEntryPresenter(
         // v2 -> v3 -> v4
         compositeDisposable += payloadDataManager.upgradeWalletPayload(
             secondPassword,
-            defaultLabels.getDefaultNonCustodialWalletLabel(CryptoCurrency.BTC)
+            defaultLabels.getDefaultNonCustodialWalletLabel()
         )
-        .subscribeOn(Schedulers.computation())
-        .observeOn(AndroidSchedulers.mainThread())
-        .handleProgress(R.string.upgrading)
-        .subscribeBy(
-            onComplete = {
-                view.dismissProgressDialog()
-                onUpdateFinished(false)
-                Logging.logEvent(walletUpgradeEvent((true)))
-            },
-            onError = { throwable ->
-                Logging.logEvent(walletUpgradeEvent((false)))
-                crashLogger.logException(throwable)
-                view.onWalletUpgradeFailed()
-            })
+            .subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .handleProgress(R.string.upgrading)
+            .subscribeBy(
+                onComplete = {
+                    view.dismissProgressDialog()
+                    onUpdateFinished(false)
+                    Logging.logEvent(walletUpgradeEvent((true)))
+                },
+                onError = { throwable ->
+                    Logging.logEvent(walletUpgradeEvent((false)))
+                    crashLogger.logException(throwable)
+                    view.onWalletUpgradeFailed()
+                })
     }
 
     private fun onUpdateFinished(isFromPinCreation: Boolean) {
@@ -314,6 +315,8 @@ class PinEntryPresenter(
             view.restartAppWithVerifiedPin()
         }
     }
+
+    private fun verifyCloudBackup(): Completable = authDataManager.verifyCloudBackup()
 
     fun finishSignupProcess() {
         view.restartAppWithVerifiedPin()
@@ -354,11 +357,11 @@ class PinEntryPresenter(
             prefs.walletGuid,
             password
         )
-        .handleProgress(R.string.validating_password)
-        .subscribeBy(
-            onComplete = { handlePasswordValidated() },
-            onError = { throwable -> handlePasswordValidatedError(throwable) }
-        )
+            .handleProgress(R.string.validating_password)
+            .subscribeBy(
+                onComplete = { handlePasswordValidated() },
+                onError = { throwable -> handlePasswordValidatedError(throwable) }
+            )
     }
 
     private fun handlePasswordValidated() {
@@ -398,6 +401,7 @@ class PinEntryPresenter(
         }
 
         compositeDisposable += authDataManager.createPin(tempPassword, pin)
+            .then { verifyCloudBackup() }
             .handleProgress(R.string.creating_pin)
             .subscribeBy(
                 onComplete = {
@@ -416,9 +420,17 @@ class PinEntryPresenter(
     @SuppressLint("CheckResult")
     private fun validatePIN(pin: String) {
         authDataManager.validatePin(pin)
+            .firstOrError()
+            .flatMap { validatedPin ->
+                if (isForValidatingPinForResult) {
+                    verifyCloudBackup().toSingle { validatedPin }
+                } else {
+                    Single.just(validatedPin)
+                }
+            }
             .handleProgress(R.string.validating_pin)
             .subscribeBy(
-                onNext = { password ->
+                onSuccess = { password ->
                     if (password != null) {
                         if (isForValidatingPinForResult) {
                             view.finishWithResultOk(pin)
@@ -474,7 +486,7 @@ class PinEntryPresenter(
         val fails = prefs.pinFails
         getPinRetriesFromRemoteConfig { maxAttempts ->
             if (fails >= maxAttempts) {
-                showParameteredErrorToast(R.string.pin_max_strikes, maxAttempts)
+                showMaxAttemptsToast(maxAttempts)
                 view.showMaxAttemptsDialog()
             }
         }
@@ -486,7 +498,7 @@ class PinEntryPresenter(
             payloadDataManager.getAccount(0).label.isEmpty()
         ) {
             payloadDataManager.getAccount(0).label =
-                defaultLabels.getDefaultNonCustodialWalletLabel(CryptoCurrency.BTC)
+                defaultLabels.getDefaultNonCustodialWalletLabel()
         }
     }
 
@@ -516,9 +528,9 @@ class PinEntryPresenter(
     }
 
     @UiThread
-    private fun showParameteredErrorToast(@StringRes message: Int, parameter: Int) {
+    private fun showMaxAttemptsToast(maxAttempts: Int) {
         view.dismissProgressDialog()
-        view.showParameteredToast(message, ToastCustom.TYPE_ERROR, parameter)
+        view.showParameteredToast(R.string.pin_max_strikes, ToastCustom.TYPE_ERROR, maxAttempts)
     }
 
     private class PinEntryLogException(cause: Throwable) : Exception(cause)
@@ -578,11 +590,9 @@ class PinEntryPresenter(
 
     private fun Completable.handleProgress(@StringRes msg: Int) =
         this.doOnSubscribe { view.showProgressDialog(msg) }
-            .doOnComplete { view.dismissProgressDialog() }
-            .doOnError { view.dismissProgressDialog() }
+            .doFinally { view.dismissProgressDialog() }
 
-    private fun <T> Observable<T>.handleProgress(@StringRes msg: Int) =
+    private fun <T> Single<T>.handleProgress(@StringRes msg: Int) =
         this.doOnSubscribe { view.showProgressDialog(msg) }
-            .doOnComplete { view.dismissProgressDialog() }
-            .doOnError { view.dismissProgressDialog() }
+            .doFinally { view.dismissProgressDialog() }
 }

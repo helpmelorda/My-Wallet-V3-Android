@@ -13,6 +13,10 @@ import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 
+@Deprecated(
+    message = "Legacy Login for manual/scan pairing.",
+    replaceWith = ReplaceWith("piuk.blockchain.android.ui.login.LoginActivity")
+)
 class LoginActivity : MvpActivity<LoginView, LoginPresenter>(), LoginView {
 
     override val presenter: LoginPresenter by scopedInject()

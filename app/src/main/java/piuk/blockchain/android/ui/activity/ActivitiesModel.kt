@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.activity
 
 import com.blockchain.logging.CrashLogger
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
+import info.blockchain.balance.AssetInfo
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.ui.base.mvi.MviModel
@@ -36,7 +36,7 @@ data class ActivitiesState(
     val bottomSheet: ActivitiesSheet? = null,
     val isError: Boolean = false,
     val selectedTxId: String = "",
-    val selectedCryptoCurrency: CryptoCurrency? = null,
+    val selectedCryptoCurrency: AssetInfo? = null,
     val selectedFiatCurrency: String? = null,
     val activityType: CryptoActivityType = CryptoActivityType.UNKNOWN
 ) : MviState

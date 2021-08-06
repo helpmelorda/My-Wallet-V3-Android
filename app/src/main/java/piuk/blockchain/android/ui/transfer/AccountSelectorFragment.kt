@@ -9,8 +9,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import com.blockchain.koin.scopedInject
-import io.reactivex.Single
-import org.koin.android.ext.android.inject
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BlockchainAccount
@@ -29,7 +28,7 @@ abstract class AccountSelectorFragment : Fragment() {
         get() = _binding!!
 
     private val coincore: Coincore by scopedInject()
-    private val accountsSorting: AccountsSorting by inject()
+    private val accountsSorting: AccountsSorting by scopedInject()
 
     override fun onCreateView(
         inflater: LayoutInflater,

@@ -1,6 +1,6 @@
 package info.blockchain.wallet.payment;
 
-import com.blockchain.api.NonCustodialBitcoinService;
+import com.blockchain.api.services.NonCustodialBitcoinService;
 import com.blockchain.api.bitcoin.data.UnspentOutputsDto;
 import info.blockchain.wallet.MockedResponseTest;
 import info.blockchain.wallet.keys.SigningKey;
@@ -10,7 +10,7 @@ import info.blockchain.wallet.payload.model.Utxo;
 import info.blockchain.wallet.test_data.UnspentTestData;
 import info.blockchain.wallet.util.LoaderUtilKt;
 import info.blockchain.wallet.util.PrivateKeyFactory;
-import io.reactivex.Single;
+import io.reactivex.rxjava3.core.Single;
 import kotlin.Pair;
 import okhttp3.ResponseBody;
 import org.bitcoinj.core.Coin;

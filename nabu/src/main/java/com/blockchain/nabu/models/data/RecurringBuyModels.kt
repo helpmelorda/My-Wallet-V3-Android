@@ -1,13 +1,13 @@
 package com.blockchain.nabu.models.data
 
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import java.util.Date
 
 enum class RecurringBuyState {
     ACTIVE,
-    NOT_ACTIVE,
+    INACTIVE,
     UNINITIALISED
 }
 
@@ -20,6 +20,15 @@ enum class RecurringBuyFrequency {
     UNKNOWN
 }
 
+interface RecurringBuyPaymentDetails {
+    val paymentDetails: PaymentMethodType
+}
+
+data class FundsAccount(val currency: String) : RecurringBuyPaymentDetails {
+    override val paymentDetails: PaymentMethodType
+        get() = PaymentMethodType.FUNDS
+}
+
 data class RecurringBuy(
     val id: String,
     val state: RecurringBuyState,
@@ -28,6 +37,7 @@ data class RecurringBuy(
     val paymentMethodType: PaymentMethodType,
     val paymentMethodId: String?,
     val amount: FiatValue,
-    val asset: CryptoCurrency,
-    val createDate: Date
+    val asset: AssetInfo,
+    val createDate: Date,
+    val paymentDetails: RecurringBuyPaymentDetails? = null
 )

@@ -1,10 +1,10 @@
 package com.blockchain.android.testutils
 
 import com.blockchain.testutils.runRule
-import io.reactivex.android.plugins.RxAndroidPlugins
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.schedulers.TestScheduler
+import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.TestScheduler
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should not be`
 import org.junit.Test

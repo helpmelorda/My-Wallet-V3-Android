@@ -2,14 +2,13 @@ package piuk.blockchain.android.util
 
 import android.app.Activity
 import android.content.Context
-import android.os.Build
+import android.content.res.Resources
 import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import androidx.annotation.IntDef
-import androidx.core.view.ViewCompat
 
 object ViewUtils {
     /**
@@ -19,23 +18,10 @@ object ViewUtils {
      * @param context Context to get resources and device specific display metrics
      * @return A float value to represent px equivalent to dp depending on device density
      */
-    fun convertDpToPixel(dp: Float, context: Context): Float {
+    private fun convertDpToPixel(dp: Float, context: Context): Float {
         val resources = context.resources
         val metrics = resources.displayMetrics
         return dp * (metrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
-    }
-
-    /**
-     * Converts device specific pixels to dp.
-     *
-     * @param pixels A value in px to be converted to dp
-     * @param context Context to get resources and device specific display metrics
-     * @return A float value to represent dp equivalent to px value
-     */
-    fun convertPixelsToDp(pixels: Float, context: Context): Float {
-        val resources = context.resources
-        val metrics = resources.displayMetrics
-        return pixels / (metrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
     }
 
     /**
@@ -55,22 +41,6 @@ object ViewUtils {
         params.setMargins(marginInPixels, 0, marginInPixels, 0)
         frameLayout.addView(view, params)
         return frameLayout
-    }
-
-    /**
-     * Sets an elevation value for a View using the appropriate method for a given API level. For
-     * now, [ViewCompat.setElevation] only accesses stub methods but this may
-     * change in the future.
-     *
-     * @param view The [View] to set elevation on
-     * @param elevation A float value for elevation (in pixels, not dp)
-     */
-    fun setElevation(view: View, elevation: Float) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            view.elevation = elevation
-        } else {
-            ViewCompat.setElevation(view, elevation)
-        }
     }
 
     /**
@@ -94,3 +64,9 @@ object ViewUtils {
     @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
     annotation class Visibility
 }
+
+val Int.px: Int
+    get() = (this * Resources.getSystem().displayMetrics.density).toInt()
+
+val Int.dp: Int
+    get() = (this / Resources.getSystem().displayMetrics.density).toInt()

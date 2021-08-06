@@ -3,8 +3,8 @@ package piuk.blockchain.android.coincore.btc
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
-import io.reactivex.Completable
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
 import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
@@ -18,7 +18,7 @@ internal class BtcActivitySummaryItem(
     override val account: CryptoAccount
 ) : NonCustodialActivitySummaryItem() {
 
-    override val cryptoCurrency = CryptoCurrency.BTC
+    override val asset = CryptoCurrency.BTC
 
     override val transactionType: TransactionSummary.TransactionType
         get() = transactionSummary.transactionType

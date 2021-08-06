@@ -21,24 +21,25 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
-import com.blockchain.ui.extensions.throttledClicks
+import piuk.blockchain.android.util.throttledClicks
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.gms.common.GooglePlayServicesRepairableException
 import com.google.android.gms.location.places.AutocompleteFilter
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
-import com.jakewharton.rx.replayingShare
-import com.jakewharton.rxbinding2.widget.afterTextChangeEvents
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.subjects.PublishSubject
+import com.jakewharton.rx3.replayingShare
+import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycHomeAddressBinding
+import piuk.blockchain.android.ui.base.BaseMvpFragment
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.customviews.toast
@@ -56,7 +57,6 @@ import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import piuk.blockchain.androidcoreui.ui.base.BaseMvpFragment
 import timber.log.Timber
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -368,7 +368,7 @@ class KycHomeAddressFragment : BaseMvpFragment<KycHomeAddressView, KycHomeAddres
     private fun TextView.onDelayedChange(kycStep: KycStep): Observable<String> =
         this.afterTextChangeEvents()
             .debounce(300, TimeUnit.MILLISECONDS)
-            .map { it.editable()?.toString() ?: "" }
+            .map { it.editable.toString() }
             .skipFirstUnless { !it.isEmpty() }
             .observeOn(AndroidSchedulers.mainThread())
             .distinctUntilChanged()

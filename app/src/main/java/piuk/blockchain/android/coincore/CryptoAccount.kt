@@ -1,12 +1,13 @@
 package piuk.blockchain.android.coincore
 
-import com.blockchain.nabu.models.responses.interest.DisabledReason
+import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
 
 interface BlockchainAccount {
@@ -30,7 +31,7 @@ interface BlockchainAccount {
 
     val isEnabled: Single<Boolean>
 
-    val disabledReason: Single<DisabledReason>
+    val disabledReason: Single<IneligibilityReason>
 
     fun fiatBalance(fiatCurrency: String, exchangeRates: ExchangeRates): Single<Money>
 
@@ -65,7 +66,7 @@ interface BankAccount
 typealias SingleAccountList = List<SingleAccount>
 
 interface CryptoAccount : SingleAccount {
-    val asset: CryptoCurrency
+    val asset: AssetInfo
 
     val isArchived: Boolean
         get() = false
@@ -93,8 +94,8 @@ interface AccountGroup : BlockchainAccount {
     override val isEnabled: Single<Boolean>
         get() = Single.just(true)
 
-    override val disabledReason: Single<DisabledReason>
-        get() = Single.just(DisabledReason.NONE)
+    override val disabledReason: Single<IneligibilityReason>
+        get() = Single.just(IneligibilityReason.NONE)
 
     fun includes(account: BlockchainAccount): Boolean
 }
@@ -103,7 +104,7 @@ internal fun BlockchainAccount.isCustodial(): Boolean =
     this is CustodialTradingAccount
 
 object NullCryptoAddress : CryptoAddress {
-    override val asset: CryptoCurrency = CryptoCurrency.BTC
+    override val asset: AssetInfo = CryptoCurrency.BTC
     override val label: String = ""
     override val address = ""
 }
@@ -118,7 +119,7 @@ class NullCryptoAccount(
     override val isDefault: Boolean
         get() = false
 
-    override val asset: CryptoCurrency
+    override val asset: AssetInfo
         get() = CryptoCurrency.BTC
 
     override val sourceState: Single<TxSourceState>
@@ -153,8 +154,8 @@ class NullCryptoAccount(
     override val isEnabled: Single<Boolean>
         get() = Single.just(true)
 
-    override val disabledReason: Single<DisabledReason>
-        get() = Single.just(DisabledReason.NONE)
+    override val disabledReason: Single<IneligibilityReason>
+        get() = Single.just(IneligibilityReason.NONE)
 }
 
 object NullFiatAccount : FiatAccount {
@@ -187,8 +188,8 @@ object NullFiatAccount : FiatAccount {
     override val isEnabled: Single<Boolean>
         get() = Single.just(true)
 
-    override val disabledReason: Single<DisabledReason>
-        get() = Single.just(DisabledReason.NONE)
+    override val disabledReason: Single<IneligibilityReason>
+        get() = Single.just(IneligibilityReason.NONE)
 
     override fun canWithdrawFunds(): Single<Boolean> = Single.just(false)
 
@@ -197,4 +198,23 @@ object NullFiatAccount : FiatAccount {
         exchangeRates: ExchangeRates
     ): Single<Money> =
         Single.just(FiatValue.zero(fiatCurrency))
+}
+
+class NullAccountGroup : AccountGroup {
+    override val accounts: SingleAccountList = emptyList()
+
+    override fun includes(account: BlockchainAccount): Boolean = false
+    override val label: String = ""
+    override val accountBalance: Single<Money> = Single.error(NotImplementedError())
+    override val actionableBalance: Single<Money> = Single.error(NotImplementedError())
+    override val pendingBalance: Single<Money> = Single.error(NotImplementedError())
+    override val activity: Single<ActivitySummaryList> = Single.just(emptyList())
+    override val actions: Single<AvailableActions> = Single.just(emptySet())
+    override val isFunded: Boolean = false
+    override val hasTransactions: Boolean = false
+
+    override fun fiatBalance(fiatCurrency: String, exchangeRates: ExchangeRates): Single<Money> =
+        Single.error(NotImplementedError())
+    override val receiveAddress: Single<ReceiveAddress> =
+        Single.error(NotImplementedError())
 }
