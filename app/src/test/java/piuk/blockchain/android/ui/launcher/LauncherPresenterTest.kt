@@ -102,6 +102,7 @@ class LauncherPresenterTest {
 
         val mockSettings: Settings = mock()
         whenever(prerequisites.initSettings(anyString(), anyString())).thenReturn(Single.just(mockSettings))
+        whenever(prerequisites.warmCaches()).thenReturn(Completable.complete())
         whenever(accessState.isLoggedIn).thenReturn(true)
 
         whenever(wallet.guid).thenReturn(WALLET_GUID)
@@ -172,6 +173,7 @@ class LauncherPresenterTest {
 
         val mockSettings: Settings = mock()
         whenever(prerequisites.initSettings(anyString(), anyString())).thenReturn(Single.just(mockSettings))
+        whenever(prerequisites.warmCaches()).thenReturn(Completable.complete())
 
         whenever(wallet.guid).thenReturn(WALLET_GUID)
         whenever(wallet.sharedKey).thenReturn(SHARED_KEY)
@@ -228,6 +230,7 @@ class LauncherPresenterTest {
         whenever(prerequisites.initMetadataAndRelatedPrerequisites()).thenReturn(Completable.complete())
         val mockSettings: Settings = mock()
         whenever(prerequisites.initSettings(WALLET_GUID, SHARED_KEY)).thenReturn(Single.just(mockSettings))
+        whenever(prerequisites.warmCaches()).thenReturn(Completable.complete())
 
         whenever(wallet.guid).thenReturn(WALLET_GUID)
         whenever(wallet.sharedKey).thenReturn(SHARED_KEY)

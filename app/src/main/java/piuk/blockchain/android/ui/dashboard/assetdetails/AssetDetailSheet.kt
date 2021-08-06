@@ -90,7 +90,6 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     private val detailsAdapter by lazy {
         AssetDetailAdapter(
             ::onAccountSelected,
-            token,
             labels
         ) {
             PendingBalanceAccountDecorator(it.account)
