@@ -78,6 +78,15 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
 
     private val listItems = mutableListOf<AssetDetailsItem>()
 
+    private val detailsAdapter by lazy {
+        AssetDetailAdapter(
+            ::onAccountSelected,
+            labels
+        ) {
+            PendingBalanceAccountDecorator(it.account)
+        }
+    }
+    
     private val adapterDelegate by lazy {
         AssetDetailAdapterDelegate(
             ::onAccountSelected,

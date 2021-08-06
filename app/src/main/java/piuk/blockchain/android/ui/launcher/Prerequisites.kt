@@ -39,28 +39,19 @@ class Prerequisites(
                     Completable.error(it)
                 } else
                     Completable.error(MetadataInitException(it))
-            }
-            .then { coincore.init() } // Coincore signals the crash logger internally
-            .then {
-                exchangeRates.prefetchCache(
-                    assetList = coincore.activeCryptoAssets(),
-                    fiatList = SUPPORTED_API_FIAT
-                ).logOnError(PRICE_CACHE_PREFETCH)
-            }
-            .then {
+            }.then {
+                coincore.init() // Coincore signals the crash logger internally
+            }.then {
                 simpleBuySync.performSync()
                     .logAndCompleteOnError(SIMPLE_BUY_SYNC)
-            }
-            .then {
+            }.then {
                 Completable.concat(
                     flushables.map { it.flush().logAndCompleteOnError(it.tag) }
                 )
-            }
-            .then {
+            }.then {
                 walletCredentialsUpdater.checkAndUpdate()
                     .logAndCompleteOnError(WALLET_CREDENTIALS)
-            }
-            .doOnComplete {
+            }.doOnComplete {
                 rxBus.emitEvent(MetadataEvent::class.java, MetadataEvent.SETUP_COMPLETE)
             }.subscribeOn(Schedulers.io())
 
@@ -83,6 +74,12 @@ class Prerequisites(
     fun decryptAndSetupMetadata(secondPassword: String) = metadataManager.decryptAndSetupMetadata(
         secondPassword
     )
+
+    fun warmCaches(): Completable =
+        exchangeRates.prefetchCache(
+            assetList = coincore.activeCryptoAssets(),
+            fiatList = SUPPORTED_API_FIAT
+        ).logOnError(PRICE_CACHE_PREFETCH)
 
     companion object {
         private const val METADATA_ERROR_MESSAGE = "metadata_init"

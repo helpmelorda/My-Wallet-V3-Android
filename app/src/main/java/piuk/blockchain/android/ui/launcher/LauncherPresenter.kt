@@ -156,6 +156,9 @@ class LauncherPresenter(
             }.flatMap { emailVerifShouldLaunched ->
                 notificationTokenManager.resendNotificationToken().onErrorComplete()
                     .toSingle { emailVerifShouldLaunched }
+            }.flatMap { emailVerifShouldLaunched ->
+                prerequisites.warmCaches()
+                    .toSingle { emailVerifShouldLaunched }
             }.observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe {
                 view.updateProgressVisibility(true)
