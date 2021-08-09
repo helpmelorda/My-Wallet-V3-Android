@@ -8,6 +8,7 @@ import android.view.WindowManager
 import piuk.blockchain.android.util.scopedInjectActivity
 import com.blockchain.ui.password.SecondPasswordHandler
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
 import piuk.blockchain.androidcore.data.access.LogoutTimer
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
@@ -47,7 +48,7 @@ abstract class BaseAuthActivity : ToolBarActivity() {
         stopLogoutTimer()
         ApplicationLifeCycle.getInstance().onActivityResumed()
 
-        if (prefs.isUnderTest || (prefs.areScreenshotAllowed && !enforceFlagSecure())) {
+        if (prefs.isUnderTest || (prefs.areScreenshotAllowed && !enforceFlagSecure()) || BuildConfig.INTERNAL) {
             enableScreenshots()
         } else {
             disallowScreenshots()
