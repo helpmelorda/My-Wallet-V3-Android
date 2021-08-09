@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.utils.capitalizeFirstChar
+import com.blockchain.utils.isLastDayOfTheMonth
 import info.blockchain.balance.FiatValue
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetRecurringBuyBinding
@@ -95,10 +96,14 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
                     R.string.recurring_buy_frequency_subtitle,
                     nextPaymentMap[RecurringBuyFrequency.WEEKLY]?.dayOfWeek.toString().capitalizeFirstChar()
                 )
-                rbMonthly.text = getString(
-                    R.string.recurring_buy_frequency_subtitle_monthly,
-                    nextPaymentMap[RecurringBuyFrequency.MONTHLY]?.dayOfMonth.toString()
-                )
+                rbMonthly.text = if (nextPaymentMap[RecurringBuyFrequency.MONTHLY]?.isLastDayOfTheMonth() == true) {
+                    getString(R.string.recurring_buy_frequency_subtitle_last_day_selector)
+                } else {
+                    getString(
+                        R.string.recurring_buy_frequency_subtitle_monthly,
+                        nextPaymentMap[RecurringBuyFrequency.MONTHLY]?.dayOfMonth.toString()
+                    )
+                }
                 rbBiWeekly.text = getString(
                     R.string.recurring_buy_frequency_subtitle_biweekly,
                     nextPaymentMap[RecurringBuyFrequency.BI_WEEKLY]?.dayOfWeek.toString().capitalizeFirstChar()

@@ -2156,7 +2156,8 @@
     <string name="recurring_buy_frequency_subtitle">On %s</string>
     <string name="recurring_buy_frequency_subtitle_biweekly">Every other %s</string>
     <string name="recurring_buy_frequency_subtitle_each_day">around %s</string>
-    <string name="recurring_buy_frequency_subtitle_monthly">On day %s</string>
+    <string name="recurring_buy_frequency_subtitle_monthly">On the %s</string>
+    <string name="recurring_buy_frequency_subtitle_last_day_selector">On the Last Day of the Month</string>
     <string name="recurring_buy_frequency_subtitle_monthly_last_day">on the last day</string>
     <string name="recurring_buy_frequency_subtitle_today">Today</string>
     <string name="recurring_buy_unavailable_title">Recurring buy unavailable</string>
