@@ -26,7 +26,6 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
-import info.blockchain.balance.isCustodialOnly
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AssetFilter
@@ -78,19 +77,9 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
 
     private val listItems = mutableListOf<AssetDetailsItem>()
 
-    private val detailsAdapter by lazy {
-        AssetDetailAdapter(
-            ::onAccountSelected,
-            labels
-        ) {
-            PendingBalanceAccountDecorator(it.account)
-        }
-    }
-
     private val adapterDelegate by lazy {
         AssetDetailAdapterDelegate(
             ::onAccountSelected,
-            token,
             labels,
             ::openOnboardingForRecurringBuy,
             ::onRecurringBuyClicked
@@ -258,10 +247,6 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                     interestRate = it.interestRate
                 )
             )
-        }
-
-        if (asset.isCustodialOnly) {
-            listItems.add(0, AssetDetailsItem.AssetLabel)
         }
 
         listItems.addAll(0, itemList)
