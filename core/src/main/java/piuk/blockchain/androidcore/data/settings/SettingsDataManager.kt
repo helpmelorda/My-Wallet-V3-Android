@@ -5,6 +5,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.settings.datastore.SettingsDataStore
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 
@@ -207,10 +208,20 @@ class SettingsDataManager(
      */
     fun updateFiatUnit(fiatUnit: String): Observable<Settings> =
         settingsService.updateFiatUnit(fiatUnit)
-            .flatMap { fetchSettings() }.doOnNext {
+            .flatMap { fetchSettings() }
+            .doOnNext {
                 currencyPrefs.selectedFiatCurrency = fiatUnit
             }
             .applySchedulers()
+
+    fun setDefaultUserFiat(): Single<String> {
+        val userFiat = currencyPrefs.defaultFiatCurrency
+        return settingsService.updateFiatUnit(userFiat)
+            .doOnSubscribe { currencyPrefs.selectedFiatCurrency = userFiat }
+            .flatMap { fetchSettings() }
+            .singleOrError()
+            .map { it.currency }
+    }
 
     fun triggerEmailAlert(guid: String, sharedKey: String) =
         walletSettingsService.triggerAlert(
