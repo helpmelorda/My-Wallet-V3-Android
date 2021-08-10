@@ -131,8 +131,6 @@ class LauncherPresenter(
         }
 
         val metadata = Completable.defer { prerequisites.initMetadataAndRelatedPrerequisites() }
-        val updateFiatWithDefault = settingsDataManager.updateFiatUnit(currencyPrefs.defaultFiatCurrency)
-            .ignoreElements()
 
         compositeDisposable +=
             settings.zipWith(
@@ -145,7 +143,8 @@ class LauncherPresenter(
                 }
             }.flatMap { emailVerifShouldLaunched ->
                 if (noCurrencySet())
-                    updateFiatWithDefault.toSingleDefault(emailVerifShouldLaunched)
+                    settingsDataManager.setDefaultUserFiat()
+                        .map { emailVerifShouldLaunched }
                 else {
                     Single.just(emailVerifShouldLaunched)
                 }
@@ -154,7 +153,8 @@ class LauncherPresenter(
                 accessState.isLoggedIn = true
                 analytics.logEvent(LoginAnalyticsEvent)
             }.flatMap { emailVerifShouldLaunched ->
-                notificationTokenManager.resendNotificationToken().onErrorComplete()
+                notificationTokenManager.resendNotificationToken()
+                    .onErrorComplete()
                     .toSingle { emailVerifShouldLaunched }
             }.flatMap { emailVerifShouldLaunched ->
                 prerequisites.warmCaches()
