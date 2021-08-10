@@ -605,20 +605,6 @@ class NabuService internal constructor (
         }
         .wrapErrorMessage()
 
-    fun getInterestAccountBalance(
-        sessionToken: NabuSessionTokenResponse,
-        currency: String
-    ) = nabu.getInterestAccountDetails(
-        authorization = sessionToken.authHeader,
-        cryptoSymbol = currency
-    ).flatMapMaybe {
-        when (it.code()) {
-            200 -> Maybe.just(it.body())
-            204 -> Maybe.empty()
-            else -> Maybe.error(HttpException(it))
-        }
-    }.wrapErrorMessage()
-
     fun getInterestAddress(
         sessionToken: NabuSessionTokenResponse,
         currency: String

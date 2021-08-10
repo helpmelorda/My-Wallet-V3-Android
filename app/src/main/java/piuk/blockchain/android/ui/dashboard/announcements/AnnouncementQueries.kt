@@ -1,8 +1,10 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
+import com.blockchain.nabu.Feature
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.NabuToken
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
@@ -12,8 +14,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.campaign.blockstackCampaignName
-import piuk.blockchain.android.identity.Feature
-import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
@@ -82,9 +82,10 @@ class AnnouncementQueries(
         // If we have a local simple buy in progress and it has the kyc unfinished state set
         return Single.defer {
             sbStateFactory.currentState()?.let {
-                Single.just(it.kycStartedButNotCompleted).zipWith(tierService.tiers()) { kycStarted, tier ->
-                    kycStarted && !tier.docsSubmittedForGoldTier()
-                }
+                Single.just(it.kycStartedButNotCompleted)
+                    .zipWith(tierService.tiers()) { kycStarted, tier ->
+                        kycStarted && !tier.docsSubmittedForGoldTier()
+                    }
             } ?: Single.just(false)
         }
     }
@@ -97,11 +98,12 @@ class AnnouncementQueries(
         }
 
     fun isKycGoldVerifiedAndHasPendingCardToAdd(): Single<Boolean> =
-        tierService.tiers().map { it.isApprovedFor(KycTierLevel.GOLD) }.zipWith(
-            hasSelectedToAddNewCard()
-        ) { isGold, addNewCard ->
-            isGold && addNewCard
-        }
+        tierService.tiers().map { it.isApprovedFor(KycTierLevel.GOLD) }
+            .zipWith(
+                hasSelectedToAddNewCard()
+            ) { isGold, addNewCard ->
+                isGold && addNewCard
+            }
 }
 
 private fun KycTiers.docsSubmittedForGoldTier(): Boolean =

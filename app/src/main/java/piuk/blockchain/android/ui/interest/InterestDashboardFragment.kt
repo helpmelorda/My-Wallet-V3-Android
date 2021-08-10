@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
@@ -54,6 +55,7 @@ class InterestDashboardFragment : Fragment() {
 
     private val disposables = CompositeDisposable()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
+    private val interestBalances: InterestBalanceDataManager by scopedInject()
     private val kycTierService: TierService by scopedInject()
     private val coincore: Coincore by scopedInject()
     private val assetResources: AssetResources by inject()
@@ -64,6 +66,7 @@ class InterestDashboardFragment : Fragment() {
             assetResources = assetResources,
             disposables = disposables,
             custodialWalletManager = custodialWalletManager,
+            interestBalance = interestBalances,
             verificationClicked = ::startKyc,
             itemClicked = ::interestItemClicked
         )

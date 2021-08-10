@@ -3,6 +3,7 @@ package piuk.blockchain.android.coincore.xlm
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -33,7 +34,8 @@ class XlmAssetUriParseTest {
     private val walletOptionsDataManager: WalletOptionsDataManager = mock()
     private val custodialManager: CustodialWalletManager = mock()
     private val exchangeRates: ExchangeRatesDataManager = mock()
-    private val tradingBalanceDataManager: TradingBalanceDataManager = mock()
+    private val tradingBalances: TradingBalanceDataManager = mock()
+    private val interestBalances: InterestBalanceDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val labels: DefaultLabels = mock()
     private val pitLinking: PitLinking = mock()
@@ -47,7 +49,8 @@ class XlmAssetUriParseTest {
         xlmFeesFetcher = xlmFeesFetcher,
         walletOptionsDataManager = walletOptionsDataManager,
         custodialManager = custodialManager,
-        tradingBalanceDataManager = tradingBalanceDataManager,
+        tradingBalances = tradingBalances,
+        interestBalances = interestBalances,
         exchangeRates = exchangeRates,
         currencyPrefs = currencyPrefs,
         labels = labels,

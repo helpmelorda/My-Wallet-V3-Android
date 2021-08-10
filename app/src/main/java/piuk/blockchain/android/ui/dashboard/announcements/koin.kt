@@ -115,7 +115,7 @@ val dashboardAnnouncementsModule = module {
             SwapAnnouncement(
                 dismissRecorder = get(),
                 queries = get(),
-                eligibilityProvider = get()
+                identity = get()
             )
         }.bind(AnnouncementRule::class)
 
@@ -188,7 +188,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             SellIntroAnnouncement(
                 dismissRecorder = get(),
-                eligibilityProvider = get(),
+                identity = get(),
                 coincore = get(),
                 analytics = get()
             )

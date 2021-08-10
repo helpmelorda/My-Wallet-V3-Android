@@ -24,7 +24,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.EligiblePaymentMethodType
 import com.blockchain.nabu.datamanagers.EveryPayCredentials
 import com.blockchain.nabu.datamanagers.FiatTransaction
-import com.blockchain.nabu.datamanagers.InterestAccountDetails
 import com.blockchain.nabu.datamanagers.InterestActivityItem
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.Partner
@@ -73,7 +72,6 @@ import com.blockchain.nabu.models.responses.banktransfer.UpdateProviderAccountBo
 import com.blockchain.nabu.models.responses.banktransfer.WithdrawFeeRequest
 import com.blockchain.nabu.models.responses.cards.CardResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
-import com.blockchain.nabu.models.responses.interest.InterestAccountDetailsResponse
 import com.blockchain.nabu.models.responses.interest.InterestActivityItemResponse
 import com.blockchain.nabu.models.responses.interest.InterestRateResponse
 import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
@@ -846,22 +844,6 @@ class LiveCustodialWalletManager(
                 }
         }
 
-    override fun getInterestAccountBalance(
-        asset: AssetInfo
-    ): Single<CryptoValue> = interestRepository.getInterestAccountBalance(asset)
-
-    override fun getPendingInterestAccountBalance(
-        asset: AssetInfo
-    ): Single<CryptoValue> = interestRepository.getInterestPendingBalance(asset)
-
-    override fun getActionableInterestAccountBalance(
-        asset: AssetInfo
-    ): Single<CryptoValue> = interestRepository.getInterestActionableBalance(asset)
-
-    override fun getInterestAccountDetails(
-        asset: AssetInfo
-    ): Single<InterestAccountDetails> = interestRepository.getInterestAccountDetails(asset)
-
     override fun getInterestAccountAddress(asset: AssetInfo): Single<String> =
         authenticator.authenticate { sessionToken ->
             nabuService.getInterestAddress(sessionToken, asset.ticker).map {
@@ -909,14 +891,8 @@ class LiveCustodialWalletManager(
                     amount = amount.toBigInteger().toString(),
                     currency = asset.ticker
                 )
-            ).doOnComplete {
-                interestRepository.clearBalanceForAsset(asset)
-            }
+            )
         }
-
-    override fun invalidateInterestBalanceForAsset(asset: AssetInfo) {
-        interestRepository.clearBalanceForAsset(asset)
-    }
 
     override fun getSupportedFundsFiats(
         fiatCurrency: String
@@ -1217,9 +1193,7 @@ class LiveCustodialWalletManager(
                     origin = origin.toRequestString(),
                     destination = destination.toRequestString()
                 )
-            ).doOnComplete {
-                interestRepository.clearBalanceForAsset(amount.currencyCode)
-            }
+            )
         }
 
     private fun CardResponse.toCardPaymentMethod(cardLimits: PaymentLimits) =
@@ -1604,15 +1578,6 @@ private fun InterestActivityItemResponse.toInterestActivityItem(cryptoCurrency: 
         state = InterestActivityItem.toInterestState(state),
         type = InterestActivityItem.toTransactionType(type),
         extraAttributes = extraAttributes
-    )
-
-private fun InterestAccountDetailsResponse.toInterestAccountDetails(cryptoCurrency: AssetInfo) =
-    InterestAccountDetails(
-        balance = CryptoValue.fromMinor(cryptoCurrency, balance.toBigInteger()),
-        pendingInterest = CryptoValue.fromMinor(cryptoCurrency, pendingInterest.toBigInteger()),
-        pendingDeposit = CryptoValue.fromMinor(cryptoCurrency, pendingDeposit.toBigInteger()),
-        totalInterest = CryptoValue.fromMinor(cryptoCurrency, totalInterest.toBigInteger()),
-        lockedBalance = CryptoValue.fromMinor(cryptoCurrency, locked.toBigInteger())
     )
 
 interface PaymentAccountMapper {

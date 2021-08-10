@@ -3,8 +3,10 @@ package piuk.blockchain.android.coincore.bch
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -26,7 +28,6 @@ import piuk.blockchain.android.coincore.impl.CryptoAssetBase
 import piuk.blockchain.android.coincore.impl.BackendNotificationUpdater
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
 import piuk.blockchain.android.coincore.impl.NotificationAddresses
-import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -39,7 +40,8 @@ internal class BchAsset(
     payloadManager: PayloadDataManager,
     private val bchDataManager: BchDataManager,
     custodialManager: CustodialWalletManager,
-    tradingBalanceDataManager: TradingBalanceDataManager,
+    interestBalances: InterestBalanceDataManager,
+    tradingBalances: TradingBalanceDataManager,
     private val feeDataManager: FeeDataManager,
     private val sendDataManager: SendDataManager,
     exchangeRates: ExchangeRatesDataManager,
@@ -57,7 +59,8 @@ internal class BchAsset(
     currencyPrefs,
     labels,
     custodialManager,
-    tradingBalanceDataManager,
+    interestBalances,
+    tradingBalances,
     pitLinking,
     crashLogger,
     identity,
@@ -109,7 +112,7 @@ internal class BchAsset(
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
-                    tradingBalanceDataManager,
+                    tradingBalances = tradingBalances,
                     identity = identity,
                     features = features
                 )

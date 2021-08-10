@@ -11,7 +11,6 @@ import info.blockchain.wallet.payment.Payment
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.utils.annotations.WebRequest
 import java.math.BigInteger
 import java.util.HashMap
 import org.bitcoinj.core.Transaction
@@ -28,7 +27,6 @@ class PaymentService(
      * @param signedTx signed object
      * @return An [Observable] wrapping a [String] where the String is the transaction hash
      */
-    @WebRequest
     internal fun submitBtcPayment(
         signedTx: Transaction
     ): Single<String> = Single.fromCallable {
@@ -92,7 +90,7 @@ class PaymentService(
      * @param signedTx signed object
      * @return An [Observable] wrapping a [String] where the String is the transaction hash
      */
-    @WebRequest
+
     internal fun submitBchPayment(
         signedTx: Transaction,
         dustInput: DustInput
@@ -162,7 +160,6 @@ class PaymentService(
      * @param xpubs The BTC address you wish to query, as a String
      * @return An [Observable] wrapping a list of [Utxo] objects
      */
-    @WebRequest
     internal fun getUnspentBtcOutputs(xpubs: XPubs): Single<List<Utxo>> =
         payment.getUnspentBtcCoins(xpubs)
 
@@ -174,7 +171,6 @@ class PaymentService(
      * @param address The BCH address you wish to query, as a Base58 address String
      * @return An [Observable] wrapping an [Utxo] object
      */
-    @WebRequest
     internal fun getUnspentBchOutputs(address: String): Single<List<Utxo>> =
         payment.getUnspentBchCoins(listOf(address))
 

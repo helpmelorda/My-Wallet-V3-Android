@@ -198,14 +198,6 @@ interface CustodialWalletManager {
         isBankPartner: Boolean?
     ): Single<BuySellOrder>
 
-    fun getInterestAccountBalance(asset: AssetInfo): Single<CryptoValue>
-
-    fun getPendingInterestAccountBalance(asset: AssetInfo): Single<CryptoValue>
-
-    fun getActionableInterestAccountBalance(asset: AssetInfo): Single<CryptoValue>
-
-    fun getInterestAccountDetails(asset: AssetInfo): Single<InterestAccountDetails>
-
     fun getInterestAccountRates(asset: AssetInfo): Single<Double>
 
     fun getInterestAccountAddress(asset: AssetInfo): Single<String>
@@ -221,8 +213,6 @@ interface CustodialWalletManager {
     fun getInterestEligibilityForAsset(asset: AssetInfo): Single<Eligibility>
 
     fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String): Completable
-
-    fun invalidateInterestBalanceForAsset(asset: AssetInfo)
 
     fun getSupportedFundsFiats(fiatCurrency: String = defaultFiatCurrency): Single<List<String>>
 

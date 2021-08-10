@@ -3,12 +3,14 @@ package piuk.blockchain.android.coincore.impl
 import androidx.annotation.VisibleForTesting
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
@@ -27,7 +29,6 @@ import piuk.blockchain.android.coincore.NonCustodialAccount
 import piuk.blockchain.android.coincore.SingleAccount
 import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.TradingAccount
-import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -44,7 +45,8 @@ internal abstract class CryptoAssetBase(
     protected val currencyPrefs: CurrencyPrefs,
     protected val labels: DefaultLabels,
     protected val custodialManager: CustodialWalletManager,
-    protected val tradingBalanceDataManager: TradingBalanceDataManager,
+    protected val interestBalance: InterestBalanceDataManager,
+    protected val tradingBalances: TradingBalanceDataManager,
     private val pitLinking: PitLinking,
     protected val crashLogger: CrashLogger,
     protected val identity: UserIdentity,
@@ -56,9 +58,10 @@ internal abstract class CryptoAssetBase(
     }
 
     protected val accounts: Single<SingleAccountList>
-        get() = activeAccounts.fetchAccountList(::loadAccounts).flatMap {
-            updateLabelsIfNeeded(it).toSingle { it }
-        }
+        get() = activeAccounts.fetchAccountList(::loadAccounts)
+            .flatMap {
+                updateLabelsIfNeeded(it).toSingle { it }
+            }
 
     private fun updateLabelsIfNeeded(list: SingleAccountList): Completable =
         Completable.concat(
@@ -124,11 +127,12 @@ internal abstract class CryptoAssetBase(
                 if (it) {
                     listOf(
                         CryptoInterestAccount(
-                            asset,
-                            labels.getDefaultInterestWalletLabel(),
-                            custodialManager,
-                            exchangeRates,
-                            features
+                            asset = asset,
+                            label = labels.getDefaultInterestWalletLabel(),
+                            interestBalance = interestBalance,
+                            custodialWalletManager = custodialManager,
+                            exchangeRates = exchangeRates,
+                            features = features
                         )
                     )
                 } else {

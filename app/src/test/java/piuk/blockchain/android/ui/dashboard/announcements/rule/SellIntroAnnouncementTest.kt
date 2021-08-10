@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.remoteconfig.FeatureFlag
-import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
-import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
@@ -21,7 +21,7 @@ class SellIntroAnnouncementTest {
     private val sellFeatureFlag: FeatureFlag = mock()
     private val coincore: Coincore = mock()
     private val analytics: Analytics = mock()
-    private val eligibilityProvider: SimpleBuyEligibilityProvider = mock()
+    private val userIdentify: UserIdentity = mock()
     private val dismissEntry: DismissRecorder.DismissEntry = mock()
 
     private lateinit var subject: SellIntroAnnouncement
@@ -34,7 +34,7 @@ class SellIntroAnnouncementTest {
         subject =
             SellIntroAnnouncement(
                 dismissRecorder = dismissRecorder,
-                eligibilityProvider = eligibilityProvider,
+                identity = userIdentify,
                 coincore = coincore,
                 analytics = analytics
             )
@@ -54,9 +54,8 @@ class SellIntroAnnouncementTest {
     @Test
     fun `should show, when not already shown`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(eligibilityProvider.isEligibleForSimpleBuy(any(), any())).thenReturn(Single.just(true))
+        whenever(userIdentify.isEligibleFor(Feature.SimpleBuy)).thenReturn(Single.just(true))
         whenever(sellFeatureFlag.enabled).thenReturn(Single.just(true))
-        whenever(eligibilityProvider.defCurrency).thenReturn("GBP")
 
         val account: BtcCryptoWalletAccount = mock()
         whenever(account.isFunded).thenReturn(true)

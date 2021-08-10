@@ -16,20 +16,6 @@ annotation class MoveCandidate(val whereTo: String, val why: String = "")
 @Retention(AnnotationRetention.SOURCE)
 annotation class BurnCandidate(val why: String)
 
-@Target(AnnotationTarget.TYPE,
-    AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.FILE)
-@Retention(AnnotationRetention.SOURCE)
-annotation class MergeCandidate(val why: String)
-
-@Target(AnnotationTarget.TYPE,
-    AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.FILE)
-@Retention(AnnotationRetention.SOURCE)
-annotation class SplitCandiate(val why: String)
-
 @Target(AnnotationTarget.CLASS,
     AnnotationTarget.FIELD,
     AnnotationTarget.FUNCTION,
@@ -37,6 +23,3 @@ annotation class SplitCandiate(val why: String)
     AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
 annotation class CommonCode(val commonWith: String)
-
-@Retention(AnnotationRetention.SOURCE)
-annotation class ButWhy(val whyWhat: String)

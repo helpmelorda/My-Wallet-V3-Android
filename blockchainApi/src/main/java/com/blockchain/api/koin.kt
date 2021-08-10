@@ -8,10 +8,12 @@ import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.wallet.WalletApiInterface
 import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.custodial.CustodialBalanceApi
+import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.AssetPriceService
 import com.blockchain.api.services.CustodialBalanceService
+import com.blockchain.api.services.InterestService
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.services.NonCustodialErc20Service
@@ -134,6 +136,13 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(nabuApi).create(CustodialBalanceApi::class.java)
         CustodialBalanceService(
+            api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(InterestApiInterface::class.java)
+        InterestService(
             api = api
         )
     }

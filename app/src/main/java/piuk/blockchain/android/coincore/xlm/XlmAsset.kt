@@ -2,8 +2,10 @@ package piuk.blockchain.android.coincore.xlm
 
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
@@ -26,7 +28,6 @@ import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.impl.CryptoAssetBase
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
-import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
@@ -39,7 +40,8 @@ internal class XlmAsset(
     private val xlmFeesFetcher: XlmFeesFetcher,
     private val walletOptionsDataManager: WalletOptionsDataManager,
     custodialManager: CustodialWalletManager,
-    tradingBalanceDataManager: TradingBalanceDataManager,
+    interestBalances: InterestBalanceDataManager,
+    tradingBalances: TradingBalanceDataManager,
     exchangeRates: ExchangeRatesDataManager,
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
@@ -54,7 +56,8 @@ internal class XlmAsset(
     currencyPrefs,
     labels,
     custodialManager,
-    tradingBalanceDataManager,
+    interestBalances,
+    tradingBalances,
     pitLinking,
     crashLogger,
     identity,
@@ -96,7 +99,7 @@ internal class XlmAsset(
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
-                    tradingBalanceDataManager = tradingBalanceDataManager,
+                    tradingBalances = tradingBalances,
                     identity = identity,
                     features = features
                 )

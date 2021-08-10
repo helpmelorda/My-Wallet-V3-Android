@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine.interest
 
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import info.blockchain.balance.AssetInfo
@@ -24,7 +25,8 @@ import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.coincore.updateTxValidity
 
 class InterestWithdrawOnChainTxEngine(
-    private val walletManager: CustodialWalletManager
+    private val walletManager: CustodialWalletManager,
+    private val interestBalances: InterestBalanceDataManager
 ) : InterestBaseEngine(walletManager) {
 
     private val availableBalance: Single<Money>
@@ -141,8 +143,12 @@ class InterestWithdrawOnChainTxEngine(
         receiveAddress: String,
         memo: String? = null
     ) = walletManager.startInterestWithdrawal(
-        sourceAsset, amount, addMemoIfNeeded(receiveAddress, memo)
-    )
+        asset = sourceAsset,
+        amount = amount,
+        address = addMemoIfNeeded(receiveAddress, memo)
+    ).doOnComplete {
+        interestBalances.flushCaches(sourceAsset)
+    }
 
     private fun addMemoIfNeeded(receiveAddress: String, memo: String?) =
         receiveAddress + (memo?.let {

@@ -16,9 +16,9 @@ import org.junit.Test
 class TradingBalanceCallCacheTest {
     companion object {
         private val anyTradingBalance = TradingBalance(
-            pending = "2",
-            total = "10",
-            actionable = "3"
+            pending = 2.toBigInteger(),
+            total = 10.toBigInteger(),
+            actionable = 3.toBigInteger()
         )
 
         private val expectedBTCBalance = Balance(

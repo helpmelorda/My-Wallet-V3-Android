@@ -25,7 +25,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.bitcoinj.core.LegacyAddress
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.annotations.WebRequest
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
@@ -457,7 +456,6 @@ class BchDataManager(
     // Web requests that require wrapping in Observables
     // /////////////////////////////////////////////////////////////////////////
 
-    @WebRequest
     private fun fetchAddressTransactions(
         address: String,
         limit: Int,
@@ -470,7 +468,6 @@ class BchDataManager(
             offset
         )
 
-    @WebRequest
     private fun fetchWalletTransactions(
         limit: Int,
         offset: Int

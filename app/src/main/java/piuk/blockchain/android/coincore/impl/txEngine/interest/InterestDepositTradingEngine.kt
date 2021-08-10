@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine.interest
 
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import info.blockchain.balance.CryptoValue
@@ -22,8 +23,10 @@ import piuk.blockchain.android.coincore.toCrypto
 import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.coincore.updateTxValidity
 
-class InterestDepositTradingEngine(private val walletManager: CustodialWalletManager) :
-    InterestBaseEngine(walletManager) {
+class InterestDepositTradingEngine(
+    private val walletManager: CustodialWalletManager,
+    private val interestBalances: InterestBalanceDataManager
+) : InterestBaseEngine(walletManager) {
 
     override fun assertInputsValid() {
         check(sourceAccount is TradingAccount)
@@ -134,7 +137,9 @@ class InterestDepositTradingEngine(private val walletManager: CustodialWalletMan
             amount = pendingTx.amount,
             origin = Product.BUY,
             destination = Product.SAVINGS
-        ).toSingle {
+        ).doOnComplete {
+            interestBalances.flushCaches(sourceAsset)
+        }.toSingle {
             TxResult.UnHashedTxResult(pendingTx.amount)
         }
 }

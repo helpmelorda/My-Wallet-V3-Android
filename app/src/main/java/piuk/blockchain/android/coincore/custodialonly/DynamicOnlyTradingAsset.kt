@@ -2,8 +2,10 @@ package piuk.blockchain.android.coincore.custodialonly
 
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
@@ -18,7 +20,6 @@ import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.impl.CryptoAssetBase
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
-import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -27,7 +28,8 @@ internal class DynamicOnlyTradingAsset(
     override val asset: AssetInfo,
     payloadManager: PayloadDataManager,
     custodialManager: CustodialWalletManager,
-    tradingBalanceDataManager: TradingBalanceDataManager,
+    interestBalances: InterestBalanceDataManager,
+    tradingBalances: TradingBalanceDataManager,
     exchangeRates: ExchangeRatesDataManager,
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
@@ -43,7 +45,8 @@ internal class DynamicOnlyTradingAsset(
     currencyPrefs,
     labels,
     custodialManager,
-    tradingBalanceDataManager,
+    interestBalances,
+    tradingBalances,
     pitLinking,
     crashLogger,
     identity,
@@ -65,7 +68,7 @@ internal class DynamicOnlyTradingAsset(
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
-                    tradingBalanceDataManager = tradingBalanceDataManager,
+                    tradingBalances = tradingBalances,
                     identity = identity,
                     features = features,
                     baseActions = availableActions

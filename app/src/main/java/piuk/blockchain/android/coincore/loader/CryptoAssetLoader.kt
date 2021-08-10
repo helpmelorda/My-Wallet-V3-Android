@@ -2,9 +2,11 @@ package piuk.blockchain.android.coincore.loader
 
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
@@ -19,7 +21,6 @@ import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.CryptoAsset
 import piuk.blockchain.android.coincore.custodialonly.DynamicOnlyTradingAsset
 import piuk.blockchain.android.coincore.erc20.Erc20Asset
-import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -42,7 +43,8 @@ internal class CryptoAssetLoader(
     private val walletPreferences: WalletStatus,
     private val custodialManager: CustodialWalletManager,
     private val exchangeRates: ExchangeRatesDataManager,
-    private val tradingBalanceDataManager: TradingBalanceDataManager,
+    private val tradingBalances: TradingBalanceDataManager,
+    private val interestBalances: InterestBalanceDataManager,
     private val currencyPrefs: CurrencyPrefs,
     private val labels: DefaultLabels,
     private val pitLinking: PitLinking,
@@ -77,7 +79,8 @@ internal class CryptoAssetLoader(
             asset = assetInfo,
             payloadManager = payloadManager,
             custodialManager = custodialManager,
-            tradingBalanceDataManager = tradingBalanceDataManager,
+            tradingBalances = tradingBalances,
+            interestBalances = interestBalances,
             exchangeRates = exchangeRates,
             currencyPrefs = currencyPrefs,
             labels = labels,
@@ -105,7 +108,8 @@ internal class CryptoAssetLoader(
             exchangeRates = exchangeRates,
             currencyPrefs = currencyPrefs,
             custodialManager = custodialManager,
-            tradingBalanceDataManager = tradingBalanceDataManager,
+            tradingBalances = tradingBalances,
+            interestBalances = interestBalances,
             crashLogger = crashLogger,
             labels = labels,
             pitLinking = pitLinking,

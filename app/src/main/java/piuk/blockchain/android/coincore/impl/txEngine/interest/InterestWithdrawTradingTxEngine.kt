@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine.interest
 
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import info.blockchain.balance.CryptoValue
@@ -23,7 +24,8 @@ import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.coincore.updateTxValidity
 
 class InterestWithdrawTradingTxEngine(
-    private val walletManager: CustodialWalletManager
+    private val walletManager: CustodialWalletManager,
+    private val interestBalances: InterestBalanceDataManager
 ) : InterestBaseEngine(walletManager) {
     private val availableBalance: Single<Money>
         get() = sourceAccount.actionableBalance
@@ -109,7 +111,10 @@ class InterestWithdrawTradingTxEngine(
         doValidateAmount(pendingTx)
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
-        walletManager.executeCustodialTransfer(pendingTx.amount, Product.SAVINGS, Product.BUY).toSingle {
-            TxResult.UnHashedTxResult(pendingTx.amount)
-        }
+        walletManager.executeCustodialTransfer(pendingTx.amount, Product.SAVINGS, Product.BUY)
+            .doOnComplete {
+                interestBalances.flushCaches(sourceAsset)
+            }.toSingle {
+                TxResult.UnHashedTxResult(pendingTx.amount)
+            }
 }

@@ -8,13 +8,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
@@ -29,6 +30,7 @@ import timber.log.Timber
 class InterestDashboardAssetItem<in T>(
     private val assetResources: AssetResources,
     private val disposable: CompositeDisposable,
+    private val interestBalance: InterestBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     private val itemClicked: (AssetInfo, Boolean) -> Unit
 ) : AdapterDelegate<T> {
@@ -52,18 +54,21 @@ class InterestDashboardAssetItem<in T>(
         assetResources,
         items[position] as InterestAssetInfoItem,
         disposable,
+        interestBalance,
         custodialWalletManager,
         itemClicked
     )
 }
 
-private class InterestAssetItemViewHolder(private val binding: ItemInterestDashboardAssetInfoBinding) :
-    RecyclerView.ViewHolder(binding.root) {
+private class InterestAssetItemViewHolder(
+    private val binding: ItemInterestDashboardAssetInfoBinding
+) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(
         assetResources: AssetResources,
         item: InterestAssetInfoItem,
         disposables: CompositeDisposable,
+        interestBalance: InterestBalanceDataManager,
         custodialWalletManager: CustodialWalletManager,
         itemClicked: (AssetInfo, Boolean) -> Unit
     ) {
@@ -75,14 +80,14 @@ private class InterestAssetItemViewHolder(private val binding: ItemInterestDashb
                 context.getString(R.string.interest_dashboard_item_balance_title, item.asset.ticker)
         }
 
-        disposables += Singles.zip(
-            custodialWalletManager.getInterestAccountDetails(item.asset),
+        disposables += Single.zip(
+            interestBalance.getBalanceForAsset(item.asset),
             custodialWalletManager.getInterestAccountRates(item.asset),
             custodialWalletManager.getInterestEligibilityForAsset(item.asset)
         ) { details, rate, eligibility ->
             InterestDetails(
                 totalInterest = details.totalInterest,
-                balance = details.balance,
+                balance = details.totalBalance,
                 interestRate = rate,
                 available = eligibility.eligible,
                 disabledReason = eligibility.ineligibilityReason

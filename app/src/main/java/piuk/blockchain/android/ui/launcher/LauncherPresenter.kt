@@ -3,6 +3,8 @@ package piuk.blockchain.android.ui.launcher
 import android.app.LauncherActivity
 import android.content.Intent
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
@@ -22,8 +24,6 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.android.identity.Feature
-import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.androidcore.data.access.AccessState
@@ -246,7 +246,8 @@ class LauncherPresenter(
     }
 
     fun onEmailVerificationFinished() {
-        compositeDisposable += userIdentity.isEligibleFor(Feature.SimplifiedDueDiligence).onErrorReturn { false }
+        compositeDisposable += userIdentity.isEligibleFor(Feature.SimplifiedDueDiligence)
+            .onErrorReturn { false }
             .doOnSuccess {
                 if (it)
                     analytics.logEventOnce(SDDAnalytics.SDD_ELIGIBLE)

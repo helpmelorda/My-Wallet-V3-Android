@@ -38,9 +38,7 @@ import piuk.blockchain.android.deeplink.BlockchainDeepLinkParser
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.EmailVerificationDeepLinkHelper
 import piuk.blockchain.android.deeplink.OpenBankingDeepLinkParser
-import piuk.blockchain.android.identity.NabuUserIdentity
 import piuk.blockchain.android.identity.SiftDigitalTrust
-import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.scan.QrCodeDataManager
 import piuk.blockchain.android.scan.QrScanResultProcessor
@@ -283,15 +281,6 @@ val applicationModule = module {
                 authDataManager = get()
             )
         }
-
-        factory {
-            NabuUserIdentity(
-                custodialWalletManager = get(),
-                tierService = get(),
-                simpleBuyEligibilityProvider = get(),
-                interestEligibilityProvider = get()
-            )
-        }.bind(UserIdentity::class)
 
         factory {
             CreateWalletPresenter(

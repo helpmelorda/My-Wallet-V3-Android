@@ -4,6 +4,8 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -15,8 +17,6 @@ import io.reactivex.rxjava3.core.Single
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.coincore.AssetAction
-import piuk.blockchain.android.identity.Feature
-import piuk.blockchain.android.identity.UserIdentity
 
 class CustodialTradingAccountTest {
 
@@ -38,7 +38,7 @@ class CustodialTradingAccountTest {
 
     private val exchangeRates: ExchangeRatesDataManager = mock()
     private val custodialManager: CustodialWalletManager = mock()
-    private val tradingBalanceDataManager: TradingBalanceDataManager = mock()
+    private val tradingBalances: TradingBalanceDataManager = mock()
     private val identity: UserIdentity = mock()
     private val features: InternalFeatureFlagApi = mock()
 
@@ -263,7 +263,7 @@ class CustodialTradingAccountTest {
             label = "Test Account",
             exchangeRates = exchangeRates,
             custodialWalletManager = custodialManager,
-            tradingBalanceDataManager = tradingBalanceDataManager,
+            tradingBalances = tradingBalances,
             identity = identity,
             features = features,
             baseActions = actions
@@ -280,9 +280,9 @@ class CustodialTradingAccountTest {
         val interestFeature = Feature.Interest(testAsset)
         whenever(identity.isEligibleFor(interestFeature)).thenReturn(Single.just(interest))
 
-        whenever(tradingBalanceDataManager.getTotalBalanceForAsset(testAsset))
+        whenever(tradingBalances.getTotalBalanceForAsset(testAsset))
             .thenReturn(Maybe.just(accountBalance))
-        whenever(tradingBalanceDataManager.getActionableBalanceForAsset(testAsset))
+        whenever(tradingBalances.getActionableBalanceForAsset(testAsset))
             .thenReturn(Maybe.just(actionableBalance))
         whenever(custodialManager.getSupportedFundsFiats())
             .thenReturn(Single.just(supportedFiat))

@@ -1,5 +1,7 @@
 package com.blockchain.api.services
 
+import com.blockchain.api.ApiException
+import com.blockchain.api.HttpStatus
 import com.blockchain.api.bitcoin.BitcoinApi
 import com.blockchain.api.bitcoin.data.BalanceResponseDto
 import com.blockchain.api.bitcoin.data.MultiAddress
@@ -141,8 +143,8 @@ class NonCustodialBitcoinService internal constructor(
             apiCode
         ).onErrorResumeNext { e ->
             when {
-                e is HttpException && e.code() == 500 -> Single.just(UnspentOutputsDto())
-                else -> Single.error(e) // TODO: Wrap in ApiAException
+                e is HttpException && e.code() == HttpStatus.INTERNAL_SERVER_ERROR -> Single.just(UnspentOutputsDto())
+                else -> Single.error(ApiException(e))
             }
         }
     }

@@ -10,6 +10,9 @@ import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
+import com.blockchain.core.interest.InterestBalanceCallCache
+import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.InterestBalanceDataManagerImpl
 import com.blockchain.datamanagers.DataManagerPayloadDecrypt
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
@@ -102,7 +105,7 @@ val coreModule = module {
 
     scope(payloadScopeQualifier) {
 
-        scoped {
+        factory {
             TradingBalanceCallCache(
                 balanceService = get(),
                 authHeaderProvider = get()
@@ -111,9 +114,23 @@ val coreModule = module {
 
         scoped {
             TradingBalanceDataManagerImpl(
-                tradingBalanceCallCache = get()
+                balanceCallCache = get()
             )
         }.bind(TradingBalanceDataManager::class)
+
+        factory {
+            InterestBalanceCallCache(
+                balanceService = get(),
+                assetCatalogue = get(),
+                authHeaderProvider = get()
+            )
+        }
+
+        scoped {
+            InterestBalanceDataManagerImpl(
+                balanceCallCache = get()
+            )
+        }.bind(InterestBalanceDataManager::class)
 
         scoped {
             EthDataManager(

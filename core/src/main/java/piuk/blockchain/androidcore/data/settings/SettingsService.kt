@@ -4,7 +4,6 @@ import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
 import io.reactivex.rxjava3.core.Observable
 import okhttp3.ResponseBody
-import piuk.blockchain.androidcore.utils.annotations.WebRequest
 
 class SettingsService(private val settingsApi: SettingsManager) {
 
@@ -20,7 +19,6 @@ class SettingsService(private val settingsApi: SettingsManager) {
      *
      * @return An [Settings] object for the current user
      */
-    @WebRequest
     internal fun getSettings(): Observable<Settings> = settingsApi.info
 
     /**
@@ -39,11 +37,9 @@ class SettingsService(private val settingsApi: SettingsManager) {
      * @param email The email to be stored
      * @return A [ResponseBody] containing the response from the server
      */
-    @WebRequest
     internal fun updateEmail(email: String): Observable<ResponseBody> =
         settingsApi.updateSetting(SettingsManager.METHOD_UPDATE_EMAIL, email)
 
-    @WebRequest
     internal fun updateEmail(email: String, context: String?): Observable<ResponseBody> =
         settingsApi.updateSetting(SettingsManager.METHOD_UPDATE_EMAIL, email, context)
 
@@ -53,7 +49,6 @@ class SettingsService(private val settingsApi: SettingsManager) {
      * @param sms The phone number to be stored
      * @return A [ResponseBody] containing the response from the server
      */
-    @WebRequest
     internal fun updateSms(sms: String): Observable<ResponseBody> =
         settingsApi.updateSetting(SettingsManager.METHOD_UPDATE_SMS, sms)
 
@@ -63,7 +58,6 @@ class SettingsService(private val settingsApi: SettingsManager) {
      * @param code The verification code
      * @return A [ResponseBody] containing the response from the server
      */
-    @WebRequest
     internal fun verifySms(code: String): Observable<ResponseBody> =
         settingsApi.updateSetting(SettingsManager.METHOD_VERIFY_SMS, code)
 
@@ -73,7 +67,6 @@ class SettingsService(private val settingsApi: SettingsManager) {
      * @param blocked The user's preference for blocking Tor requests
      * @return A [ResponseBody] containing the response from the server
      */
-    @WebRequest
     internal fun updateTor(blocked: Boolean): Observable<ResponseBody> = settingsApi.updateSetting(
         SettingsManager.METHOD_UPDATE_BLOCK_TOR_IPS,
         if (blocked) 1 else 0
@@ -86,7 +79,6 @@ class SettingsService(private val settingsApi: SettingsManager) {
      * @return A [ResponseBody] containing the response from the server
      * @see Settings
      */
-    @WebRequest
     internal fun updateNotifications(notificationType: Int): Observable<ResponseBody> =
         settingsApi.updateSetting(
             SettingsManager.METHOD_UPDATE_NOTIFICATION_TYPE,
@@ -100,7 +92,6 @@ class SettingsService(private val settingsApi: SettingsManager) {
      * @return An [<] containing the response from the server
      * @see Settings
      */
-    @WebRequest
     internal fun enableNotifications(enable: Boolean): Observable<ResponseBody> =
         settingsApi.updateSetting(
             SettingsManager.METHOD_UPDATE_NOTIFICATION_ON,
@@ -114,7 +105,6 @@ class SettingsService(private val settingsApi: SettingsManager) {
      * @return A [ResponseBody] containing the response from the server
      * @see Settings
      */
-    @WebRequest
     internal fun updateTwoFactor(authType: Int): Observable<ResponseBody> =
         settingsApi.updateSetting(SettingsManager.METHOD_UPDATE_AUTH_TYPE, authType)
 
@@ -124,11 +114,9 @@ class SettingsService(private val settingsApi: SettingsManager) {
      * @param fiatUnit The user's preference for fiat unit
      * @return A [ResponseBody] containing the response from the server
      */
-    @WebRequest
     internal fun updateFiatUnit(fiatUnit: String): Observable<ResponseBody> =
         settingsApi.updateSetting(SettingsManager.METHOD_UPDATE_CURRENCY, fiatUnit)
 
-    @WebRequest
     internal fun updateLastTxTime(epochTime: String): Observable<ResponseBody> =
         settingsApi.updateSetting(SettingsManager.METHOD_UPDATE_LAST_TX_TIME, epochTime)
 }

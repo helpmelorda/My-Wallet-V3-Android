@@ -1,9 +1,10 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.preferences.BankLinkingPrefs
@@ -50,7 +51,7 @@ class TransactionInteractor(
     private val custodialRepository: CustodialRepository,
     private val custodialWalletManager: CustodialWalletManager,
     private val currencyPrefs: CurrencyPrefs,
-    private val eligibilityProvider: SimpleBuyEligibilityProvider,
+    private val identity: UserIdentity,
     private val accountsSorting: AccountsSorting,
     private val linkedBanksFactory: LinkedBanksFactory,
     private val bankLinkingPrefs: BankLinkingPrefs
@@ -150,7 +151,7 @@ class TransactionInteractor(
         Singles.zip(
             coincore.getTransactionTargets(sourceAccount, AssetAction.Swap),
             custodialRepository.getSwapAvailablePairs(),
-            eligibilityProvider.isEligibleForSimpleBuy()
+            identity.isEligibleFor(Feature.SimpleBuy)
         ).map { (accountList, pairs, eligible) ->
             accountList.filterIsInstance(CryptoAccount::class.java)
                 .filter { account ->

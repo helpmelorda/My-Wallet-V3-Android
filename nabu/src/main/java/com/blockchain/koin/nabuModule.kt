@@ -5,6 +5,7 @@ import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.CreateNabuToken
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.datamanagers.AnalyticsNabuUserReporterImpl
 import com.blockchain.nabu.datamanagers.AnalyticsWalletReporter
@@ -16,6 +17,7 @@ import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.NabuDataManagerImpl
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.datamanagers.NabuDataUserProviderNabuDataManagerAdapter
+import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.nabu.datamanagers.NabuUserReporter
 import com.blockchain.nabu.datamanagers.NabuUserSyncUpdateUserWalletInfoWithJWT
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
@@ -41,8 +43,6 @@ import com.blockchain.nabu.datamanagers.repositories.RecurringBuyRepository
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestAvailabilityProvider
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestAvailabilityProviderImpl
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestBalancesProvider
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestBalancesProviderImpl
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProviderImpl
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimitsProvider
@@ -136,6 +136,15 @@ val nabuModule = module {
             )
         }.bind(BankLinkingEnabledProvider::class)
 
+        scoped {
+            NabuUserIdentity(
+                custodialWalletManager = get(),
+                tierService = get(),
+                simpleBuyEligibilityProvider = get(),
+                interestEligibilityProvider = get()
+            )
+        }.bind(UserIdentity::class)
+
         factory {
             NabuCachedEligibilityProvider(
                 nabuService = get(),
@@ -168,14 +177,6 @@ val nabuModule = module {
                 authenticator = get()
             )
         }.bind(InterestEligibilityProvider::class)
-
-        factory {
-            InterestBalancesProviderImpl(
-                assetCatalogue = get(),
-                nabuService = get(),
-                authenticator = get()
-            )
-        }.bind(InterestBalancesProvider::class)
 
         factory {
             TradingPairsProviderImpl(
@@ -257,8 +258,7 @@ val nabuModule = module {
             InterestRepository(
                 interestAvailabilityProvider = get(),
                 interestEligibilityProvider = get(),
-                interestLimitsProvider = get(),
-                interestAccountBalancesProvider = get()
+                interestLimitsProvider = get()
             )
         }
 

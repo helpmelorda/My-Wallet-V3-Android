@@ -13,10 +13,6 @@ internal class TradingBalanceCallCache(
     private val balanceService: CustodialBalanceService,
     private val authHeaderProvider: AuthHeaderProvider
 ) {
-    companion object {
-        private const val CACHE_LIFETIME = 10L
-    }
-
     private val custodialBalancesCache = TimedCacheRequest(
         cacheLifetimeSeconds = CACHE_LIFETIME,
         refreshFn = {
@@ -31,9 +27,9 @@ internal class TradingBalanceCallCache(
             it[asset.ticker]?.let { response ->
                 Maybe.just(
                     Balance(
-                        total = CryptoValue.fromMinor(asset, response.total.toBigInteger()),
-                        actionable = CryptoValue.fromMinor(asset, response.actionable.toBigInteger()),
-                        pending = CryptoValue.fromMinor(asset, response.pending.toBigInteger())
+                        total = CryptoValue.fromMinor(asset, response.total),
+                        actionable = CryptoValue.fromMinor(asset, response.actionable),
+                        pending = CryptoValue.fromMinor(asset, response.pending)
                     )
                 )
             } ?: Maybe.empty()
@@ -51,4 +47,8 @@ internal class TradingBalanceCallCache(
                 )
             } ?: Maybe.empty()
         }.onErrorResumeNext { Maybe.empty() }
+
+    companion object {
+        private const val CACHE_LIFETIME = 10L
+    }
 }
