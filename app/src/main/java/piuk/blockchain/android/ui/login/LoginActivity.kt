@@ -99,6 +99,15 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        recaptchaClient.close()
+        super.onDestroy()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
         intent.data?.let { uri ->
             uri.fragment?.let { fragment ->
                 if (fragment.split(LoginAuthActivity.LINK_DELIMITER).size > 1) {
@@ -107,11 +116,6 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                 }
             }
         }
-    }
-
-    override fun onDestroy() {
-        recaptchaClient.close()
-        super.onDestroy()
     }
 
     override fun initBinding(): ActivityLoginNewBinding = ActivityLoginNewBinding.inflate(layoutInflater)

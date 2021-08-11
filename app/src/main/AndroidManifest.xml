@@ -99,7 +99,8 @@
         <activity
             android:name=".ui.login.LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTask" >
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
