@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.createwallet
 
+import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.preferences.WalletStatus
@@ -24,10 +25,10 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrngFixer
 
-class CreateWalletPresenterTest {
+class NewCreateWalletPresenterTest {
 
-    private lateinit var subject: CreateWalletPresenter
-    private val view: CreateWalletView = mock()
+    private lateinit var subject: NewCreateWalletPresenter
+    private val view: NewCreateWalletView = mock()
     private val appUtil: AppUtil = mock()
     private val accessState: AccessState = mock()
     private val payloadDataManager: PayloadDataManager = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
@@ -37,10 +38,11 @@ class CreateWalletPresenterTest {
     private val walletPrefs: WalletStatus = mock()
     private val environmentConfig: EnvironmentConfig = mock()
     private val formatChecker: FormatChecker = mock()
+    private val nabuUserDataManager: NabuUserDataManager = mock()
 
     @Before
     fun setUp() {
-        subject = CreateWalletPresenter(
+        subject = NewCreateWalletPresenter(
             payloadDataManager = payloadDataManager,
             prefs = prefsUtil,
             appUtil = appUtil,
@@ -49,7 +51,8 @@ class CreateWalletPresenterTest {
             analytics = analytics,
             walletPrefs = walletPrefs,
             environmentConfig = environmentConfig,
-            formatChecker = formatChecker
+            formatChecker = formatChecker,
+            nabuUserDataManager = nabuUserDataManager
         )
         subject.initView(view)
     }
@@ -80,7 +83,7 @@ class CreateWalletPresenterTest {
         whenever(payloadDataManager.wallet!!.sharedKey).thenReturn(sharedKey)
 
         // Act
-        subject.createOrRestoreWallet(email, pw1, recoveryPhrase)
+        subject.createOrRestoreWallet(email, pw1, recoveryPhrase, "", "")
         // Assert
         verify(prngFixer).applyPRNGFixes()
         val observer = payloadDataManager.createHdWallet(pw1, accountName, email).test()
@@ -88,9 +91,9 @@ class CreateWalletPresenterTest {
         observer.assertNoErrors()
 
         verify(view).showProgressDialog(any())
+        verify(prefsUtil).email = email
         verify(prefsUtil).walletGuid = guid
         verify(prefsUtil).sharedKey = sharedKey
-        verify(prefsUtil).email = email
         verify(accessState).isNewlyCreated = true
         verify(view).startPinEntryActivity()
         verify(view).dismissProgressDialog()
@@ -114,7 +117,7 @@ class CreateWalletPresenterTest {
         whenever(payloadDataManager.wallet!!.sharedKey).thenReturn(sharedKey)
 
         // Act
-        subject.createOrRestoreWallet(email, pw1, recoveryPhrase)
+        subject.createOrRestoreWallet(email, pw1, recoveryPhrase, "", "")
 
         // Assert
         val observer = payloadDataManager.restoreHdWallet(email, pw1, accountName, recoveryPhrase)
@@ -209,6 +212,32 @@ class CreateWalletPresenterTest {
         val result = subject.validateCredentials("john@snow.com", pw1, pw1)
         // Assert
         assert(result)
+        verifyZeroInteractions(view)
+    }
+
+    @Test
+    fun `validateGeolocation country != US is selected`() {
+        val result = subject.validateGeoLocation("DE")
+
+        assert(result)
+        verifyZeroInteractions(view)
+    }
+
+    @Test
+    fun `validateGeolocation country not selected`() {
+        val result = subject.validateGeoLocation()
+
+        assert(!result)
+        verify(view).showError(R.string.country_not_selected)
+        verifyZeroInteractions(view)
+    }
+
+    @Test
+    fun `validateGeolocation country == US is selected and state is not selected`() {
+        val result = subject.validateGeoLocation("US")
+
+        assert(!result)
+        verify(view).showError(R.string.state_not_selected)
         verifyZeroInteractions(view)
     }
 }

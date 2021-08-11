@@ -53,7 +53,8 @@ class Prerequisites(
                     .logAndCompleteOnError(WALLET_CREDENTIALS)
             }.doOnComplete {
                 rxBus.emitEvent(MetadataEvent::class.java, MetadataEvent.SETUP_COMPLETE)
-            }.subscribeOn(Schedulers.io())
+            }
+            .subscribeOn(Schedulers.io())
 
     private fun Completable.logOnError(tag: String): Completable =
         this.doOnError {

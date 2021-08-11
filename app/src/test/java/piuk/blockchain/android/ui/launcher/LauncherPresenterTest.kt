@@ -4,11 +4,13 @@ import android.app.LauncherActivity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.WalletStatus
 import com.blockchain.remoteconfig.FeatureFlag
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -18,7 +20,6 @@ import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,6 +60,8 @@ class LauncherPresenterTest {
     private val analytics: Analytics = mock()
     private val crashLogger: CrashLogger = mock()
     private val prerequisites: Prerequisites = mock()
+    private val walletPrefs = mock<WalletStatus>()
+    private val nabuUserDataManager = mock<NabuUserDataManager>()
 
     private val subject = LauncherPresenter(
         appUtil,
@@ -73,7 +76,9 @@ class LauncherPresenterTest {
         analytics,
         prerequisites,
         userIdentity,
-        crashLogger
+        crashLogger,
+        walletPrefs,
+        nabuUserDataManager
     )
 
     @Before
@@ -84,6 +89,15 @@ class LauncherPresenterTest {
         val settings: Settings = mock()
         whenever(settingsDataManager.updateFiatUnit(anyString()))
             .thenReturn(Observable.just(settings))
+        whenever(walletPrefs.countrySelectedOnSignUp).thenReturn("US")
+        whenever(walletPrefs.stateSelectedOnSignUp).thenReturn("US-FL")
+
+        whenever(
+            nabuUserDataManager.saveUserInitialLocation(
+                walletPrefs.countrySelectedOnSignUp,
+                walletPrefs.stateSelectedOnSignUp
+            )
+        ).thenReturn(Completable.complete())
     }
 
     @Test

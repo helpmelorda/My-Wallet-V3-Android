@@ -2,7 +2,9 @@ package com.blockchain.api.services
 
 import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.nabu.data.GeolocationResponse
+import com.blockchain.api.nabu.data.InitialAddressRequest
 import com.blockchain.api.nabu.data.InterestEligibilityResponse
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.util.Locale
 
@@ -28,8 +30,22 @@ class NabuUserService internal constructor(
             .onErrorReturn { emptyMap() }
             .map { it.toDomain() }
 
-    fun getGeolocation(): Single<GeolocationResponse> = api.getUserGeolocation()
+    fun getGeolocation(): Single<Geolocation> = api.getUserGeolocation().map { it.toGeolocation() }
+
+    fun saveUserInitialLocation(
+        authHeader: String,
+        countryIsoCode: String,
+        stateIsoCode: String?
+    ): Completable =
+        api.saveUserInitialLocation(authHeader, InitialAddressRequest(countryIsoCode, stateIsoCode))
 }
 
 private fun Map<String, InterestEligibilityResponse>.toDomain(): InterestEligibility =
     InterestEligibility(this)
+
+private fun GeolocationResponse.toGeolocation() = Geolocation(this.countryCode, this.state)
+
+data class Geolocation(
+    val countryCode: String,
+    val state: String? = null
+)

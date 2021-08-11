@@ -10,11 +10,11 @@ import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.usd
 import com.blockchain.logging.DigitalTrust
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentAccountMapper
 import com.blockchain.network.websocket.Options
 import com.blockchain.network.websocket.autoRetry
 import com.blockchain.network.websocket.debugLog
 import com.blockchain.network.websocket.newBlockchainWebSocket
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentAccountMapper
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.DefaultLabels
 import com.google.gson.GsonBuilder
@@ -61,10 +61,16 @@ import piuk.blockchain.android.ui.airdrops.AirdropCentrePresenter
 import piuk.blockchain.android.ui.auth.FirebaseMobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.PinEntryPresenter
+import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
+import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedPresenter
+import piuk.blockchain.android.ui.backup.start.BackupWalletStartingInteractor
+import piuk.blockchain.android.ui.backup.start.BackupWalletStartingModel
+import piuk.blockchain.android.ui.backup.start.BackupWalletStartingState
 import piuk.blockchain.android.ui.backup.verify.BackupVerifyPresenter
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListPresenter
 import piuk.blockchain.android.ui.createwallet.CreateWalletPresenter
+import piuk.blockchain.android.ui.createwallet.NewCreateWalletPresenter
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.customviews.dialogs.OverlayDetection
 import piuk.blockchain.android.ui.dashboard.BalanceAnalyticsReporter
@@ -85,11 +91,6 @@ import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.android.ui.linkbank.BankAuthModel
 import piuk.blockchain.android.ui.linkbank.BankAuthState
 import piuk.blockchain.android.ui.onboarding.OnboardingPresenter
-import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
-import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
-import piuk.blockchain.android.ui.backup.start.BackupWalletStartingInteractor
-import piuk.blockchain.android.ui.backup.start.BackupWalletStartingModel
-import piuk.blockchain.android.ui.backup.start.BackupWalletStartingState
 import piuk.blockchain.android.ui.pairingcode.PairingModel
 import piuk.blockchain.android.ui.pairingcode.PairingState
 import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
@@ -99,23 +100,20 @@ import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapp
 import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
 import piuk.blockchain.android.data.TradeDataManagerImpl
 import piuk.blockchain.android.data.Mapper
-import piuk.blockchain.android.data.NabuUserDataManagerImpl
-import piuk.blockchain.android.domain.repositories.NabuUserDataManager
 import piuk.blockchain.android.domain.repositories.TradeDataManager
 import piuk.blockchain.android.domain.usecases.GetNextPaymentDateUseCase
-import piuk.blockchain.android.domain.usecases.GetUserGeolocationUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
 import piuk.blockchain.android.ui.settings.SettingsPresenter
-import piuk.blockchain.android.ui.transfer.receive.ReceiveIntentHelper
 import piuk.blockchain.android.ui.shortcuts.receive.ReceiveQrPresenter
 import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
 import piuk.blockchain.android.ui.thepit.PitPermissionsPresenter
 import piuk.blockchain.android.ui.thepit.PitVerifyEmailPresenter
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.android.ui.transfer.DashboardAccountsSorting
+import piuk.blockchain.android.ui.transfer.receive.ReceiveIntentHelper
 import piuk.blockchain.android.ui.transfer.receive.ReceiveModel
 import piuk.blockchain.android.ui.transfer.receive.ReceiveState
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
@@ -292,8 +290,22 @@ val applicationModule = module {
                 analytics = get(),
                 walletPrefs = get(),
                 environmentConfig = get(),
+                formatChecker = get()
+            )
+        }
+
+        factory {
+            NewCreateWalletPresenter(
+                payloadDataManager = get(),
+                prefs = get(),
+                appUtil = get(),
+                accessState = get(),
+                prngFixer = get(),
+                analytics = get(),
+                walletPrefs = get(),
+                environmentConfig = get(),
                 formatChecker = get(),
-                getGeolocationUseCase = get()
+                nabuUserDataManager = get()
             )
         }
 
@@ -520,12 +532,6 @@ val applicationModule = module {
         }
 
         factory {
-            GetUserGeolocationUseCase(
-                nabuUserDataManager = get()
-            )
-        }
-
-        factory {
             TradeDataManagerImpl(
                 tradeService = get(),
                 authenticator = get(),
@@ -541,12 +547,6 @@ val applicationModule = module {
         factory {
             GetNextPaymentDateListToFrequencyDateMapper()
         }.bind(Mapper::class)
-
-        factory {
-            NabuUserDataManagerImpl(
-                nabuUserService = get()
-            )
-        }.bind(NabuUserDataManager::class)
 
         factory {
             SimpleBuyPrefsSerializerImpl(
@@ -743,7 +743,9 @@ val applicationModule = module {
                 analytics = get(),
                 crashLogger = get(),
                 prerequisites = get(),
-                userIdentity = get()
+                userIdentity = get(),
+                walletPrefs = get(),
+                nabuUserDataManager = get()
             )
         }
 

@@ -35,8 +35,8 @@ class ResetPasswordInteractor(
                             accessState.isNewlyCreated = true
                             prefs.walletGuid = wallet.guid
                             prefs.sharedKey = wallet.sharedKey
+                            prefs.email = email
                             walletPrefs.setNewUser()
-                            prefs.setValue(PersistentPrefs.KEY_EMAIL, email)
                         }
                     }
             }

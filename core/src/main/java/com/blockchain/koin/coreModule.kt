@@ -52,6 +52,8 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.impl.AssetPriceStore
 import com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl
 import com.blockchain.core.price.impl.SparklineCallCache
+import com.blockchain.core.user.NabuUserDataManager
+import com.blockchain.core.user.NabuUserDataManagerImpl
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -228,12 +230,14 @@ val coreModule = module {
 
         scoped { WalletOptionsState() }
 
-        scoped { SettingsDataManager(
-            settingsService = get(),
-            settingsDataStore = get(),
-            currencyPrefs = get(),
-            walletSettingsService = get()
-        ) }
+        scoped {
+            SettingsDataManager(
+                settingsService = get(),
+                settingsDataStore = get(),
+                currencyPrefs = get(),
+                walletSettingsService = get()
+            )
+        }
 
         scoped { SettingsService(get()) }
 
@@ -276,6 +280,13 @@ val coreModule = module {
         factory { SettingsPhoneNumberUpdater(get()) }.bind(PhoneNumberUpdater::class)
 
         factory { SettingsEmailAndSyncUpdater(get(), get()) }.bind(EmailSyncUpdater::class)
+
+        scoped {
+            NabuUserDataManagerImpl(
+                nabuUserService = get(),
+                authenticator = get()
+            )
+        }.bind(NabuUserDataManager::class)
     }
 
     factory {

@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.createwallet
 
 import android.app.LauncherActivity
 import androidx.annotation.StringRes
-import com.blockchain.api.nabu.data.GeolocationResponse
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.Logging
@@ -11,10 +10,8 @@ import info.blockchain.wallet.util.PasswordUtil
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
-import piuk.blockchain.android.domain.usecases.GetUserGeolocationUseCase
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.base.View
-import piuk.blockchain.android.ui.createwallet.NewCreateWalletActivity.Companion.CODE_US
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.androidcore.data.access.AccessState
@@ -32,7 +29,6 @@ interface CreateWalletView : View {
     fun showProgressDialog(message: Int)
     fun dismissProgressDialog()
     fun getDefaultAccountName(): String
-    fun setGeolocationInCountrySpinner(geolocation: GeolocationResponse)
 }
 
 class CreateWalletPresenter(
@@ -44,23 +40,11 @@ class CreateWalletPresenter(
     private val analytics: Analytics,
     private val walletPrefs: WalletStatus,
     private val environmentConfig: EnvironmentConfig,
-    private val formatChecker: FormatChecker,
-    private val getGeolocationUseCase: GetUserGeolocationUseCase
+    private val formatChecker: FormatChecker
 ) : BasePresenter<CreateWalletView>() {
 
     override fun onViewReady() {
         // No-op
-    }
-
-    fun getUserGeolocation() {
-        getGeolocationUseCase(Unit).subscribeBy(
-            onSuccess = { geolocation ->
-                view.setGeolocationInCountrySpinner(geolocation)
-            },
-            onError = {
-                Timber.e(it.localizedMessage)
-            }
-        )
     }
 
     fun validateCredentials(email: String, password1: String, password2: String): Boolean =
@@ -83,26 +67,20 @@ class CreateWalletPresenter(
             else -> true
         }
 
-    fun validateGeoLocation(countryCode: String? = null, stateCode: String? = null): Boolean =
-        when {
-            countryCode.isNullOrBlank() -> {
-                view.showError(R.string.country_not_selected)
-                false
-            }
-            countryCode == CODE_US && stateCode.isNullOrBlank() -> {
-                view.showError(R.string.state_not_selected)
-                false
-            }
-            else -> true
-        }
-
-    fun createOrRestoreWallet(email: String, password: String, recoveryPhrase: String) =
+    fun createOrRestoreWallet(
+        email: String,
+        password: String,
+        recoveryPhrase: String
+    ) =
         when {
             recoveryPhrase.isNotEmpty() -> recoverWallet(email, password, recoveryPhrase)
             else -> createWallet(email, password)
         }
 
-    private fun createWallet(email: String, password: String) {
+    private fun createWallet(
+        email: String,
+        password: String
+    ) {
         analytics.logEventOnce(AnalyticsEvents.WalletSignupCreated)
         prngFixer.applyPRNGFixes()
 
@@ -117,7 +95,7 @@ class CreateWalletPresenter(
             .subscribe(
                 {
                     walletPrefs.setNewUser()
-                    prefs.setValue(PersistentPrefs.KEY_EMAIL, email)
+                    prefs.email = email
                     view.startPinEntryActivity()
                     Logging.logSignUp(true)
                     analytics.logEvent(AnalyticsEvents.WalletCreation)
@@ -148,8 +126,8 @@ class CreateWalletPresenter(
             view.dismissProgressDialog()
         }.subscribeBy(
             onSuccess = {
-                prefs.setValue(PersistentPrefs.KEY_EMAIL, email)
-                prefs.setValue(PersistentPrefs.KEY_ONBOARDING_COMPLETE, true)
+                prefs.email = email
+                prefs.isOnBoardingComplete = true
                 view.startPinEntryActivity()
                 analytics.logEvent(WalletCreationEvent.RecoverWalletEvent(true))
             },

@@ -27,6 +27,11 @@ interface WalletStatus {
     val isNewUser: Boolean
     fun setNewUser()
 
+    var countrySelectedOnSignUp: String
+    var stateSelectedOnSignUp: String
+
+    var email: String
+
     val hasSeenTradingSwapPromo: Boolean
     fun setSeenTradingSwapPromo()
 }

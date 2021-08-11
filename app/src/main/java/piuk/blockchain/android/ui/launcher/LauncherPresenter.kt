@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.launcher
 
 import android.app.LauncherActivity
 import android.content.Intent
+import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
@@ -11,6 +12,7 @@ import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.WalletStatus
 import info.blockchain.wallet.api.Environment
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.exceptions.HDWalletException
@@ -48,7 +50,9 @@ class LauncherPresenter(
     private val analytics: Analytics,
     private val prerequisites: Prerequisites,
     private val userIdentity: UserIdentity,
-    private val crashLogger: CrashLogger
+    private val crashLogger: CrashLogger,
+    private val walletPrefs: WalletStatus,
+    private val nabuUserDataManager: NabuUserDataManager
 ) : BasePresenter<LauncherView>() {
 
     override fun onViewReady() {
@@ -135,12 +139,14 @@ class LauncherPresenter(
         compositeDisposable +=
             settings.zipWith(
                 metadata.toSingleDefault(true)
-            ).map { (_, _) ->
+            ).map {
                 if (!shouldCheckForEmailVerification())
                     false
                 else {
                     walletJustCreated()
                 }
+            }.flatMap { isWalletJustCreated ->
+                saveInitialCountry(isWalletJustCreated)
             }.flatMap { emailVerifShouldLaunched ->
                 if (noCurrencySet())
                     settingsDataManager.setDefaultUserFiat()
@@ -160,35 +166,53 @@ class LauncherPresenter(
                 prerequisites.warmCaches()
                     .toSingle { emailVerifShouldLaunched }
             }.observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe {
-                view.updateProgressVisibility(true)
-            }.subscribeBy(
-                onSuccess = { emailVerifShouldLaunched ->
-                    view.updateProgressVisibility(false)
-                    if (emailVerifShouldLaunched) {
-                        launchEmailVerification()
-                    } else {
-                        startMainActivity()
-                    }
-                }, onError = { throwable ->
-                    logException(throwable)
-                    view.updateProgressVisibility(false)
-                    if (throwable is InvalidCredentialsException || throwable is HDWalletException) {
-                        if (payloadDataManager.isDoubleEncrypted) {
-                            // Wallet double encrypted and needs to be decrypted to set up ether wallet, contacts etc
-                            view?.showSecondPasswordDialog()
+                .doOnSubscribe {
+                    view.updateProgressVisibility(true)
+                }.subscribeBy(
+                    onSuccess = { emailVerifShouldLaunched ->
+                        view.updateProgressVisibility(false)
+                        if (emailVerifShouldLaunched) {
+                            launchEmailVerification()
                         } else {
-                            view.showToast(R.string.unexpected_error, ToastCustom.TYPE_ERROR)
-                            view.onRequestPin()
+                            startMainActivity()
                         }
-                    } else if (throwable is MetadataInitException) {
-                        view?.showMetadataNodeFailure()
-                    } else {
-                        view.showToast(R.string.unexpected_error, ToastCustom.TYPE_ERROR)
-                        view.onRequestPin()
+                    }, onError = { throwable ->
+                        handleOnErrorLauncher(throwable)
                     }
-                }
-            )
+                )
+    }
+
+    private fun handleOnErrorLauncher(throwable: Throwable) {
+        logException(throwable)
+        view.updateProgressVisibility(false)
+        if (throwable is InvalidCredentialsException || throwable is HDWalletException) {
+            if (payloadDataManager.isDoubleEncrypted) {
+                // Wallet double encrypted and needs to be decrypted to set up ether wallet, contacts etc
+                view?.showSecondPasswordDialog()
+            } else {
+                view.showToast(R.string.unexpected_error, ToastCustom.TYPE_ERROR)
+                view.onRequestPin()
+            }
+        } else if (throwable is MetadataInitException) {
+            view?.showMetadataNodeFailure()
+        } else {
+            view.showToast(R.string.unexpected_error, ToastCustom.TYPE_ERROR)
+            view.onRequestPin()
+        }
+    }
+
+    private fun saveInitialCountry(isWalletJustCreated: Boolean): Single<Boolean> {
+        val countrySelected = walletPrefs.countrySelectedOnSignUp
+        return if (countrySelected.isNotEmpty()) {
+            Timber.e("saveInitialCountry")
+            val stateSelected = walletPrefs.stateSelectedOnSignUp
+            nabuUserDataManager.saveUserInitialLocation(
+                countrySelected,
+                stateSelected.takeIf { it.isNotEmpty() }
+            ).onErrorComplete().toSingleDefault(isWalletJustCreated)
+        } else {
+            Single.just(isWalletJustCreated)
+        }
     }
 
     private fun isNewAccount(): Boolean = accessState.isNewlyCreated

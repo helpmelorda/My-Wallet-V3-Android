@@ -4,10 +4,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GeolocationResponse(
-    val ip: String,
-    @SerialName("countryCode")
-    val countryCode: String,
+data class InitialAddressRequest(
+    @SerialName("country")
+    val country: String,
     @SerialName("state")
-    val state: String? = null
+    val state: String?
 )

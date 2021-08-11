@@ -14,5 +14,7 @@ interface AuthPrefs {
     var pinFails: Int
     var sessionId: String
 
+    var emailVerified: Boolean
+
     fun clearSessionId()
 }
