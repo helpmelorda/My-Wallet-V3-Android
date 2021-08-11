@@ -14,6 +14,7 @@ import io.reactivex.rxjava3.core.Single
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
+import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.tiers
@@ -26,6 +27,7 @@ class AnnouncementQueriesTest {
     private val nabu: NabuDataManager = mock()
     private val tierService: TierService = mock()
     private val userIdentity: UserIdentity = mock()
+    private val coincore: Coincore = mock()
 
     private val sbSync: SimpleBuySyncFactory = mock()
 
@@ -41,7 +43,8 @@ class AnnouncementQueriesTest {
             nabu = nabu,
             tierService = tierService,
             sbStateFactory = sbSync,
-            userIdentity = userIdentity
+            userIdentity = userIdentity,
+            coincore = coincore
         )
     }
 

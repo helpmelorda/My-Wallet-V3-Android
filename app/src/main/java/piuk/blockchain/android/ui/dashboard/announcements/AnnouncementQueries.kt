@@ -14,6 +14,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.campaign.blockstackCampaignName
+import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
@@ -23,8 +24,16 @@ class AnnouncementQueries(
     private val nabu: NabuDataManager,
     private val tierService: TierService,
     private val sbStateFactory: SimpleBuySyncFactory,
-    private val userIdentity: UserIdentity
+    private val userIdentity: UserIdentity,
+    private val coincore: Coincore
 ) {
+    fun hasFundedFiatWallets(): Single<Boolean> =
+        coincore.fiatAssets.accountGroup().toSingle().map {
+            it.accounts.any { acc ->
+                acc.isFunded
+            }
+        }
+
     // Attempt to figure out if KYC/swap etc is allowed based on location...
     fun canKyc(): Single<Boolean> {
 

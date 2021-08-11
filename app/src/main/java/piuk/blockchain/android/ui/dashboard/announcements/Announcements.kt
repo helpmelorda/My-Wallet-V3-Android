@@ -36,6 +36,7 @@ interface AnnouncementHost {
     fun startBuy()
     fun startSell()
     fun startSend()
+    fun startRecurringBuyUpsell()
 
     fun showFiatFundsKyc()
     fun showBankLinking()

@@ -60,6 +60,7 @@ import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
+import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.BankLinkingHost
@@ -579,6 +580,10 @@ class DashboardFragment :
 
         override fun openBrowserLink(url: String) =
             requireContext().launchUrlInBrowser(url)
+
+        override fun startRecurringBuyUpsell() {
+            startActivity(RecurringBuyOnboardingActivity.newInstance(requireActivity(), false))
+        }
     }
 
     override fun onBankWireTransferSelected(currency: String) {
