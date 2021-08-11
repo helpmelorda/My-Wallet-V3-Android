@@ -62,7 +62,7 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
 
     private fun showFullScreen() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.setDecorFitsSystemWindows(false)
+            window.setDecorFitsSystemWindows(true)
         } else {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
         }
