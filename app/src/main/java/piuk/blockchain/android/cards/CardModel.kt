@@ -17,7 +17,7 @@ import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import java.lang.IllegalStateException
 
 class CardModel(
-    scheduler: Scheduler,
+    uiScheduler: Scheduler,
     currencyPrefs: CurrencyPrefs,
     private val interactor: SimpleBuyInteractor,
     private val prefs: SimpleBuyPrefs,
@@ -26,8 +26,12 @@ class CardModel(
     val environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<CardState, CardIntent>(
-    gson.fromJson(prefs.cardState(), CardState::class.java)
-        ?: CardState(currencyPrefs.selectedFiatCurrency), scheduler, environmentConfig, crashLogger
+    initialState = gson.fromJson(prefs.cardState(), CardState::class.java)
+        ?: CardState(
+            fiatCurrency = currencyPrefs.selectedFiatCurrency),
+            uiScheduler = uiScheduler,
+            environmentConfig = environmentConfig,
+            crashLogger = crashLogger
 ) {
 
     override fun performAction(previousState: CardState, intent: CardIntent): Disposable? =

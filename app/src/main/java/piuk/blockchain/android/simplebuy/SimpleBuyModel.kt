@@ -38,7 +38,7 @@ class SimpleBuyModel(
     private val prefs: SimpleBuyPrefs,
     private val ratingPrefs: RatingPrefs,
     initialState: SimpleBuyState,
-    scheduler: Scheduler,
+    uiScheduler: Scheduler,
     private val serializer: SimpleBuyPrefsSerializer,
     private val cardActivators: List<CardActivator>,
     private val interactor: SimpleBuyInteractor,
@@ -49,7 +49,7 @@ class SimpleBuyModel(
     private val featureFlagApi: InternalFeatureFlagApi
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
     initialState = serializer.fetch() ?: initialState,
-    observeScheduler = scheduler,
+    uiScheduler = uiScheduler,
     environmentConfig = environmentConfig,
     crashLogger = crashLogger
 ) {

@@ -50,7 +50,7 @@ class BankAuthModelTest {
         model = BankAuthModel(
             interactor = interactor,
             initialState = defaultState,
-            scheduler = Schedulers.io(),
+            uiScheduler = Schedulers.io(),
             environmentConfig = mock(),
             crashLogger = mock()
         )
@@ -1046,7 +1046,7 @@ class BankAuthModelTest {
         model = BankAuthModel(
             interactor,
             initialState = defaultState,
-            scheduler = Schedulers.io(),
+            uiScheduler = Schedulers.io(),
             environmentConfig = mock(),
             crashLogger = mock()
         )

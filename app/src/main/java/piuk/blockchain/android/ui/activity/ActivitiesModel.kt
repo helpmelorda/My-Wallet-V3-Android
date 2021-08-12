@@ -44,13 +44,13 @@ data class ActivitiesState(
 
 class ActivitiesModel(
     initialState: ActivitiesState,
-    mainScheduler: Scheduler,
+    uiScheduler: Scheduler,
     private val interactor: ActivitiesInteractor,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<ActivitiesState, ActivitiesIntent>(
     initialState,
-    mainScheduler,
+    uiScheduler,
     environmentConfig,
     crashLogger
 ) {

@@ -495,7 +495,7 @@ val applicationModule = module {
         factory {
             SimpleBuyModel(
                 interactor = get(),
-                scheduler = AndroidSchedulers.mainThread(),
+                uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = SimpleBuyState(),
                 ratingPrefs = get(),
                 prefs = get(),
@@ -562,7 +562,7 @@ val applicationModule = module {
         factory {
             BankAuthModel(
                 interactor = get(),
-                scheduler = AndroidSchedulers.mainThread(),
+                uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = BankAuthState(),
                 environmentConfig = get(),
                 crashLogger = get()
@@ -573,7 +573,7 @@ val applicationModule = module {
             CardModel(
                 interactor = get(),
                 currencyPrefs = get(),
-                scheduler = AndroidSchedulers.mainThread(),
+                uiScheduler = AndroidSchedulers.mainThread(),
                 cardActivators = listOf(
                     EverypayCardActivator(get(), get())
                 ),
@@ -620,7 +620,7 @@ val applicationModule = module {
         factory {
             ReceiveModel(
                 initialState = ReceiveState(),
-                observeScheduler = AndroidSchedulers.mainThread(),
+                uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
                 crashLogger = get(),
                 qrCodeDataManager = get(),
@@ -798,7 +798,7 @@ val applicationModule = module {
         factory {
             EmailVeriffModel(
                 interactor = get(),
-                observeScheduler = AndroidSchedulers.mainThread(),
+                uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
                 crashLogger = get()
             )

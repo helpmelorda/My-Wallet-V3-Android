@@ -18,12 +18,12 @@ import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 class BankAuthModel(
     private val interactor: SimpleBuyInteractor,
     initialState: BankAuthState,
-    scheduler: Scheduler,
+    uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<BankAuthState, BankAuthIntent>(
     initialState,
-    scheduler,
+    uiScheduler,
     environmentConfig,
     crashLogger
 ) {

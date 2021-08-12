@@ -6,7 +6,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -37,7 +36,7 @@ class EmailVeriffModelTest {
     fun setUp() {
         model = EmailVeriffModel(
             interactor = interactor,
-            observeScheduler = Schedulers.io(),
+            uiScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             crashLogger = mock()
         )
