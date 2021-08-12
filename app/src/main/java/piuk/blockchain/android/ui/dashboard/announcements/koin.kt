@@ -17,6 +17,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.InterestAvailable
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycIncompleteAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycMoreInfoAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycResubmissionAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.NewAssetAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.PaxRenamedAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RecurringBuysAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RegisterBiometricsAnnouncement
@@ -58,7 +59,9 @@ val dashboardAnnouncementsModule = module {
                 tierService = get(),
                 sbStateFactory = get(),
                 userIdentity = get(),
-                coincore = get()
+                coincore = get(),
+                remoteConfig = get(),
+                assetCatalogue = get()
             )
         }
 
@@ -226,6 +229,13 @@ val dashboardAnnouncementsModule = module {
                 dismissRecorder = get(),
                 announcementQueries = get(),
                 currencyPrefs = get()
+            )
+        }.bind(AnnouncementRule::class)
+
+        factory {
+            NewAssetAnnouncement(
+                dismissRecorder = get(),
+                announcementQueries = get()
             )
         }.bind(AnnouncementRule::class)
     }

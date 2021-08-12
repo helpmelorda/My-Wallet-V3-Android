@@ -869,6 +869,10 @@
     <string name="tour_card_cta">Take A Tour</string>
     <string name="tour_card_dismiss">Maybe Later</string>
 
+    <!-- New asset announcement -->
+    <string name="new_asset_card_title">%1$s (%2$s) is Now Trading</string>
+    <string name="new_asset_card_body">Buy, sell, swap, send, receive and store %1$s in your Blockchain.com Wallet.</string>
+    <string name="new_asset_card_cta">Buy %1$s</string>
     <!-- Verify email announcement -->
     <string name="verify_email_card_title">Verify Your Email Address</string>
     <string name="verify_email_card_body">In order to start using your Blockchain wallet, you need to confirm your email address.</string>
