@@ -80,8 +80,19 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
                 super.onPageSelected(position)
                 showHeader(position == 0)
                 analytics.logEvent(RecurringBuyAnalytics.RecurringBuyInfoViewed(position))
+                playLottieAnimationInterval(position)
             }
         })
+    }
+
+    private fun playLottieAnimationInterval(position: Int) {
+        val minFrames = FRAMES_PER_SCREEN.times(position)
+        val maxFrames = minFrames + FRAMES_PER_SCREEN
+        binding.lottieAnimation.apply {
+            setMinFrame(minFrames)
+            setMaxFrame(maxFrames)
+            playAnimation()
+        }
     }
 
     private fun goToRecurringSetUpScreen() {
@@ -128,6 +139,7 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
     }
 
     companion object {
+        private const val FRAMES_PER_SCREEN = 60
         private const val ORIGIN_ON_BOARDING_RBS = "FROM_COINVIEW"
         private const val ASSET = "ASSET"
         fun newInstance(
