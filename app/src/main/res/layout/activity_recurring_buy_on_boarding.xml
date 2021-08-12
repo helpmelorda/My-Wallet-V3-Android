@@ -61,11 +61,8 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@id/viewpager"
         app:layout_constraintTop_toBottomOf="@id/header_text"
-        app:lottie_autoPlay="true"
         app:lottie_fileName="lottie/pricechart.json"
-        app:lottie_imageAssetsFolder="lottie/pricechart.json"
-        app:lottie_loop="true"
-        app:lottie_repeatMode="restart" />
+        app:lottie_imageAssetsFolder="lottie/pricechart.json" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewpager"
