@@ -74,7 +74,7 @@ class SimpleBuyModelTest {
     private val model = SimpleBuyModel(
         prefs = prefs,
         initialState = defaultState,
-        scheduler = Schedulers.io(),
+        uiScheduler = Schedulers.io(),
         interactor = interactor,
         cardActivators = listOf(
             mock()

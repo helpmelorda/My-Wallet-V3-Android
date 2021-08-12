@@ -1,7 +1,5 @@
 package piuk.blockchain.android.simplebuy
 
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.BuySellPairs
@@ -59,13 +57,8 @@ class SimpleBuyInteractor(
     private val analytics: Analytics,
     private val eligibilityProvider: SimpleBuyEligibilityProvider,
     private val coincore: Coincore,
-    private val bankLinkingPrefs: BankLinkingPrefs,
-    private val featureFlagApi: InternalFeatureFlagApi
+    private val bankLinkingPrefs: BankLinkingPrefs
 ) {
-
-    private val isRecurringBuyEnabled: Boolean by lazy {
-        featureFlagApi.isFeatureEnabled(GatedFeature.RECURRING_BUYS)
-    }
 
     // ignore limits when user is in tier 0
     fun fetchBuyLimitsAndSupportedCryptoCurrencies(
@@ -121,7 +114,7 @@ class SimpleBuyInteractor(
         state: SimpleBuyState,
         recurringBuyFrequency: RecurringBuyFrequency
     ): Single<RecurringBuyOrder> {
-        return if (isRecurringBuyEnabled && recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
+        return if (recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
             val asset = state.selectedCryptoAsset
             require(asset != null) { "createRecurringBuyOrder selected crypto is null" }
             require(state.order.amount != null) { "createRecurringBuyOrder amount is null" }

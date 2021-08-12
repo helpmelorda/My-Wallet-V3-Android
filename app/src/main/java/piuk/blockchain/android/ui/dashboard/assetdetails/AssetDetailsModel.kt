@@ -56,7 +56,9 @@ class AssetDetailsModel(
     private val interactor: AssetDetailsInteractor,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
-) : MviModel<AssetDetailsState, AssetDetailsIntent>(initialState, mainScheduler, environmentConfig, crashLogger) {
+) : MviModel<AssetDetailsState, AssetDetailsIntent>(
+    initialState, mainScheduler, environmentConfig, crashLogger
+) {
     override fun performAction(
         previousState: AssetDetailsState,
         intent: AssetDetailsIntent

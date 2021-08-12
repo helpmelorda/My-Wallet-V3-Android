@@ -1699,6 +1699,7 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="sb_checkout_pending_order_title">Ordem em progresso</string>
     <string name="sb_checkout_pending_order_blurb">Ups, parece que já tem uma ordem de compra em progresso, espere até estar completa antes de comprar novamente.</string>
     <string name="wallet_outage_message">Estamos a experienciar uma interrupção. Fique descansado que os seus fundos estão seguros. <annotation link="learn_more">Saiba mais</annotation></string>
+    <string name="wallet_issue_message">Há um alerta em nossa página de status. Todas as funcionalidades do portfólio podem não estar disponíveis. Fique descansado que os seus fundos estão seguros.<annotation link="learn_more"> Saiba mais →</annotation></string>
     <string name="increase_your_limits">Aumente os seus limites</string>
     <string name="increase_your_limits_body">Continue a sua verificação para se tornar o nível Gold e aumente os seus limites e métodos de pagamento.</string>
     <string name="continue_to_gold">Continue para Gold</string>

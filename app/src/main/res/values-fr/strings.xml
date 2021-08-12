@@ -1606,6 +1606,7 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué sur %
     <string name="sb_checkout_pending_order_title">Ordre en cours</string>
     <string name="sb_checkout_pending_order_blurb">Oups, il semble que vous ayez déjà un ordre d\'achat en cours, veuillez attendre qu\'il soit terminé avant d\'acheter à nouveau.</string>
     <string name="wallet_outage_message">Nous faisons face à une panne. Soyez assurés que vos fonds sont en sécurité. <annotation link="learn_more">En savoir plus</annotation></string>
+    <string name="wallet_issue_message">Il y a une alerte sur notre page d\'état. Toutes les fonctionnalités du portefeuille peuvent ne pas être disponibles. Soyez assurés que vos fonds sont en sécurité. <annotation link="learn_more">En savoir plus →</annotation></string>
     <string name="increase_your_limits">Augmentez vos plafonds</string>
     <string name="increase_your_limits_body">Continuez votre vérification pour accéder au niveau Gold et augmentez vos plafonds et modes de paiement</string>
     <string name="continue_to_gold">Continuez vers Gold</string>

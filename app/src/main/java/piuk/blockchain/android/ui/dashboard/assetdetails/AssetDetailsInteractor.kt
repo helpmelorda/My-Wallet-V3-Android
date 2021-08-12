@@ -39,8 +39,6 @@ sealed class AssetDetailsItem {
         val recurringBuy: RecurringBuy
     ) : AssetDetailsItem()
 
-    object AssetLabel : AssetDetailsItem()
-
     object RecurringBuyBanner : AssetDetailsItem()
 }
 

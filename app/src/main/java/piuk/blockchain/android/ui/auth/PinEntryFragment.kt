@@ -18,11 +18,7 @@ import androidx.appcompat.app.AppCompatActivity.RESULT_CANCELED
 import androidx.appcompat.app.AppCompatActivity.RESULT_OK
 import androidx.appcompat.widget.AppCompatEditText
 import com.blockchain.koin.scopedInject
-import piuk.blockchain.android.util.scopedInjectActivity
 import com.blockchain.ui.password.SecondPasswordHandler
-import piuk.blockchain.android.urllinks.APP_STORE_URI
-import piuk.blockchain.android.urllinks.APP_STORE_URL
-import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -32,8 +28,8 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.tasks.Task
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
@@ -48,21 +44,25 @@ import piuk.blockchain.android.data.biometrics.BiometricsCallback
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.FragmentPinEntryBinding
+import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.customviews.PinEntryKeypad
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
+import piuk.blockchain.android.urllinks.APP_STORE_URI
+import piuk.blockchain.android.urllinks.APP_STORE_URL
+import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.StringUtils.Companion.getStringWithMappedAnnotations
 import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.copyHashOnLongClick
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.scopedInjectActivity
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import piuk.blockchain.android.ui.base.BaseFragment
 
 class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
     PinEntryView, BiometricsEnrollmentBottomSheet.Host {
@@ -73,7 +73,6 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
 
     private val pinEntryPresenter: PinEntryPresenter by scopedInject()
     private val environmentConfig: EnvironmentConfig by inject()
-    private val stringUtils: StringUtils by inject()
     private val biometricsController: BiometricsController by scopedInject()
     private val appUtil: AppUtil by inject()
 
@@ -215,8 +214,8 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
         val learnMoreMap = mapOf<String, Uri>("learn_more" to Uri.parse(WALLET_STATUS_URL))
         binding.layoutWarning.warningMessage.let {
             it.movementMethod = LinkMovementMethod.getInstance()
-            it.text = stringUtils.getStringWithMappedAnnotations(
-                    R.string.wallet_outage_message, learnMoreMap, requireActivity()
+            it.text = getStringWithMappedAnnotations(
+                    requireActivity(), R.string.wallet_issue_message, learnMoreMap
                 )
         }
     }

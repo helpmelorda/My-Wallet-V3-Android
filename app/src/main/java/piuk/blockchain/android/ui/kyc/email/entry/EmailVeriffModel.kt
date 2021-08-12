@@ -10,11 +10,11 @@ import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class EmailVeriffModel(
     private val interactor: EmailVerifyInteractor,
-    observeScheduler: Scheduler,
+    uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<EmailVeriffState, EmailVeriffIntent>(
-    EmailVeriffState(), observeScheduler, environmentConfig, crashLogger
+    EmailVeriffState(), uiScheduler, environmentConfig, crashLogger
 ) {
 
     override fun performAction(previousState: EmailVeriffState, intent: EmailVeriffIntent): Disposable? =

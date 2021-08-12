@@ -99,12 +99,13 @@ data class ActivityDetailState(
 
 class ActivityDetailsModel(
     initialState: ActivityDetailState,
-    mainScheduler: Scheduler,
+    uiScheduler: Scheduler,
     private val interactor: ActivityDetailsInteractor,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
-) : MviModel<ActivityDetailState, ActivityDetailsIntents>(initialState, mainScheduler, environmentConfig, crashLogger) {
-
+) : MviModel<ActivityDetailState, ActivityDetailsIntents>(
+    initialState, uiScheduler, environmentConfig, crashLogger
+) {
     override fun performAction(
         previousState: ActivityDetailState,
         intent: ActivityDetailsIntents

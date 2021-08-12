@@ -1699,6 +1699,7 @@ Banka transferiniz %3$s tarihinde tamamlandıktan sonra para çekme işlemi ger�
     <string name="sb_checkout_pending_order_title">Talimat sürüyor</string>
     <string name="sb_checkout_pending_order_blurb">Oops! Zaten devam etmekte olan bir Satın Alma işleminiz var gözüküyor, tekrar satın almadan önce lütfen devam eden işlemin tamamlanmasını bekleyin.</string>
     <string name="wallet_outage_message">Bir kesinti yaşıyoruz. Paranız güvende, içiniz rahat olsun. <annotation link="learn_more">Daha fazla bilgi</annotation></string>
+    <string name="wallet_issue_message">Durum sayfamızda bir uyarı var. Tüm portföy işlevleri kullanılamayabilir. Paranız güvende, içiniz rahat olsun. <annotation link="learn_more">Daha fazla bilgi →</annotation></string>
     <string name="increase_your_limits">Limitlerinizi artırın</string>
     <string name="increase_your_limits_body">Gold seviyesi olmak, limitlerinizi ve ödeme yöntemlerinizi artırmak için doğrulamanıza devam edin.</string>
     <string name="continue_to_gold">Gold seviyeye devam edin</string>

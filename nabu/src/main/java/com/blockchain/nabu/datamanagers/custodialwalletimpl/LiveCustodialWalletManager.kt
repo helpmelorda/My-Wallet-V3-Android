@@ -1,8 +1,6 @@
 package com.blockchain.nabu.datamanagers.custodialwalletimpl
 
 import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.Bank
@@ -132,8 +130,7 @@ class LiveCustodialWalletManager(
     private val sddFeatureFlag: FeatureFlag,
     private val bankLinkingEnabledProvider: BankLinkingEnabledProvider,
     private val transactionErrorMapper: TransactionErrorMapper,
-    private val recurringBuysRepository: RecurringBuyRepository,
-    private val features: InternalFeatureFlagApi
+    private val recurringBuysRepository: RecurringBuyRepository
 ) : CustodialWalletManager {
 
     override val defaultFiatCurrency: String
@@ -699,16 +696,12 @@ class LiveCustodialWalletManager(
     override fun getRecurringBuyEligibility() = recurringBuysRepository.getRecurringBuyEligibleMethods()
 
     override fun getRecurringBuysForAsset(assetTicker: String): Single<List<RecurringBuy>> =
-        if (features.isFeatureEnabled(GatedFeature.RECURRING_BUYS)) {
-            authenticator.authenticate { sessionToken ->
-                nabuService.getRecurringBuysForAsset(sessionToken, assetTicker).map { list ->
-                    list.mapNotNull {
-                        it.toRecurringBuy(assetCatalogue)
-                    }
+        authenticator.authenticate { sessionToken ->
+            nabuService.getRecurringBuysForAsset(sessionToken, assetTicker).map { list ->
+                list.mapNotNull {
+                    it.toRecurringBuy(assetCatalogue)
                 }
             }
-        } else {
-            Single.just(emptyList())
         }
 
     override fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy> {

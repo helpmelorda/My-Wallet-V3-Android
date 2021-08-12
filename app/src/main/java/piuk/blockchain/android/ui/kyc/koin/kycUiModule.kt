@@ -13,7 +13,6 @@ import piuk.blockchain.android.ui.kyc.address.KycHomeAddressPresenter
 import piuk.blockchain.android.ui.kyc.address.KycNextStepDecision
 import piuk.blockchain.android.ui.kyc.address.KycNextStepDecisionAdapter
 import piuk.blockchain.android.ui.kyc.countryselection.KycCountrySelectionPresenter
-import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryPresenter
 import piuk.blockchain.android.ui.kyc.invalidcountry.KycInvalidCountryPresenter
 import piuk.blockchain.android.ui.kyc.mobile.entry.KycMobileEntryPresenter
 import piuk.blockchain.android.ui.kyc.mobile.validation.KycMobileValidationPresenter
@@ -62,7 +61,11 @@ val kycUiModule = module {
             )
         }
 
-        factory { KycCountrySelectionPresenter(nabuDataManager = get()) }
+        factory {
+            KycCountrySelectionPresenter(
+                nabuDataManager = get()
+            )
+        }
 
         factory {
             KycProfilePresenter(
@@ -83,7 +86,12 @@ val kycUiModule = module {
             )
         }
 
-        factory { KycMobileEntryPresenter(phoneNumberUpdater = get(), nabuUserSync = get()) }
+        factory {
+            KycMobileEntryPresenter(
+                phoneNumberUpdater = get(),
+                nabuUserSync = get()
+            )
+        }
 
         factory {
             KycMobileValidationPresenter(
@@ -92,8 +100,6 @@ val kycUiModule = module {
                 analytics = get()
             )
         }
-
-        factory { KycEmailEntryPresenter(get()) }
 
         factory {
             VeriffSplashPresenter(
@@ -104,7 +110,13 @@ val kycUiModule = module {
             )
         }
 
-        factory { KycStatusPresenter(get(), get(), get()) }
+        factory {
+            KycStatusPresenter(
+                nabuToken = get(),
+                kycStatusHelper = get(),
+                notificationTokenManager = get()
+            )
+        }
 
         factory {
             KycNavHostPresenter(
@@ -117,7 +129,12 @@ val kycUiModule = module {
             )
         }
 
-        factory { KycInvalidCountryPresenter(get(), get()) }
+        factory {
+            KycInvalidCountryPresenter(
+                nabuDataManager = get(),
+                metadataRepository = get()
+            )
+        }
     }
 }
 
@@ -126,12 +143,18 @@ val kycUiNabuModule = module {
     scope(payloadScopeQualifier) {
 
         factory {
-            KycNextStepDecisionAdapter(nabuToken = get(), nabuDataManager = get()) as KycNextStepDecision
-        }
+            KycNextStepDecisionAdapter(
+                nabuToken = get(),
+                nabuDataManager = get()
+            )
+        }.bind(KycNextStepDecision::class)
 
         factory {
-            CurrentTierAdapter(nabuToken = get(), nabuDataManager = get()) as CurrentTier
-        }
+            CurrentTierAdapter(
+                nabuToken = get(),
+                nabuDataManager = get()
+            )
+        }.bind(CurrentTier::class)
 
         factory {
             EligibilityForFreeEthAdapter(

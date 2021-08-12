@@ -1,7 +1,5 @@
 package com.blockchain.nabu.datamanagers.repositories
 
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
@@ -14,11 +12,9 @@ interface RecurringBuyEligibilityProvider {
 
 class RecurringBuyEligibilityProviderImpl(
     private val nabuService: NabuService,
-    private val authenticator: Authenticator,
-    private val features: InternalFeatureFlagApi
+    private val authenticator: Authenticator
 ) : RecurringBuyEligibilityProvider {
     override fun getRecurringBuyEligibility(): Single<List<PaymentMethodType>> =
-        if (features.isFeatureEnabled(GatedFeature.RECURRING_BUYS)) {
             authenticator.authenticate { sessionToken ->
                 nabuService.getRecurringBuyEligibility(sessionToken).map {
                     it.eligibleMethods.map { method ->
@@ -32,9 +28,6 @@ class RecurringBuyEligibilityProviderImpl(
                     }
                 }
             }
-        } else {
-            Single.just(emptyList())
-        }
     }
 
 class RecurringBuyRepository(

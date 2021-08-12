@@ -87,12 +87,12 @@ internal class ReceiveModel(
     private val qrCodeDataManager: QrCodeDataManager,
     private val receiveIntentHelper: ReceiveIntentHelper,
     initialState: ReceiveState,
-    observeScheduler: Scheduler,
+    uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<ReceiveState, ReceiveIntent>(
     initialState,
-    observeScheduler,
+    uiScheduler,
     environmentConfig,
     crashLogger
 ) {
