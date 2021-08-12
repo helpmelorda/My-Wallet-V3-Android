@@ -109,6 +109,7 @@
 
                 <data
                     android:host="${LOGIN_LINK_HOST}"
+                    android:pathPrefix="/deeplink"
                     android:scheme="https" />
             </intent-filter>
         </activity>
