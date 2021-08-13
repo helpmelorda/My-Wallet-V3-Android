@@ -58,8 +58,12 @@ class EthDataManager(
      */
     fun fetchEthAddress(): Observable<CombinedEthModel> =
         ethAccountApi.getEthAddress(listOf(accountAddress))
-            .map(::CombinedEthModel)
-            .doOnNext { ethDataStore.ethAddressResponse = it }
+            .map {
+                CombinedEthModel(it)
+            }
+            .doOnNext {
+                ethDataStore.ethAddressResponse = it
+            }
             .subscribeOn(Schedulers.io())
 
     fun getBalance(account: String): Single<BigInteger> =

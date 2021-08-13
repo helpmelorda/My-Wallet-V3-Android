@@ -10,13 +10,11 @@ import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
-import com.blockchain.koin.ssoLoginFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.kotlin.zipWith
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
@@ -36,7 +34,7 @@ import piuk.blockchain.android.util.visible
 class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingView {
 
     override val presenter: LandingPresenter by scopedInject()
-    private val ssoLoginFF: FeatureFlag by inject(ssoLoginFeatureFlag)
+
     private val ssoARFF: FeatureFlag by inject(ssoAccountRecoveryFeatureFlag)
     private val internalFlags: InternalFeatureFlagApi by inject()
     private val compositeDisposable = CompositeDisposable()
@@ -81,17 +79,13 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
 
     private fun setupSSOControls() {
         with(binding) {
-            compositeDisposable += ssoLoginFF.enabled.zipWith(ssoARFF.enabled)
+            btnLogin.setOnClickListener {
+                launchSSOLoginActivity()
+            }
+            compositeDisposable += ssoARFF.enabled
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
-                    onSuccess = { (isSSOLoginEnabled, isAccountRecoveryEnabled) ->
-                        btnLogin.setOnClickListener {
-                            if (isSSOLoginEnabled) {
-                                launchSSOLoginActivity()
-                            } else {
-                                launchLoginActivity()
-                            }
-                        }
+                    onSuccess = { isAccountRecoveryEnabled ->
                         btnRecover.apply {
                             if (isAccountRecoveryEnabled &&
                                 internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY)
