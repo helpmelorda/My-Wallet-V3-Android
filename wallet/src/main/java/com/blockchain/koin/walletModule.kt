@@ -55,8 +55,10 @@ val walletModule = module {
         }
     }.bind(PayloadManagerWiper::class)
 
-    factory { EthAccountApi(
-        get<Retrofit>(kotlinApiRetrofit).create(EthEndpoints::class.java),
-        get()
-    ) }
+    factory {
+        EthAccountApi(
+            ethEndpoints = get<Retrofit>(apiRetrofit).create(EthEndpoints::class.java),
+            apiCode = get()
+        )
+    }
 }
