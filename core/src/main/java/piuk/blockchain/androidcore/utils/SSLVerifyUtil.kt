@@ -2,10 +2,7 @@ package piuk.blockchain.androidcore.utils
 
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
-import okhttp3.ResponseBody
 import piuk.blockchain.androidcore.data.api.ConnectionApi
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.data.rxjava.RxPinning
 import timber.log.Timber
 import javax.net.ssl.SSLPeerUnverifiedException
 
@@ -15,9 +12,7 @@ import javax.net.ssl.SSLPeerUnverifiedException
  * openssl enc -base64`, which returns a SHA-256 hash in Base64.
  */
 
-class SSLVerifyUtil(rxBus: RxBus, private val connectionApi: ConnectionApi) {
-
-    private val rxPinning = RxPinning(rxBus)
+class SSLVerifyUtil(private val connectionApi: ConnectionApi) {
 
     /**
      * Pings the Explorer to check for a connection. If the call returns an [ ] or
@@ -25,7 +20,7 @@ class SSLVerifyUtil(rxBus: RxBus, private val connectionApi: ConnectionApi) {
      * which will handle the response appropriately.
      */
     fun validateSSL() =
-        rxPinning.call<ResponseBody> { connectionApi.getExplorerConnection() }
+        connectionApi.getExplorerConnection()
             .subscribeOn(Schedulers.io())
             .subscribeBy(
                 onError = { Timber.e(it) }

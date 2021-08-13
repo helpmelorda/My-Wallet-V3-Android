@@ -21,9 +21,14 @@ class SearchPickerItemBottomSheet : SlidingModalBottomDialog<PickerLayoutBinding
     private val adapter by unsafeLazy {
         PickerItemsAdapter {
             (parentFragment as? PickerItemListener)?.onItemPicked(it)
+            ?: (activity as? PickerItemListener)?.onItemPicked(it)
+            ?: throw IllegalStateException(
+                "Host should implement PickerItemListener"
+            )
             dismiss()
         }
     }
+
     private val items: List<PickerItem> by unsafeLazy {
         (arguments?.getSerializable(PICKER_ITEMS) as? List<PickerItem>) ?: emptyList()
     }

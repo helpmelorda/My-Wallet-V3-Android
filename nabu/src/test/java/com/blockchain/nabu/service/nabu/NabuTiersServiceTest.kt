@@ -1,157 +1,63 @@
 package com.blockchain.nabu.service.nabu
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.api.nabu.NABU_KYC_TIERS
+import com.blockchain.nabu.FakeAuthenticator
 import com.blockchain.nabu.api.nabu.Nabu
-import com.blockchain.nabu.models.responses.nabu.KycTierState
-import com.blockchain.nabu.models.responses.nabu.KycTierStateAdapter
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.models.responses.nabu.LimitsJson
-import com.blockchain.nabu.models.responses.nabu.TierResponse
-import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
+import com.blockchain.nabu.models.responses.nabu.TierUpdateJson
 import com.blockchain.nabu.service.NabuTierService
-import com.blockchain.serialization.BigDecimalAdaptor
-import com.blockchain.testutils.MockedRetrofitTest
-import com.blockchain.testutils.getStringFromResource
-import com.blockchain.testutils.mockWebServerInit
-import com.squareup.moshi.Moshi
-import io.reactivex.rxjava3.core.Maybe
+import com.blockchain.nabu.util.fakefactory.nabu.FakeKycTiersFactory
+import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
+import com.blockchain.nabu.util.waitForCompletionWithoutErrors
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import org.amshove.kluent.`should be equal to`
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class NabuTiersServiceTest {
 
-    private lateinit var subject: NabuTierService
+    private val sessionToken = FakeNabuSessionTokenFactory.any
+    private val nabu: Nabu = mock()
+    private val authenticator: FakeAuthenticator = FakeAuthenticator(sessionToken)
 
-    private val moshi: Moshi = Moshi.Builder()
-        .add(BigDecimalAdaptor())
-        .add(KycTierStateAdapter())
-        .build()
-    private val server: MockWebServer = MockWebServer()
+    private val subject: NabuTierService = NabuTierService(nabu, authenticator)
 
     @get:Rule
-    val initMockServer = mockWebServerInit(server)
-
-    @get:Rule
-    val initSchedulers = rxInit {
-        mainTrampoline()
+    val rx = rxInit {
         ioTrampoline()
-    }
-
-    @Before
-    fun setUp() {
-        val nabuToken: Authenticator = FakeAuthenticator("Token1")
-        subject = NabuTierService(
-            MockedRetrofitTest(moshi, server).retrofit.create(
-                Nabu::
-                class.java
-            ), nabuToken
-        )
     }
 
     @Test
     fun `get tiers`() {
-        server.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setBody(getStringFromResource("com/blockchain/kyc/services/nabu/GetTiers.json"))
+        val expectedTiers = FakeKycTiersFactory.any
+
+        whenever(
+            nabu.getTiers(sessionToken.authHeader)
+        ).thenReturn(
+            Single.just(expectedTiers)
         )
+
         subject.tiers()
             .test()
-            .await()
-            .assertComplete()
-            .assertNoErrors()
-            .values()
-            .single() `should be equal to`
-            KycTiers(
-                tiersResponse = listOf(
-                    TierResponse(
-                        0,
-                        "Tier 0",
-                        state = KycTierState.Verified,
-                        limits = LimitsJson(
-                            currency = "USD",
-                            daily = null,
-                            annual = null
-                        )
-                    ),
-                    TierResponse(
-                        1,
-                        "Tier 1",
-                        state = KycTierState.Pending,
-                        limits = LimitsJson(
-                            currency = "USD",
-                            daily = null,
-                            annual = 1000.0.toBigDecimal()
-                        )
-                    ),
-                    TierResponse(
-                        2,
-                        "Tier 2",
-                        state = KycTierState.None,
-                        limits = LimitsJson(
-                            currency = "USD",
-                            daily = 25000.0.toBigDecimal(),
-                            annual = null
-                        )
-                    )
-                )
-            )
-        server.urlRequested!! `should be equal to` "/$NABU_KYC_TIERS"
+            .waitForCompletionWithoutErrors()
+            .assertValue {
+                it == expectedTiers
+            }
     }
 
     @Test
     fun `set tier`() {
-        server.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setBody("")
+        val selectedTier = 1
+
+        whenever(
+            nabu.setTier(TierUpdateJson(selectedTier), sessionToken.authHeader)
+        ).thenReturn(
+            Completable.complete()
         )
-        subject.setUserTier(1)
+
+        subject.setUserTier(selectedTier)
             .test()
-            .await()
-            .assertComplete()
-            .assertNoErrors()
-        server.takeRequest().apply {
-            path!! `should be equal to` "/$NABU_KYC_TIERS"
-            body.toString() `should be equal to` """[text={"selectedTier":1}]"""
-            headers["authorization"] `should be equal to` "Bearer Token1"
-        }
-    }
-
-    private val MockWebServer.urlRequested get() = takeRequest().path
-}
-
-private class FakeAuthenticator(private val token: String) : Authenticator {
-
-    override fun <T> authenticate(singleFunction: (NabuSessionTokenResponse) -> Single<T>): Single<T> =
-        Single.just(
-            NabuSessionTokenResponse(
-                id = "",
-                userId = "",
-                token = token,
-                isActive = true,
-                expiresAt = "",
-                insertedAt = "",
-                updatedAt = ""
-            )
-        ).flatMap { singleFunction(it) }
-
-    override fun <T> authenticateMaybe(maybeFunction: (NabuSessionTokenResponse) -> Maybe<T>): Maybe<T> {
-        throw Exception("Not expected")
-    }
-
-    override fun <T> authenticateSingle(singleFunction: (Single<NabuSessionTokenResponse>) -> Single<T>): Single<T> {
-        throw Exception("Not expected")
-    }
-
-    override fun invalidateToken() {
-        throw Exception("Not expected")
+            .waitForCompletionWithoutErrors()
     }
 }

@@ -9,11 +9,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.core.price.ExchangeRates
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.Money
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.TxConfirmationValue
+import piuk.blockchain.android.coincore.toFiat
 import piuk.blockchain.android.databinding.ItemSendConfirmAgreementTransferBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -85,7 +86,7 @@ private class AgreementTextItemViewHolder(
     ): SpannableStringBuilder {
         val introToHolding = resources.getString(R.string.send_confirmation_interest_holding_period_1)
         val amountInBold =
-            amount.toFiat(exchangeRates, selectedCurrency).toStringWithSymbol()
+            amount.toFiat(selectedCurrency, exchangeRates).toStringWithSymbol()
         val outroToHolding = context.resources.getString(
             R.string.send_confirmation_interest_holding_period_2,
             amount.toStringWithSymbol(),

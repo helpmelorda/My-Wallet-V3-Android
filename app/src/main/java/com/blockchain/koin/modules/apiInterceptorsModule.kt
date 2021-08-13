@@ -12,6 +12,7 @@ import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.api.interceptors.ApiInterceptor
 import piuk.blockchain.androidcore.data.api.interceptors.DeviceIdInterceptor
 import piuk.blockchain.androidcore.data.api.interceptors.RequestIdInterceptor
+import piuk.blockchain.androidcore.data.api.interceptors.SSLPinningInterceptor
 import piuk.blockchain.androidcore.data.api.interceptors.UserAgentInterceptor
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import java.util.UUID
@@ -23,6 +24,7 @@ val apiInterceptorsModule = module {
         val versionName = BuildConfig.VERSION_NAME.removeSuffix(BuildConfig.VERSION_NAME_SUFFIX)
         OkHttpInterceptors(
             mutableListOf(
+                SSLPinningInterceptor(get()),
                 UserAgentInterceptor(versionName, Build.VERSION.RELEASE),
                 DeviceIdInterceptor(prefs = lazy { get<PersistentPrefs>() }, get()),
                 RequestIdInterceptor { UUID.randomUUID().toString() }

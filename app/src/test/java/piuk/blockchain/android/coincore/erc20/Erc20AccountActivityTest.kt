@@ -1,9 +1,7 @@
 package piuk.blockchain.android.coincore.erc20
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
@@ -21,18 +19,16 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.coincore.impl.CryptoAccountBase
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
-class Erc20AccountActivityTest {
+class Erc20AccountActivityTest : CoincoreTestBase() {
 
     private val payloadManager: PayloadDataManager = mock()
     private val erc20DataManager: Erc20DataManager = mock()
-    private val exchangeRates: ExchangeRateDataManager = mock()
-    private val currencyPrefs: CurrencyPrefs = mock()
+
     private val walletPreferences: WalletStatus = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
 
@@ -50,16 +46,9 @@ class Erc20AccountActivityTest {
         baseActions = CryptoAccountBase.defaultActions
     )
 
-    @get:Rule
-    val rxSchedulers = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
-    }
-
     @Before
     fun setup() {
-        whenever(currencyPrefs.selectedFiatCurrency).thenReturn("USD")
+        initMocks()
     }
 
     @Test
@@ -77,18 +66,17 @@ class Erc20AccountActivityTest {
         val erc20HistoryList = listOf(erc20HistoryEvent)
 
         val swapSummary = TradeTransactionItem(
-            "123",
-            1L,
-            TransferDirection.ON_CHAIN,
-            "sendingAddress",
-            "receivingAddress",
-            CustodialOrderState.FINISHED,
-            CryptoValue.zero(ERC20_TOKEN),
-            CryptoValue.zero(CryptoCurrency.BTC),
-            CryptoValue.zero(CryptoCurrency.BTC),
-            CurrencyPair.CryptoCurrencyPair(ERC20_TOKEN, CryptoCurrency.BTC),
-            FiatValue.zero("USD"),
-            "USD"
+            txId = "123",
+            timeStampMs = 1L,
+            direction = TransferDirection.ON_CHAIN,
+            sendingAddress = "sendingAddress",
+            receivingAddress = "receivingAddress",
+            state = CustodialOrderState.FINISHED,
+            sendingValue = CryptoValue.zero(ERC20_TOKEN),
+            receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
+            withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
+            currencyPair = CurrencyPair.CryptoCurrencyPair(ERC20_TOKEN, CryptoCurrency.BTC),
+            apiFiatValue = FiatValue.zero("USD")
         )
 
         val summaryList = listOf(swapSummary)

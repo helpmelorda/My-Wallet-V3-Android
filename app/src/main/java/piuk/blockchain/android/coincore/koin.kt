@@ -18,7 +18,7 @@ import piuk.blockchain.android.coincore.impl.txEngine.TransferQuotesEngine
 import piuk.blockchain.android.coincore.loader.AssetCatalogueImpl
 import piuk.blockchain.android.coincore.loader.AssetRemoteFeatureLookup
 import piuk.blockchain.android.coincore.xlm.XlmAsset
-import piuk.blockchain.android.repositories.AssetActivityRepository
+import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 
 val coincoreModule = module {
 
@@ -29,10 +29,10 @@ val coincoreModule = module {
                 exchangeRates = get(),
                 sendDataManager = get(),
                 feeDataManager = get(),
-                historicRates = get(),
                 currencyPrefs = get(),
                 payloadManager = get(),
                 custodialManager = get(),
+                tradingBalanceDataManager = get(),
                 pitLinking = get(),
                 crashLogger = get(),
                 labels = get(),
@@ -49,10 +49,10 @@ val coincoreModule = module {
                 payloadManager = get(),
                 bchDataManager = get(),
                 exchangeRates = get(),
-                historicRates = get(),
                 currencyPrefs = get(),
                 crashLogger = get(),
                 custodialManager = get(),
+                tradingBalanceDataManager = get(),
                 feeDataManager = get(),
                 sendDataManager = get(),
                 pitLinking = get(),
@@ -71,9 +71,9 @@ val coincoreModule = module {
                 xlmFeesFetcher = get(),
                 walletOptionsDataManager = get(),
                 exchangeRates = get(),
-                historicRates = get(),
                 currencyPrefs = get(),
                 custodialManager = get(),
+                tradingBalanceDataManager = get(),
                 pitLinking = get(),
                 crashLogger = get(),
                 labels = get(),
@@ -89,11 +89,11 @@ val coincoreModule = module {
                 ethDataManager = get(),
                 feeDataManager = get(),
                 exchangeRates = get(),
-                historicRates = get(),
                 currencyPrefs = get(),
                 walletPrefs = get(),
                 crashLogger = get(),
                 custodialManager = get(),
+                tradingBalanceDataManager = get(),
                 pitLinking = get(),
                 labels = get(),
                 notificationUpdater = get(),
@@ -106,7 +106,7 @@ val coincoreModule = module {
         scoped {
             FiatAsset(
                 labels = get(),
-                custodialAssetWalletsBalancesRepository = get(),
+                tradingBalanceDataManager = get(),
                 exchangeRateDataManager = get(),
                 custodialWalletManager = get(),
                 currencyPrefs = get()
@@ -134,9 +134,9 @@ val coincoreModule = module {
                 erc20DataManager = get(),
                 feeDataManager = get(),
                 exchangeRates = get(),
-                historicRates = get(),
                 currencyPrefs = get(),
                 custodialManager = get(),
+                tradingBalanceDataManager = get(),
                 crashLogger = get(),
                 labels = get(),
                 pitLinking = get(),

@@ -1,20 +1,20 @@
 package piuk.blockchain.android.coincore.fiat
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.repositories.CustodialAssetWalletsBalancesRepository
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
-import org.junit.Test
 import org.junit.Rule
+import org.junit.Test
 import piuk.blockchain.android.coincore.impl.CryptoInterestAccount
 import piuk.blockchain.android.coincore.impl.CryptoNonCustodialAccount
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 
 class FiatAssetTransferTest {
 
@@ -26,15 +26,15 @@ class FiatAssetTransferTest {
     }
 
     private val labels: DefaultLabels = mock()
-    private val custodialAssetWalletsBalancesRepository: CustodialAssetWalletsBalancesRepository = mock()
-    private val exchangeRateDataManager: ExchangeRateDataManager = mock()
+    private val exchangeRateDataManager: ExchangeRatesDataManager = mock()
+    private val tradingBalanceDataManager: TradingBalanceDataManager = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
 
     private val subject = FiatAsset(
         labels,
-        custodialAssetWalletsBalancesRepository,
         exchangeRateDataManager,
+        tradingBalanceDataManager,
         custodialWalletManager,
         currencyPrefs
     )

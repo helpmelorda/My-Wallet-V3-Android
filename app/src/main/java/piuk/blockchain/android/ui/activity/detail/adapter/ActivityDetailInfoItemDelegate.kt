@@ -39,6 +39,8 @@ import piuk.blockchain.android.ui.activity.detail.Value
 import piuk.blockchain.android.ui.activity.detail.XlmMemo
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.util.context
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import piuk.blockchain.android.util.visible
 
 class ActivityDetailInfoItemDelegate<in T>(
@@ -116,10 +118,10 @@ private class InfoItemViewHolder(
             is To -> context.getString(R.string.activity_details_to)
             is From -> context.getString(R.string.activity_details_from)
             is FeeForTransaction -> context.getString(R.string.activity_details_transaction_fee)
-            is BuyFee -> context.getString(R.string.activity_details_buy_fees)
+            is BuyFee -> context.getString(R.string.activity_details_buy_fee)
             is BuyPurchaseAmount -> context.getString(R.string.activity_details_buy_purchase_amount)
-            is TotalCostAmount -> context.getString(R.string.recurring_buy_details_total_cost)
-            is FeeAmount -> context.getString(R.string.recurring_buy_details_fees)
+            is TotalCostAmount -> context.getString(R.string.common_total)
+            is FeeAmount -> context.getString(R.string.recurring_buy_details_fee)
             is SellPurchaseAmount -> context.getString(R.string.common_total)
             is TransactionId -> context.getString(R.string.activity_details_buy_tx_id)
             is BuyCryptoWallet,
@@ -131,7 +133,7 @@ private class InfoItemViewHolder(
                 (infoType.feeValue as CryptoValue).currency.ticker
             )
             is XlmMemo -> context.getString(R.string.xlm_memo_text)
-            is RecurringBuyFrequency -> context.getString(R.string.recurring_buy_details_recurring)
+            is RecurringBuyFrequency -> context.getString(R.string.recurring_buy_frequency_label_1)
             else -> context.getString(R.string.empty)
         }
 
@@ -141,7 +143,9 @@ private class InfoItemViewHolder(
             is NextPayment -> infoType.date.toFormattedString()
             is RecurringBuyFrequency -> "${
                 infoType.frequency.toHumanReadableRecurringBuy(context)
-            } ${infoType.frequency.toHumanReadableRecurringDate(context)}"
+            } ${infoType.frequency.toHumanReadableRecurringDate(context,
+                ZonedDateTime.ofInstant(infoType.nextPayment.toInstant(),
+                ZoneId.systemDefault()))}"
             is Amount -> infoType.value.toStringWithSymbol()
             is Fee -> infoType.feeValue?.toStringWithSymbol() ?: context.getString(
                 R.string.activity_details_fee_load_fail

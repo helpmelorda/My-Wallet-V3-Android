@@ -1,11 +1,8 @@
 package piuk.blockchain.android.coincore.impl.txEngine
 
-import com.blockchain.android.testutils.rxInit
-import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.models.data.CryptoWithdrawalFeeAndLimit
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.lumens
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
@@ -16,12 +13,8 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
-import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.FeeLevel
@@ -30,27 +23,14 @@ import piuk.blockchain.android.coincore.PendingTx
 import piuk.blockchain.android.coincore.TransactionTarget
 import piuk.blockchain.android.coincore.ValidationState
 import piuk.blockchain.android.coincore.erc20.Erc20NonCustodialAccount
-import piuk.blockchain.android.coincore.impl.injectMocks
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 import java.math.BigInteger
 import kotlin.test.assertEquals
 
-class TradingToOnChainTxEngineTest {
-
-    @get:Rule
-    val initSchedulers = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
-    }
+class TradingToOnChainTxEngineTest : CoincoreTestBase() {
 
     private val isNoteSupported = false
     private val walletManager: CustodialWalletManager = mock()
-    private val exchangeRates: ExchangeRateDataManager = mock()
-
-    private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
-    }
 
     private val subject = TradingToOnChainTxEngine(
         walletManager = walletManager,
@@ -59,20 +39,7 @@ class TradingToOnChainTxEngineTest {
 
     @Before
     fun setup() {
-        injectMocks(
-            module {
-                scope(payloadScopeQualifier) {
-                    factory {
-                        currencyPrefs
-                    }
-                }
-            }
-        )
-    }
-
-    @After
-    fun teardown() {
-        stopKoin()
+        initMocks()
     }
 
     @Test
@@ -178,7 +145,7 @@ class TradingToOnChainTxEngineTest {
                     actionableBalance.minus(CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee)) &&
                     it.feeForFullAvailable == CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee) &&
                     it.feeAmount == CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee) &&
-                    it.selectedFiat == SELECTED_FIAT &&
+                    it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
                     it.minLimit == CryptoValue.fromMinor(ASSET, feesAndLimits.minLimit) &&
                     it.maxLimit == null &&
@@ -220,7 +187,7 @@ class TradingToOnChainTxEngineTest {
             ),
             feeForFullAvailable = CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee),
             feeAmount = CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection()
         )
 
@@ -270,7 +237,7 @@ class TradingToOnChainTxEngineTest {
             availableBalance = actionableBalance,
             feeAmount = zeroPax,
             feeForFullAvailable = zeroPax,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection()
         )
 
@@ -306,7 +273,7 @@ class TradingToOnChainTxEngineTest {
             availableBalance = actionableBalance,
             feeForFullAvailable = zeroPax,
             feeAmount = zeroPax,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection()
         )
 
@@ -342,7 +309,7 @@ class TradingToOnChainTxEngineTest {
             availableBalance = actionableBalance,
             feeForFullAvailable = zeroPax,
             feeAmount = zeroPax,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection()
         )
 
@@ -378,7 +345,7 @@ class TradingToOnChainTxEngineTest {
             availableBalance = actionableBalance,
             feeForFullAvailable = zeroPax,
             feeAmount = zeroPax,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection()
         )
 
@@ -428,6 +395,5 @@ class TradingToOnChainTxEngineTest {
     companion object {
         private val ASSET = CryptoCurrency.XLM
         private val WRONG_ASSET = CryptoCurrency.BTC
-        private const val SELECTED_FIAT = "INR"
     }
 }

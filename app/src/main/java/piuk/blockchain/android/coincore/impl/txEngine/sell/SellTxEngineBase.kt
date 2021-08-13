@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine.sell
 
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -10,7 +11,6 @@ import com.blockchain.nabu.service.TierService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.core.Completable
@@ -38,20 +38,13 @@ abstract class SellTxEngineBase(
     val target: FiatAccount
         get() = txTarget as FiatAccount
 
-    override val userFiat: String
-        get() = target.fiatCurrency
-
     override fun onLimitsForTierFetched(
         tier: KycTiers,
         limits: TransferLimits,
         pendingTx: PendingTx,
         pricedQuote: PricedQuote
     ): PendingTx {
-        val exchangeRate = ExchangeRate.CryptoToFiat(
-            sourceAsset,
-            userFiat,
-            exchangeRates.getLastPrice(sourceAsset, userFiat)
-        )
+        val exchangeRate = exchangeRates.getLastCryptoToFiatRate(sourceAsset, target.fiatCurrency)
 
         return pendingTx.copy(
             minLimit = (exchangeRate.inverse().convert(limits.minLimit) as CryptoValue)
@@ -142,8 +135,8 @@ abstract class SellTxEngineBase(
             .map { pricedQuote ->
                 val latestQuoteExchangeRate = ExchangeRate.CryptoToFiat(
                     from = sourceAsset,
-                    to = userFiat,
-                    _rate = pricedQuote.price.toBigDecimal()
+                    to = target.fiatCurrency,
+                    rate = pricedQuote.price.toBigDecimal()
                 )
                 buildConfirmation(pendingTx, latestQuoteExchangeRate, pricedQuote)
             }
@@ -175,8 +168,8 @@ abstract class SellTxEngineBase(
             .map { pricedQuote ->
                 val latestQuoteExchangeRate = ExchangeRate.CryptoToFiat(
                     from = sourceAsset,
-                    to = userFiat,
-                    _rate = pricedQuote.price.toBigDecimal()
+                    to = target.fiatCurrency,
+                    rate = pricedQuote.price.toBigDecimal()
                 )
                 addOrRefreshConfirmations(pendingTx, pricedQuote, latestQuoteExchangeRate)
             }
@@ -205,8 +198,8 @@ abstract class SellTxEngineBase(
         quotesEngine.pricedQuote.map {
             ExchangeRate.CryptoToFiat(
                 from = sourceAsset,
-                to = userFiat,
-                _rate = it.price.toBigDecimal()
+                to = target.fiatCurrency,
+                rate = it.price.toBigDecimal()
             )
         }
 }

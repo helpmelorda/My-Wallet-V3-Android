@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings
 
 import android.annotation.SuppressLint
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.datamanagers.Bank
 import com.blockchain.nabu.datamanagers.BankState
@@ -39,7 +40,6 @@ import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccou
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
@@ -58,7 +58,7 @@ class SettingsPresenter(
     private val accessState: AccessState,
     private val custodialWalletManager: CustodialWalletManager,
     private val notificationTokenManager: NotificationTokenManager,
-    private val exchangeRateDataManager: ExchangeRateDataManager,
+    private val exchangeRates: ExchangeRatesDataManager,
     private val kycStatusHelper: KycStatusHelper,
     private val pitLinking: PitLinking,
     private val analytics: Analytics,
@@ -536,16 +536,21 @@ class SettingsPresenter(
      */
     fun updateFiatUnit(fiatUnit: String) {
         compositeDisposable += settingsDataManager.updateFiatUnit(fiatUnit)
-            .subscribeBy(
-                onNext = {
-                    if (prefs.selectedFiatCurrency != fiatUnit) {
-                        analytics.logEvent(AnalyticsEvents.ChangeFiatCurrency)
-                    }
+            .map { settings ->
+                if (prefs.selectedFiatCurrency != fiatUnit) {
+                    analytics.logEvent(AnalyticsEvents.ChangeFiatCurrency)
                     prefs.selectedFiatCurrency = fiatUnit
-                    prefs.clearBuyState()
-                    analytics.logEvent(SettingsAnalytics.CurrencyChanged)
-                    updateUi(it)
-                },
+                }
+                prefs.clearBuyState()
+                analytics.logEvent(SettingsAnalytics.CurrencyChanged)
+
+                settings
+            }.flatMapSingle { settings ->
+                // Force the prices cache to refresh for the new user fiat
+                exchangeRates.refetchCache()
+                    .thenSingle { Single.just(settings) }
+            }.subscribeBy(
+                onNext = { updateUi(it) },
                 onError = { view?.showError(R.string.update_failed) }
             )
     }
@@ -575,8 +580,8 @@ class SettingsPresenter(
             )
     }
 
-    val currencyLabels: Array<String>
-        get() = exchangeRateDataManager.getCurrencyLabels()
+    val currencyLabels: List<String>
+        get() = exchangeRates.fiatAvailableForRates
 
     fun onThePitClicked() {
         pitClickedListener()

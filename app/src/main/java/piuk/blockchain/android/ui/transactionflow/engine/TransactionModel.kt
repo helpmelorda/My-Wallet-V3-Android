@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -200,10 +200,10 @@ class TransactionModel(
             }
             is TransactionIntent.TargetSelected ->
                 processTargetSelectionConfirmed(
-                    previousState.sendingAccount,
-                    previousState.amount,
-                    previousState.selectedTarget,
-                    previousState.action
+                    sourceAccount = previousState.sendingAccount,
+                    amount = previousState.amount,
+                    transactionTarget = previousState.selectedTarget,
+                    action = previousState.action
                 )
             is TransactionIntent.TargetSelectionUpdated -> null
             is TransactionIntent.InitialiseWithSourceAndPreferredTarget ->

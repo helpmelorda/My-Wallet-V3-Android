@@ -96,11 +96,16 @@ import piuk.blockchain.android.ui.pairingcode.PairingState
 import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
 import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
-import piuk.blockchain.android.ui.recurringbuy.data.TradeRepositoryImpl
-import piuk.blockchain.android.ui.recurringbuy.domain.TradeRepository
-import piuk.blockchain.android.ui.recurringbuy.domain.usecases.IsFirstTimeBuyerUseCase
-import piuk.blockchain.android.ui.reset.ResetAccountModel
-import piuk.blockchain.android.ui.reset.ResetAccountState
+import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
+import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
+import piuk.blockchain.android.data.TradeDataManagerImpl
+import piuk.blockchain.android.data.Mapper
+import piuk.blockchain.android.data.NabuUserDataManagerImpl
+import piuk.blockchain.android.domain.repositories.NabuUserDataManager
+import piuk.blockchain.android.domain.repositories.TradeDataManager
+import piuk.blockchain.android.domain.usecases.GetNextPaymentDateUseCase
+import piuk.blockchain.android.domain.usecases.GetUserGeolocationUseCase
+import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
@@ -172,12 +177,14 @@ val applicationModule = module {
             SecondPasswordDialog(contextAccess = get(), payloadManager = get())
         }.bind(SecondPasswordHandler::class)
 
-        factory { KycStatusHelper(
-            nabuDataManager = get(),
-            nabuToken = get(),
-            settingsDataManager = get(),
-            tierService = get()
-        ) }
+        factory {
+            KycStatusHelper(
+                nabuDataManager = get(),
+                nabuToken = get(),
+                settingsDataManager = get(),
+                tierService = get()
+            )
+        }
 
         scoped {
             CredentialsWiper(
@@ -198,7 +205,6 @@ val applicationModule = module {
                 accessState = get(),
                 credentialsWiper = get(),
                 payloadDataManager = get(),
-                exchangeRateFactory = get(),
                 qrProcessor = get(),
                 kycStatusHelper = get(),
                 deepLinkProcessor = get(),
@@ -296,7 +302,8 @@ val applicationModule = module {
                 analytics = get(),
                 walletPrefs = get(),
                 environmentConfig = get(),
-                formatChecker = get()
+                formatChecker = get(),
+                getGeolocationUseCase = get()
             )
         }
 
@@ -365,15 +372,6 @@ val applicationModule = module {
                 metadataInteractor = get(),
                 metadataDerivation = MetadataDerivation(),
                 nabuDataManager = get()
-            )
-        }
-
-        factory {
-            ResetAccountModel(
-                initialState = ResetAccountState(),
-                mainScheduler = AndroidSchedulers.mainThread(),
-                environmentConfig = get(),
-                crashLogger = get()
             )
         }
 
@@ -490,15 +488,14 @@ val applicationModule = module {
                 coincore = get(),
                 eligibilityProvider = get(),
                 bankLinkingPrefs = get(),
-                analytics = get(),
-                featureFlagApi = get()
+                analytics = get()
             )
         }
 
         factory {
             SimpleBuyModel(
                 interactor = get(),
-                scheduler = AndroidSchedulers.mainThread(),
+                uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = SimpleBuyState(),
                 ratingPrefs = get(),
                 prefs = get(),
@@ -509,22 +506,51 @@ val applicationModule = module {
                 environmentConfig = get(),
                 crashLogger = get(),
                 isFirstTimeBuyerUseCase = get(),
+                getNextPaymentDateUseCase = get(),
                 featureFlagApi = get()
             )
         }
 
         factory {
             IsFirstTimeBuyerUseCase(
-                tradeRepository = get()
+                tradeDataManager = get()
             )
         }
 
         factory {
-            TradeRepositoryImpl(
-                tradeService = get(),
-                authenticator = get()
+            GetNextPaymentDateUseCase(
+                tradeDataManager = get()
             )
-        }.bind(TradeRepository::class)
+        }
+
+        factory {
+            GetUserGeolocationUseCase(
+                nabuUserDataManager = get()
+            )
+        }
+
+        factory {
+            TradeDataManagerImpl(
+                tradeService = get(),
+                authenticator = get(),
+                accumulatedInPeriodMapper = get(),
+                nextPaymentDateMapper = get()
+            )
+        }.bind(TradeDataManager::class)
+
+        factory {
+            GetAccumulatedInPeriodToIsFirstTimeBuyerMapper()
+        }.bind(Mapper::class)
+
+        factory {
+            GetNextPaymentDateListToFrequencyDateMapper()
+        }.bind(Mapper::class)
+
+        factory {
+            NabuUserDataManagerImpl(
+                nabuUserService = get()
+            )
+        }.bind(NabuUserDataManager::class)
 
         factory {
             SimpleBuyPrefsSerializerImpl(
@@ -536,7 +562,7 @@ val applicationModule = module {
         factory {
             BankAuthModel(
                 interactor = get(),
-                scheduler = AndroidSchedulers.mainThread(),
+                uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = BankAuthState(),
                 environmentConfig = get(),
                 crashLogger = get()
@@ -547,7 +573,7 @@ val applicationModule = module {
             CardModel(
                 interactor = get(),
                 currencyPrefs = get(),
-                scheduler = AndroidSchedulers.mainThread(),
+                uiScheduler = AndroidSchedulers.mainThread(),
                 cardActivators = listOf(
                     EverypayCardActivator(get(), get())
                 ),
@@ -594,7 +620,7 @@ val applicationModule = module {
         factory {
             ReceiveModel(
                 initialState = ReceiveState(),
-                observeScheduler = AndroidSchedulers.mainThread(),
+                uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
                 crashLogger = get(),
                 qrCodeDataManager = get(),
@@ -619,7 +645,7 @@ val applicationModule = module {
                 accessState = get(),
                 custodialWalletManager = get(),
                 notificationTokenManager = get(),
-                exchangeRateDataManager = get(),
+                exchangeRates = get(),
                 kycStatusHelper = get(),
                 pitLinking = get(),
                 analytics = get(),
@@ -730,6 +756,7 @@ val applicationModule = module {
                 metadataManager = get(),
                 settingsDataManager = get(),
                 coincore = get(),
+                exchangeRates = get(),
                 crashLogger = get(),
                 simpleBuySync = get(),
                 rxBus = get(),
@@ -771,7 +798,7 @@ val applicationModule = module {
         factory {
             EmailVeriffModel(
                 interactor = get(),
-                observeScheduler = AndroidSchedulers.mainThread(),
+                uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
                 crashLogger = get()
             )
@@ -809,7 +836,7 @@ val applicationModule = module {
     }
 
     single {
-        SSLVerifyUtil(rxBus = get(), connectionApi = get())
+        SSLVerifyUtil(connectionApi = get())
     }
 
     factory {

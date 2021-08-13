@@ -15,6 +15,7 @@ import com.blockchain.nabu.models.responses.simplebuy.PaymentAttributes
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.google.gson.Gson
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -25,7 +26,6 @@ import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import com.nhaarman.mockitokotlin2.any
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -74,7 +74,7 @@ class SimpleBuyModelTest {
     private val model = SimpleBuyModel(
         prefs = prefs,
         initialState = defaultState,
-        scheduler = Schedulers.io(),
+        uiScheduler = Schedulers.io(),
         interactor = interactor,
         cardActivators = listOf(
             mock()
@@ -84,6 +84,7 @@ class SimpleBuyModelTest {
         crashLogger = mock(),
         serializer = serializer,
         isFirstTimeBuyerUseCase = mock(),
+        getNextPaymentDateUseCase = mock(),
         featureFlagApi = mock()
     )
 

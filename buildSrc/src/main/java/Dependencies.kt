@@ -7,15 +7,15 @@ object Versions {
     const val targetSdk = 30
     const val compileSdk = 30
 
-    const val versionCode = 14981
-    const val versionName = "8.9.0"
+    const val versionCode = 15401
+    const val versionName = "8.10.1"
     const val buildTools = "29.0.2"
 
     // Build tools and languages
-    const val androidPlugin = "4.2.1"
-    const val kotlin = "1.5.0"
+    const val androidPlugin = "4.1.2"
+    const val kotlin = "1.5.20"
+
     const val googleServicesPlugin = "4.3.3"
-    const val coveralls = "2.8.2"
     const val buildProperties = "0.4"
     const val ktlint = "0.27.0"
     const val kotlinJvmTarget = "1.8"
@@ -55,13 +55,13 @@ object Versions {
     const val chucker = "3.4.0"
     const val retrofit = "2.9.0"
     const val okHttp = "4.9.0"
-    const val mockWebServer = "v0.1.8"
     const val moshi = "1.8.0"
     const val gson = "2.8.5"
     const val jacksonCore = "2.12.3"
     const val kotlinJson = "1.2.1"
     const val kotlinJsonConverter = "0.8.0"
-    const val koin = "2.1.5"
+
+    const val koin = "3.1.2"
     const val rxJava = "3.0.7"
     const val rxKotlin = "3.0.1"
     const val rxAndroid = "3.0.0"
@@ -91,7 +91,6 @@ object Versions {
     // Custom Views
     const val charts = "3.1.0"
     const val circleIndicator = "2.1.6"
-    const val bottomNav = "2.2.0"
     const val countryPicker = "2.0.4"
 
     // zxing 3.4.0 crashes with:
@@ -127,7 +126,6 @@ object Versions {
     const val robolectric = "4.3"
     const val json = "20140107"
     const val espresso = "3.2.0"
-    const val jacoco = "0.8.7"
     const val androidxTesting = "1.3.0"
 }
 
@@ -139,7 +137,6 @@ object Libraries {
     const val kotlinSerializationPlugin = "org.jetbrains.kotlin:kotlin-serialization:${Versions.kotlin}"
     const val kotlin = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}"
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
-    const val coveralls = "org.kt3k.gradle.plugin:coveralls-gradle-plugin:${Versions.coveralls}"
     const val googleServicesPlugin = "com.google.gms:google-services:${Versions.googleServicesPlugin}"
     const val buildProperties = "com.novoda:gradle-build-properties-plugin:${Versions.buildProperties}"
     const val ktlint = "com.github.shyiko:ktlint:${Versions.ktlint}"
@@ -203,13 +200,15 @@ object Libraries {
     const val jacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jacksonCore}"
     const val gson = "com.google.code.gson:gson:${Versions.gson}"
     const val kotlinJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinJson}"
-    const val koin = "org.koin:koin-core:${Versions.koin}"
-    const val koinTest = "org.koin:koin-test:${Versions.koin}"
-    const val koinAndroid = "org.koin:koin-android:${Versions.koin}"
+
+    const val koin = "io.insert-koin:koin-core:${Versions.koin}"
+    const val koinAndroid = "io.insert-koin:koin-android:${Versions.koin}"
+    const val koinTest = "io.insert-koin:koin-test:${Versions.koin}"
     const val glide = "com.github.bumptech.glide:glide:${Versions.glide}"
     const val glideAnnotations = "com.github.bumptech.glide:compiler:${Versions.glide}"
     const val chuckerDebug = "com.github.chuckerteam.chucker:library:${Versions.chucker}"
     const val chuckerRelease = "com.github.chuckerteam.chucker:library-no-op:${Versions.chucker}"
+
     const val rxJava = "io.reactivex.rxjava3:rxjava:${Versions.rxJava}"
     const val rxKotlin = "io.reactivex.rxjava3:rxkotlin:${Versions.rxKotlin}"
     const val rxAndroid = "io.reactivex.rxjava3:rxandroid:${Versions.rxAndroid}"
@@ -218,6 +217,7 @@ object Libraries {
     const val rxBindingCompat = "com.jakewharton.rxbinding4:rxbinding-appcompat:${Versions.rxBinding}"
     const val rxReplayShareKotlin = "com.jakewharton.rx3:replaying-share-kotlin:${Versions.rxReplayShare}"
     const val rxRelay = "com.jakewharton.rxrelay3:rxrelay:${Versions.rxRelay}"
+
     // Utils, BTC, Ethereum
     const val bitcoinj = "org.bitcoinj:bitcoinj-core:${Versions.bitcoinj}"
     const val web3j = "org.web3j:core:${Versions.web3j}"
@@ -239,7 +239,6 @@ object Libraries {
     // Custom Views
     const val charts = "com.github.PhilJay:MPAndroidChart:v${Versions.charts}"
     const val circleIndicator = "me.relex:circleindicator:${Versions.circleIndicator}@aar"
-    const val bottomNav = "com.aurelhubert:ahbottomnavigation:${Versions.bottomNav}"
     const val countryPicker = "com.github.mukeshsolanki:country-picker-android:${Versions.countryPicker}"
     const val zxing = "com.google.zxing:core:${Versions.zxing}"
     const val materialDatePicker = "com.wdullaer:materialdatetimepicker:${Versions.materialDatePicker}"
@@ -279,6 +278,4 @@ object Libraries {
     const val espresso = "androidx.test.espresso:espresso-core:${Versions.espresso}"
     const val retrofitMock = "com.squareup.retrofit2:retrofit-mock:${Versions.retrofit}"
     const val okHttpMock = "com.squareup.okhttp3:mockwebserver:${Versions.okHttp}"
-    const val mockWebServer = "com.github.fabric8io:mockwebserver:${Versions.mockWebServer}"
-    const val jacoco = "org.jacoco:org.jacoco.core:${Versions.jacoco}"
 }

@@ -92,15 +92,28 @@ class AirdropCentrePresenter(
             }
 
         return tx?.let {
-            val fiat = FiatValue.fromMinor(tx.fiatCurrency, tx.fiatValue)
+            Pair(
+                FiatValue.fromMinor(
+                    tx.fiatCurrency,
+                    tx.fiatValue
+                ),
+                CryptoValue.fromMinor(
+                    parseAsset(tx.withdrawalCurrency),
+                    tx.withdrawalQuantity.toBigDecimal()
+                )
+            )
+        } ?: Pair(null, null)
+    }
 
-            val cryptoCurrency = assetCatalogue.fromNetworkTicker(tx.withdrawalCurrency)
-                ?: throw IllegalStateException("Unknown crypto currency: ${tx.withdrawalCurrency}")
-
-            val crypto = CryptoValue.fromMinor(cryptoCurrency, tx.withdrawalQuantity.toBigDecimal())
-
-            Pair(fiat, crypto)
-            } ?: Pair(null, null)
+    private fun parseAsset(ticker: String): AssetInfo {
+        val asset = assetCatalogue.fromNetworkTicker(ticker)
+        // STX is not, currently, a supported asset so we'll have to check that manually here for now.
+        // When we get full-dynamic assets _and_ it's supported, we can take this out TODO
+        return when {
+            asset != null -> asset
+            ticker.compareTo(AIRDROP_STX.ticker, ignoreCase = true) == 0 -> AIRDROP_STX
+            else -> throw IllegalStateException("Unknown crypto currency: $ticker")
+        }
     }
 
     private fun parseState(item: AirdropStatus): AirdropState =

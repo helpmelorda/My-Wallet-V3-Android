@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.transactionflow
 
 import android.content.ComponentCallbacks
-import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
 import org.koin.core.error.ScopeNotCreatedException
 import org.koin.core.parameter.ParametersDefinition
 import org.koin.core.qualifier.Qualifier
@@ -33,10 +33,14 @@ internal fun closeTransactionScope() =
 internal inline fun <reified T : Any> ComponentCallbacks.transactionInject(
     qualifier: Qualifier? = null,
     noinline parameters: ParametersDefinition? = null
-) = transactionScope().inject<T>(qualifier, parameters)
+) = transactionScope().inject<T>(qualifier, LazyThreadSafetyMode.SYNCHRONIZED, parameters)
 
 internal inline fun <reified T> KoinComponent.transactionInject(
     qualifier: Qualifier? = null,
     noinline parameters: ParametersDefinition? = null
 ): Lazy<T> =
-    lazy(LazyThreadSafetyMode.NONE) { transactionScope().get<T>(qualifier, parameters) }
+    lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        transactionScope().get(
+            qualifier, parameters
+        )
+    }

@@ -33,6 +33,7 @@ data class ActivitiesState(
     val account: BlockchainAccount? = null,
     val activityList: ActivitySummaryList = emptyList(),
     val isLoading: Boolean = false,
+    val isRefreshRequested: Boolean = false,
     val bottomSheet: ActivitiesSheet? = null,
     val isError: Boolean = false,
     val selectedTxId: String = "",
@@ -43,13 +44,13 @@ data class ActivitiesState(
 
 class ActivitiesModel(
     initialState: ActivitiesState,
-    mainScheduler: Scheduler,
+    uiScheduler: Scheduler,
     private val interactor: ActivitiesInteractor,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<ActivitiesState, ActivitiesIntent>(
     initialState,
-    mainScheduler,
+    uiScheduler,
     environmentConfig,
     crashLogger
 ) {
@@ -75,7 +76,9 @@ class ActivitiesModel(
                         onComplete = {
                             // do nothing
                         },
-                        onError = { process(ActivityListUpdatedErrorIntent) }
+                        onError = {
+                            process(ActivityListUpdatedErrorIntent)
+                        }
                     )
 
                 fetchSubscription
@@ -83,7 +86,7 @@ class ActivitiesModel(
             is SelectDefaultAccountIntent ->
                 interactor.getDefaultAccount()
                     .subscribeBy(
-                        onSuccess = { process(AccountSelectedIntent(it, true)) },
+                        onSuccess = { process(AccountSelectedIntent(it, false)) },
                         onError = { process(ActivityListUpdatedErrorIntent) }
                     )
             is CancelSimpleBuyOrderIntent -> interactor.cancelSimpleBuyOrder(intent.orderId)

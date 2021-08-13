@@ -21,7 +21,7 @@ data class NabuUser(
     val kycState: KycState,
     private val productsUsed: ProductsUsed? = null,
     private val settings: NabuSettings? = null,
-    val resubmission: Any? = null,
+    val resubmission: ResubmissionResponse? = null,
     /**
      * ISO-8601 Timestamp w/millis, eg 2018-08-15T17:00:45.129Z
      */

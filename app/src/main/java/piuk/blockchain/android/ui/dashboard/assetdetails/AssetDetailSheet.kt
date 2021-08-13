@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -9,8 +8,8 @@ import android.widget.Toast
 import androidx.annotation.UiThread
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
+import com.blockchain.core.price.HistoricalRateList
+import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -27,8 +26,6 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
-import info.blockchain.balance.isCustodialOnly
-import info.blockchain.wallet.prices.data.PriceDatum
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AssetFilter
@@ -46,14 +43,11 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.delegates.AssetDetailAd
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
-import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.invisible
 import piuk.blockchain.android.util.loadInterMedium
 import piuk.blockchain.android.util.setOnTabSelectedListener
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.androidcore.data.exchangerate.PriceSeries
-import piuk.blockchain.androidcore.data.exchangerate.TimeSpan
 import java.math.RoundingMode
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -63,6 +57,7 @@ import java.util.Locale
 
 class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     AssetDetailsIntent, AssetDetailsState, DialogSheetDashboardAssetDetailsBinding>() {
+
     private val currencyPrefs: CurrencyPrefs by inject()
     private val labels: DefaultLabels by inject()
     private val assetCatalogue: AssetCatalogue by inject()
@@ -75,38 +70,19 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     }
 
     private val assetSelect: Coincore by scopedInject()
-    private val internalFlags: InternalFeatureFlagApi by inject()
-
-    private val assetResources: AssetResources by inject()
 
     private val token: CryptoAsset by lazy {
         assetSelect[asset]
     }
 
-    private val isRecurringBuyEnabled: Boolean by lazy {
-        internalFlags.isFeatureEnabled(GatedFeature.RECURRING_BUYS)
-    }
-
     private val listItems = mutableListOf<AssetDetailsItem>()
-
-    private val detailsAdapter by lazy {
-        AssetDetailAdapter(
-            ::onAccountSelected,
-            token,
-            labels
-        ) {
-            PendingBalanceAccountDecorator(it.account)
-        }
-    }
 
     private val adapterDelegate by lazy {
         AssetDetailAdapterDelegate(
             ::onAccountSelected,
-            token,
             labels,
             ::openOnboardingForRecurringBuy,
-            ::onRecurringBuyClicked,
-            assetResources
+            ::onRecurringBuyClicked
         ) {
             PendingBalanceAccountDecorator(it.account)
         }
@@ -172,11 +148,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                 getString(R.string.dashboard_price_for_asset, asset.ticker)
 
             assetList.apply {
-                adapter = if (isRecurringBuyEnabled) {
-                    adapterDelegate
-                } else {
-                    detailsAdapter
-                }
+                adapter = adapterDelegate
                 addItemDecoration(BlockchainListDividerDecor(requireContext()))
             }
         }
@@ -189,8 +161,14 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
 
     private fun openOnboardingForRecurringBuy() {
         analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreClicked(LaunchOrigin.CURRENCY_PAGE))
-        val intent = Intent(requireActivity(), RecurringBuyOnboardingActivity::class.java)
-        startActivity(intent)
+        startActivity(
+            RecurringBuyOnboardingActivity.newInstance(
+                context = requireContext(),
+                fromCoinView = true,
+                asset = asset
+            )
+        )
+        dismiss()
     }
 
     private fun onRecurringBuyClicked(recurringBuy: RecurringBuy) {
@@ -230,98 +208,49 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     }
 
     private fun onGotAssetDetails(assetDetails: AssetDisplayMap) {
-        if (isRecurringBuyEnabled) {
-            val itemList = mutableListOf<AssetDetailsItem>()
+        val itemList = mutableListOf<AssetDetailsItem>()
 
-            assetDetails[AssetFilter.NonCustodial]?.let {
-                itemList.add(
-                    AssetDetailsItem.CryptoDetailsInfo(
-                        assetFilter = AssetFilter.NonCustodial,
-                        account = it.account,
-                        balance = it.amount,
-                        fiatBalance = it.fiatValue,
-                        actions = it.actions,
-                        interestRate = it.interestRate
-                    )
+        assetDetails[AssetFilter.NonCustodial]?.let {
+            itemList.add(
+                AssetDetailsItem.CryptoDetailsInfo(
+                    assetFilter = AssetFilter.NonCustodial,
+                    account = it.account,
+                    balance = it.amount,
+                    fiatBalance = it.fiatValue,
+                    actions = it.actions,
+                    interestRate = it.interestRate
                 )
-            }
-
-            assetDetails[AssetFilter.Custodial]?.let {
-                itemList.add(
-                    AssetDetailsItem.CryptoDetailsInfo(
-                        assetFilter = AssetFilter.Custodial,
-                        account = it.account,
-                        balance = it.amount,
-                        fiatBalance = it.fiatValue,
-                        actions = it.actions,
-                        interestRate = it.interestRate
-                    )
-                )
-            }
-
-            assetDetails[AssetFilter.Interest]?.let {
-                itemList.add(
-                    AssetDetailsItem.CryptoDetailsInfo(
-                        assetFilter = AssetFilter.Interest,
-                        account = it.account,
-                        balance = it.amount,
-                        fiatBalance = it.fiatValue,
-                        actions = it.actions,
-                        interestRate = it.interestRate
-                    )
-                )
-            }
-
-            if (asset.isCustodialOnly) {
-                listItems.add(0, AssetDetailsItem.AssetLabel)
-            }
-
-            listItems.addAll(0, itemList)
-            updateList()
-        } else {
-            val itemList = mutableListOf<AssetDetailItem>()
-
-            assetDetails[AssetFilter.NonCustodial]?.let {
-                itemList.add(
-                    AssetDetailItem(
-                        assetFilter = AssetFilter.NonCustodial,
-                        account = it.account,
-                        balance = it.amount,
-                        fiatBalance = it.fiatValue,
-                        actions = it.actions,
-                        interestRate = it.interestRate
-                    )
-                )
-            }
-
-            assetDetails[AssetFilter.Custodial]?.let {
-                itemList.add(
-                    AssetDetailItem(
-                        assetFilter = AssetFilter.Custodial,
-                        account = it.account,
-                        balance = it.amount,
-                        fiatBalance = it.fiatValue,
-                        actions = it.actions,
-                        interestRate = it.interestRate
-                    )
-                )
-            }
-
-            assetDetails[AssetFilter.Interest]?.let {
-                itemList.add(
-                    AssetDetailItem(
-                        assetFilter = AssetFilter.Interest,
-                        account = it.account,
-                        balance = it.amount,
-                        fiatBalance = it.fiatValue,
-                        actions = it.actions,
-                        interestRate = it.interestRate
-                    )
-                )
-            }
-
-            detailsAdapter.itemList = itemList
+            )
         }
+
+        assetDetails[AssetFilter.Custodial]?.let {
+            itemList.add(
+                AssetDetailsItem.CryptoDetailsInfo(
+                    assetFilter = AssetFilter.Custodial,
+                    account = it.account,
+                    balance = it.amount,
+                    fiatBalance = it.fiatValue,
+                    actions = it.actions,
+                    interestRate = it.interestRate
+                )
+            )
+        }
+
+        assetDetails[AssetFilter.Interest]?.let {
+            itemList.add(
+                AssetDetailsItem.CryptoDetailsInfo(
+                    assetFilter = AssetFilter.Interest,
+                    account = it.account,
+                    balance = it.amount,
+                    fiatBalance = it.fiatValue,
+                    actions = it.actions,
+                    interestRate = it.interestRate
+                )
+            )
+        }
+
+        listItems.addAll(0, itemList)
+        updateList()
     }
 
     private fun onAccountSelected(account: BlockchainAccount, assetFilter: AssetFilter) {
@@ -338,7 +267,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         }
     }
 
-    private fun updateChart(chart: LineChart, data: List<PriceDatum>) {
+    private fun updateChart(chart: LineChart, data: HistoricalRateList) {
         chart.apply {
             visible()
             clear()
@@ -347,11 +276,10 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                 return
             }
             val entries = data
-                .filter { it.price != null }
                 .map {
                     Entry(
                         it.timestamp.toFloat(),
-                        it.price!!.toFloat()
+                        it.rate.toFloat()
                     )
                 }
 
@@ -404,37 +332,37 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     }
 
     private fun configureTabs(chartPricePeriods: TabLayout) {
-        TimeSpan.values().forEachIndexed { index, timeSpan ->
+        HistoricalTimeSpan.values().forEachIndexed { index, timeSpan ->
             chartPricePeriods.getTabAt(index)?.text = timeSpan.tabName()
         }
         chartPricePeriods.setOnTabSelectedListener {
-            model.process(UpdateTimeSpan(TimeSpan.values()[it]))
+            model.process(UpdateTimeSpan(HistoricalTimeSpan.values()[it]))
         }
     }
 
-    private fun TimeSpan.tabName() =
+    private fun HistoricalTimeSpan.tabName() =
         when (this) {
-            TimeSpan.ALL_TIME -> "ALL"
-            TimeSpan.YEAR -> "1Y"
-            TimeSpan.MONTH -> "1M"
-            TimeSpan.WEEK -> "1W"
-            TimeSpan.DAY -> "1D"
+            HistoricalTimeSpan.ALL_TIME -> "ALL"
+            HistoricalTimeSpan.YEAR -> "1Y"
+            HistoricalTimeSpan.MONTH -> "1M"
+            HistoricalTimeSpan.WEEK -> "1W"
+            HistoricalTimeSpan.DAY -> "1D"
         }
 
-    private fun getDataRepresentationColor(data: PriceSeries): Int {
+    private fun getDataRepresentationColor(data: HistoricalRateList): Int {
         // We have filtered out nulls by here, so we can 'safely' default to zeros for the price
-        val firstPrice: Double = data.first().price ?: 0.0
-        val lastPrice: Double = data.last().price ?: 0.0
+        val firstPrice: Double = data.first().rate
+        val lastPrice: Double = data.last().rate
 
         val diff = lastPrice - firstPrice
         return if (diff < 0) R.color.dashboard_chart_negative else R.color.dashboard_chart_positive
     }
 
     @SuppressLint("SetTextI18n")
-    private fun updatePriceChange(percentageView: AppCompatTextView, data: PriceSeries) {
+    private fun updatePriceChange(percentageView: AppCompatTextView, data: HistoricalRateList) {
         // We have filtered out nulls by here, so we can 'safely' default to zeros for the price
-        val firstPrice: Double = data.firstOrNull()?.price ?: 0.0
-        val lastPrice: Double = data.lastOrNull()?.price ?: 0.0
+        val firstPrice: Double = data.firstOrNull()?.rate ?: 0.0
+        val lastPrice: Double = data.lastOrNull()?.rate ?: 0.0
         val difference = lastPrice - firstPrice
 
         val percentChange = (difference / firstPrice) * 100
@@ -495,19 +423,24 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         }
     }
 
-    private fun configureTimespanSelectionUI(binding: DialogSheetDashboardAssetDetailsBinding, selection: TimeSpan) {
+    private fun configureTimespanSelectionUI(
+        binding: DialogSheetDashboardAssetDetailsBinding,
+        selection: HistoricalTimeSpan
+    ) {
         val dateFormat = when (selection) {
-            TimeSpan.ALL_TIME -> SimpleDateFormat("yyyy", locale)
-            TimeSpan.YEAR -> SimpleDateFormat("MMM ''yy", locale)
-            TimeSpan.MONTH, TimeSpan.WEEK -> SimpleDateFormat("dd. MMM", locale)
-            TimeSpan.DAY -> SimpleDateFormat("H:00", locale)
+            HistoricalTimeSpan.ALL_TIME -> SimpleDateFormat("yyyy", locale)
+            HistoricalTimeSpan.YEAR -> SimpleDateFormat("MMM ''yy", locale)
+            HistoricalTimeSpan.MONTH,
+            HistoricalTimeSpan.WEEK -> SimpleDateFormat("dd. MMM", locale)
+            HistoricalTimeSpan.DAY -> SimpleDateFormat("H:00", locale)
         }
 
         val granularity = when (selection) {
-            TimeSpan.ALL_TIME -> 60 * 60 * 24 * 365F
-            TimeSpan.YEAR -> 60 * 60 * 24 * 30F
-            TimeSpan.MONTH, TimeSpan.WEEK -> 60 * 60 * 24 * 2F
-            TimeSpan.DAY -> 60 * 60 * 4F
+            HistoricalTimeSpan.ALL_TIME -> 60 * 60 * 24 * 365F
+            HistoricalTimeSpan.YEAR -> 60 * 60 * 24 * 30F
+            HistoricalTimeSpan.MONTH,
+            HistoricalTimeSpan.WEEK -> 60 * 60 * 24 * 2F
+            HistoricalTimeSpan.DAY -> 60 * 60 * 4F
         }
 
         with(binding) {
@@ -522,11 +455,11 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
 
             priceChangePeriod.text = resources.getString(
                 when (selection) {
-                    TimeSpan.YEAR -> R.string.dashboard_time_span_last_year
-                    TimeSpan.MONTH -> R.string.dashboard_time_span_last_month
-                    TimeSpan.WEEK -> R.string.dashboard_time_span_last_week
-                    TimeSpan.DAY -> R.string.dashboard_time_span_last_day
-                    TimeSpan.ALL_TIME -> R.string.dashboard_time_span_all_time
+                    HistoricalTimeSpan.YEAR -> R.string.dashboard_time_span_last_year
+                    HistoricalTimeSpan.MONTH -> R.string.dashboard_time_span_last_month
+                    HistoricalTimeSpan.WEEK -> R.string.dashboard_time_span_last_week
+                    HistoricalTimeSpan.DAY -> R.string.dashboard_time_span_last_day
+                    HistoricalTimeSpan.ALL_TIME -> R.string.dashboard_time_span_all_time
                 }
             )
 

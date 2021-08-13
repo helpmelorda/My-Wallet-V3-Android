@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.eth
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -9,7 +10,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.util.Locale
 
@@ -18,7 +18,7 @@ internal class EthActivitySummaryItem(
     val ethTransaction: EthTransaction,
     override val isFeeTransaction: Boolean,
     private val blockHeight: Long,
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val account: EthCryptoWalletAccount
 ) : NonCustodialActivitySummaryItem() {
 

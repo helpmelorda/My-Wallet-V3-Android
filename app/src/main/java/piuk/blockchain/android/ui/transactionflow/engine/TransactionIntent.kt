@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BlockchainAccount
@@ -530,7 +530,8 @@ private fun ValidationState.mapToTransactionError() =
         ValidationState.UNDER_MIN_LIMIT -> TransactionErrorState.BELOW_MIN_LIMIT
         ValidationState.PENDING_ORDERS_LIMIT_REACHED -> TransactionErrorState.PENDING_ORDERS_LIMIT_REACHED
         ValidationState.HAS_TX_IN_FLIGHT -> TransactionErrorState.TRANSACTION_IN_FLIGHT
-        ValidationState.OPTION_INVALID -> TransactionErrorState.TX_OPTION_INVALID
+        ValidationState.OPTION_INVALID,
+        ValidationState.MEMO_INVALID -> TransactionErrorState.TX_OPTION_INVALID
         ValidationState.OVER_MAX_LIMIT -> TransactionErrorState.ABOVE_MAX_LIMIT
         ValidationState.OVER_SILVER_TIER_LIMIT -> TransactionErrorState.OVER_SILVER_TIER_LIMIT
         ValidationState.OVER_GOLD_TIER_LIMIT -> TransactionErrorState.OVER_GOLD_TIER_LIMIT

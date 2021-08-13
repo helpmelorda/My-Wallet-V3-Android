@@ -104,15 +104,6 @@ private class CustodialTradingActivityItemViewHolder(
     }
 }
 
-private fun OrderState.isPending(): Boolean =
-    this == OrderState.PENDING_CONFIRMATION ||
-        this == OrderState.PENDING_EXECUTION ||
-        this == OrderState.AWAITING_FUNDS
-
-private fun OrderState.hasFailed(): Boolean = this == OrderState.FAILED
-
-private fun OrderState.isFinished(): Boolean = this == OrderState.FINISHED
-
 private fun ImageView.setIcon(status: OrderState, type: OrderType) =
     setImageResource(
         when (status) {

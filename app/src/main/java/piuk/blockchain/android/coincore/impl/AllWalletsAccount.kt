@@ -1,7 +1,7 @@
 package piuk.blockchain.android.coincore.impl
 
+import com.blockchain.core.price.ExchangeRates
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single

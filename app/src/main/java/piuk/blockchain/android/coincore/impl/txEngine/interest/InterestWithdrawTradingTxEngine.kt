@@ -18,6 +18,8 @@ import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.TxValidationFailure
 import piuk.blockchain.android.coincore.ValidationState
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
+import piuk.blockchain.android.coincore.toCrypto
+import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.coincore.updateTxValidity
 
 class InterestWithdrawTradingTxEngine(
@@ -42,7 +44,7 @@ class InterestWithdrawTradingTxEngine(
             PendingTx(
                 amount = CryptoValue.zero(sourceAsset),
                 minLimit = CryptoValue.fromMinor(sourceAsset, minLimits.minLimit),
-                maxLimit = maxLimits.maxWithdrawalAmount,
+                maxLimit = maxLimits.maxWithdrawalFiatValue.toCrypto(exchangeRates, sourceAsset),
                 feeSelection = FeeSelection(),
                 selectedFiat = userFiat,
                 availableBalance = balance,
@@ -96,8 +98,8 @@ class InterestWithdrawTradingTxEngine(
                         totalWithFee = (pendingTx.amount as CryptoValue).plus(
                             pendingTx.feeAmount as CryptoValue
                         ),
-                        exchange = pendingTx.amount.toFiat(exchangeRates, userFiat)
-                            .plus(pendingTx.feeAmount.toFiat(exchangeRates, userFiat))
+                        exchange = pendingTx.amount.toUserFiat(exchangeRates)
+                            .plus(pendingTx.feeAmount.toUserFiat(exchangeRates))
                     )
                 )
             )
@@ -107,9 +109,7 @@ class InterestWithdrawTradingTxEngine(
         doValidateAmount(pendingTx)
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
-        (txTarget as CryptoAccount).receiveAddress.flatMap {
-            walletManager.startInterestWithdrawal(sourceAsset, pendingTx.amount, it.address).toSingle {
-                TxResult.UnHashedTxResult(pendingTx.amount)
-            }
+        walletManager.executeCustodialTransfer(pendingTx.amount, Product.SAVINGS, Product.BUY).toSingle {
+            TxResult.UnHashedTxResult(pendingTx.amount)
         }
 }

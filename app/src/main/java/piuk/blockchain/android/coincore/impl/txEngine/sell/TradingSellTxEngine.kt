@@ -43,11 +43,11 @@ class TradingSellTxEngine(
                         availableBalance = balance,
                         feeAmount = CryptoValue.zero(sourceAsset),
                         feeForFullAvailable = CryptoValue.zero(sourceAsset),
-                        selectedFiat = userFiat,
+                        selectedFiat = target.fiatCurrency,
                         feeSelection = FeeSelection()
                     )
                 ).flatMap {
-                    updateLimits(it, quote)
+                    updateLimits(target.fiatCurrency, it, quote)
                 }
             }.handlePendingOrdersError(
                 PendingTx(
@@ -56,7 +56,7 @@ class TradingSellTxEngine(
                     availableBalance = CryptoValue.zero(sourceAsset),
                     feeForFullAvailable = CryptoValue.zero(sourceAsset),
                     feeAmount = CryptoValue.zero(sourceAsset),
-                    selectedFiat = userFiat,
+                    selectedFiat = target.fiatCurrency,
                     feeSelection = FeeSelection()
                 )
             )

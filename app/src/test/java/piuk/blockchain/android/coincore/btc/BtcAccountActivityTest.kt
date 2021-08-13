@@ -1,7 +1,5 @@
 package piuk.blockchain.android.coincore.btc
 
-import com.blockchain.android.testutils.rxInit
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -22,23 +20,20 @@ import info.blockchain.wallet.payload.data.XPubs
 import io.reactivex.rxjava3.core.Single
 
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.coincore.TradeActivitySummaryItem
 import piuk.blockchain.android.coincore.impl.AccountRefreshTrigger
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
 import java.math.BigInteger
 
-class BtcAccountActivityTest {
+class BtcAccountActivityTest : CoincoreTestBase() {
 
     private val payloadDataManager: PayloadDataManager = mock()
     private val sendDataManager: SendDataManager = mock()
     private val feeDataManager: FeeDataManager = mock()
-    private val exchangeRates: ExchangeRateDataManager = mock()
-    private val currencyPrefs: CurrencyPrefs = mock()
     private val walletPrefs: WalletStatus = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val refreshTrigger: AccountRefreshTrigger = mock()
@@ -63,16 +58,9 @@ class BtcAccountActivityTest {
             identity = mock()
         )
 
-    @get:Rule
-    val rxSchedulers = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
-    }
-
     @Before
     fun setup() {
-        whenever(currencyPrefs.selectedFiatCurrency).thenReturn("USD")
+        initMocks()
     }
 
     // For NC accounts, Swaps are mapped into the activity stream if there is a matching SENT
@@ -105,8 +93,7 @@ class BtcAccountActivityTest {
             CryptoValue.zero(CryptoCurrency.ETHER),
             CryptoValue.zero(CryptoCurrency.ETHER),
             CurrencyPair.CryptoCurrencyPair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
-            FiatValue.zero("USD"),
-            "USD"
+            FiatValue.zero("USD")
         )
 
         val summaryList = listOf(swapSummary)
@@ -163,8 +150,7 @@ class BtcAccountActivityTest {
             CryptoValue.zero(CryptoCurrency.ETHER),
             CryptoValue.zero(CryptoCurrency.ETHER),
             CurrencyPair.CryptoCurrencyPair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
-            FiatValue.zero("USD"),
-            "USD"
+            FiatValue.zero(TEST_USER_FIAT)
         )
 
         val summaryList = listOf(swapSummary)
@@ -191,8 +177,8 @@ class BtcAccountActivityTest {
                         swapItem.sendingAddress == swapSummary.sendingAddress &&
                         swapItem.receivingAddress == swapSummary.receivingAddress &&
                         swapItem.state == swapSummary.state &&
-                        swapItem.fiatValue == swapSummary.fiatValue &&
-                        swapItem.fiatCurrency == swapSummary.fiatCurrency
+                        swapItem.fiatValue == swapSummary.apiFiatValue &&
+                        swapItem.fiatCurrency == TEST_USER_FIAT
             }
 
         verify(payloadDataManager).getAccountTransactions(any(), any(), any())
@@ -227,8 +213,7 @@ class BtcAccountActivityTest {
             CryptoValue.zero(CryptoCurrency.ETHER),
             CryptoValue.zero(CryptoCurrency.ETHER),
             CurrencyPair.CryptoCurrencyPair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
-            FiatValue.zero("USD"),
-            "USD"
+            FiatValue.zero(TEST_USER_FIAT)
         )
 
         val summaryList = listOf(swapSummary)

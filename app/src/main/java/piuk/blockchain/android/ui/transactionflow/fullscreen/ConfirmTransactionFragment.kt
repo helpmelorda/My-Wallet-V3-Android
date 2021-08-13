@@ -6,9 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.ExchangeRates
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.FragmentTxFlowConfirmBinding
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor

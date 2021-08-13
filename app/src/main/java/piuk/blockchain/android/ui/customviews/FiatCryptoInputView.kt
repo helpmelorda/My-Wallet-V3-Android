@@ -5,22 +5,22 @@ import android.text.Editable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.ExchangeRates
+import com.blockchain.core.price.hasOppositeSourceAndTarget
+import com.blockchain.core.price.hasSameSourceAndTarget
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRate
-import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import info.blockchain.balance.hasOppositeSourceAndTarget
-import info.blockchain.balance.hasSameSourceAndTarget
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.subjects.PublishSubject
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.EnterFiatCryptoLayoutBinding
 import piuk.blockchain.android.ui.customviews.inputview.DecimalDigitsInputFilter
@@ -54,7 +54,7 @@ class FiatCryptoInputView(context: Context, attrs: AttributeSet) : ConstraintLay
     val amount: Observable<Money>
         get() = amountSubject
 
-    private val defExchangeRates: ExchangeRates by scopedInject()
+    private val exchangeRates: ExchangeRates by scopedInject()
 
     private val currencyPrefs: CurrencyPrefs by inject()
 
@@ -296,18 +296,13 @@ class FiatCryptoInputView(context: Context, attrs: AttributeSet) : ConstraintLay
         return when (input) {
             is CurrencyType.Fiat -> when (output) {
                 is CurrencyType.Crypto -> {
-                    ExchangeRate.CryptoToFiat(
-                        to = input.fiatCurrency,
-                        from = output.cryptoCurrency,
-                        _rate = defExchangeRates.getLastPrice(output.cryptoCurrency, input.fiatCurrency)
+                    exchangeRates.getLastCryptoToFiatRate(
+                        sourceCrypto = output.cryptoCurrency,
+                        targetFiat = input.fiatCurrency
                     ).inverse(RoundingMode.CEILING, CryptoValue.DISPLAY_DP)
                 }
                 is CurrencyType.Fiat -> {
-                    ExchangeRate.FiatToFiat(
-                        input.fiatCurrency,
-                        output.fiatCurrency,
-                        defExchangeRates.getLastPriceOfFiat(output.fiatCurrency, input.fiatCurrency)
-                    )
+                    exchangeRates.getLastFiatToFiatRate(input.fiatCurrency, output.fiatCurrency)
                 }
             }
             is CurrencyType.Crypto -> when (output) {
@@ -321,10 +316,9 @@ class FiatCryptoInputView(context: Context, attrs: AttributeSet) : ConstraintLay
                     )
                 }
                 is CurrencyType.Fiat -> {
-                    ExchangeRate.CryptoToFiat(
-                        from = input.cryptoCurrency,
-                        to = output.fiatCurrency,
-                        _rate = defExchangeRates.getLastPrice(input.cryptoCurrency, output.fiatCurrency)
+                    exchangeRates.getLastCryptoToFiatRate(
+                        sourceCrypto = input.cryptoCurrency,
+                        targetFiat = output.fiatCurrency
                     )
                 }
             }

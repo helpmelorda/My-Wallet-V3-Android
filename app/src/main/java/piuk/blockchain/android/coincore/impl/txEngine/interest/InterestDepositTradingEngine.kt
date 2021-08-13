@@ -18,6 +18,8 @@ import piuk.blockchain.android.coincore.TxConfirmationValue
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.TxValidationFailure
 import piuk.blockchain.android.coincore.ValidationState
+import piuk.blockchain.android.coincore.toCrypto
+import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.coincore.updateTxValidity
 
 class InterestDepositTradingEngine(private val walletManager: CustodialWalletManager) :
@@ -36,9 +38,10 @@ class InterestDepositTradingEngine(private val walletManager: CustodialWalletMan
     override fun doInitialiseTx(): Single<PendingTx> {
         return getLimits().zipWith(availableBalance)
             .map { (limits, balance) ->
+                val cryptoAsset = limits.cryptoCurrency
                 PendingTx(
                     amount = CryptoValue.zero(sourceAsset),
-                    minLimit = limits.minDepositAmount,
+                    minLimit = limits.minDepositFiatValue.toCrypto(exchangeRates, cryptoAsset),
                     feeSelection = FeeSelection(),
                     selectedFiat = userFiat,
                     availableBalance = balance,
@@ -93,8 +96,8 @@ class InterestDepositTradingEngine(private val walletManager: CustodialWalletMan
                     totalWithFee = (pendingTx.amount as CryptoValue).plus(
                         pendingTx.feeAmount as CryptoValue
                     ),
-                    exchange = pendingTx.amount.toFiat(exchangeRates, userFiat)
-                        .plus(pendingTx.feeAmount.toFiat(exchangeRates, userFiat))
+                    exchange = pendingTx.amount.toUserFiat(exchangeRates)
+                        .plus(pendingTx.feeAmount.toUserFiat(exchangeRates))
                 )
             )
         )

@@ -11,7 +11,7 @@ import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
-import piuk.blockchain.android.repositories.AssetActivityRepository
+import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.transactionScopeOrNull
 import piuk.blockchain.android.util.OSUtil

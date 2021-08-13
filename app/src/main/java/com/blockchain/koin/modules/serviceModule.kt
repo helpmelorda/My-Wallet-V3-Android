@@ -12,7 +12,6 @@ import info.blockchain.wallet.api.FeeApi
 import info.blockchain.wallet.api.FeeEndpoints
 import info.blockchain.wallet.api.WalletApi
 import info.blockchain.wallet.api.WalletExplorerEndpoints
-import info.blockchain.wallet.ethereum.EthAccountApi
 import info.blockchain.wallet.payment.Payment
 import info.blockchain.wallet.settings.SettingsManager
 import org.koin.dsl.bind
@@ -58,6 +57,4 @@ val serviceModule = module {
                 get() = getProperty("api-code")
         }
     }.bind(ApiCode::class)
-
-    factory { EthAccountApi(get()) }
 }

@@ -4,23 +4,23 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
-import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.Money
+import org.koin.core.component.KoinComponent
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import org.koin.core.KoinComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.InterestAccount
 import piuk.blockchain.android.coincore.NullCryptoAccount
+import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.databinding.ViewAccountCryptoOverviewBinding
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -38,7 +38,6 @@ class AccountInfoCrypto @JvmOverloads constructor(
 ) : ConstraintLayout(ctx, attr, defStyle), KoinComponent, EnterAmountWidget {
 
     private val exchangeRates: ExchangeRates by scopedInject()
-    private val currencyPrefs: CurrencyPrefs by scopedInject()
     private val coincore: Coincore by scopedInject()
     private val compositeDisposable = CompositeDisposable()
     private var accountBalance: Money? = null
@@ -132,10 +131,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
                     onNext = { accountBalance ->
                         walletBalanceCrypto.text = accountBalance.toStringWithSymbol()
                         walletBalanceFiat.text =
-                            accountBalance.toFiat(
-                                exchangeRates,
-                                currencyPrefs.selectedFiatCurrency
-                            ).toStringWithSymbol()
+                            accountBalance.toUserFiat(exchangeRates).toStringWithSymbol()
                     },
                     onError = {
                         Timber.e("Cannot get balance for ${account.label}")

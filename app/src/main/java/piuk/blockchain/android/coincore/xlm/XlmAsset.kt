@@ -1,7 +1,10 @@
 package piuk.blockchain.android.coincore.xlm
 
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.sunriver.StellarPayment
@@ -9,7 +12,6 @@ import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
 import com.blockchain.sunriver.fromStellarUri
 import com.blockchain.sunriver.isValidXlmQr
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -24,12 +26,10 @@ import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.impl.CryptoAssetBase
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
+import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
-import piuk.blockchain.android.identity.UserIdentity
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -39,8 +39,8 @@ internal class XlmAsset(
     private val xlmFeesFetcher: XlmFeesFetcher,
     private val walletOptionsDataManager: WalletOptionsDataManager,
     custodialManager: CustodialWalletManager,
-    exchangeRates: ExchangeRateDataManager,
-    historicRates: ExchangeRateService,
+    tradingBalanceDataManager: TradingBalanceDataManager,
+    exchangeRates: ExchangeRatesDataManager,
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
     pitLinking: PitLinking,
@@ -51,10 +51,10 @@ internal class XlmAsset(
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
-    historicRates,
     currencyPrefs,
     labels,
     custodialManager,
+    tradingBalanceDataManager,
     pitLinking,
     crashLogger,
     identity,
@@ -96,6 +96,7 @@ internal class XlmAsset(
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
+                    tradingBalanceDataManager = tradingBalanceDataManager,
                     identity = identity,
                     features = features
                 )

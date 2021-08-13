@@ -385,12 +385,6 @@ class DashboardFragment :
         theAdapter.items = displayList
     }
 
-    private fun setupToolbar() {
-        activity.supportActionBar?.let {
-            activity.setupToolbar(it, R.string.dashboard_title)
-        }
-    }
-
     private fun setupSwipeRefresh() {
         with(binding) {
             swipe.setOnRefreshListener { model.process(RefreshAllIntent) }
@@ -407,7 +401,7 @@ class DashboardFragment :
 
     override fun onResume() {
         super.onResume()
-        setupToolbar()
+        if (isHidden) return
         compositeDisposable += actionEvent.subscribe {
             initOrUpdateAssets()
         }
@@ -424,6 +418,13 @@ class DashboardFragment :
         announcements.checkLatest(announcementHost, compositeDisposable)
 
         initOrUpdateAssets()
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden) {
+            model.process(RefreshAllIntent)
+        }
     }
 
     private fun initOrUpdateAssets() {

@@ -8,8 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import com.blockchain.core.price.ExchangeRate
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -142,7 +142,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                     }
                 }
 
-                if (state.setMax) {
+                if (newState.setMax) {
                     amountSheetInput.updateValue(newState.maxSpendable)
                 }
 

@@ -9,8 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
@@ -20,6 +20,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth
 import com.blockchain.utils.to12HourFormat
 import com.bumptech.glide.Glide
@@ -57,11 +58,8 @@ import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.time.ZonedDateTime
-import java.util.Locale
 
 class SimpleBuyCryptoFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyBuyCryptoBinding>(),
@@ -71,7 +69,7 @@ class SimpleBuyCryptoFragment :
     ChangeCurrencyHost {
 
     override val model: SimpleBuyModel by scopedInject()
-    private val exchangeRateDataManager: ExchangeRateDataManager by scopedInject()
+    private val exchangeRates: ExchangeRatesDataManager by scopedInject()
     private val assetResources: AssetResources by inject()
     private val assetCatalogue: AssetCatalogue by inject()
     private val features: InternalFeatureFlagApi by inject()
@@ -87,10 +85,6 @@ class SimpleBuyCryptoFragment :
 
     private val preselectedMethodId: String? by unsafeLazy {
         arguments?.getString(ARG_PAYMENT_METHOD_ID)
-    }
-
-    private val isRecurringBuyEnabled: Boolean by lazy {
-        features.isFeatureEnabled(GatedFeature.RECURRING_BUYS)
     }
 
     override fun navigator(): SimpleBuyNavigator =
@@ -379,8 +373,7 @@ class SimpleBuyCryptoFragment :
         state.isAmountValid && state.selectedPaymentMethod != null && !state.isLoading
 
     private fun renderDefinedPaymentMethod(selectedPaymentMethod: PaymentMethod) {
-        binding.frequencySpinner.visibleIf { isRecurringBuyEnabled }
-        if (isRecurringBuyEnabled) renderRecurringBuy()
+        renderRecurringBuy()
 
         when (selectedPaymentMethod) {
             is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod)
@@ -522,7 +515,7 @@ class SimpleBuyCryptoFragment :
                     else
                         resources.getString(
                             R.string.maximum_buy,
-                            state.maxCryptoAmount(exchangeRateDataManager)?.toStringWithSymbol()
+                            state.maxCryptoAmount(exchangeRates)?.toStringWithSymbol()
                         )
                 )
             }
@@ -533,7 +526,7 @@ class SimpleBuyCryptoFragment :
                     else
                         resources.getString(
                             R.string.minimum_buy,
-                            state.minCryptoAmount(exchangeRateDataManager)?.toStringWithSymbol()
+                            state.minCryptoAmount(exchangeRates)?.toStringWithSymbol()
                         )
                 )
             }
@@ -645,16 +638,15 @@ class SimpleBuyCryptoFragment :
 fun RecurringBuyFrequency.toHumanReadableRecurringBuy(context: Context): String {
     return when (this) {
         RecurringBuyFrequency.ONE_TIME -> context.getString(R.string.recurring_buy_one_time_short)
-        RecurringBuyFrequency.DAILY -> context.getString(R.string.recurring_buy_daily)
-        RecurringBuyFrequency.WEEKLY -> context.getString(R.string.recurring_buy_weekly)
-        RecurringBuyFrequency.BI_WEEKLY -> context.getString(R.string.recurring_buy_bi_weekly)
-        RecurringBuyFrequency.MONTHLY -> context.getString(R.string.recurring_buy_monthly)
+        RecurringBuyFrequency.DAILY -> context.getString(R.string.recurring_buy_daily_1)
+        RecurringBuyFrequency.WEEKLY -> context.getString(R.string.recurring_buy_weekly_1)
+        RecurringBuyFrequency.BI_WEEKLY -> context.getString(R.string.recurring_buy_bi_weekly_1)
+        RecurringBuyFrequency.MONTHLY -> context.getString(R.string.recurring_buy_monthly_1)
         else -> context.getString(R.string.common_unknown)
     }
 }
 
-fun RecurringBuyFrequency.toHumanReadableRecurringDate(context: Context): String {
-    val dateTime = ZonedDateTime.now()
+fun RecurringBuyFrequency.toHumanReadableRecurringDate(context: Context, dateTime: ZonedDateTime): String {
     return when (this) {
         RecurringBuyFrequency.DAILY -> {
             context.getString(
@@ -665,7 +657,7 @@ fun RecurringBuyFrequency.toHumanReadableRecurringDate(context: Context): String
         RecurringBuyFrequency.BI_WEEKLY, RecurringBuyFrequency.WEEKLY -> {
             context.getString(
                 R.string.recurring_buy_frequency_subtitle,
-                dateTime.dayOfWeek.toString().toLowerCase(Locale.getDefault()).capitalize(Locale.getDefault())
+                dateTime.dayOfWeek.toString().capitalizeFirstChar()
             )
         }
         RecurringBuyFrequency.MONTHLY -> {

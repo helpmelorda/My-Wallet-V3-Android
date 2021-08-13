@@ -30,7 +30,9 @@ import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
+import piuk.blockchain.android.util.ActivityIndicator
 import piuk.blockchain.android.util.context
+import piuk.blockchain.android.util.trackProgress
 
 typealias StatusDecorator = (BlockchainAccount) -> CellDecorator
 
@@ -48,6 +50,7 @@ class AccountList @JvmOverloads constructor(
     private val disposables = CompositeDisposable()
     private val uiScheduler = AndroidSchedulers.mainThread()
     private var lastSelectedAccount: BlockchainAccount? = null
+    var activityIndicator: ActivityIndicator? = null
 
     init {
         setBackgroundColor(Color.WHITE)
@@ -92,12 +95,14 @@ class AccountList @JvmOverloads constructor(
         loadItems(source)
     }
 
-    fun loadItems(source: Single<List<BlockchainAccount>>) {
+    fun loadItems(source: Single<List<BlockchainAccount>>, showLoader: Boolean = true) {
+        val loader = if (showLoader) activityIndicator else null
         disposables += source
             .observeOn(uiScheduler)
             .doOnSubscribe {
                 onListLoading()
             }
+            .trackProgress(loader)
             .subscribeBy(
                 onSuccess = {
                     (adapter as? AccountsDelegateAdapter)?.items = it.map { account ->

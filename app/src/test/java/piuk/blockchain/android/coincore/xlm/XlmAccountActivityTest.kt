@@ -1,7 +1,5 @@
 package piuk.blockchain.android.coincore.xlm
 
-import com.blockchain.android.testutils.rxInit
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.sunriver.HorizonKeyPair
 import com.blockchain.sunriver.XlmDataManager
@@ -23,21 +21,17 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Single
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
 import piuk.blockchain.android.coincore.TradeActivitySummaryItem
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import java.math.BigInteger
 
-class XlmAccountActivityTest {
+class XlmAccountActivityTest : CoincoreTestBase() {
 
     private val payloadManager: PayloadDataManager = mock()
-    private val exchangeRates: ExchangeRateDataManager = mock()
-    private val currencyPrefs: CurrencyPrefs = mock()
 
     private val xlmDataManager: XlmDataManager = mock()
     private val xlmFeesFetcher: XlmFeesFetcher = mock()
@@ -62,18 +56,6 @@ class XlmAccountActivityTest {
             identity = mock()
         )
 
-    @get:Rule
-    val rxSchedulers = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
-    }
-
-    @Before
-    fun setup() {
-        whenever(currencyPrefs.selectedFiatCurrency).thenReturn("USD")
-    }
-
     @Test
     fun getXlmTransactionListReceived() {
         // Arrange
@@ -92,18 +74,17 @@ class XlmAccountActivityTest {
             .thenReturn(Single.just(listOf(xlmTransaction)))
 
         val swapSummary = TradeTransactionItem(
-            TX_HASH_SWAP,
-            1L,
-            TransferDirection.ON_CHAIN,
-            "sendingAddress",
-            "receivingAddress",
-            CustodialOrderState.FINISHED,
-            CryptoValue.zero(CryptoCurrency.XLM),
-            CryptoValue.zero(CryptoCurrency.BTC),
-            CryptoValue.zero(CryptoCurrency.BTC),
-            CurrencyPair.CryptoCurrencyPair(CryptoCurrency.XLM, CryptoCurrency.BTC),
-            FiatValue.zero("USD"),
-            "USD"
+            txId = TX_HASH_SWAP,
+            timeStampMs = 1L,
+            direction = TransferDirection.ON_CHAIN,
+            sendingAddress = "sendingAddress",
+            receivingAddress = "receivingAddress",
+            state = CustodialOrderState.FINISHED,
+            sendingValue = CryptoValue.zero(CryptoCurrency.XLM),
+            receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
+            withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
+            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.XLM, CryptoCurrency.BTC),
+            apiFiatValue = FiatValue.zero(TEST_API_FIAT)
         )
 
         val summaryList = listOf(swapSummary)
@@ -177,18 +158,17 @@ class XlmAccountActivityTest {
             .thenReturn(Single.just(listOf(xlmTransaction)))
 
         val swapSummary = TradeTransactionItem(
-            TX_HASH_SWAP,
-            1L,
-            TransferDirection.ON_CHAIN,
-            "sendingAddress",
-            "receivingAddress",
-            CustodialOrderState.FINISHED,
-            CryptoValue.zero(CryptoCurrency.XLM),
-            CryptoValue.zero(CryptoCurrency.BTC),
-            CryptoValue.zero(CryptoCurrency.BTC),
-            CurrencyPair.CryptoCurrencyPair(CryptoCurrency.XLM, CryptoCurrency.BTC),
-            FiatValue.zero("USD"),
-            "USD"
+            txId = TX_HASH_SWAP,
+            timeStampMs = 1L,
+            direction = TransferDirection.ON_CHAIN,
+            sendingAddress = "sendingAddress",
+            receivingAddress = "receivingAddress",
+            state = CustodialOrderState.FINISHED,
+            sendingValue = CryptoValue.zero(CryptoCurrency.XLM),
+            receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
+            withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
+            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.XLM, CryptoCurrency.BTC),
+            apiFiatValue = FiatValue.zero(TEST_API_FIAT)
         )
 
         val summaryList = listOf(swapSummary)
@@ -255,18 +235,17 @@ class XlmAccountActivityTest {
             .thenReturn(Single.just(listOf(xlmTransaction)))
 
         val swapSummary = TradeTransactionItem(
-            TX_HASH_SWAP,
-            1L,
-            TransferDirection.ON_CHAIN,
-            "sendingAddress",
-            "receivingAddress",
-            CustodialOrderState.FINISHED,
-            CryptoValue.zero(CryptoCurrency.XLM),
-            CryptoValue.zero(CryptoCurrency.BTC),
-            CryptoValue.zero(CryptoCurrency.BTC),
-            CurrencyPair.CryptoCurrencyPair(CryptoCurrency.XLM, CryptoCurrency.BTC),
-            FiatValue.zero("USD"),
-            "USD"
+            txId = TX_HASH_SWAP,
+            timeStampMs = 1L,
+            direction = TransferDirection.ON_CHAIN,
+            sendingAddress = "sendingAddress",
+            receivingAddress = "receivingAddress",
+            state = CustodialOrderState.FINISHED,
+            sendingValue = CryptoValue.zero(CryptoCurrency.XLM),
+            receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
+            withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
+            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.XLM, CryptoCurrency.BTC),
+            apiFiatValue = FiatValue.zero(TEST_API_FIAT)
         )
 
         val summaryList = listOf(swapSummary)
@@ -277,8 +256,7 @@ class XlmAccountActivityTest {
                     TransferDirection.FROM_USERKEY
                 )
             )
-        )
-            .thenReturn(Single.just(summaryList))
+        ).thenReturn(Single.just(summaryList))
 
         // Act
         subject.activity.test()
@@ -298,8 +276,8 @@ class XlmAccountActivityTest {
                     swapItem.sendingAddress == swapSummary.sendingAddress &&
                     swapItem.receivingAddress == swapSummary.receivingAddress &&
                     swapItem.state == swapSummary.state &&
-                    swapItem.fiatValue == swapSummary.fiatValue &&
-                    swapItem.fiatCurrency == swapSummary.fiatCurrency
+                    swapItem.fiatValue == FiatValue.zero(TEST_USER_FIAT) &&
+                    swapItem.fiatCurrency == TEST_USER_FIAT
             }
 
         verify(xlmDataManager).getTransactionList()

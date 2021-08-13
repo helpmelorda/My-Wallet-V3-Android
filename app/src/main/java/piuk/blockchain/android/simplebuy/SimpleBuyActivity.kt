@@ -3,7 +3,6 @@ package piuk.blockchain.android.simplebuy
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.FragmentTransaction
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.AssetCatalogue
@@ -17,6 +16,8 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentActivityBinding
 import piuk.blockchain.android.ui.base.BlockchainActivity
+import piuk.blockchain.android.ui.base.addAnimationTransaction
+import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
@@ -72,6 +73,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbarGeneral.toolbarGeneral)
+        setupToolbar("")
         if (savedInstanceState == null) {
             if (startedFromApprovalDeepLink) {
                 val currentState = bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()
@@ -226,27 +228,29 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
         startActivity(BankAuthActivity.newInstance(errorState, BankAuthSource.SIMPLE_BUY, this))
     }
 
-    override fun goToSetupFirstRecurringBuy() {
+    override fun goToSetupFirstRecurringBuy(addToBackStack: Boolean) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(R.id.content_frame, RecurringBuyFirstTimeBuyerFragment())
+            .apply {
+                if (addToBackStack) {
+                    addToBackStack(SimpleBuyPaymentFragment::class.simpleName)
+                }
+            }
             .commitAllowingStateLoss()
     }
 
-    override fun goToFirstRecurringBuyCreated() {
+    override fun goToFirstRecurringBuyCreated(addToBackStack: Boolean) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(R.id.content_frame, RecurringBuySuccessfulFragment())
+            .apply {
+                if (addToBackStack) {
+                    addToBackStack(SimpleBuyPaymentFragment::class.simpleName)
+                }
+            }
             .commitAllowingStateLoss()
     }
-
-    private fun FragmentTransaction.addAnimationTransaction(): FragmentTransaction =
-        this.setCustomAnimations(
-            R.anim.fragment_slide_left_enter,
-            R.anim.fragment_slide_left_exit,
-            R.anim.fragment_slide_right_enter,
-            R.anim.fragment_slide_right_exit
-        )
 
     companion object {
         const val KYC_STARTED = 6788

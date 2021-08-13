@@ -22,12 +22,6 @@ data class CryptoValue(
 
     override fun toNetworkString(): String = format(Locale.US).removeComma()
 
-    override fun toFiat(exchangeRates: ExchangeRates, fiatCurrency: String): FiatValue =
-        FiatValue.fromMajor(
-            fiatCurrency,
-            exchangeRates.getLastPrice(currency, fiatCurrency) * this.toBigDecimal()
-        )
-
     /**
      * Amount in the major value of the currency, Bitcoin/Ether for example.
      */

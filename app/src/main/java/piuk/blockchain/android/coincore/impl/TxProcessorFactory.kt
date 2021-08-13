@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
@@ -32,11 +33,10 @@ import piuk.blockchain.android.coincore.impl.txEngine.sell.TradingSellTxEngine
 import piuk.blockchain.android.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import piuk.blockchain.android.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import piuk.blockchain.android.data.api.bitpay.BitPayDataManager
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 
 class TxProcessorFactory(
     private val bitPayManager: BitPayDataManager,
-    private val exchangeRates: ExchangeRateDataManager,
+    private val exchangeRates: ExchangeRatesDataManager,
     private val walletManager: CustodialWalletManager,
     private val walletPrefs: WalletStatus,
     private val quotesEngine: TransferQuotesEngine,

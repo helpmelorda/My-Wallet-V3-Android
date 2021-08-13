@@ -5,6 +5,11 @@ import kotlinx.serialization.Serializable
 // https://www.notion.so/nabu-gateway-abbd68cebafd4070983b72565abaa2f2
 
 @Serializable
+data class AccumulatedInPeriodResponse(
+    val tradesAccumulated: List<AccumulatedInPeriod>
+)
+
+@Serializable
 data class AccumulatedInPeriod(
     val amount: AccumulatedAmount,
     val termType: String

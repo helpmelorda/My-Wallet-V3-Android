@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.dashboard
 
+import com.blockchain.core.price.ExchangeRates
+import com.blockchain.core.price.HistoricalRate
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -10,12 +12,8 @@ import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
-import info.blockchain.wallet.prices.TimeAgo
-import info.blockchain.wallet.prices.TimeInterval
-import info.blockchain.wallet.prices.data.PriceDatum
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -33,11 +31,11 @@ import piuk.blockchain.android.coincore.InterestAccount
 import piuk.blockchain.android.coincore.SingleAccount
 import piuk.blockchain.android.coincore.fiat.LinkedBankAccount
 import piuk.blockchain.android.coincore.fiat.LinkedBanksFactory
+import piuk.blockchain.android.coincore.toFiat
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transactionflow.TransactionFlow
-import piuk.blockchain.androidcore.data.exchangerate.TimeSpan
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import timber.log.Timber
@@ -171,7 +169,7 @@ class DashboardInteractor(
                 a.accountBalance.map { balance ->
                     FiatBalanceInfo(
                         balance,
-                        balance.toFiat(exchangeRates, fiatCurrency),
+                        balance.toFiat(fiatCurrency, exchangeRates),
                         a as FiatAccount
                     )
                 }
@@ -192,7 +190,7 @@ class DashboardInteractor(
 
         return Single.zip(
             coincore[crypto].exchangeRate(),
-            coincore[crypto].historicRate(TimeAgo.ONE_DAY.epoch)
+            coincore[crypto].exchangeRateYesterday()
         ) { rate, day -> PriceUpdate(crypto, rate, day) }
             .subscribeBy(
                 onSuccess = { model.process(it) },
@@ -202,11 +200,10 @@ class DashboardInteractor(
 
     fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable =
         if (asset.startDate != null) {
-            coincore[asset].historicRateSeries(TimeSpan.DAY, TimeInterval.ONE_HOUR)
+            coincore[asset].lastDayTrend()
         } else {
             Single.just(FLATLINE_CHART)
-        }
-            .map { PriceHistoryUpdate(asset, it) }
+        }.map { PriceHistoryUpdate(asset, it) }
             .subscribeBy(
                 onSuccess = { model.process(it) },
                 onError = { Timber.e(it) }
@@ -504,8 +501,8 @@ class DashboardInteractor(
 
     companion object {
         private val FLATLINE_CHART = listOf(
-            PriceDatum(price = 1.0, timestamp = 0),
-            PriceDatum(price = 1.0, timestamp = System.currentTimeMillis() / 1000)
+            HistoricalRate(rate = 1.0, timestamp = 0),
+            HistoricalRate(rate = 1.0, timestamp = System.currentTimeMillis() / 1000)
         )
 
         private const val RETRY_INTERVAL_MS = 3000L

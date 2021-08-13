@@ -277,7 +277,6 @@ internal object USDC : CryptoCurrency(
     l2chain = ETHER,
     l2identifier = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     requiredConfirmations = 12, // Same as ETHER
-    startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
     colour = "#2775CA",
     logo = "file:///android_asset/logo/usdc/logo.png"
 )

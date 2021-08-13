@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 import androidx.annotation.VisibleForTesting
 import com.blockchain.notifications.analytics.Analytics
 import io.reactivex.rxjava3.core.Single
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementRule

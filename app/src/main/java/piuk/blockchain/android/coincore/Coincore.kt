@@ -1,10 +1,9 @@
 package piuk.blockchain.android.coincore
 
+import com.blockchain.core.price.percentageDelta
 import com.blockchain.logging.CrashLogger
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.percentageDelta
-import info.blockchain.wallet.prices.TimeAgo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
@@ -41,12 +40,18 @@ class Coincore internal constructor(
 
     fun init(): Completable =
         assetCatalogue.initialise(fixedAssets.map { it.asset }.toSet())
+            .doOnSubscribe { crashLogger.logEvent("Coincore init start") }
             .flatMap { assetLoader.loadDynamicAssets(it) }
             .map { fixedAssets + it }
             .doOnSuccess { assetList -> assetMap = assetList.associateBy { it.asset } }
             .flatMapCompletable { assetList -> initAssets(assetList) }
+            .doOnComplete {
+                crashLogger.logEvent("Coincore init complete")
+            }
             .doOnError {
-                Timber.e("Coincore initialisation failed! $it")
+                val msg = "Coincore initialisation failed! $it"
+                crashLogger.logEvent(msg)
+                Timber.e(msg)
             }
 
     private fun initAssets(assetList: List<CryptoAsset>): Completable =
@@ -210,7 +215,7 @@ class Coincore internal constructor(
 
     fun getExchangePriceWithDelta(asset: AssetInfo): Single<ExchangePriceWithDelta> =
         this[asset].exchangeRate().zipWith(
-            this[asset].historicRate(TimeAgo.ONE_DAY.epoch)
+            this[asset].exchangeRateYesterday()
         ) { currentPrice, price24h ->
             val price = currentPrice.percentageDelta(price24h)
             ExchangePriceWithDelta(currentPrice.price(), price)

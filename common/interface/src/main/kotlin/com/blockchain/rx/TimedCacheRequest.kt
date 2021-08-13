@@ -55,6 +55,10 @@ class ParameteredSingleTimedCacheRequest<INPUT, OUTPUT>(
     fun invalidate(input: INPUT) {
         expired[input] = true
     }
+
+    fun invalidateAll() {
+        expired.keys.forEach { expired[it] = true }
+    }
 }
 
 class ParameteredMappedSinglesTimedRequests<INPUT, OUTPUT>(
@@ -81,5 +85,9 @@ class ParameteredMappedSinglesTimedRequests<INPUT, OUTPUT>(
 
     fun invalidate(input: INPUT) {
         expired[input] = true
+    }
+
+    fun invalidateAll() {
+        expired.keys.forEach { expired[it] = true }
     }
 }

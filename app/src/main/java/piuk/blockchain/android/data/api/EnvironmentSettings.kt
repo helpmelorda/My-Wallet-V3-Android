@@ -9,7 +9,7 @@ class EnvironmentSettings : EnvironmentConfig {
 
     override fun isRunningInDebugMode(): Boolean = BuildConfig.DEBUG
 
-    override fun isCompanyInternalBuild(): Boolean = BuildConfig.FLAVOR == COMPANY_INTERNAL_LABEL
+    override fun isCompanyInternalBuild(): Boolean = BuildConfig.INTERNAL
 
     override val environment: Environment = Environment.fromString(BuildConfig.ENVIRONMENT)
 
@@ -18,8 +18,4 @@ class EnvironmentSettings : EnvironmentConfig {
     override val statusUrl: String = BuildConfig.STATUS_API_URL
 
     override val bitpayUrl: String = BITPAY_LIVE_BASE
-
-    companion object {
-        private const val COMPANY_INTERNAL_LABEL = "envInternalProd"
-    }
 }

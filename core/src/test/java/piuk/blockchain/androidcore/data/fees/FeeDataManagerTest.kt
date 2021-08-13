@@ -1,20 +1,18 @@
 package piuk.blockchain.androidcore.data.fees
 
 import com.blockchain.android.testutils.rxInit
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.FeeApi
 import io.reactivex.rxjava3.core.Observable
 import org.amshove.kluent.`should be equal to`
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 
 class FeeDataManagerTest {
 
     private lateinit var subject: FeeDataManager
-    private val rxBus = RxBus()
     private val feeApi: FeeApi = mock()
 
     @Suppress("unused")
@@ -26,7 +24,7 @@ class FeeDataManagerTest {
 
     @Before
     fun setUp() {
-        subject = FeeDataManager(feeApi, rxBus)
+        subject = FeeDataManager(feeApi)
     }
 
     @Test

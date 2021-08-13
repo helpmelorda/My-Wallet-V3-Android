@@ -1,13 +1,14 @@
 package com.blockchain.core.chains.bitcoincash
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.logging.CrashLogger
 import com.blockchain.wallet.DefaultLabels
-import com.blockchain.api.services.NonCustodialBitcoinService
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.BitcoinCashWallet
 import info.blockchain.wallet.bch.BchMainNetParams
+import info.blockchain.wallet.bch.CashAddress
 import info.blockchain.wallet.coin.GenericMetadataAccount
 import info.blockchain.wallet.coin.GenericMetadataWallet
 import info.blockchain.wallet.crypto.DeterministicAccount
@@ -15,7 +16,6 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.Derivation
 import info.blockchain.wallet.payload.data.XPubs
-import info.blockchain.wallet.bch.CashAddress
 import info.blockchain.wallet.payload.model.Utxo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -25,13 +25,10 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.bitcoinj.core.LegacyAddress
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.data.rxjava.RxPinning
 import piuk.blockchain.androidcore.utils.annotations.WebRequest
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
-import java.lang.IllegalStateException
 import java.math.BigInteger
 
 class BchDataManager(
@@ -40,11 +37,8 @@ class BchDataManager(
     private val bitcoinApi: NonCustodialBitcoinService,
     private val defaultLabels: DefaultLabels,
     private val metadataManager: MetadataManager,
-    private val crashLogger: CrashLogger,
-    rxBus: RxBus
+    private val crashLogger: CrashLogger
 ) {
-
-    private val rxPinning = RxPinning(rxBus)
 
     /**
      * Clears the currently stored BCH wallet from memory.
@@ -307,9 +301,7 @@ class BchDataManager(
 
         val xpubs = getActiveXpubs()
 
-        return rxPinning.call {
-            bchDataStore.bchWallet!!.updateAllBalances(xpubs, importedAddresses)
-        }.applySchedulers()
+        return bchDataStore.bchWallet!!.updateAllBalances(xpubs, importedAddresses).applySchedulers()
     }
 
     fun getAddressBalance(address: String): CryptoValue =
@@ -336,14 +328,10 @@ class BchDataManager(
         limit: Int,
         offset: Int
     ): Observable<List<TransactionSummary>> =
-        rxPinning.call<List<TransactionSummary>> {
-            Observable.fromCallable { fetchAddressTransactions(address, limit, offset) }
-        }.applySchedulers()
+        Observable.fromCallable { fetchAddressTransactions(address, limit, offset) }.applySchedulers()
 
     fun getWalletTransactions(limit: Int = 50, offset: Int = 0): Observable<List<TransactionSummary>> =
-        rxPinning.call<List<TransactionSummary>> {
-            Observable.fromCallable { fetchWalletTransactions(limit, offset) }
-        }.applySchedulers()
+        Observable.fromCallable { fetchWalletTransactions(limit, offset) }.applySchedulers()
 
     fun getAccountMetadataList(): List<GenericMetadataAccount> =
         bchDataStore.bchMetadata?.accounts ?: emptyList()

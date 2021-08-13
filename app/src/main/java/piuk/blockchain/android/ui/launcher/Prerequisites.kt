@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.launcher
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.CrashLogger
 import com.blockchain.operations.AppStartUpFlushable
 import info.blockchain.wallet.api.data.Settings
@@ -22,6 +23,7 @@ class Prerequisites(
     private val metadataManager: MetadataManager,
     private val settingsDataManager: SettingsDataManager,
     private val coincore: Coincore,
+    private val exchangeRates: ExchangeRatesDataManager,
     private val crashLogger: CrashLogger,
     private val simpleBuySync: SimpleBuySyncFactory,
     private val flushables: List<AppStartUpFlushable>,
@@ -30,17 +32,26 @@ class Prerequisites(
 ) {
 
     fun initMetadataAndRelatedPrerequisites(): Completable =
-        metadataManager.attemptMetadataSetup().logOnError(METADATA_ERROR_MESSAGE).onErrorResumeNext {
-            if (it is InvalidCredentialsException || it is HDWalletException) {
-                Completable.error(it)
-            } else
-                Completable.error(MetadataInitException(it))
-        }
-            .then { coincore.init() } // Coincore signals the crash logger internally
-            .then { simpleBuySync.performSync().logAndCompleteOnError(SIMPLE_BUY_SYNC) }
-            .then { Completable.concat(flushables.map { it.flush().logAndCompleteOnError(it.tag) }) }
-            .then { walletCredentialsUpdater.checkAndUpdate().logAndCompleteOnError(WALLET_CREDENTIALS) }
-            .doOnComplete {
+        metadataManager.attemptMetadataSetup()
+            .logOnError(METADATA_ERROR_MESSAGE)
+            .onErrorResumeNext {
+                if (it is InvalidCredentialsException || it is HDWalletException) {
+                    Completable.error(it)
+                } else
+                    Completable.error(MetadataInitException(it))
+            }.then {
+                coincore.init() // Coincore signals the crash logger internally
+            }.then {
+                simpleBuySync.performSync()
+                    .logAndCompleteOnError(SIMPLE_BUY_SYNC)
+            }.then {
+                Completable.concat(
+                    flushables.map { it.flush().logAndCompleteOnError(it.tag) }
+                )
+            }.then {
+                walletCredentialsUpdater.checkAndUpdate()
+                    .logAndCompleteOnError(WALLET_CREDENTIALS)
+            }.doOnComplete {
                 rxBus.emitEvent(MetadataEvent::class.java, MetadataEvent.SETUP_COMPLETE)
             }.subscribeOn(Schedulers.io())
 
@@ -64,9 +75,19 @@ class Prerequisites(
         secondPassword
     )
 
+    fun warmCaches(): Completable =
+        exchangeRates.prefetchCache(
+            assetList = coincore.activeCryptoAssets(),
+            fiatList = SUPPORTED_API_FIAT
+        ).logOnError(PRICE_CACHE_PREFETCH)
+
     companion object {
         private const val METADATA_ERROR_MESSAGE = "metadata_init"
         private const val SIMPLE_BUY_SYNC = "simple_buy_sync"
         private const val WALLET_CREDENTIALS = "wallet_credentials"
+        private const val PRICE_CACHE_PREFETCH = "price_prefetch"
+
+        // TEMP: This will come from the /fiat BE supported assets call
+        private val SUPPORTED_API_FIAT = listOf("GBP", "EUR", "USD")
     }
 }

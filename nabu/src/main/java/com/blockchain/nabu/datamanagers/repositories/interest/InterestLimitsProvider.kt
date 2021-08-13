@@ -5,11 +5,8 @@ import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
-import piuk.blockchain.androidcore.data.exchangerate.toCrypto
 import java.util.Calendar
 import java.util.Date
 
@@ -21,8 +18,7 @@ class InterestLimitsProviderImpl(
     private val assetCatalogue: AssetCatalogue,
     private val nabuService: NabuService,
     private val authenticator: Authenticator,
-    private val currencyPrefs: CurrencyPrefs,
-    private val exchangeRates: ExchangeRateDataManager
+    private val currencyPrefs: CurrencyPrefs
 ) : InterestLimitsProvider {
     override fun getLimitsForAllAssets(): Single<InterestLimitsList> =
         authenticator.authenticate {
@@ -30,12 +26,15 @@ class InterestLimitsProviderImpl(
                 .map { responseBody ->
                     InterestLimitsList(responseBody.limits.assetMap.entries.map { entry ->
                         val crypto = assetCatalogue.fromNetworkTicker(entry.key)!!
-                        val minDepositFiatValue = FiatValue.fromMinor(currencyPrefs.selectedFiatCurrency,
-                            entry.value.minDepositAmount.toLong())
-                        val minDepositCryptoValue = minDepositFiatValue.toCrypto(exchangeRates, crypto)
-                        val maxWithdrawalFiatValue = FiatValue.fromMinor(currencyPrefs.selectedFiatCurrency,
-                            entry.value.maxWithdrawalAmount.toLong())
-                        val maxWithdrawalCryptoValue = maxWithdrawalFiatValue.toCrypto(exchangeRates, crypto)
+
+                        val minDepositFiatValue = FiatValue.fromMinor(
+                            currencyPrefs.selectedFiatCurrency,
+                            entry.value.minDepositAmount.toLong()
+                        )
+                        val maxWithdrawalFiatValue = FiatValue.fromMinor(
+                            currencyPrefs.selectedFiatCurrency,
+                            entry.value.maxWithdrawalAmount.toLong()
+                        )
 
                         val calendar = Calendar.getInstance()
                         calendar.set(Calendar.DAY_OF_MONTH, 1)
@@ -43,11 +42,11 @@ class InterestLimitsProviderImpl(
 
                         InterestLimits(
                             interestLockUpDuration = entry.value.lockUpDuration,
-                            minDepositAmount = minDepositCryptoValue,
+                            minDepositFiatValue = minDepositFiatValue,
                             cryptoCurrency = crypto,
                             currency = entry.value.currency,
                             nextInterestPayment = calendar.time,
-                            maxWithdrawalAmount = maxWithdrawalCryptoValue
+                            maxWithdrawalFiatValue = maxWithdrawalFiatValue
                         )
                     })
                 }
@@ -56,11 +55,11 @@ class InterestLimitsProviderImpl(
 
 data class InterestLimits(
     val interestLockUpDuration: Int,
-    val minDepositAmount: CryptoValue,
+    val minDepositFiatValue: FiatValue,
     val cryptoCurrency: AssetInfo,
     val currency: String,
     val nextInterestPayment: Date,
-    val maxWithdrawalAmount: CryptoValue
+    val maxWithdrawalFiatValue: FiatValue
 )
 
 data class InterestLimitsList(

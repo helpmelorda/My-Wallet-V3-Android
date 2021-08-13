@@ -24,8 +24,8 @@ interface SimpleBuyNavigator : SlidingModalBottomDialog.Host, SmallSimpleBuyNavi
     fun hasMoreThanOneFragmentInTheStack(): Boolean
     fun goToPaymentScreen(addToBackStack: Boolean = true, isPaymentAuthorised: Boolean = false)
     fun launchBankAuthWithError(errorState: ErrorState)
-    fun goToSetupFirstRecurringBuy()
-    fun goToFirstRecurringBuyCreated()
+    fun goToSetupFirstRecurringBuy(addToBackStack: Boolean = true)
+    fun goToFirstRecurringBuyCreated(addToBackStack: Boolean = true)
 }
 
 interface SmallSimpleBuyNavigator {

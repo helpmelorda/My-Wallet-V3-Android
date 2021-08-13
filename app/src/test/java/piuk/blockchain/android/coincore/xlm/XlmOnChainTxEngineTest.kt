@@ -1,9 +1,6 @@
 package piuk.blockchain.android.coincore.xlm
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.fees.FeeType
-import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
@@ -18,14 +15,8 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
-
-import com.nhaarman.mockitokotlin2.mock
-import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 import piuk.blockchain.android.coincore.BlockchainAccount
 import kotlin.test.assertEquals
 import piuk.blockchain.android.coincore.CryptoAccount
@@ -36,19 +27,11 @@ import piuk.blockchain.android.coincore.PendingTx
 import piuk.blockchain.android.coincore.TransactionTarget
 import piuk.blockchain.android.coincore.TxConfirmationValue
 import piuk.blockchain.android.coincore.ValidationState
-import piuk.blockchain.android.coincore.impl.injectMocks
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import timber.log.Timber
 
-class XlmOnChainTxEngineTest {
-
-    @get:Rule
-    val initSchedulers = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
-    }
+class XlmOnChainTxEngineTest : CoincoreTestBase() {
 
     private val xlmDataManager: XlmDataManager = mock()
     private val walletOptionsDataManager: WalletOptionsDataManager = mock {
@@ -60,11 +43,6 @@ class XlmOnChainTxEngineTest {
     }
 
     private val walletPreferences: WalletStatus = mock()
-    private val exchangeRates: ExchangeRateDataManager = mock()
-
-    private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
-    }
 
     private val subject = XlmOnChainTxEngine(
         xlmDataManager = xlmDataManager,
@@ -76,20 +54,7 @@ class XlmOnChainTxEngineTest {
 
     @Before
     fun setup() {
-        injectMocks(
-            module {
-                scope(payloadScopeQualifier) {
-                    factory {
-                        currencyPrefs
-                    }
-                }
-            }
-        )
-    }
-
-    @After
-    fun teardown() {
-        stopKoin()
+        initMocks()
     }
 
     @Test
@@ -200,7 +165,7 @@ class XlmOnChainTxEngineTest {
                 it.totalBalance == CryptoValue.zero(ASSET) &&
                 it.availableBalance == CryptoValue.zero(ASSET) &&
                 it.feeAmount == CryptoValue.zero(ASSET) &&
-                it.selectedFiat == SELECTED_FIAT &&
+                it.selectedFiat == TEST_USER_FIAT &&
                 it.confirmations.isEmpty() &&
                 it.minLimit == null &&
                 it.maxLimit == null &&
@@ -255,7 +220,7 @@ class XlmOnChainTxEngineTest {
                     it.totalBalance == CryptoValue.zero(ASSET) &&
                     it.availableBalance == CryptoValue.zero(ASSET) &&
                     it.feeAmount == CryptoValue.zero(ASSET) &&
-                    it.selectedFiat == SELECTED_FIAT &&
+                    it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
                     it.minLimit == null &&
                     it.maxLimit == null &&
@@ -306,7 +271,7 @@ class XlmOnChainTxEngineTest {
             availableBalance = CryptoValue.zero(ASSET),
             feeForFullAvailable = CryptoValue.zero(ASSET),
             feeAmount = CryptoValue.zero(ASSET),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -368,7 +333,7 @@ class XlmOnChainTxEngineTest {
             availableBalance = availableBalance,
             feeForFullAvailable = expectedFee,
             feeAmount = expectedFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS
@@ -409,7 +374,7 @@ class XlmOnChainTxEngineTest {
             availableBalance = availableBalance,
             feeForFullAvailable = expectedFee,
             feeAmount = expectedFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS
@@ -450,7 +415,7 @@ class XlmOnChainTxEngineTest {
             availableBalance = availableBalance,
             feeForFullAvailable = expectedFee,
             feeAmount = expectedFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS
@@ -492,7 +457,7 @@ class XlmOnChainTxEngineTest {
             availableBalance = expectedAvailable,
             feeForFullAvailable = expectedFee,
             feeAmount = expectedFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -555,7 +520,6 @@ class XlmOnChainTxEngineTest {
         private const val TARGET_EXCHANGE_ADDRESS = "VALID_EXCHANGE_XLM_ADDRESS"
         private const val MEMO_TEXT = "ADDRESS_PART_FOR_MEMO"
         private val FEE_REGULAR = 2000.stroops()
-        private const val SELECTED_FIAT = "INR"
 
         private val EXPECTED_AVAILABLE_FEE_LEVELS = setOf(FeeLevel.Regular)
     }

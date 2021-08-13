@@ -1,6 +1,7 @@
 package com.blockchain.api.services
 
 import com.blockchain.api.nabu.NabuUserApi
+import com.blockchain.api.nabu.data.GeolocationResponse
 import com.blockchain.api.nabu.data.InterestEligibilityResponse
 import io.reactivex.rxjava3.core.Single
 import java.util.Locale
@@ -26,6 +27,8 @@ class NabuUserService internal constructor(
         api.getInterestEligibility(authorization = authHeader)
             .onErrorReturn { emptyMap() }
             .map { it.toDomain() }
+
+    fun getGeolocation(): Single<GeolocationResponse> = api.getUserGeolocation()
 }
 
 private fun Map<String, InterestEligibilityResponse>.toDomain(): InterestEligibility =

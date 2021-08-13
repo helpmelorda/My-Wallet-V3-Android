@@ -1,11 +1,12 @@
 package piuk.blockchain.android.ui.dashboard
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.percentageDelta
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
@@ -14,7 +15,7 @@ import info.blockchain.balance.total
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AssetFilter
 import piuk.blockchain.android.coincore.FiatAccount
@@ -140,18 +141,7 @@ data class DashboardState(
     }
 
     override val fiatBalance: Money? by unsafeLazy {
-        val cryptoAssetBalance = cryptoAssetFiatBalances()
-        val fiatAssetBalance = fiatAssets?.totalBalance
-
-        if (cryptoAssetBalance != null) {
-            if (fiatAssetBalance != null) {
-                cryptoAssetBalance + fiatAssetBalance
-            } else {
-                cryptoAssetBalance
-            }
-        } else {
-            fiatAssetBalance
-        }
+        addFiatBalance(cryptoAssetFiatBalances())
     }
 
     private fun cryptoAssetFiatBalances() = assets.values
@@ -160,10 +150,26 @@ data class DashboardState(
         .ifEmpty { null }?.total()
 
     private val fiatBalance24h: Money? by unsafeLazy {
-        assets.values
-            .filter { !it.isLoading && it.fiatBalance24h != null }
-            .map { it.fiatBalance24h!! }
-            .ifEmpty { null }?.total()
+        addFiatBalance(cryptoAssetFiatBalances24h())
+    }
+
+    private fun cryptoAssetFiatBalances24h() = assets.values
+        .filter { !it.isLoading && it.fiatBalance24h != null }
+        .map { it.fiatBalance24h!! }
+        .ifEmpty { null }?.total()
+
+    private fun addFiatBalance(balance: Money?): Money? {
+        val fiatAssetBalance = fiatAssets?.totalBalance
+
+        return if (balance != null) {
+            if (fiatAssetBalance != null) {
+                balance + fiatAssetBalance
+            } else {
+                balance
+            }
+        } else {
+            fiatAssetBalance
+        }
     }
 
     override val delta: Pair<Money, Double>? by unsafeLazy {
@@ -205,7 +211,9 @@ data class CryptoAssetState(
         price24h?.let { p -> balance?.let { p.convert(it) } }
     }
 
-    val priceDelta: Double by unsafeLazy { price.percentageDelta(price24h) }
+    val priceDelta: Double by unsafeLazy {
+        price.percentageDelta(price24h)
+    }
 
     val isLoading: Boolean by unsafeLazy {
         balance == null || price == null || price24h == null

@@ -16,10 +16,7 @@ abstract class InterestBaseEngine(private val walletManager: CustodialWalletMana
         termsChecked: Boolean = getTermsOptionValue(pendingTx),
         agreementChecked: Boolean = getTermsOptionValue(pendingTx)
     ): PendingTx =
-        pendingTx.modifyNewCheckout(termsChecked, agreementChecked)
-
-    private fun PendingTx.modifyNewCheckout(termsChecked: Boolean, agreementChecked: Boolean): PendingTx =
-        removeOption(TxConfirmation.DESCRIPTION)
+        pendingTx.removeOption(TxConfirmation.DESCRIPTION)
             .addOrReplaceOption(
                 TxConfirmationValue.TxBooleanConfirmation<Unit>(
                     confirmation = TxConfirmation.AGREEMENT_INTEREST_T_AND_C,
@@ -29,7 +26,7 @@ abstract class InterestBaseEngine(private val walletManager: CustodialWalletMana
             .addOrReplaceOption(
                 TxConfirmationValue.TxBooleanConfirmation(
                     confirmation = TxConfirmation.AGREEMENT_INTEREST_TRANSFER,
-                    data = amount,
+                    data = pendingTx.amount,
                     value = agreementChecked
                 )
             )

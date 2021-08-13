@@ -131,8 +131,6 @@ class LauncherPresenter(
         }
 
         val metadata = Completable.defer { prerequisites.initMetadataAndRelatedPrerequisites() }
-        val updateFiatWithDefault = settingsDataManager.updateFiatUnit(currencyPrefs.defaultFiatCurrency)
-            .ignoreElements()
 
         compositeDisposable +=
             settings.zipWith(
@@ -145,49 +143,52 @@ class LauncherPresenter(
                 }
             }.flatMap { emailVerifShouldLaunched ->
                 if (noCurrencySet())
-                    updateFiatWithDefault.toSingleDefault(emailVerifShouldLaunched)
+                    settingsDataManager.setDefaultUserFiat()
+                        .map { emailVerifShouldLaunched }
                 else {
                     Single.just(emailVerifShouldLaunched)
                 }
-            }
-                .doOnSuccess {
-                    notificationTokenManager.registerAuthEvent()
-                    accessState.isLoggedIn = true
-                    analytics.logEvent(LoginAnalyticsEvent)
-                }
-                .flatMap { emailVerifShouldLaunched ->
-                    notificationTokenManager.resendNotificationToken().onErrorComplete()
-                        .toSingle { emailVerifShouldLaunched }
-                }
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe { view.updateProgressVisibility(true) }
-                .subscribeBy(
-                    onSuccess = { emailVerifShouldLaunched ->
-                        view.updateProgressVisibility(false)
-                        if (emailVerifShouldLaunched) {
-                            launchEmailVerification()
-                        } else {
-                            startMainActivity()
-                        }
-                    }, onError = { throwable ->
-                        view.updateProgressVisibility(false)
-                        if (throwable is InvalidCredentialsException || throwable is HDWalletException) {
-                            if (payloadDataManager.isDoubleEncrypted) {
-                                // Wallet double encrypted and needs to be decrypted to set up ether wallet, contacts etc
-                                view?.showSecondPasswordDialog()
-                            } else {
-                                view.showToast(R.string.unexpected_error, ToastCustom.TYPE_ERROR)
-                                view.onRequestPin()
-                            }
-                        } else if (throwable is MetadataInitException) {
-                            view?.showMetadataNodeFailure()
+            }.doOnSuccess {
+                notificationTokenManager.registerAuthEvent()
+                accessState.isLoggedIn = true
+                analytics.logEvent(LoginAnalyticsEvent)
+            }.flatMap { emailVerifShouldLaunched ->
+                notificationTokenManager.resendNotificationToken()
+                    .onErrorComplete()
+                    .toSingle { emailVerifShouldLaunched }
+            }.flatMap { emailVerifShouldLaunched ->
+                prerequisites.warmCaches()
+                    .toSingle { emailVerifShouldLaunched }
+            }.observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe {
+                view.updateProgressVisibility(true)
+            }.subscribeBy(
+                onSuccess = { emailVerifShouldLaunched ->
+                    view.updateProgressVisibility(false)
+                    if (emailVerifShouldLaunched) {
+                        launchEmailVerification()
+                    } else {
+                        startMainActivity()
+                    }
+                }, onError = { throwable ->
+                    logException(throwable)
+                    view.updateProgressVisibility(false)
+                    if (throwable is InvalidCredentialsException || throwable is HDWalletException) {
+                        if (payloadDataManager.isDoubleEncrypted) {
+                            // Wallet double encrypted and needs to be decrypted to set up ether wallet, contacts etc
+                            view?.showSecondPasswordDialog()
                         } else {
                             view.showToast(R.string.unexpected_error, ToastCustom.TYPE_ERROR)
                             view.onRequestPin()
                         }
-                        logException(throwable)
+                    } else if (throwable is MetadataInitException) {
+                        view?.showMetadataNodeFailure()
+                    } else {
+                        view.showToast(R.string.unexpected_error, ToastCustom.TYPE_ERROR)
+                        view.onRequestPin()
                     }
-                )
+                }
+            )
     }
 
     private fun isNewAccount(): Boolean = accessState.isNewlyCreated
@@ -226,6 +227,7 @@ class LauncherPresenter(
         currencyPrefs.selectedFiatCurrency.isEmpty()
 
     private fun logException(throwable: Throwable) {
+        crashLogger.logEvent("Startup exception: ${throwable.message}")
         crashLogger.logException(throwable)
     }
 

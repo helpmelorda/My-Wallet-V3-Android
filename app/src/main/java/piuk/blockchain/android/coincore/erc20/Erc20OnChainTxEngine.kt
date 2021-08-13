@@ -23,6 +23,7 @@ import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.TxValidationFailure
 import piuk.blockchain.android.coincore.ValidationState
 import piuk.blockchain.android.coincore.impl.txEngine.OnChainTxEngineBase
+import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.coincore.updateTxValidity
 import piuk.blockchain.android.ui.transactionflow.flow.FeeInfo
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -58,7 +59,7 @@ open class Erc20OnChainTxEngine(
         )
 
     private fun buildConfirmationTotal(pendingTx: PendingTx): TxConfirmationValue.Total {
-        val fiatAmount = pendingTx.amount.toFiat(exchangeRates, userFiat) as FiatValue
+        val fiatAmount = pendingTx.amount.toUserFiat(exchangeRates) as FiatValue
 
         return TxConfirmationValue.Total(
             totalWithFee = pendingTx.amount,
@@ -78,7 +79,7 @@ open class Erc20OnChainTxEngine(
                         sendingFeeInfo = if (!pendingTx.feeAmount.isZero) {
                             FeeInfo(
                                 pendingTx.feeAmount,
-                                pendingTx.feeAmount.toFiat(exchangeRates, userFiat),
+                                pendingTx.feeAmount.toUserFiat(exchangeRates),
                                 sourceAsset
                             )
                         } else null,

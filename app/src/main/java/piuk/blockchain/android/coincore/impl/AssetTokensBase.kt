@@ -1,14 +1,18 @@
 package piuk.blockchain.android.coincore.impl
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.price.HistoricalRate
+import com.blockchain.core.price.HistoricalRateList
+import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.ExchangeRate
-import info.blockchain.wallet.prices.TimeInterval
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -25,14 +29,9 @@ import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.TradingAccount
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
-import piuk.blockchain.androidcore.data.exchangerate.PriceSeries
-import piuk.blockchain.androidcore.data.exchangerate.TimeSpan
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
-import java.math.BigDecimal
 import java.util.concurrent.atomic.AtomicBoolean
 
 interface AccountRefreshTrigger {
@@ -41,11 +40,11 @@ interface AccountRefreshTrigger {
 
 internal abstract class CryptoAssetBase(
     protected val payloadManager: PayloadDataManager,
-    protected val exchangeRates: ExchangeRateDataManager,
-    private val historicRates: ExchangeRateService,
+    protected val exchangeRates: ExchangeRatesDataManager,
     protected val currencyPrefs: CurrencyPrefs,
     protected val labels: DefaultLabels,
     protected val custodialManager: CustodialWalletManager,
+    protected val tradingBalanceDataManager: TradingBalanceDataManager,
     private val pitLinking: PitLinking,
     protected val crashLogger: CrashLogger,
     protected val identity: UserIdentity,
@@ -93,7 +92,7 @@ internal abstract class CryptoAssetBase(
             .doOnError { Timber.d("Coincore: Init $asset Failed") }
 
     private fun loadAccounts(): Single<SingleAccountList> =
-        Singles.zip(
+        Single.zip(
             loadNonCustodialAccounts(labels),
             loadCustodialAccounts(),
             loadInterestAccounts()
@@ -155,30 +154,26 @@ internal abstract class CryptoAssetBase(
             .defaultIfEmpty(emptyList())
 
     final override fun exchangeRate(): Single<ExchangeRate> =
-        exchangeRates.fetchExchangeRate(asset, currencyPrefs.selectedFiatCurrency)
-            .map {
-                ExchangeRate.CryptoToFiat(
-                    asset,
-                    currencyPrefs.selectedFiatCurrency,
-                    it
-                )
-            }
+        Single.fromCallable { exchangeRates.getLastCryptoToUserFiatRate(asset) }
+
+    final override fun exchangeRateYesterday(): Single<ExchangeRate> {
+        // TODO: Make this a distinct call on ExchangeRates, because we're going to want to cache it
+        val yesterday = (System.currentTimeMillis() / 1000) - SECONDS_PER_DAY
+        return exchangeRates.getHistoricRate(asset, yesterday)
+    }
 
     final override fun historicRate(epochWhen: Long): Single<ExchangeRate> =
-        exchangeRates.getHistoricPrice(asset, currencyPrefs.selectedFiatCurrency, epochWhen)
-            .map {
-                ExchangeRate.CryptoToFiat(
-                    asset,
-                    currencyPrefs.selectedFiatCurrency,
-                    it.toBigDecimal()
-                )
-            }
+        exchangeRates.getHistoricRate(asset, epochWhen)
 
-    override fun historicRateSeries(period: TimeSpan, interval: TimeInterval): Single<PriceSeries> =
-        if (asset.startDate != null)
-            historicRates.getHistoricPriceSeries(asset, currencyPrefs.selectedFiatCurrency, period)
-        else
-            Single.just(emptyList())
+    override fun historicRateSeries(period: HistoricalTimeSpan): Single<HistoricalRateList> =
+        asset.startDate?.let {
+            exchangeRates.getHistoricPriceSeries(asset, period)
+        } ?: Single.just(emptyList())
+
+    override fun lastDayTrend(): Single<List<HistoricalRate>> =
+        asset.startDate?.let {
+            exchangeRates.get24hPriceSeries(asset)
+        } ?: Single.just(emptyList())
 
     private fun getPitLinkingTargets(): Maybe<SingleAccountList> =
         pitLinking.isPitLinked().filter { it }
@@ -259,14 +254,11 @@ internal abstract class CryptoAssetBase(
             else -> Single.just(emptyList())
         }
     }
-}
 
-fun ExchangeRateDataManager.fetchExchangeRate(
-    cryptoCurrency: AssetInfo,
-    currencyName: String
-): Single<BigDecimal> =
-    updateTickers()
-        .andThen(Single.defer { Single.just(getLastPrice(cryptoCurrency, currencyName)) })
+    companion object {
+        private const val SECONDS_PER_DAY = 24 * 60 * 60
+    }
+}
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 internal class ActiveAccountList(

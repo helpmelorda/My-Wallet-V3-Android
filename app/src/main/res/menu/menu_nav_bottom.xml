@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_activity"
+        android:icon="@drawable/ic_vector_toolbar_activity"
+        android:title="@string/toolbar_cmd_activity" />
+
+    <item
+        android:id="@+id/nav_swap"
+        android:icon="@drawable/ic_vector_toolbar_swap"
+        android:title="@string/toolbar_cmd_swap" />
+
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_vector_toolbar_home"
+        android:title="@string/toolbar_cmd_home" />
+
+    <item
+        android:id="@+id/nav_buy_and_sell"
+        android:icon="@drawable/ic_tab_cart"
+        android:title="@string/buy_and_sell" />
+
+    <item
+        android:id="@+id/nav_transfer"
+        android:icon="@drawable/ic_vector_toolbar_transfer"
+        android:title="@string/toolbar_cmd_transfer" />
+
+</menu>

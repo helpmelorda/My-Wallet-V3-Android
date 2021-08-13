@@ -80,11 +80,12 @@
                     android:id="@+id/recovery_phase_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textNoSuggestions|textVisiblePassword"
+                    android:inputType="textNoSuggestions|textVisiblePassword|textMultiLine"
                     android:contentDescription="@string/enter_recovery_phrase_hint"
+                    android:gravity="top"
+                    android:minLines="3"
                     android:maxLines="5"
-                    android:maxLength="250"
-                    android:minHeight="@dimen/size_epic"/>
+                    android:maxLength="255" />
 
             </com.google.android.material.textfield.TextInputLayout>
 

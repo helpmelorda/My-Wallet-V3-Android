@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.price.HistoricalRate
+import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
@@ -11,29 +13,26 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
-import info.blockchain.wallet.prices.data.PriceDatum
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.coincore.AssetFilter
 import piuk.blockchain.android.coincore.CryptoAsset
 import piuk.blockchain.android.coincore.btc.BtcAsset
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import piuk.blockchain.androidcore.data.exchangerate.TimeSpan
 
 class AssetDetailsModelTest {
-    private lateinit var model: AssetDetailsModel
+
     private val defaultState = AssetDetailsState(
         asset = BtcAsset(
             payloadManager = mock(),
             sendDataManager = mock(),
             feeDataManager = mock(),
             custodialManager = mock(),
+            tradingBalanceDataManager = mock(),
             exchangeRates = mock(),
-            historicRates = mock(),
             currencyPrefs = mock(),
             labels = mock(),
             pitLinking = mock(),
@@ -52,25 +51,41 @@ class AssetDetailsModelTest {
 
     private val interactor: AssetDetailsInteractor = mock()
 
+    private val subject = AssetDetailsModel(
+        initialState = defaultState,
+        mainScheduler = Schedulers.io(),
+        interactor = interactor,
+        environmentConfig = environmentConfig,
+        crashLogger = mock()
+    )
+
     @get:Rule
     val rx = rxInit {
         ioTrampoline()
         computationTrampoline()
     }
 
-    @Before
-    fun setUp() {
-        model = AssetDetailsModel(defaultState, Schedulers.io(), interactor, environmentConfig, mock())
-    }
-
     @Test
     fun `load asset success`() {
         val assetDisplayMap = mapOf(
-            AssetFilter.Custodial to AssetDisplayInfo(mock(), mock(), mock(), mock(), emptySet())
+            AssetFilter.Custodial to AssetDisplayInfo(
+                account = mock(),
+                amount = mock(),
+                pendingAmount = mock(),
+                fiatValue = mock(),
+                actions = emptySet()
+            )
         )
         val recurringBuy = RecurringBuy(
-            "123", RecurringBuyState.ACTIVE, RecurringBuyFrequency.BI_WEEKLY, mock(),
-            PaymentMethodType.BANK_TRANSFER, "321", FiatValue.zero("EUR"), mock(), mock()
+            id = "123",
+            state = RecurringBuyState.ACTIVE,
+            recurringBuyFrequency = RecurringBuyFrequency.BI_WEEKLY,
+            nextPaymentDate = mock(),
+            paymentMethodType = PaymentMethodType.BANK_TRANSFER,
+            paymentMethodId = "321",
+            amount = FiatValue.zero("EUR"),
+            asset = mock(),
+            createDate = mock()
         )
         val recurringBuys: List<RecurringBuy> = listOf(
             recurringBuy
@@ -79,66 +94,65 @@ class AssetDetailsModelTest {
             "123" to recurringBuy
         )
         val price = "1000 BTC"
-        val priceSeries = listOf(PriceDatum())
+        val priceSeries = listOf<HistoricalRate>(mock())
         val asset: CryptoAsset = mock {
             on { asset }.thenReturn(CryptoCurrency.BTC)
         }
 
-        val timeSpan = TimeSpan.DAY
+        val timeSpan = HistoricalTimeSpan.DAY
 
         whenever(interactor.loadAssetDetails(asset)).thenReturn(Single.just(assetDisplayMap))
         whenever(interactor.loadExchangeRate(asset)).thenReturn(Single.just(price))
         whenever(interactor.loadHistoricPrices(asset, timeSpan)).thenReturn(Single.just(priceSeries))
         whenever(interactor.loadRecurringBuysForAsset(asset.asset.ticker)).thenReturn(Single.just(recurringBuys))
 
-        val testObserver = model.state.test()
-        model.process(LoadAsset(asset))
+        subject.process(LoadAsset(asset))
 
-        testObserver.assertValueAt(0, defaultState)
-        testObserver.assertValueAt(1, defaultState.copy(asset = asset, assetDisplayMap = mapOf()))
-        testObserver.assertValueAt(
-            2, defaultState.copy(
-                asset = asset,
-                assetDisplayMap = mapOf(),
-                chartLoading = true
-            )
-        )
-        testObserver.assertValueAt(
-            3, defaultState.copy(
-                asset = asset,
-                assetDisplayMap = mapOf(),
-                chartData = priceSeries,
-                chartLoading = false
-            )
-        )
-        testObserver.assertValueAt(
-            4, defaultState.copy(
-                asset = asset,
-                assetDisplayMap = mapOf(),
-                chartData = priceSeries,
-                chartLoading = false,
-                assetFiatPrice = price
-            )
-        )
-        testObserver.assertValueAt(
-            5, defaultState.copy(
-                asset = asset,
-                chartData = priceSeries,
-                chartLoading = false,
-                assetFiatPrice = price,
-                assetDisplayMap = assetDisplayMap
-            )
-        )
-        testObserver.assertValueAt(
-            6, defaultState.copy(
-                asset = asset,
-                chartData = priceSeries,
-                chartLoading = false,
-                assetFiatPrice = price,
-                assetDisplayMap = assetDisplayMap,
-                recurringBuys = expectedRecurringBuyMap
-            )
-        )
+        subject.state.test()
+            .awaitCount(7)
+            .assertValueAt(0) {
+                it == defaultState
+            }.assertValueAt(1) {
+                it == defaultState.copy(asset = asset, assetDisplayMap = mapOf())
+            }.assertValueAt(2) {
+                it == defaultState.copy(
+                    asset = asset,
+                    assetDisplayMap = mapOf(),
+                    chartLoading = true
+                )
+            }.assertValueAt(3) {
+                it == defaultState.copy(
+                    asset = asset,
+                    assetDisplayMap = mapOf(),
+                    chartData = priceSeries,
+                    chartLoading = false
+                )
+            }.assertValueAt(4) {
+                it == defaultState.copy(
+                    asset = asset,
+                    assetDisplayMap = mapOf(),
+                    chartData = priceSeries,
+                    chartLoading = false,
+                    assetFiatPrice = price
+                )
+            }.assertValueAt(5) {
+                it == defaultState.copy(
+                    asset = asset,
+                    chartData = priceSeries,
+                    chartLoading = false,
+                    assetFiatPrice = price,
+                    assetDisplayMap = assetDisplayMap
+                )
+            }.assertValueAt(6) {
+                it == defaultState.copy(
+                    asset = asset,
+                    chartData = priceSeries,
+                    chartLoading = false,
+                    assetFiatPrice = price,
+                    assetDisplayMap = assetDisplayMap,
+                    recurringBuys = expectedRecurringBuyMap
+                )
+            }
 
         verify(interactor).loadAssetDetails(asset)
         verify(interactor).loadExchangeRate(asset)

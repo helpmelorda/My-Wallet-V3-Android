@@ -2,6 +2,7 @@ package piuk.blockchain.androidcore.data.ethereum
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.logging.LastTxUpdater
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -20,10 +21,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import org.amshove.kluent.`should contain`
 import org.amshove.kluent.`should be equal to`
-import com.nhaarman.mockitokotlin2.any
-
+import org.amshove.kluent.`should contain`
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito
@@ -31,7 +30,6 @@ import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import java.math.BigInteger
 
 class EthDataManagerTest {
@@ -47,15 +45,13 @@ class EthDataManagerTest {
     private val ethDataStore: EthDataStore = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
     private val metadataManager: MetadataManager = mock()
     private val lastTxUpdater: LastTxUpdater = mock()
-    private val rxBus = RxBus()
 
     private val subject = EthDataManager(
         payloadDataManager = payloadManager,
         ethAccountApi = ethAccountApi,
         ethDataStore = ethDataStore,
         metadataManager = metadataManager,
-        lastTxUpdater = lastTxUpdater,
-        rxBus = rxBus
+        lastTxUpdater = lastTxUpdater
     )
 
     @Test

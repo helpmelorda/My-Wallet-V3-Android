@@ -2,9 +2,6 @@
 
 package piuk.blockchain.android.coincore.eth
 
-import com.blockchain.android.testutils.rxInit
-import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.ether
 import com.blockchain.testutils.gwei
@@ -20,14 +17,8 @@ import info.blockchain.wallet.api.data.FeeLimits
 import info.blockchain.wallet.api.data.FeeOptions
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-
-import com.nhaarman.mockitokotlin2.mock
-import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 import piuk.blockchain.android.coincore.BlockchainAccount
 import kotlin.test.assertEquals
 import piuk.blockchain.android.coincore.CryptoAddress
@@ -36,19 +27,11 @@ import piuk.blockchain.android.coincore.FeeSelection
 import piuk.blockchain.android.coincore.PendingTx
 import piuk.blockchain.android.coincore.TransactionTarget
 import piuk.blockchain.android.coincore.ValidationState
-import piuk.blockchain.android.coincore.impl.injectMocks
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
-class EthOnChainTxEngineTest {
-
-    @get:Rule
-    val initSchedulers = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
-    }
+class EthOnChainTxEngineTest : CoincoreTestBase() {
 
     private val ethDataManager: EthDataManager = mock()
     private val ethFeeOptions: FeeOptions = mock()
@@ -58,11 +41,6 @@ class EthOnChainTxEngineTest {
     }
     private val walletPreferences: WalletStatus = mock {
         on { getFeeTypeForAsset(ASSET) }.thenReturn(FeeLevel.Regular.ordinal)
-    }
-    private val exchangeRates: ExchangeRateDataManager = mock()
-
-    private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
     }
 
     private val subject = EthOnChainTxEngine(
@@ -74,20 +52,7 @@ class EthOnChainTxEngineTest {
 
     @Before
     fun setup() {
-        injectMocks(
-            module {
-                scope(payloadScopeQualifier) {
-                    factory {
-                        currencyPrefs
-                    }
-                }
-            }
-        )
-    }
-
-    @After
-    fun teardown() {
-        stopKoin()
+        initMocks()
     }
 
     @Test
@@ -181,7 +146,7 @@ class EthOnChainTxEngineTest {
                 it.totalBalance == CryptoValue.zero(ASSET) &&
                 it.availableBalance == CryptoValue.zero(ASSET) &&
                 it.feeAmount == CryptoValue.zero(ASSET) &&
-                it.selectedFiat == SELECTED_FIAT &&
+                it.selectedFiat == TEST_USER_FIAT &&
                 it.confirmations.isEmpty() &&
                 it.minLimit == null &&
                 it.maxLimit == null &&
@@ -221,7 +186,7 @@ class EthOnChainTxEngineTest {
             availableBalance = CryptoValue.zero(ASSET),
             feeForFullAvailable = CryptoValue.zero(ASSET),
             feeAmount = CryptoValue.zero(ASSET),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -280,7 +245,7 @@ class EthOnChainTxEngineTest {
             availableBalance = CryptoValue.zero(CryptoCurrency.ETHER),
             feeForFullAvailable = CryptoValue.zero(CryptoCurrency.ETHER),
             feeAmount = CryptoValue.zero(CryptoCurrency.ETHER),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Priority,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -346,7 +311,7 @@ class EthOnChainTxEngineTest {
             availableBalance = regularAvailable,
             feeForFullAvailable = fullFee,
             feeAmount = regularFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -413,7 +378,7 @@ class EthOnChainTxEngineTest {
             availableBalance = available,
             feeForFullAvailable = fullFee,
             feeAmount = priorityFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS
@@ -457,7 +422,7 @@ class EthOnChainTxEngineTest {
             availableBalance = expectedAvailable,
             feeForFullAvailable = fullFee,
             feeAmount = priorityFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS
@@ -472,13 +437,12 @@ class EthOnChainTxEngineTest {
         ).test()
             .assertComplete()
             .assertNoErrors()
-//            .assertValue {
-//                it.amount == inputAmount &&
-//                    it.totalBalance == totalBalance &&
-//                    it.availableBalance == expectedAvailable &&
-//                    it.feeAmount == priorityFee
-//            }
-//            .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
+            .assertValue {
+                it.amount == inputAmount &&
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == expectedAvailable &&
+                    it.feeAmount == priorityFee
+            }.assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -510,7 +474,7 @@ class EthOnChainTxEngineTest {
             availableBalance = available,
             feeForFullAvailable = fullFee,
             feeAmount = priorityFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS
@@ -573,7 +537,6 @@ class EthOnChainTxEngineTest {
         private const val GAS_LIMIT_CONTRACT = 5000L
         private const val FEE_PRIORITY = 5L
         private const val FEE_REGULAR = 2L
-        private const val SELECTED_FIAT = "INR"
 
         private val EXPECTED_AVAILABLE_FEE_LEVELS = setOf(FeeLevel.Regular, FeeLevel.Priority)
     }

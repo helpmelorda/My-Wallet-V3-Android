@@ -21,9 +21,9 @@ import java.math.BigInteger
 
 private val basePerOperationFee = CryptoValue.fromMinor(CryptoCurrency.XLM, 100.toBigInteger())
 
-internal class HorizonProxy {
+internal class HorizonProxy(var serverFactory: ((String) -> Server)) {
 
-    private var server = Server("")
+    private var server = serverFactory("")
     private lateinit var currentNetwork: Network
 
     fun update(url: String) {
@@ -32,7 +32,7 @@ internal class HorizonProxy {
         } else {
             Network.PUBLIC
         }
-        server = Server(url)
+        server = serverFactory(url)
     }
 
     fun accountExists(accountId: String) = findAccount(accountId) != null

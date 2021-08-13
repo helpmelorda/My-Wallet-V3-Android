@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.annotations.CommonCode
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.ActivityAnalytics
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -27,6 +28,7 @@ import piuk.blockchain.android.databinding.FragmentActivitiesBinding
 import piuk.blockchain.android.ui.activity.adapter.ActivitiesDelegateAdapter
 import piuk.blockchain.android.ui.activity.detail.CryptoActivityDetailsBottomSheet
 import piuk.blockchain.android.ui.activity.detail.FiatActivityDetailsBottomSheet
+import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
@@ -41,7 +43,6 @@ import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.setAssetIconColoursNoTint
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.data.events.ActionEvent
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
@@ -68,7 +69,7 @@ class ActivitiesFragment :
     private val disposables = CompositeDisposable()
     private val rxBus: RxBus by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
-    private val exchangeRates: ExchangeRateDataManager by scopedInject()
+    private val exchangeRates: ExchangeRatesDataManager by scopedInject()
     private val assetResources: AssetResources by inject()
 
     private val actionEvent by unsafeLazy {
@@ -88,8 +89,7 @@ class ActivitiesFragment :
 
         switchView(newState)
 
-        binding.swipe.isRefreshing = newState.isLoading
-
+        renderLoader(newState)
         renderAccountDetails(newState)
         renderTransactionList(newState)
 
@@ -221,6 +221,20 @@ class ActivitiesFragment :
         }
     }
 
+    private fun renderLoader(newState: ActivitiesState) {
+        val blockchainActivity = activity as? BlockchainActivity ?: return
+
+        if (newState.isLoading) {
+            binding.swipe.isRefreshing = newState.isRefreshRequested
+            if (!newState.isRefreshRequested) {
+                blockchainActivity.showLoading()
+            }
+        } else {
+            blockchainActivity.hideLoading()
+            binding.swipe.isRefreshing = false
+        }
+    }
+
     override fun onBackPressed(): Boolean = false
 
     private val preselectedAccount: BlockchainAccount?
@@ -246,12 +260,6 @@ class ActivitiesFragment :
         activityAdapter.items = displayList
     }
 
-    private fun setupToolbar() {
-        activity.supportActionBar?.let {
-            activity.setupToolbar(it, R.string.activities_title)
-        }
-    }
-
     private fun setupAccountSelect() {
         binding.accountSelectBtn.setOnClickListener {
             model.process(ShowAccountSelectionIntent)
@@ -272,11 +280,6 @@ class ActivitiesFragment :
             R.color.blue_400,
             R.color.blue_200
         )
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setupToolbar()
     }
 
     override fun onPause() {
@@ -315,6 +318,15 @@ class ActivitiesFragment :
     // SlidingModalBottomDialog.Host
     override fun onSheetClosed() {
         model.process(ClearBottomSheetIntent)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden) {
+            state?.account?.let {
+                model.process(AccountSelectedIntent(it, true))
+            }
+        }
     }
 
     companion object {

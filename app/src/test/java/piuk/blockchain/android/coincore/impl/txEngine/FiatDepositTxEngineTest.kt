@@ -1,6 +1,5 @@
 package piuk.blockchain.android.coincore.impl.txEngine
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.nhaarman.mockitokotlin2.mock
@@ -9,9 +8,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
-
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.FeeLevel
@@ -21,22 +18,16 @@ import piuk.blockchain.android.coincore.PendingTx
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.ValidationState
 import piuk.blockchain.android.coincore.fiat.LinkedBankAccount
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 
-class FiatDepositTxEngineTest {
-    @get:Rule
-    val initSchedulers = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
-    }
+class FiatDepositTxEngineTest : CoincoreTestBase() {
 
     private lateinit var subject: FiatDepositTxEngine
     private val walletManager: CustodialWalletManager = mock()
-    private val exchangeRates: ExchangeRateDataManager = mock()
 
     @Before
     fun setup() {
+        initMocks()
         subject = FiatDepositTxEngine(walletManager)
     }
 
@@ -92,11 +83,15 @@ class FiatDepositTxEngineTest {
 
     @Test
     fun `PendingTx is correctly initialised`() {
-        val limits = PaymentLimits(FiatValue.fromMinor(SELECTED_FIAT, 100L), FiatValue.fromMinor(SELECTED_FIAT, 1000L))
-        whenever(walletManager.getBankTransferLimits(SELECTED_FIAT, true)).thenReturn(Single.just(limits))
+        val limits = PaymentLimits(
+            min = FiatValue.fromMinor(TEST_USER_FIAT, 100L),
+            max = FiatValue.fromMinor(TEST_USER_FIAT, 1000L)
+        )
+        whenever(walletManager.getBankTransferLimits(TEST_USER_FIAT, true))
+            .thenReturn(Single.just(limits))
 
         val sourceAccount: LinkedBankAccount = mock {
-            on { fiatCurrency }.thenReturn(SELECTED_FIAT)
+            on { fiatCurrency }.thenReturn(TEST_USER_FIAT)
         }
         val txTarget: FiatAccount = mock {
             on { fiatCurrency }.thenReturn(TGT_ASSET)
@@ -109,7 +104,7 @@ class FiatDepositTxEngineTest {
             exchangeRates
         )
 
-        val zeroFiat = FiatValue.zero(SELECTED_FIAT)
+        val zeroFiat = FiatValue.zero(TEST_USER_FIAT)
 
         subject.doInitialiseTx()
             .test()
@@ -119,7 +114,7 @@ class FiatDepositTxEngineTest {
                     it.availableBalance == zeroFiat &&
                     it.feeForFullAvailable == zeroFiat &&
                     it.feeAmount == zeroFiat &&
-                    it.selectedFiat == SELECTED_FIAT &&
+                    it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
                     it.minLimit == limits.min &&
                     it.maxLimit == limits.max &&
@@ -476,7 +471,6 @@ class FiatDepositTxEngineTest {
             feeSelection.asset == null
 
     companion object {
-        private const val SELECTED_FIAT = "USD"
         private const val TGT_ASSET = "USD"
     }
 }

@@ -113,9 +113,11 @@
         android:layout_height="wrap_content"
         android:measureAllChildren="false"
         android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/title_pick"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title_to"
+        app:layout_constraintVertical_bias="0"
         tools:visibility="visible">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -220,10 +222,12 @@
         android:layout_marginTop="@dimen/very_small_margin"
         android:layout_marginEnd="@dimen/standard_margin"
         android:text="@string/send_select_a_wallet_title"
+        app:layout_constraintBottom_toTopOf="@id/wallet_select"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/input_switcher" />
+        app:layout_constraintTop_toBottomOf="@id/input_switcher"
+        app:layout_constraintVertical_bias="0" />
 
     <View
         android:id="@+id/pick_separator"
@@ -285,9 +289,9 @@
         app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toTopOf="@id/upsell_title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title_pick"
+        app:layout_constraintVertical_chainStyle="packed"
         app:layout_goneMarginBottom="@dimen/standard_margin"
         tools:visibility="visible" />
 

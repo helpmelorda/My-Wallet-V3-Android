@@ -7,10 +7,10 @@ import android.content.Intent
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.Analytics
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
 import piuk.blockchain.android.ui.customviews.ToastCustom

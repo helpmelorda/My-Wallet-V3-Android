@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewbinding.ViewBinding
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -32,6 +33,7 @@ import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.TrendingPair
 import piuk.blockchain.android.coincore.TrendingPairsProvider
+import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.databinding.FragmentSwapBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ButtonOptions
@@ -44,10 +46,11 @@ import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
+import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import timber.log.Timber
 
 class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Host, TradingWalletPromoBottomSheet.Host {
@@ -67,7 +70,7 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
 
     private val kycTierService: TierService by scopedInject()
     private val coincore: Coincore by scopedInject()
-    private val exchangeRateDataManager: ExchangeRateDataManager by scopedInject()
+    private val exchangeRateDataManager: ExchangeRatesDataManager by scopedInject()
     private val trendingPairsProvider: TrendingPairsProvider by scopedInject()
     private val walletManager: CustodialWalletManager by scopedInject()
 
@@ -76,6 +79,7 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
     private val analytics: Analytics by inject()
     private val assetResources: AssetResources by inject()
     private val txLauncher: TransactionLauncher by inject()
+    val appUtil: AppUtil by inject()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -132,6 +136,8 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
     }
 
     private fun loadSwapOrKyc(showLoading: Boolean) {
+        val activityIndicator = if (showLoading) appUtil.activityIndicator else null
+
         compositeDisposable +=
             Singles.zip(
                 kycTierService.tiers(),
@@ -153,10 +159,7 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
                 )
             }
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe {
-                    if (showLoading)
-                        showLoadingUi()
-                }
+                .trackProgress(activityIndicator)
                 .subscribeBy(
                     onSuccess = { composite ->
                         showSwapUi(composite.orders, composite.hasAtLeastOneAccountToSwapFrom)
@@ -277,14 +280,12 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
     }
 
     private fun showErrorUi() {
-        binding.swapLoadingIndicator.gone()
         binding.swapError.visible()
     }
 
     private fun showSwapUi(orders: List<CustodialOrder>, hasAtLeastOneAccountToSwapFrom: Boolean) {
         val pendingOrders = orders.filter { it.state.isPending }
         val hasPendingOrder = pendingOrders.isNotEmpty()
-        binding.swapLoadingIndicator.gone()
         binding.swapViewSwitcher.visible()
         binding.swapError.gone()
         binding.swapCta.visible()
@@ -296,17 +297,9 @@ class SwapFragment : Fragment(), DialogFlow.FlowHost, KycBenefitsBottomSheet.Hos
                 PendingSwapsAdapter(
                     pendingOrders
                 ) { money: Money ->
-                    money.toFiat(exchangeRateDataManager, currencyPrefs.selectedFiatCurrency)
+                    money.toUserFiat(exchangeRateDataManager)
                 }
             layoutManager = LinearLayoutManager(activity)
-        }
-    }
-
-    private fun showLoadingUi() {
-        with(binding) {
-            swapLoadingIndicator.visible()
-            swapViewSwitcher.gone()
-            swapError.gone()
         }
     }
 

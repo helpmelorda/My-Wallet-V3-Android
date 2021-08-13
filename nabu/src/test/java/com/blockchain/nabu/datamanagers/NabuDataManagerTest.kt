@@ -1,7 +1,7 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.api.ApiException
 import com.blockchain.logging.DigitalTrust
-import com.blockchain.nabu.getEmptySessionToken
 import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
 import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
 import com.blockchain.nabu.models.responses.nabu.NabuUser
@@ -13,17 +13,15 @@ import com.blockchain.nabu.models.responses.wallet.RetailJwtResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.stores.NabuSessionTokenStore
+import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import com.blockchain.utils.Optional
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.blockchain.api.ApiException
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -136,7 +134,7 @@ class NabuDataManagerTest {
     fun getSessionToken() {
         // Arrange
         val offlineToken = NabuOfflineTokenResponse("", "")
-        val sessionTokenResponse = getEmptySessionToken()
+        val sessionTokenResponse = FakeNabuSessionTokenFactory.any
         whenever(
             nabuService.getSessionToken(
                 userId = offlineToken.userId,
@@ -171,7 +169,7 @@ class NabuDataManagerTest {
         val lastName = "LAST_NAME"
         val dateOfBirth = "25-02-1995"
         val offlineToken = NabuOfflineTokenResponse("", "")
-        val sessionToken = getEmptySessionToken()
+        val sessionToken = FakeNabuSessionTokenFactory.any
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
         whenever(nabuTokenStore.getAccessToken())
             .thenReturn(Observable.just(Optional.Some(sessionToken)))
@@ -206,7 +204,7 @@ class NabuDataManagerTest {
         // Arrange
         val userObject: NabuUser = mock()
         val offlineToken = NabuOfflineTokenResponse(USER_ID, "")
-        val sessionToken = getEmptySessionToken()
+        val sessionToken = FakeNabuSessionTokenFactory.any
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
         whenever(nabuTokenStore.getAccessToken())
             .thenReturn(Observable.just(Optional.Some(sessionToken)))
@@ -232,7 +230,7 @@ class NabuDataManagerTest {
             on { tags }.thenReturn(mapOf("campaign" to mapOf("some tag" to "some data")))
         }
         val offlineToken = NabuOfflineTokenResponse("", "")
-        val sessionToken = getEmptySessionToken()
+        val sessionToken = FakeNabuSessionTokenFactory.any
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
         whenever(nabuTokenStore.getAccessToken())
             .thenReturn(Observable.just(Optional.Some(sessionToken)))
@@ -252,7 +250,7 @@ class NabuDataManagerTest {
         // Arrange
         val userObject: NabuUser = mock()
         val offlineToken = NabuOfflineTokenResponse("", "")
-        val sessionToken = getEmptySessionToken()
+        val sessionToken = FakeNabuSessionTokenFactory.any
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
         whenever(nabuTokenStore.getAccessToken())
             .thenReturn(Observable.just(Optional.Some(sessionToken)))
@@ -277,7 +275,7 @@ class NabuDataManagerTest {
         val countryCode = "COUNTRY_CODE"
         val postCode = "POST_CODE"
         val offlineToken = NabuOfflineTokenResponse("", "")
-        val sessionToken = getEmptySessionToken()
+        val sessionToken = FakeNabuSessionTokenFactory.any
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
         whenever(nabuTokenStore.getAccessToken())
             .thenReturn(Observable.just(Optional.Some(sessionToken)))
@@ -324,7 +322,7 @@ class NabuDataManagerTest {
         val stateCode = "US-AL"
         val notifyWhenAvailable = true
         val offlineToken = NabuOfflineTokenResponse("", "")
-        val sessionToken = getEmptySessionToken()
+        val sessionToken = FakeNabuSessionTokenFactory.any
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
         whenever(nabuTokenStore.getAccessToken())
             .thenReturn(Observable.just(Optional.Some(sessionToken)))
@@ -398,7 +396,7 @@ class NabuDataManagerTest {
         // Arrange
         val countryCode = "US"
         val offlineToken = NabuOfflineTokenResponse("", "")
-        val sessionToken = getEmptySessionToken()
+        val sessionToken = FakeNabuSessionTokenFactory.any
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
         whenever(nabuTokenStore.getAccessToken())
             .thenReturn(Observable.just(Optional.Some(sessionToken)))
@@ -427,7 +425,7 @@ class NabuDataManagerTest {
     fun registerCampaign() {
         // Arrange
         val offlineToken = NabuOfflineTokenResponse("", "")
-        val sessionToken = getEmptySessionToken()
+        val sessionToken = FakeNabuSessionTokenFactory.any
         val campaignRequest = RegisterCampaignRequest(emptyMap(), false)
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
         whenever(nabuTokenStore.getAccessToken())

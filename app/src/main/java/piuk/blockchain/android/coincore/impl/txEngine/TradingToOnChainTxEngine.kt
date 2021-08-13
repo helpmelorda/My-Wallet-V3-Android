@@ -16,6 +16,7 @@ import piuk.blockchain.android.coincore.TxEngine
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.TxValidationFailure
 import piuk.blockchain.android.coincore.ValidationState
+import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.coincore.updateTxValidity
 import piuk.blockchain.android.ui.transactionflow.flow.FeeInfo
 
@@ -88,7 +89,7 @@ class TradingToOnChainTxEngine(
                         receivingFeeInfo = if (!pendingTx.feeAmount.isZero) {
                             FeeInfo(
                                 pendingTx.feeAmount,
-                                pendingTx.feeAmount.toFiat(exchangeRates, userFiat),
+                                pendingTx.feeAmount.toUserFiat(exchangeRates),
                                 sourceAsset
                             )
                         } else null,
@@ -99,8 +100,8 @@ class TradingToOnChainTxEngine(
                         totalWithFee = (pendingTx.amount as CryptoValue).plus(
                             pendingTx.feeAmount as CryptoValue
                         ),
-                        exchange = pendingTx.amount.toFiat(exchangeRates, userFiat)
-                            .plus(pendingTx.feeAmount.toFiat(exchangeRates, userFiat))
+                        exchange = pendingTx.amount.toUserFiat(exchangeRates)
+                            .plus(pendingTx.feeAmount.toUserFiat(exchangeRates))
                     ),
                     if (isNoteSupported) {
                         TxConfirmationValue.Description()

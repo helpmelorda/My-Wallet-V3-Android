@@ -1,5 +1,6 @@
 package com.blockchain.api.nabu
 
+import com.blockchain.api.nabu.data.GeolocationResponse
 import com.blockchain.api.nabu.data.InterestEligibilityResponse
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.GET
@@ -11,4 +12,7 @@ interface NabuUserApi {
     fun getInterestEligibility(
         @Header("authorization") authorization: String
     ): Single<Map<String, InterestEligibilityResponse>>
+
+    @GET("geolocation")
+    fun getUserGeolocation(): Single<GeolocationResponse>
 }

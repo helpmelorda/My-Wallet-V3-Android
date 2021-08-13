@@ -2,13 +2,18 @@ package com.blockchain.koin
 
 import android.preference.PreferenceManager
 import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.chains.bitcoincash.BchDataStore
+import com.blockchain.core.custodial.TradingBalanceCallCache
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
+import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
 import com.blockchain.datamanagers.DataManagerPayloadDecrypt
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
+import com.blockchain.logging.Logger
 import com.blockchain.logging.NullLogger
 import com.blockchain.logging.TimberLogger
 import com.blockchain.metadata.MetadataRepository
@@ -29,7 +34,6 @@ import com.blockchain.sunriver.XlmHorizonUrlFetcher
 import com.blockchain.sunriver.XlmTransactionTimeoutFetcher
 import com.blockchain.wallet.SeedAccess
 import com.blockchain.wallet.SeedAccessWithoutPrompt
-import info.blockchain.balance.ExchangeRates
 import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.util.PrivateKeyFactory
 import org.koin.dsl.bind
@@ -40,12 +44,13 @@ import piuk.blockchain.androidcore.data.access.AccessStateImpl
 import piuk.blockchain.androidcore.data.access.LogoutTimer
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.auth.AuthService
-import com.blockchain.core.chains.bitcoincash.BchDataStore
+import com.blockchain.core.price.ExchangeRates
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.price.impl.AssetPriceStore
+import com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl
+import com.blockchain.core.price.impl.SparklineCallCache
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
-import piuk.blockchain.androidcore.data.exchangerate.datastore.ExchangeRateDataStore
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.metadata.MoshiMetadataRepositoryAdapter
@@ -58,6 +63,9 @@ import piuk.blockchain.androidcore.data.payload.PromptingSeedAccessAdapter
 import piuk.blockchain.androidcore.data.payments.PaymentService
 import piuk.blockchain.androidcore.data.payments.SendDataManager
 import piuk.blockchain.androidcore.data.rxjava.RxBus
+import piuk.blockchain.androidcore.data.rxjava.SSLPinningEmitter
+import piuk.blockchain.androidcore.data.rxjava.SSLPinningObservable
+import piuk.blockchain.androidcore.data.rxjava.SSLPinningSubject
 import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
 import piuk.blockchain.androidcore.data.settings.PhoneNumberUpdater
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
@@ -82,10 +90,11 @@ val coreModule = module {
 
     single { RxBus() }
 
+    single { SSLPinningSubject() }.bind(SSLPinningObservable::class).bind(SSLPinningEmitter::class)
+
     factory {
         AuthService(
-            walletApi = get(),
-            rxBus = get()
+            walletApi = get()
         )
     }
 
@@ -94,13 +103,25 @@ val coreModule = module {
     scope(payloadScopeQualifier) {
 
         scoped {
+            TradingBalanceCallCache(
+                balanceService = get(),
+                authHeaderProvider = get()
+            )
+        }
+
+        scoped {
+            TradingBalanceDataManagerImpl(
+                tradingBalanceCallCache = get()
+            )
+        }.bind(TradingBalanceDataManager::class)
+
+        scoped {
             EthDataManager(
                 payloadDataManager = get(),
                 ethAccountApi = get(),
                 ethDataStore = get(),
                 metadataManager = get(),
-                lastTxUpdater = get(),
-                rxBus = get()
+                lastTxUpdater = get()
             )
         }
 
@@ -134,7 +155,6 @@ val coreModule = module {
                 bitcoinApi = get(),
                 defaultLabels = get(),
                 metadataManager = get(),
-                rxBus = get(),
                 crashLogger = get()
             )
         }
@@ -153,7 +173,6 @@ val coreModule = module {
                 privateKeyFactory = get(),
                 bitcoinApi = get(),
                 payloadManager = get(),
-                rxBus = get(),
                 crashLogger = get()
             )
         }
@@ -196,8 +215,7 @@ val coreModule = module {
             settingsService = get(),
             settingsDataStore = get(),
             currencyPrefs = get(),
-            walletSettingsService = get(),
-            rxBus = get()
+            walletSettingsService = get()
         ) }
 
         scoped { SettingsService(get()) }
@@ -216,22 +234,7 @@ val coreModule = module {
         }.bind(XlmTransactionTimeoutFetcher::class)
             .bind(XlmHorizonUrlFetcher::class)
 
-        factory {
-            ExchangeRateDataManager(
-                assetCatalogue = get(),
-                exchangeRateDataStore = get(),
-                rxBus = get()
-            )
-        }.bind(ExchangeRates::class)
-
-        scoped {
-            ExchangeRateDataStore(
-                exchangeRateService = get(),
-                prefs = get()
-            )
-        }
-
-        scoped { FeeDataManager(get(), get()) }
+        scoped { FeeDataManager(get()) }
 
         factory {
             AuthDataManager(
@@ -249,8 +252,7 @@ val coreModule = module {
         factory {
             SendDataManager(
                 paymentService = get(),
-                lastTxUpdater = get(),
-                rxBus = get()
+                lastTxUpdater = get()
             )
         }
 
@@ -260,9 +262,24 @@ val coreModule = module {
     }
 
     factory {
-        ExchangeRateService(
-            priceApi = get(),
-            rxBus = get()
+        SparklineCallCache(
+            priceService = get()
+        )
+    }
+
+    single {
+        ExchangeRatesDataManagerImpl(
+            priceStore = get(),
+            sparklineCall = get(),
+            assetPriceService = get(),
+            currencyPrefs = get()
+        )
+    }.bind(ExchangeRatesDataManager::class)
+        .bind(ExchangeRates::class)
+
+    factory {
+        AssetPriceStore(
+            assetPriceService = get()
         )
     }
 
@@ -317,11 +334,12 @@ val coreModule = module {
     }
 
     single {
-        if (BuildConfig.DEBUG)
+        if (BuildConfig.DEBUG) {
             TimberLogger()
-        else
+        } else {
             NullLogger
-    }
+        }
+    }.bind(Logger::class)
 
     single {
         AccessStateImpl(

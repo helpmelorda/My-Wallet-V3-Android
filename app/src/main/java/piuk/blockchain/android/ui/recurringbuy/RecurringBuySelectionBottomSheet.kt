@@ -3,15 +3,24 @@ package piuk.blockchain.android.ui.recurringbuy
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.utils.capitalizeFirstChar
+import com.blockchain.utils.isLastDayOfTheMonth
 import info.blockchain.balance.FiatValue
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetRecurringBuyBinding
+import piuk.blockchain.android.simplebuy.SimpleBuyIntent
+import piuk.blockchain.android.simplebuy.SimpleBuyModel
+import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.ui.base.HostedBottomSheet
-import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
+import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.visibleIf
+import java.time.ZonedDateTime
 
-class RecurringBuySelectionBottomSheet : SlidingModalBottomDialog<DialogSheetRecurringBuyBinding>() {
+class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState,
+    DialogSheetRecurringBuyBinding>() {
 
     interface Host : HostedBottomSheet.Host {
         fun onIntervalSelected(interval: RecurringBuyFrequency)
@@ -31,6 +40,8 @@ class RecurringBuySelectionBottomSheet : SlidingModalBottomDialog<DialogSheetRec
 
     private var selectedFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME
 
+    override val model: SimpleBuyModel by scopedInject()
+
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogSheetRecurringBuyBinding =
         DialogSheetRecurringBuyBinding.inflate(inflater, container, false)
 
@@ -40,7 +51,13 @@ class RecurringBuySelectionBottomSheet : SlidingModalBottomDialog<DialogSheetRec
         )
     }
 
+    override fun render(newState: SimpleBuyState) {
+        binding.nextDatesLoading.visibleIf { newState.isLoading }
+        fillFrequencySelectorWithDates(newState.nextPaymentDates)
+    }
+
     private fun setViewForFirstTimeBuyer() {
+        selectedFrequency = RecurringBuyFrequency.DAILY
         if (firstTimeAmountSpent != null && cryptoCode != null) {
             binding.apply {
                 rbOneTime.gone()
@@ -54,6 +71,8 @@ class RecurringBuySelectionBottomSheet : SlidingModalBottomDialog<DialogSheetRec
     }
 
     override fun initControls(binding: DialogSheetRecurringBuyBinding) {
+        model.process(SimpleBuyIntent.LoadNextPaymentDates)
+
         setViewForFirstTimeBuyer()
 
         analytics.logEvent(RecurringBuyAnalytics.RecurringBuyViewed)
@@ -62,8 +81,33 @@ class RecurringBuySelectionBottomSheet : SlidingModalBottomDialog<DialogSheetRec
             recurringBuySelectionGroup.check(intervalToId(interval))
             recurringBuySelectionGroup.setOnCheckedChangeListener { _, checkedId ->
                 selectedFrequency = idToInterval(checkedId)
+            }
+            recurringBuySelectCta.setOnClickListener {
                 host.onIntervalSelected(selectedFrequency)
                 dismiss()
+            }
+        }
+    }
+
+    private fun fillFrequencySelectorWithDates(nextPaymentMap: Map<RecurringBuyFrequency, ZonedDateTime>) {
+        if (nextPaymentMap.isNotEmpty()) {
+            binding.apply {
+                rbWeekly.text = getString(
+                    R.string.recurring_buy_frequency_subtitle,
+                    nextPaymentMap[RecurringBuyFrequency.WEEKLY]?.dayOfWeek.toString().capitalizeFirstChar()
+                )
+                rbMonthly.text = if (nextPaymentMap[RecurringBuyFrequency.MONTHLY]?.isLastDayOfTheMonth() == true) {
+                    getString(R.string.recurring_buy_frequency_subtitle_last_day_selector)
+                } else {
+                    getString(
+                        R.string.recurring_buy_frequency_subtitle_monthly,
+                        nextPaymentMap[RecurringBuyFrequency.MONTHLY]?.dayOfMonth.toString()
+                    )
+                }
+                rbBiWeekly.text = getString(
+                    R.string.recurring_buy_frequency_subtitle_biweekly,
+                    nextPaymentMap[RecurringBuyFrequency.BI_WEEKLY]?.dayOfWeek.toString().capitalizeFirstChar()
+                )
             }
         }
     }

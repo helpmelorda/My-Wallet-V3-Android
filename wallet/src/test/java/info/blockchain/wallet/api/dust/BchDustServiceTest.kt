@@ -1,89 +1,41 @@
 package info.blockchain.wallet.api.dust
 
-import com.blockchain.koin.modules.walletApiServiceTestModule
-import com.blockchain.koin.walletModule
-import com.blockchain.network.initRule
-import com.blockchain.network.modules.apiModule
+import com.blockchain.nabu.util.waitForCompletionWithoutErrors
 import com.blockchain.testutils.rxInit
-import com.blockchain.api.blockchainApiModule
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.ApiCode
-import io.fabric8.mockwebserver.DefaultMockServer
-import org.amshove.kluent.`should be equal to`
-import org.junit.Before
+import info.blockchain.wallet.api.dust.data.DustInput
+import io.reactivex.rxjava3.core.Single
 import org.junit.Rule
 import org.junit.Test
-import org.koin.core.context.startKoin
-import org.koin.test.AutoCloseKoinTest
-import org.koin.test.inject
 
-class BchDustServiceTest : AutoCloseKoinTest() {
-
-    private val server = DefaultMockServer()
-
-    @get:Rule
-    val initMockServer = server.initRule()
+class BchDustServiceTest {
 
     @get:Rule
     val initRx = rxInit {
         ioTrampoline()
     }
 
-    private val subject: DustService by inject()
-    private val apiCode: ApiCode by inject()
-
-    @Before
-    fun setUp() {
-        startKoin {
-            modules(listOf(
-                apiModule,
-                walletModule,
-                blockchainApiModule,
-                walletApiServiceTestModule(server)
-            ))
-        }
-    }
+    private val dustApi: DustApi = mock()
+    private val apiCode: ApiCode = mock()
+    private val subject: DustService = BchDustService(dustApi, apiCode)
 
     @Test
     fun `get dust returns input`() {
-        server.expect().get().withPath("/bch/dust?api_code=${apiCode.apiCode}")
-            .andReturn(
-                200,
-                """
-{
-  "tx_hash": "fd208b67abd52eb417cce9a1886f29342e3577a4d1f9c87fbb11ca21e6fc3a81",
-  "tx_hash_big_endian": "813afce621ca11bb7fc8f9d1a477352e34296f88a1e9cc17b42ed5ab678b20fd",
-  "tx_index": 0,
-  "tx_output_n": 26,
-  "script": "00",
-  "value": 546,
-  "value_hex": "00000222",
-  "confirmations": 1,
-  "output_script": "76a914757666a692b3676fef9df7d0f61d415012555f6288ac",
-  "lock_secret": "b812995e2ca64c69bdd9187f2c26ab3b"
-}
-"""
-            )
-            .once()
+        val expectedDustInput: DustInput = mock()
+
+        whenever(
+            dustApi.getDust("bch", apiCode.apiCode)
+        ).thenReturn(
+            Single.just(expectedDustInput)
+        )
 
         subject.getDust()
             .test()
-            .assertNoErrors()
-            .values()
-            .single()
-            .apply {
-                this?.let {
-                    txHash `should be equal to` "fd208b67abd52eb417cce9a1886f29342e3577a4d1f9c87fbb11ca21e6fc3a81"
-                    txHashBigEndian `should be equal to`
-                        "813afce621ca11bb7fc8f9d1a477352e34296f88a1e9cc17b42ed5ab678b20fd"
-                    txIndex `should be equal to` 0L
-                    txOutputN `should be equal to` 26L
-                    script `should be equal to` "00"
-                    value `should be equal to` 546.toBigInteger()
-                    valueHex `should be equal to` "00000222"
-                    confirmations `should be equal to` 1
-                    outputScript `should be equal to` "76a914757666a692b3676fef9df7d0f61d415012555f6288ac"
-                    lockSecret `should be equal to` "b812995e2ca64c69bdd9187f2c26ab3b"
-                }
+            .waitForCompletionWithoutErrors()
+            .assertValue {
+                it == expectedDustInput
             }
     }
 }

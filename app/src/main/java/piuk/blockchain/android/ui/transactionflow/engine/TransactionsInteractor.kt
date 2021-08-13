@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
@@ -8,7 +9,6 @@ import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable

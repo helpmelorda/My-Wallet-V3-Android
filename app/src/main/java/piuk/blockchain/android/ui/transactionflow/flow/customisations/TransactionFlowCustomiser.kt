@@ -5,9 +5,9 @@ import android.content.res.Resources
 import android.net.Uri
 import android.widget.FrameLayout
 import android.widget.ImageView
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.TransactionError
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import piuk.blockchain.android.R

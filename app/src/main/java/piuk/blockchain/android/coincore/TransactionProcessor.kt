@@ -2,6 +2,8 @@ package piuk.blockchain.android.coincore
 
 import androidx.annotation.CallSuper
 import androidx.annotation.VisibleForTesting
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.replace
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.payloadScope
@@ -9,17 +11,15 @@ import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.subjects.BehaviorSubject
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 import piuk.blockchain.android.ui.linkbank.BankPaymentApproval
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
@@ -36,6 +36,7 @@ enum class ValidationState {
     INVALID_ADDRESS,
     ADDRESS_IS_CONTRACT,
     OPTION_INVALID,
+    MEMO_INVALID,
     UNDER_MIN_LIMIT,
     PENDING_ORDERS_LIMIT_REACHED,
     OVER_MAX_LIMIT,
@@ -45,7 +46,7 @@ enum class ValidationState {
     UNKNOWN_ERROR
 }
 
-class TxValidationFailure(val state: ValidationState) : TransferError("Invalid Send Tx: $state")
+class TxValidationFailure(val state: ValidationState) : TransferError("Invalid Tx: $state")
 class NeedsApprovalException(val bankPaymentData: BankPaymentApproval) : Throwable()
 
 enum class FeeLevel {
@@ -149,7 +150,7 @@ abstract class TxEngine : KoinComponent {
 
     private lateinit var _sourceAccount: BlockchainAccount
     private lateinit var _txTarget: TransactionTarget
-    private lateinit var _exchangeRates: ExchangeRateDataManager
+    private lateinit var _exchangeRates: ExchangeRatesDataManager
     private lateinit var _refresh: RefreshTrigger
 
     protected val sourceAccount: BlockchainAccount
@@ -158,7 +159,7 @@ abstract class TxEngine : KoinComponent {
     protected val txTarget: TransactionTarget
         get() = _txTarget
 
-    protected val exchangeRates: ExchangeRateDataManager
+    protected val exchangeRates: ExchangeRatesDataManager
         get() = _exchangeRates
 
     protected val internalFeatureFlagApi: InternalFeatureFlagApi by inject()
@@ -181,7 +182,7 @@ abstract class TxEngine : KoinComponent {
     open fun start(
         sourceAccount: BlockchainAccount,
         txTarget: TransactionTarget,
-        exchangeRates: ExchangeRateDataManager,
+        exchangeRates: ExchangeRatesDataManager,
         refreshTrigger: RefreshTrigger = object : RefreshTrigger {
             override fun refreshConfirmations(revalidate: Boolean): Completable = Completable.complete()
         }
@@ -204,7 +205,7 @@ abstract class TxEngine : KoinComponent {
     // are valid for this engine.
     open fun assertInputsValid() {}
 
-    open val userFiat: String by unsafeLazy {
+    val userFiat: String by unsafeLazy {
         payloadScope.get<CurrencyPrefs>().selectedFiatCurrency
     }
 
@@ -230,25 +231,13 @@ abstract class TxEngine : KoinComponent {
 
         return when (sourceAccount) {
             is CryptoAccount -> {
-                Observable.just(
-                    exchangeRates.getLastPrice((sourceAccount as CryptoAccount).asset, userFiat)
-                ).map { rate ->
-                    ExchangeRate.CryptoToFiat(
-                        (sourceAccount as CryptoAccount).asset,
-                        userFiat,
-                        rate
-                    )
+                Observable.fromCallable {
+                    exchangeRates.getLastCryptoToUserFiatRate((sourceAccount as CryptoAccount).asset)
                 }
             }
             is FiatAccount -> {
-                Observable.just(
-                    exchangeRates.getLastPriceOfFiat((sourceAccount as FiatAccount).fiatCurrency, userFiat)
-                ).map {
-                    ExchangeRate.FiatToFiat(
-                        (sourceAccount as FiatAccount).fiatCurrency,
-                        userFiat,
-                        it
-                    )
+                Observable.fromCallable {
+                    exchangeRates.getLastFiatToUserFiatRate((sourceAccount as FiatAccount).fiatCurrency)
                 }
             }
             else -> {
@@ -310,7 +299,7 @@ abstract class TxEngine : KoinComponent {
 class TransactionProcessor(
     sourceAccount: BlockchainAccount,
     txTarget: TransactionTarget,
-    exchangeRates: ExchangeRateDataManager,
+    exchangeRates: ExchangeRatesDataManager,
     private val engine: TxEngine
 ) : TxEngine.RefreshTrigger {
 
@@ -451,7 +440,8 @@ class TransactionProcessor(
             ValidationState.INSUFFICIENT_GAS -> Completable.error(TransactionError.InsufficientBalance)
             ValidationState.INVALID_ADDRESS -> Completable.error(TransactionError.InvalidCryptoAddress)
             ValidationState.ADDRESS_IS_CONTRACT -> Completable.error(TransactionError.InvalidCryptoAddress)
-            ValidationState.OPTION_INVALID -> Completable.error(TransactionError.UnexpectedError)
+            ValidationState.OPTION_INVALID,
+            ValidationState.MEMO_INVALID -> Completable.error(TransactionError.UnexpectedError)
             ValidationState.UNDER_MIN_LIMIT -> Completable.error(TransactionError.OrderBelowMin)
             ValidationState.PENDING_ORDERS_LIMIT_REACHED ->
                 Completable.error(TransactionError.OrderLimitReached)

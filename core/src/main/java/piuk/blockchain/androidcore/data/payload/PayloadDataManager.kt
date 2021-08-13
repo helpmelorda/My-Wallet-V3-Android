@@ -1,8 +1,8 @@
 package piuk.blockchain.androidcore.data.payload
 
 import com.blockchain.annotations.MoveCandidate
-import com.blockchain.logging.CrashLogger
 import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.logging.CrashLogger
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.bip44.HDWalletFactory
 import info.blockchain.wallet.exceptions.DecryptionException
@@ -21,10 +21,10 @@ import info.blockchain.wallet.payload.model.Balance
 import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import info.blockchain.wallet.util.PrivateKeyFactory
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.bitcoinj.core.AddressFormatException
 import org.bitcoinj.core.LegacyAddress
@@ -33,8 +33,6 @@ import org.bitcoinj.core.SegwitAddress
 import org.bitcoinj.params.MainNetParams
 import org.bitcoinj.script.Script
 import piuk.blockchain.androidcore.data.metadata.MetadataCredentials
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.data.rxjava.RxPinning
 import piuk.blockchain.androidcore.utils.RefreshUpdater
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import java.math.BigInteger
@@ -54,11 +52,8 @@ class PayloadDataManager internal constructor(
     @MoveCandidate("Move this down to the PayloadManager layer, with the other crypto tools")
     private val privateKeyFactory: PrivateKeyFactory,
     private val payloadManager: PayloadManager,
-    private val crashLogger: CrashLogger,
-    rxBus: RxBus
+    private val crashLogger: CrashLogger
 ) {
-
-    private val rxPinning: RxPinning = RxPinning(rxBus)
 
     val metadataCredentials: MetadataCredentials?
         get() = tempPassword?.let {
@@ -141,9 +136,7 @@ class PayloadDataManager internal constructor(
      * @return A [Completable] object
      */
     fun initializeFromPayload(payload: String, password: String): Completable =
-        rxPinning.call {
-            payloadService.initializeFromPayload(payload, password)
-        }.applySchedulers()
+        payloadService.initializeFromPayload(payload, password).applySchedulers()
 
     /**
      * Restores a HD wallet from a 12 word mnemonic and initializes the [PayloadDataManager].
@@ -160,14 +153,12 @@ class PayloadDataManager internal constructor(
         walletName: String,
         email: String,
         password: String
-    ): Single<Wallet> = rxPinning.callSingle {
-            payloadService.restoreHdWallet(
-                mnemonic,
-                walletName,
-                email,
-                password
-            )
-        }.applySchedulers()
+    ): Single<Wallet> = payloadService.restoreHdWallet(
+        mnemonic,
+        walletName,
+        email,
+        password
+    ).applySchedulers()
 
     /**
      * Retrieves a  master key from a 12 word mnemonic
@@ -195,13 +186,11 @@ class PayloadDataManager internal constructor(
         password: String,
         walletName: String,
         email: String
-    ): Single<Wallet> = rxPinning.callSingle {
-        payloadService.createHdWallet(
-            password = password,
-            walletName = walletName,
-            email = email
-        )
-    }.applySchedulers()
+    ): Single<Wallet> = payloadService.createHdWallet(
+        password = password,
+        walletName = walletName,
+        email = email
+    ).applySchedulers()
 
     /**
      * Fetches the user's wallet payload, and then initializes and decrypts a payload using the
@@ -213,13 +202,11 @@ class PayloadDataManager internal constructor(
      * @return A [Completable] object
      */
     fun initializeAndDecrypt(sharedKey: String, guid: String, password: String): Completable =
-        rxPinning.call {
-            payloadService.initializeAndDecrypt(
-                sharedKey = sharedKey,
-                guid = guid,
-                password = password
-            )
-        }.applySchedulers()
+        payloadService.initializeAndDecrypt(
+            sharedKey = sharedKey,
+            guid = guid,
+            password = password
+        ).applySchedulers()
 
     /**
      * Initializes and decrypts a user's payload given valid QR code scan data.
@@ -228,8 +215,7 @@ class PayloadDataManager internal constructor(
      * @return A [Completable] object
      */
     fun handleQrCode(data: String): Completable =
-        rxPinning.call { payloadService.handleQrCode(data) }
-            .applySchedulers()
+        payloadService.handleQrCode(data).applySchedulers()
 
     /**
      * Upgrades a Wallet from V2 to V3 and saves it with the server. If saving is unsuccessful or
@@ -240,22 +226,20 @@ class PayloadDataManager internal constructor(
      * @return A [Completable] object
      */
     fun upgradeWalletPayload(secondPassword: String?, defaultAccountName: String): Completable =
-        rxPinning.call {
-            Completable.fromCallable {
-                logWalletUpgradeStats()
-                if (payloadManager.isV3UpgradeRequired) {
-                    try {
-                        payloadManager.upgradeV2PayloadToV3(secondPassword, defaultAccountName)
-                    } catch (t: Throwable) {
-                        throw WalletUpgradeFailure("v2 -> v3 failed", t)
-                    }
+        Completable.fromCallable {
+            logWalletUpgradeStats()
+            if (payloadManager.isV3UpgradeRequired) {
+                try {
+                    payloadManager.upgradeV2PayloadToV3(secondPassword, defaultAccountName)
+                } catch (t: Throwable) {
+                    throw WalletUpgradeFailure("v2 -> v3 failed", t)
                 }
-                if (payloadManager.isV4UpgradeRequired) {
-                    try {
-                        payloadManager.upgradeV3PayloadToV4(secondPassword)
-                    } catch (t: Throwable) {
-                        throw WalletUpgradeFailure("v3 -> v4 failed", t)
-                    }
+            }
+            if (payloadManager.isV4UpgradeRequired) {
+                try {
+                    payloadManager.upgradeV3PayloadToV4(secondPassword)
+                } catch (t: Throwable) {
+                    throw WalletUpgradeFailure("v3 -> v4 failed", t)
                 }
             }
         }.applySchedulers()
@@ -279,8 +263,7 @@ class PayloadDataManager internal constructor(
      * @return A [Completable] object
      */
     fun syncPayloadWithServer(): Completable =
-        rxPinning.call { payloadService.syncPayloadWithServer() }
-            .applySchedulers()
+        payloadService.syncPayloadWithServer().applySchedulers()
 
     /**
      * Returns a [Completable] which saves the current payload to the server whilst also
@@ -291,8 +274,7 @@ class PayloadDataManager internal constructor(
      * @return A [Completable] object
      */
     fun syncPayloadAndPublicKeys(): Completable =
-        rxPinning.call { payloadService.syncPayloadAndPublicKeys() }
-            .applySchedulers()
+        payloadService.syncPayloadAndPublicKeys().applySchedulers()
 
     // /////////////////////////////////////////////////////////////////////////
     // TRANSACTION METHODS
@@ -306,8 +288,7 @@ class PayloadDataManager internal constructor(
      * @return A [Completable] object
      */
     fun updateAllTransactions(): Completable =
-        rxPinning.call { payloadService.updateAllTransactions() }
-            .applySchedulers()
+        payloadService.updateAllTransactions().applySchedulers()
 
     /**
      * Returns a [Completable] which updates all balances in the PayloadManager. Completable
@@ -316,8 +297,7 @@ class PayloadDataManager internal constructor(
      * @return A [Completable] object
      */
     fun updateAllBalances(): Completable =
-        rxPinning.call { payloadService.updateAllBalances() }
-            .applySchedulers()
+        payloadService.updateAllBalances().applySchedulers()
 
     /**
      * Update notes for a specific transaction hash and then sync the payload to the server
@@ -327,8 +307,7 @@ class PayloadDataManager internal constructor(
      * @return A [Completable] object
      */
     fun updateTransactionNotes(transactionHash: String, notes: String): Completable =
-        rxPinning.call { payloadService.updateTransactionNotes(transactionHash, notes) }
-            .applySchedulers()
+        payloadService.updateTransactionNotes(transactionHash, notes).applySchedulers()
 
     // /////////////////////////////////////////////////////////////////////////
     // ACCOUNTS AND ADDRESS METHODS
@@ -344,9 +323,7 @@ class PayloadDataManager internal constructor(
     fun getBalanceOfBchAccounts(
         xpubs: List<XPubs>
     ): Observable<Map<String, Balance>> =
-        rxPinning.call<Map<String, Balance>> {
-            payloadService.getBalanceOfBchAccounts(xpubs)
-        }.applySchedulers()
+        payloadService.getBalanceOfBchAccounts(xpubs).applySchedulers()
 
     /**
      * Converts any address to a label.
@@ -460,9 +437,7 @@ class PayloadDataManager internal constructor(
      * @return An [Observable] wrapping the newly created Account
      */
     fun createNewAccount(accountLabel: String, secondPassword: String?): Observable<Account> =
-        rxPinning.call<Account> {
-            payloadService.createNewAccount(accountLabel, secondPassword)
-        }.applySchedulers()
+        payloadService.createNewAccount(accountLabel, secondPassword).applySchedulers()
 
     /**
      * Add a private key for a [ImportedAddress]
@@ -472,9 +447,7 @@ class PayloadDataManager internal constructor(
      * @return An [Observable] representing a successful save
      */
     fun addImportedAddressFromKey(key: SigningKey, secondPassword: String?): Single<ImportedAddress> =
-        rxPinning.call<ImportedAddress> {
-            payloadService.setKeyForImportedAddress(key, secondPassword)
-        }.applySchedulers()
+        payloadService.setKeyForImportedAddress(key, secondPassword).applySchedulers()
             .singleOrError()
 
     /**
@@ -484,8 +457,7 @@ class PayloadDataManager internal constructor(
      * @return A [Completable] object representing a successful save
      */
     fun updateImportedAddress(importedAddress: ImportedAddress): Completable =
-        rxPinning.call { payloadService.updateImportedAddress(importedAddress) }
-            .applySchedulers()
+        payloadService.updateImportedAddress(importedAddress).applySchedulers()
 
     /**
      * Returns an Elliptic Curve key for a given private key

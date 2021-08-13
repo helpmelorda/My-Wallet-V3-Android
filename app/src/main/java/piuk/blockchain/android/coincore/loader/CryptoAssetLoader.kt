@@ -1,6 +1,8 @@
 package piuk.blockchain.android.coincore.loader
 
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -19,8 +21,6 @@ import piuk.blockchain.android.coincore.custodialonly.DynamicOnlyTradingAsset
 import piuk.blockchain.android.coincore.erc20.Erc20Asset
 import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import java.lang.IllegalStateException
@@ -41,8 +41,8 @@ internal class CryptoAssetLoader(
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatus,
     private val custodialManager: CustodialWalletManager,
-    private val exchangeRates: ExchangeRateDataManager,
-    private val historicRates: ExchangeRateService,
+    private val exchangeRates: ExchangeRatesDataManager,
+    private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val currencyPrefs: CurrencyPrefs,
     private val labels: DefaultLabels,
     private val pitLinking: PitLinking,
@@ -77,8 +77,8 @@ internal class CryptoAssetLoader(
             asset = assetInfo,
             payloadManager = payloadManager,
             custodialManager = custodialManager,
+            tradingBalanceDataManager = tradingBalanceDataManager,
             exchangeRates = exchangeRates,
-            historicRates = historicRates,
             currencyPrefs = currencyPrefs,
             labels = labels,
             pitLinking = pitLinking,
@@ -103,9 +103,9 @@ internal class CryptoAssetLoader(
             erc20DataManager = erc20DataManager,
             feeDataManager = feeDataManager,
             exchangeRates = exchangeRates,
-            historicRates = historicRates,
             currencyPrefs = currencyPrefs,
             custodialManager = custodialManager,
+            tradingBalanceDataManager = tradingBalanceDataManager,
             crashLogger = crashLogger,
             labels = labels,
             pitLinking = pitLinking,

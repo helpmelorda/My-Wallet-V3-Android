@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.bch
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
@@ -8,12 +9,11 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class BchActivitySummaryItem(
     private val transactionSummary: TransactionSummary,
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val account: CryptoAccount,
     private val payloadDataManager: PayloadDataManager
 ) : NonCustodialActivitySummaryItem() {

@@ -16,6 +16,7 @@ import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 import piuk.blockchain.android.R
+import piuk.blockchain.android.domain.usecases.GetUserGeolocationUseCase
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.androidcore.data.access.AccessState
@@ -37,6 +38,7 @@ class CreateWalletPresenterTest {
     private val walletPrefs: WalletStatus = mock()
     private val environmentConfig: EnvironmentConfig = mock()
     private val formatChecker: FormatChecker = mock()
+    private val getGeolocationUseCase = mock<GetUserGeolocationUseCase>()
 
     @Before
     fun setUp() {
@@ -49,7 +51,8 @@ class CreateWalletPresenterTest {
             analytics = analytics,
             walletPrefs = walletPrefs,
             environmentConfig = environmentConfig,
-            formatChecker = formatChecker
+            formatChecker = formatChecker,
+            getGeolocationUseCase = getGeolocationUseCase
         )
         subject.initView(view)
     }
@@ -200,7 +203,7 @@ class CreateWalletPresenterTest {
     }
 
     @Test
-    fun `validateCredentials weak password running on  debug mode`() {
+    fun `validateCredentials weak password running on debug mode`() {
         val pw1 = "aaaaaa"
         // Arrange
         whenever(formatChecker.isValidEmailAddress(anyString())).thenReturn(true)
@@ -209,6 +212,32 @@ class CreateWalletPresenterTest {
         val result = subject.validateCredentials("john@snow.com", pw1, pw1)
         // Assert
         assert(result)
+        verifyZeroInteractions(view)
+    }
+
+    @Test
+    fun `validateGeolocation country != US is selected`() {
+        val result = subject.validateGeoLocation("DE")
+
+        assert(result)
+        verifyZeroInteractions(view)
+    }
+
+    @Test
+    fun `validateGeolocation country not selected`() {
+        val result = subject.validateGeoLocation()
+
+        assert(!result)
+        verify(view).showError(R.string.country_not_selected)
+        verifyZeroInteractions(view)
+    }
+
+    @Test
+    fun `validateGeolocation country == US is selected and state is not selected`() {
+        val result = subject.validateGeoLocation("US")
+
+        assert(!result)
+        verify(view).showError(R.string.state_not_selected)
         verifyZeroInteractions(view)
     }
 }

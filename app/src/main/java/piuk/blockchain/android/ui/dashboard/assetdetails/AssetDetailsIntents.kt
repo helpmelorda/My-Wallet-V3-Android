@@ -1,16 +1,16 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
+import com.blockchain.core.price.HistoricalRateList
+import com.blockchain.core.price.HistoricalTimeSpan
 import info.blockchain.balance.AssetInfo
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.nabu.models.data.RecurringBuyState
-import info.blockchain.wallet.prices.data.PriceDatum
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AvailableActions
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAsset
 import piuk.blockchain.android.ui.base.mvi.MviIntent
-import piuk.blockchain.androidcore.data.exchangerate.TimeSpan
 
 sealed class AssetDetailsIntent : MviIntent<AssetDetailsState>
 
@@ -44,7 +44,7 @@ class LoadAsset(
 }
 
 class UpdateTimeSpan(
-    val updatedTimeSpan: TimeSpan
+    val updatedTimeSpan: HistoricalTimeSpan
 ) : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
         oldState.copy(timeSpan = updatedTimeSpan)
@@ -84,7 +84,7 @@ class AssetDisplayDetailsLoaded(
 }
 
 class ChartDataLoaded(
-    private val chartData: List<PriceDatum>
+    private val chartData: HistoricalRateList
 ) : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
         oldState.copy(

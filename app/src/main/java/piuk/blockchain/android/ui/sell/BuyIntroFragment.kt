@@ -5,18 +5,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.percentageDelta
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.BuySellPairs
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
-import info.blockchain.balance.percentageDelta
-import info.blockchain.wallet.prices.TimeAgo
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -29,16 +27,16 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.databinding.BuyIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
+import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.account.HeaderDecoration
 import piuk.blockchain.android.ui.customviews.account.removeAllHeaderDecorations
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.android.util.visible
 
-class BuyIntroFragment : Fragment() {
+class BuyIntroFragment : ViewPagerFragment() {
 
     private var _binding: BuyIntroFragmentBinding? = null
     private val binding: BuyIntroFragmentBinding
@@ -48,7 +46,6 @@ class BuyIntroFragment : Fragment() {
     private val currencyPrefs: CurrencyPrefs by inject()
     private val compositeDisposable = CompositeDisposable()
     private val coinCore: Coincore by scopedInject()
-    private val appUtil: AppUtil by inject()
     private val simpleBuyPrefs: SimpleBuyPrefs by scopedInject()
     private val assetResources: AssetResources by inject()
 
@@ -77,7 +74,7 @@ class BuyIntroFragment : Fragment() {
                     }
                     Single.zip(enabledPairs.map {
                         coinCore[it.cryptoCurrency].exchangeRate().zipWith(
-                            coinCore[it.cryptoCurrency].historicRate(TimeAgo.ONE_DAY.epoch)
+                            coinCore[it.cryptoCurrency].exchangeRateYesterday()
                         ).map { (currentPrice, price24h) ->
                             PriceHistory(
                                 currentExchangeRate = currentPrice as ExchangeRate.CryptoToFiat,
@@ -95,7 +92,7 @@ class BuyIntroFragment : Fragment() {
                 .doOnSubscribe {
                     binding.buyEmpty.gone()
                 }
-                .trackProgress(appUtil.activityIndicator)
+                .trackProgress(activityIndicator)
                 .subscribeBy(
                     onSuccess = { (exchangeRates, buyPairs) ->
                         renderBuyIntro(buyPairs, exchangeRates)

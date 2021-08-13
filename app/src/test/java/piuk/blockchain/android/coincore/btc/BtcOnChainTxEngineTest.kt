@@ -2,9 +2,6 @@
 
 package piuk.blockchain.android.coincore.btc
 
-import com.blockchain.android.testutils.rxInit
-import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.bitcoin
 import com.blockchain.testutils.satoshi
@@ -25,15 +22,9 @@ import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-
-import com.nhaarman.mockitokotlin2.mock
 import org.bitcoinj.core.NetworkParameters
-import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 import piuk.blockchain.android.coincore.BlockchainAccount
 import kotlin.test.assertEquals
 import piuk.blockchain.android.coincore.CryptoAddress
@@ -42,20 +33,12 @@ import piuk.blockchain.android.coincore.FeeSelection
 import piuk.blockchain.android.coincore.PendingTx
 import piuk.blockchain.android.coincore.TransactionTarget
 import piuk.blockchain.android.coincore.ValidationState
-import piuk.blockchain.android.coincore.impl.injectMocks
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
 
-class BtcOnChainTxEngineTest {
-
-    @get:Rule
-    val initSchedulers = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
-    }
+class BtcOnChainTxEngineTest : CoincoreTestBase() {
 
     private val btcDataManager: PayloadDataManager = mock {
         on { getAddressOutputType(TARGET_ADDRESS) }.thenReturn(OutputType.P2PKH)
@@ -76,11 +59,6 @@ class BtcOnChainTxEngineTest {
     private val walletPreferences: WalletStatus = mock {
         on { getFeeTypeForAsset(ASSET) }.thenReturn(FeeLevel.Regular.ordinal)
     }
-    private val exchangeRates: ExchangeRateDataManager = mock()
-
-    private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
-    }
 
     private val subject = BtcOnChainTxEngine(
         btcDataManager = btcDataManager,
@@ -92,20 +70,7 @@ class BtcOnChainTxEngineTest {
 
     @Before
     fun setup() {
-        injectMocks(
-            module {
-                scope(payloadScopeQualifier) {
-                    factory {
-                        currencyPrefs
-                    }
-                }
-            }
-        )
-    }
-
-    @After
-    fun teardown() {
-        stopKoin()
+        initMocks()
     }
 
     @Test
@@ -203,7 +168,7 @@ class BtcOnChainTxEngineTest {
                     it.totalBalance == CryptoValue.zero(ASSET) &&
                     it.availableBalance == CryptoValue.zero(ASSET) &&
                     it.feeAmount == CryptoValue.zero(ASSET) &&
-                    it.selectedFiat == SELECTED_FIAT &&
+                    it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
                     it.minLimit == null &&
                     it.maxLimit == null &&
@@ -283,7 +248,7 @@ class BtcOnChainTxEngineTest {
             availableBalance = CryptoValue.zero(ASSET),
             feeForFullAvailable = CryptoValue.zero(ASSET),
             feeAmount = CryptoValue.zero(ASSET),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -388,7 +353,7 @@ class BtcOnChainTxEngineTest {
             availableBalance = CryptoValue.zero(ASSET),
             feeForFullAvailable = CryptoValue.zero(ASSET),
             feeAmount = CryptoValue.zero(ASSET),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Priority,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -495,7 +460,7 @@ class BtcOnChainTxEngineTest {
             availableBalance = regularSweepable,
             feeForFullAvailable = fullFee,
             feeAmount = regularFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -568,7 +533,7 @@ class BtcOnChainTxEngineTest {
             availableBalance = regularSweepable,
             feeForFullAvailable = regularFee,
             feeAmount = regularFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS
@@ -613,7 +578,7 @@ class BtcOnChainTxEngineTest {
             availableBalance = regularSweepable,
             feeForFullAvailable = regularFee,
             feeAmount = regularFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -706,7 +671,7 @@ class BtcOnChainTxEngineTest {
             availableBalance = regularSweepable,
             feeForFullAvailable = fullFee,
             feeAmount = regularFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -820,7 +785,7 @@ class BtcOnChainTxEngineTest {
             availableBalance = customSweepable,
             feeForFullAvailable = fullFee,
             feeAmount = initialFee,
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Custom,
                 customAmount = initialCustomFee,
@@ -908,7 +873,6 @@ class BtcOnChainTxEngineTest {
         private const val TARGET_ADDRESS = "VALID_BTC_ADDRESS"
         private const val FEE_REGULAR = 5L
         private const val FEE_PRIORITY = 11L
-        private const val SELECTED_FIAT = "INR"
 
         private val TARGET_OUTPUT_TYPE = OutputType.P2PKH
         private val CHANGE_OUTPUT_TYPE = OutputType.P2PKH

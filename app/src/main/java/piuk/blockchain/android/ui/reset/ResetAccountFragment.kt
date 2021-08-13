@@ -1,16 +1,21 @@
 package piuk.blockchain.android.ui.reset
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAccountResetBinding
+import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.base.mvi.MviFragment
+import piuk.blockchain.android.ui.reset.password.ResetPasswordFragment
 
 class ResetAccountFragment :
     MviFragment<ResetAccountModel, ResetAccountIntents, ResetAccountState, FragmentAccountResetBinding>() {
 
     override val model: ResetAccountModel by scopedInject()
+
+    private var isInitialLoop = false
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentAccountResetBinding =
         FragmentAccountResetBinding.inflate(inflater, container, false)
@@ -21,9 +26,23 @@ class ResetAccountFragment :
             ResetAccountStatus.SHOW_WARNING -> showWarningScreen()
             ResetAccountStatus.RETRY -> onBackPressed()
             ResetAccountStatus.RESET -> {
-                // TODO navigate to next screen
+                if (isInitialLoop) {
+                    // To handle navigating back to this screen.
+                    model.process(ResetAccountIntents.UpdateStatus(ResetAccountStatus.SHOW_WARNING))
+                } else {
+                    launchResetPasswordFlow()
+                }
             }
         }
+
+        if (isInitialLoop) {
+            isInitialLoop = false
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        isInitialLoop = true
     }
 
     private fun showInfoScreen() {
@@ -71,4 +90,31 @@ class ResetAccountFragment :
     }
 
     private fun onBackPressed() = parentFragmentManager.popBackStack()
+
+    private fun launchResetPasswordFlow() {
+        parentFragmentManager.beginTransaction()
+            .addAnimationTransaction()
+            .replace(
+                binding.fragmentContainer.id,
+                ResetPasswordFragment.newInstance(
+                    isResetMandatory = true,
+                    email = arguments?.getString(ResetPasswordFragment.EMAIL) ?: "",
+                    recoveryToken = arguments?.getString(ResetPasswordFragment.RECOVERY_TOKEN) ?: ""
+                ),
+                ResetPasswordFragment::class.simpleName
+            )
+            .addToBackStack(ResetPasswordFragment::class.simpleName)
+            .commitAllowingStateLoss()
+    }
+
+    companion object {
+        fun newInstance(email: String, recoveryToken: String): ResetAccountFragment {
+            return ResetAccountFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ResetPasswordFragment.EMAIL, email)
+                    putString(ResetPasswordFragment.RECOVERY_TOKEN, recoveryToken)
+                }
+            }
+        }
+    }
 }

@@ -10,7 +10,6 @@ import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
@@ -37,6 +36,7 @@ import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.databinding.SellIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.BuySellType
 import piuk.blockchain.android.simplebuy.BuySellViewedEvent
+import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
@@ -46,9 +46,10 @@ import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionLauncher
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.trackProgress
 import piuk.blockchain.android.util.visible
 
-class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
+class SellIntroFragment : ViewPagerFragment(), DialogFlow.FlowHost {
     interface SellIntroHost {
         fun onSellFinished()
         fun onSellInfoClicked()
@@ -90,7 +91,9 @@ class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
         loadSellDetails()
     }
 
-    private fun loadSellDetails() {
+    private fun loadSellDetails(showLoader: Boolean = true) {
+        binding.accountsList.activityIndicator = if (showLoader) activityIndicator else null
+
         compositeDisposable += tierService.tiers()
             .zipWith(eligibilityProvider.isEligibleForSimpleBuy(forceRefresh = true))
             .subscribeOn(Schedulers.io())
@@ -98,6 +101,7 @@ class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
                 binding.sellEmpty.gone()
             }
             .observeOn(AndroidSchedulers.mainThread())
+            .trackProgress(binding.accountsList.activityIndicator)
             .subscribeBy(onSuccess = { (kyc, eligible) ->
                 when {
                     kyc.isApprovedFor(KycTierLevel.GOLD) && eligible -> {
@@ -213,6 +217,7 @@ class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
             compositeDisposable += supportedCryptoCurrencies()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .trackProgress(binding.accountsList.activityIndicator)
                 .subscribeBy(onSuccess = { supportedCryptos ->
                     val introHeaderView = IntroHeaderView(requireContext())
                     introHeaderView.setDetails(
@@ -289,6 +294,10 @@ class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
             }
     }
 
+    override fun onResumeFragment() {
+        loadSellDetails(false)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         compositeDisposable.clear()
@@ -301,6 +310,6 @@ class SellIntroFragment : Fragment(), DialogFlow.FlowHost {
 
     override fun onFlowFinished() {
         host.onSellFinished()
-        loadSellDetails()
+        loadSellDetails(showLoader = false)
     }
 }

@@ -1,14 +1,10 @@
 package com.blockchain.nabu.datamanagers.repositories
 
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
 import com.blockchain.nabu.service.NabuService
-import com.blockchain.rx.TimedCacheRequest
 import io.reactivex.rxjava3.core.Single
-import timber.log.Timber
 
 interface RecurringBuyEligibilityProvider {
     fun getRecurringBuyEligibility(): Single<List<PaymentMethodType>>
@@ -16,11 +12,9 @@ interface RecurringBuyEligibilityProvider {
 
 class RecurringBuyEligibilityProviderImpl(
     private val nabuService: NabuService,
-    private val authenticator: Authenticator,
-    private val features: InternalFeatureFlagApi
+    private val authenticator: Authenticator
 ) : RecurringBuyEligibilityProvider {
     override fun getRecurringBuyEligibility(): Single<List<PaymentMethodType>> =
-        if (features.isFeatureEnabled(GatedFeature.RECURRING_BUYS)) {
             authenticator.authenticate { sessionToken ->
                 nabuService.getRecurringBuyEligibility(sessionToken).map {
                     it.eligibleMethods.map { method ->
@@ -34,26 +28,10 @@ class RecurringBuyEligibilityProviderImpl(
                     }
                 }
             }
-        } else {
-            Single.just(emptyList())
-        }
     }
 
 class RecurringBuyRepository(
     private val recurringBuyEligibilityProvider: RecurringBuyEligibilityProvider
 ) {
-
-    private val cache = TimedCacheRequest(
-        cacheLifetimeSeconds = CACHE_LIFETIME,
-        refreshFn = {
-            recurringBuyEligibilityProvider.getRecurringBuyEligibility()
-                .doOnSuccess { Timber.d("Recurring buy eligibility response: $it") }
-        }
-    )
-
-    fun getRecurringBuyEligibleMethods() = cache.getCachedSingle()
-
-    companion object {
-        private const val CACHE_LIFETIME = 7200L // 2 hours
-    }
+    fun getRecurringBuyEligibleMethods() = recurringBuyEligibilityProvider.getRecurringBuyEligibility()
 }

@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyState
-import com.blockchain.utils.toFormattedDate
+import com.blockchain.utils.toFormattedDateWithoutYear
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewAccountRecurringBuyOverviewBinding
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
@@ -49,14 +49,15 @@ private class RecurringBuyViewHolder(
             rbIcon.setAssetIconColoursWithTint(item.recurringBuy.asset)
 
             rbTitle.text = context.getString(
-                R.string.dashboard_recurring_buy_item_title, item.recurringBuy.amount.toStringWithSymbol(),
-                item.recurringBuy.asset.ticker,
+                R.string.dashboard_recurring_buy_item_title_1,
+                item.recurringBuy.amount.toStringWithSymbol(),
                 item.recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy(context)
             )
 
             rbLabel.text = if (item.recurringBuy.state == RecurringBuyState.ACTIVE) {
                 context.getString(
-                    R.string.dashboard_recurring_buy_item_label, item.recurringBuy.nextPaymentDate.toFormattedDate()
+                    R.string.dashboard_recurring_buy_item_label,
+                    item.recurringBuy.nextPaymentDate.toFormattedDateWithoutYear()
                 )
             } else {
                 // TODO verify state with BE in next story

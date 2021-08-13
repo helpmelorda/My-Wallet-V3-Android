@@ -1,7 +1,6 @@
 package com.blockchain.nabu.datamanagers.custodialwalletimpl
 
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.Bank
@@ -31,8 +30,8 @@ import com.blockchain.nabu.datamanagers.PartnerCredentials
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
-import com.blockchain.nabu.datamanagers.RecurringBuyTransaction
 import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
 import com.blockchain.nabu.datamanagers.TransactionErrorMapper
 import com.blockchain.nabu.datamanagers.TransactionState
@@ -42,7 +41,6 @@ import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.featureflags.BankLinkingEnabledProvider
 import com.blockchain.nabu.datamanagers.featureflags.Feature
 import com.blockchain.nabu.datamanagers.featureflags.FeatureEligibility
-import com.blockchain.nabu.datamanagers.repositories.CustodialAssetWalletsBalancesRepository
 import com.blockchain.nabu.datamanagers.repositories.RecurringBuyRepository
 import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
@@ -93,7 +91,6 @@ import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
 import com.blockchain.nabu.models.responses.simplebuy.toRecurringBuy
 import com.blockchain.nabu.models.responses.simplebuy.toRecurringBuyOrder
-import com.blockchain.nabu.models.responses.simplebuy.toRecurringBuyTransaction
 import com.blockchain.nabu.models.responses.swap.CreateOrderRequest
 import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
@@ -127,7 +124,7 @@ class LiveCustodialWalletManager(
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val paymentAccountMapperMappers: Map<String, PaymentAccountMapper>,
     private val kycFeatureEligibility: FeatureEligibility,
-    private val assetBalancesRepository: CustodialAssetWalletsBalancesRepository,
+    private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val interestRepository: InterestRepository,
     private val currencyPrefs: CurrencyPrefs,
     private val custodialRepository: CustodialRepository,
@@ -135,8 +132,7 @@ class LiveCustodialWalletManager(
     private val sddFeatureFlag: FeatureFlag,
     private val bankLinkingEnabledProvider: BankLinkingEnabledProvider,
     private val transactionErrorMapper: TransactionErrorMapper,
-    private val recurringBuysRepository: RecurringBuyRepository,
-    private val features: InternalFeatureFlagApi
+    private val recurringBuysRepository: RecurringBuyRepository
 ) : CustodialWalletManager {
 
     override val defaultFiatCurrency: String
@@ -452,15 +448,6 @@ class LiveCustodialWalletManager(
             bank.remove(it)
         }
 
-    override fun getTotalBalanceForAsset(asset: AssetInfo): Maybe<CryptoValue> =
-        assetBalancesRepository.getTotalBalanceForAsset(asset)
-
-    override fun getActionableBalanceForAsset(asset: AssetInfo): Maybe<CryptoValue> =
-        assetBalancesRepository.getActionableBalanceForAsset(asset)
-
-    override fun getPendingBalanceForAsset(asset: AssetInfo): Maybe<CryptoValue> =
-        assetBalancesRepository.getPendingBalanceForAsset(asset)
-
     override fun transferFundsToWallet(amount: CryptoValue, walletAddress: String): Single<String> =
         authenticator.authenticate {
             nabuService.transferFunds(
@@ -593,7 +580,7 @@ class LiveCustodialWalletManager(
     private fun paymentMethods(fiatCurrency: String, onlyEligible: Boolean, fetchSdddLimits: Boolean = false) =
         authenticator.authenticate {
             Single.zip(
-                assetBalancesRepository.getFiatTotalBalanceForAsset(fiatCurrency)
+                tradingBalanceDataManager.getFiatTotalBalanceForAsset(fiatCurrency)
                     .map { balance -> CustodialFiatBalance(fiatCurrency, true, balance) }
                     .defaultIfEmpty(CustodialFiatBalance(fiatCurrency, false, null)),
                 nabuService.getCards(it).onErrorReturn { emptyList() },
@@ -711,32 +698,22 @@ class LiveCustodialWalletManager(
     override fun getRecurringBuyEligibility() = recurringBuysRepository.getRecurringBuyEligibleMethods()
 
     override fun getRecurringBuysForAsset(assetTicker: String): Single<List<RecurringBuy>> =
-        if (features.isFeatureEnabled(GatedFeature.RECURRING_BUYS)) {
-            authenticator.authenticate { sessionToken ->
-                nabuService.getRecurringBuysForAsset(sessionToken, assetTicker).map { list ->
-                    list.mapNotNull {
-                        it.toRecurringBuy(assetCatalogue)
-                    }
+        authenticator.authenticate { sessionToken ->
+            nabuService.getRecurringBuysForAsset(sessionToken, assetTicker).map { list ->
+                list.mapNotNull {
+                    it.toRecurringBuy(assetCatalogue)
                 }
             }
-        } else {
-            Single.just(emptyList())
         }
 
-    override fun getRecurringBuyOrders(): Single<List<RecurringBuyTransaction>> =
-        if (features.isFeatureEnabled(GatedFeature.RECURRING_BUYS)) {
-            authenticator.authenticate { sessionToken ->
-                nabuService.getRecurringBuysTransactions(
-                    sessionToken
-                ).map { list ->
-                    list.map {
-                        it.toRecurringBuyTransaction(assetCatalogue)
-                    }
+    override fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy> {
+        return authenticator.authenticate { sessionToken ->
+            nabuService.getRecurringBuyForId(sessionToken, recurringBuyId)
+                .map {
+                    it.first().toRecurringBuy(assetCatalogue)
                 }
-            }
-        } else {
-            Single.just(emptyList())
         }
+    }
 
     override fun cancelRecurringBuy(id: String): Completable =
         authenticator.authenticateCompletable { sessionToken ->
@@ -1231,7 +1208,7 @@ class LiveCustodialWalletManager(
                     amount = amount.toBigInteger().toString(),
                     currency = amount.currencyCode,
                     origin = origin.toRequestString(),
-                    destination = destination.name
+                    destination = destination.toRequestString()
                 )
             ).doOnComplete {
                 interestRepository.clearBalanceForAsset(amount.currencyCode)
@@ -1519,27 +1496,32 @@ enum class CardStatus {
 }
 
 private fun BuySellOrderResponse.type() =
-    when (side) {
-        "BUY" -> OrderType.BUY
-        "SELL" -> OrderType.SELL
+    when {
+        side == "BUY" && this.recurringBuyId != null -> OrderType.RECURRING_BUY
+        side == "BUY" -> OrderType.BUY
+        side == "SELL" -> OrderType.SELL
         else -> throw IllegalStateException("Unsupported order type")
     }
 
 enum class OrderType {
     BUY,
-    SELL
+    SELL,
+    RECURRING_BUY
 }
 
 private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue): BuySellOrder {
-    val fiatCurrency = if (type() == OrderType.BUY) inputCurrency else outputCurrency
+    val fiatCurrency = if (type() == OrderType.SELL) outputCurrency else inputCurrency
     val cryptoCurrency =
-        assetCatalogue.fromNetworkTicker(if (type() == OrderType.BUY) outputCurrency else inputCurrency)
-            ?: throw UnknownFormatConversionException("Unknown Crypto currency: $inputCurrency")
-    val fiatAmount =
-        if (type() == OrderType.BUY) inputQuantity.toLongOrDefault(0) else outputQuantity.toLongOrDefault(0)
-
+        assetCatalogue.fromNetworkTicker(
+            if (type() == OrderType.SELL) inputCurrency else outputCurrency
+        ) ?: throw UnknownFormatConversionException("Unknown Crypto currency: $inputCurrency")
+    val fiatAmount = if (type() == OrderType.SELL) {
+        outputQuantity.toLongOrDefault(0)
+    } else {
+        inputQuantity.toLongOrDefault(0)
+    }
     val cryptoAmount =
-        (if (type() == OrderType.BUY) outputQuantity.toBigInteger() else inputQuantity.toBigInteger())
+        if (type() == OrderType.SELL) inputQuantity.toBigInteger() else outputQuantity.toBigInteger()
 
     return BuySellOrder(
         id = id,
@@ -1570,9 +1552,24 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
         attributes = attributes,
         type = type(),
         depositPaymentId = depositPaymentId.orEmpty(),
-        approvalErrorStatus = attributes?.status?.toApprovalError() ?: ApprovalErrorStatus.NONE
+        approvalErrorStatus = attributes?.status?.toApprovalError() ?: ApprovalErrorStatus.NONE,
+        failureReason = failureReason?.toRecurringBuyError(),
+        recurringBuyId = recurringBuyId
     )
 }
+
+fun String.toRecurringBuyError() =
+    when (this) {
+        BuySellOrderResponse.FAILED_INSUFFICIENT_FUNDS ->
+            RecurringBuyFailureReason.INSUFFICIENT_FUNDS
+        BuySellOrderResponse.FAILED_INTERNAL_ERROR ->
+            RecurringBuyFailureReason.INTERNAL_SERVER_ERROR
+        BuySellOrderResponse.FAILED_BENEFICIARY_BLOCKED ->
+            RecurringBuyFailureReason.BLOCKED_BENEFICIARY_ID
+        BuySellOrderResponse.FAILED_BAD_FILL ->
+            RecurringBuyFailureReason.FAILED_BAD_FILL
+        else -> RecurringBuyFailureReason.UNKNOWN
+    }
 
 private fun String.toApprovalError(): ApprovalErrorStatus =
     when (this) {

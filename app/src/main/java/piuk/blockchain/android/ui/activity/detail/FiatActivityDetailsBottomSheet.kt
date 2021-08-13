@@ -12,7 +12,7 @@ import com.blockchain.utils.toFormattedString
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.FiatActivitySummaryItem
 import piuk.blockchain.android.databinding.DialogSheetActivityDetailsBinding
-import piuk.blockchain.android.repositories.AssetActivityRepository
+import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.ui.activity.detail.adapter.FiatDetailsSheetAdapter
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor

@@ -2,13 +2,14 @@ package piuk.blockchain.android.coincore.impl.txEngine.interest
 
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.CryptoAccount
+import piuk.blockchain.android.coincore.CryptoTarget
 import piuk.blockchain.android.coincore.FeeLevel
 import piuk.blockchain.android.coincore.FeeSelection
 import piuk.blockchain.android.coincore.InterestAccount
@@ -18,6 +19,8 @@ import piuk.blockchain.android.coincore.TxConfirmationValue
 import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.TxValidationFailure
 import piuk.blockchain.android.coincore.ValidationState
+import piuk.blockchain.android.coincore.toCrypto
+import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.coincore.updateTxValidity
 
 class InterestWithdrawOnChainTxEngine(
@@ -35,23 +38,23 @@ class InterestWithdrawOnChainTxEngine(
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =
-        Singles.zip(
+        Single.zip(
             walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAsset, Product.SAVINGS),
             walletManager.getInterestLimits(sourceAsset).toSingle(),
-            availableBalance
-        ).map { (minLimits, maxLimits, balance) ->
-            PendingTx(
-                amount = CryptoValue.zero(sourceAsset),
-                minLimit = CryptoValue.fromMinor(sourceAsset, minLimits.minLimit),
-                maxLimit = maxLimits.maxWithdrawalAmount,
-                feeSelection = FeeSelection(),
-                selectedFiat = userFiat,
-                availableBalance = balance,
-                totalBalance = balance,
-                feeAmount = CryptoValue.fromMinor(sourceAsset, minLimits.fee),
-                feeForFullAvailable = CryptoValue.zero(sourceAsset)
-            )
-        }
+            availableBalance,
+            { minLimits, maxLimits, balance ->
+                PendingTx(
+                    amount = CryptoValue.zero(sourceAsset),
+                    minLimit = CryptoValue.fromMinor(sourceAsset, minLimits.minLimit),
+                    maxLimit = maxLimits.maxWithdrawalFiatValue.toCrypto(exchangeRates, sourceAsset),
+                    feeSelection = FeeSelection(),
+                    selectedFiat = userFiat,
+                    availableBalance = balance,
+                    totalBalance = balance,
+                    feeAmount = CryptoValue.fromMinor(sourceAsset, minLimits.fee),
+                    feeForFullAvailable = CryptoValue.zero(sourceAsset)
+                )
+            })
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> =
         availableBalance.map { balance ->
@@ -95,15 +98,22 @@ class InterestWithdrawOnChainTxEngine(
                     ),
                     TxConfirmationValue.NetworkFee(
                         pendingTx.feeAmount,
-                        pendingTx.feeAmount.toFiat(exchangeRates, userFiat),
+                        pendingTx.feeAmount.toUserFiat(exchangeRates),
                         sourceAsset
                     ),
+                    (txTarget as? CryptoTarget)?.memo?.let {
+                        TxConfirmationValue.Memo(
+                            text = it,
+                            id = null,
+                            editable = false
+                        )
+                    },
                     TxConfirmationValue.Total(
                         totalWithFee = (pendingTx.amount as CryptoValue).plus(
                             pendingTx.feeAmount as CryptoValue
                         ),
-                        exchange = pendingTx.amount.toFiat(exchangeRates, userFiat)
-                            .plus(pendingTx.feeAmount.toFiat(exchangeRates, userFiat))
+                        exchange = pendingTx.amount.toUserFiat(exchangeRates)
+                            .plus(pendingTx.feeAmount.toUserFiat(exchangeRates))
                     )
                 )
             )
@@ -113,9 +123,29 @@ class InterestWithdrawOnChainTxEngine(
         doValidateAmount(pendingTx)
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
-        (txTarget as CryptoAccount).receiveAddress.flatMap {
-            walletManager.startInterestWithdrawal(sourceAsset, pendingTx.amount, it.address).toSingle {
-                TxResult.UnHashedTxResult(pendingTx.amount)
+        (txTarget as CryptoAccount).receiveAddress.flatMapCompletable { receiveAddress ->
+            (txTarget as? CryptoTarget)?.memo?.let {
+                executeWithdrawal(
+                    sourceAsset, pendingTx.amount, receiveAddress.address, it
+                )
+            } ?: kotlin.run {
+                executeWithdrawal(sourceAsset, pendingTx.amount, receiveAddress.address)
             }
+        }.toSingle {
+            TxResult.UnHashedTxResult(pendingTx.amount)
         }
+
+    private fun executeWithdrawal(
+        sourceAsset: AssetInfo,
+        amount: Money,
+        receiveAddress: String,
+        memo: String? = null
+    ) = walletManager.startInterestWithdrawal(
+        sourceAsset, amount, addMemoIfNeeded(receiveAddress, memo)
+    )
+
+    private fun addMemoIfNeeded(receiveAddress: String, memo: String?) =
+        receiveAddress + (memo?.let {
+            ":$it"
+        } ?: "")
 }

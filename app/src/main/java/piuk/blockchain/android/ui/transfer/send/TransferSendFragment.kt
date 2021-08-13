@@ -92,7 +92,7 @@ class TransferSendFragment : AccountSelectorFragment(), DialogFlow.FlowHost {
     }
 
     override fun onFlowFinished() {
-        refreshItems()
+        refreshItems(showLoader = false)
     }
 
     companion object {

@@ -14,6 +14,10 @@
         <item>décima primeira palavra</item>
         <item>décima segunda palavra</item>
     </string-array>
+    <string-array name="xlm_memo_types_manual">
+        <item>Texto de memorando</item>
+        <item>ID da nota</item>
+    </string-array>
     <string name="backup_wallet">Fundos de backup</string>
     <string name="action_settings">Configurações</string>
     <string name="please_wait">Aguarde</string>
@@ -109,6 +113,7 @@
     <string name="creating_wallet">A criar carteira</string>
     <string name="restore_failed">Falha ao restaurar a carteira. Tente novamente</string>
     <string name="restoring_wallet">A restaurar a carteira.</string>
+    <string name="login_password_hint">Senha</string>
     <string name="kyc_email_hint_unfocused">O seu e-mail</string>
     <string name="you_agree_terms_of_service">Ao criar uma conta, o utilizador concorda com os <annotation link="terms">Termos de Serviço</annotation> e a <annotation link="privacy">Política de Privacidade</annotation> da Blockchain.</string>
     <string name="new_account_cta_text">Continuar</string>
@@ -121,6 +126,7 @@
     <string name="btn_forgot_password">Esqueceu-se da palavra-passe?\"</string>
     <string name="SEND">Enviar</string>
     <string name="bitpay_remaining_time">Tempo restante</string>
+    <string name="confirm_status_msg_invoice_expired">Fatura BitPay expirada</string>
     <string name="bitpay_announcement_body">Com o BitPay, agora você pode usar sua carteira Blockchain para compras com varejistas de suporte.</string>
     <string name="transaction_failed">Falha na transação</string>
     <string name="enter_double_encryption_pw">Introduza a palavra-passe de encriptação dupla</string>
@@ -139,6 +145,7 @@ Todos os direitos reservados.</string>
     </string>
     <string name="weak_password">A palavra-passe selecionada é demasiado fraca para garantir os seus fundos. Defina uma palavra-passe diferente.</string>
     <string name="confirm_details">Confirme o pagamento</string>
+    <string name="activity_details_fee">Taxa</string>
     <string name="exit_confirm">Prima novamente o botão de retrocesso para sair</string>
     <string name="label_address">O seu endereço foi importado com êxito. Opcionalmente, atribua um
         nome de exibição amigável para este endereço.
@@ -250,6 +257,7 @@ Todos os direitos reservados.</string>
         arquivado.
     </string>
     <string name="extended_public_key">Chave pública estendida</string>
+    <string name="kyc_address_address_first_line_hint">Endereço</string>
     <string name="copy_xpub">Copiar xpub</string>
     <string name="scan_this_code">O seu xPub é uma funcionalidade avançada que contém todos os seus endereços
         públicos.
@@ -588,6 +596,7 @@ Euros/Dólares</string>
     <string name="the_exchange_loading_dialog_description">Uma nova janela deve abrir dentro de 10 segundos.</string>
     <string name="the_exchange_verify_email_title">Verifique o seu e-mail</string>
     <string name="the_exchange_verify_email_description">Acabámos de enviar-lhe um e-mail de verificação. O seu endereço de e-mail tem de ser verificado antes de se poder ligar ao Exchange.</string>
+    <string name="open_email_cta">Abrir aplicativo de email</string>
     <string name="the_exchange_did_not_get_email">Não recebeu o e-mail?</string>
     <string name="the_exchange_send_again">Envie novamente</string>
     <string name="mail_resent_succeed">E-mail enviado. Verifique a sua caixa de entrada para continuar.</string>
@@ -746,6 +755,7 @@ Escreva estas 12 palavras por ordem e mantenha-as num lugar seguro. Nunca as par
     <string name="kyc_complete_home_address">Morada residencial adicionada</string>
     <string name="kyc_complete_id_uploaded">ID carregado</string>
     <string name="kyc_complete_video_uploaded">Vídeo carregado</string>
+    <string name="kyc_help_dialog_need_some_help">Precisa de alguma ajuda?</string>
     <string name="kyc_help_dialog_need_some_help_body">A nossa Equipa de Assistência da Blockchain escreveu Guias de Ajuda a explicar porque precisamos de verificar a sua identidade.</string>
     <string name="kyc_help_dialog_read_now">Leia agora</string>
     <string name="kyc_help_dialog_read_now_url">https://blockchain.zendesk.com/hc/en-us/categories/360001135512-Identity-Verification</string>
@@ -816,6 +826,7 @@ Escreva estas 12 palavras por ordem e mantenha-as num lugar seguro. Nunca as par
     <string name="start_arrow">seta de início</string>
     <string name="approved">Aprovado!</string>
     <string name="in_review">Em revisão</string>
+    <string name="send_enter_amount_available">Disponível</string>
     <string name="swap_limit">O seu Limite de Troca é o montante máximo de criptomoedas que pode negociar</string>
     <string name="swap_unavailable">Troca indisponível neste momento</string>
     <string name="swap_unavailable_explained">Tivemos dificuldade em verificar a sua identidade. A sua funcionalidade Swap foi desativada neste momento.</string>
@@ -880,6 +891,7 @@ Escreva estas 12 palavras por ordem e mantenha-as num lugar seguro. Nunca as par
 Ao depositar fundos nesta conta, concorda com os <annotation link="modular_terms_and_conditions">Termos e Condições da Modulr</annotation>, o nosso parceiro bancário.</string>
     <string name="recipient_name_must_match">Envie apenas fundos de uma conta bancária em seu nome. Caso contrário, o seu depósito poderá ser atrasado ou rejeitado.</string>
     <string name="are_ypu_sure">Tem a certeza?</string>
+    <string name="cancel_order_do_cancel">Cancelar pedido</string>
     <string name="cancel_order_go_back">Voltar</string>
     <string name="cancel_order_do_cancel_dashboard">Sim, cancelar</string>
     <string name="cancel_order_go_back_dashboard">Não, manter o pedido</string>
@@ -923,6 +935,7 @@ Ao depositar fundos nesta conta, concorda com os <annotation link="modular_terms
     <string name="activity_state_refunded">Devolveu</string>
     <string name="common_save">Salve </string>
     <string name="send_scan_qr_code">Escanear código QR</string>
+    <string name="search">Pesquisa</string>
     <string name="send_again">Enviar novamente</string>
     <string name="checkout_item_send_to">Enviar para</string>
     <string name="recurring_buy_details_total_cost">Custo total</string>
@@ -1023,8 +1036,6 @@ Ao depositar fundos nesta conta, concorda com os <annotation link="modular_terms
     <string name="expired">Expirado</string>
     <string name="save_my_card">Guardar o meu cartão</string>
     <string name="activity_details_label_waiting_on_funds">À espera de fundos</string>
-    <string name="common_hyphenated_strings">%1$s - %2$s</string>
-    <string name="common_spaced_strings">%1$s %2$s</string>
     <string name="server_unreachable_exit">Não foi possível ligar ao servidor, tente novamente mais tarde.</string>
     <string name="dashboard_asset_balance_interest">Ganhe %1$.1f%% APY</string>
     <string name="default_label_interest_wallet">Carteira de Juros</string>
@@ -1145,7 +1156,6 @@ Ao depositar fundos nesta conta, concorda com os <annotation link="modular_terms
     <string name="common_deposit">Depósito</string>
     <string name="common_transfer">Transferir</string>
     <string name="common_error">Alguma coisa deu errado. Por favor tente outra vez</string>
-    <string name="common_company_name">Blockchain.com</string>
     <string name="toolbar_cmd_transfer">Transferir</string>
     <string name="notification_2fa_summary">Notificações 2FA</string>
     <string name="notification_2fa_description">Notificações relacionadas à autenticação de dois fatores</string>
@@ -1208,6 +1218,7 @@ se disponível. Isso permite que restaure a sua carteira e perder este dispositi
     <string name="send_enter_amount_error_insufficient_funds">Não há %1$s suficientes na sua carteira.</string>
     <string name="send_enter_amount_error_invalid_amount">Enviar 0,000 00001 %1$s ou mais</string>
     <string name="send_enter_invalid_password">A palavra-passe é incorreta.</string>
+    <string name="confirm_status_msg_unexpected_error">Ocorreu um erro inesperado. Por favor, tente novamente.</string>
     <string name="send_enter_insufficient_gas">Não tem ETH suficiente para processar esta transação.</string>
     <string name="send_select_a_wallet_title">ou selecione uma carteira</string>
     <string name="send_internal_transfer_message">Neste momento, só pode transferir %1$s da sua Carteira de Negociação %2$s para as suas Carteiras %2$s. Quando %1$s estiver na sua Carteira %2$s, pode transferir para endereços externos.</string>
@@ -1342,7 +1353,6 @@ Verifique a sua ligação à Internet e tente novamente ou contacte o Apoio ao C
     <string name="confirm_status_msg_insufficient_funds">Não tem fundos suficientes nesta conta para processar esta transação</string>
     <string name="confirm_status_msg_insufficient_gas">@string/send_enter_insufficient_gas</string>
     <string name="confirm_status_msg_option_invalid">Certifique-se de concordar com os nossos Termos.</string>
-    <string name="common_replaceable_value">%1$s</string>
     <string name="common_free">Gratuito</string>
     <string name="two_fa_new_request">A pedir novo código...</string>
     <string name="transfer_funds_title">Transferir do endereço importado?</string>
@@ -1444,7 +1454,6 @@ Troque crypto com a sua Carteira de Negociação.</string>
     <string name="qr_activity_hint_import_wallet">Ler uma chave privada de carteira</string>
     <string name="qr_activity_hint_pairing_code">Ler um código QR de emparelhamento na web</string>
     <string name="qr_activity_hint_new_web_login">Iniciar sessão na web</string>
-    <string name="common_zero">0</string>
     <string name="common_retry">Tentar novamente</string>
     <string name="strength_hint">Utilize pelo menos 8 carateres, uma mistura de letras, números e símbolos.</string>
     <string name="content_desc_enter_amount">Introduzir Montante</string>
@@ -1554,8 +1563,6 @@ Nota: não poderá Enviar ou Levantar estes fundos da sua Carteira durante os pr
     <string name="backup_instructions_2">Então, deve:</string>
     <string name="backup_button_begin">Ver frase de recuperação</string>
     <string name="backup_instructions_warn">Aviso: se alguém tiver a sua frase de segurança, essa pessoa terá acesso à sua Carteira de Chaves Privadas e poderá levantar fundos.</string>
-    <string name="common_newlined_strings">%1$s
-%2$s</string>
     <string name="backup_wallet_title">Recuperação da Chave Privada Secreta</string>
     <string name="pin_max_strikes">%1$d tentativas de PIN falhadas. Indique a palavra-passe.</string>
     <string name="recovery_passphrase_1">Frase de Recuperação de Chave Privada Secreta</string>
@@ -1692,6 +1699,7 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="sb_checkout_pending_order_title">Ordem em progresso</string>
     <string name="sb_checkout_pending_order_blurb">Ups, parece que já tem uma ordem de compra em progresso, espere até estar completa antes de comprar novamente.</string>
     <string name="wallet_outage_message">Estamos a experienciar uma interrupção. Fique descansado que os seus fundos estão seguros. <annotation link="learn_more">Saiba mais</annotation></string>
+    <string name="wallet_issue_message">Há um alerta em nossa página de status. Todas as funcionalidades do portfólio podem não estar disponíveis. Fique descansado que os seus fundos estão seguros.<annotation link="learn_more"> Saiba mais →</annotation></string>
     <string name="increase_your_limits">Aumente os seus limites</string>
     <string name="increase_your_limits_body">Continue a sua verificação para se tornar o nível Gold e aumente os seus limites e métodos de pagamento.</string>
     <string name="continue_to_gold">Continue para Gold</string>
@@ -2017,4 +2025,78 @@ Os seus %1$s estarão disponíveis na sua conta \"%2$s\" no prazo de 2 dias.</st
     <string name="recurring_buy_limits_exceed_error">A sua conta excedeu os seus limites de negociação. <annotation link="contact_support_link">Contacte a assistência</annotation> para obter mais informações.</string>
     <string name="recurring_buy_generic_error">Ocorreu um erro com a sua compra. <annotation link="contact_support_link">Entre em contacto com a assistência</annotation> para obter mais informações.</string>
     <string name="fee_calculated_at_checkout">Calculado na finalização de compra</string>
+    <string name="common_remove">Remover</string>
+    <string name="common_parametrised_confirm">Confirmar %1$s</string>
+    <string name="common_search">Pesquisa</string>
+    <string name="password">Palavra-passe</string>
+    <string name="email">O seu e-mail</string>
+    <string name="sign_up_email">E-mail</string>
+    <string name="password_disclaimer_1">Compreendo que a Blockchain.com nunca armazena palavras-passe e, portanto, não pode recuperar ou repor a minha palavra-passe. Se eu perder o acesso à minha carteira, devo utilizar a minha <annotation link="backup">Frase Secreta de Recuperação de Chave Privada</annotation> para aceder aos meus fundos. Ao criar uma conta, concorda com os <annotation link="terms">Termos de Serviço</annotation> e <annotation link="privacy">Política de Privacidade</annotation> da Blockchain.</string>
+    <string name="new_account_title_1">Nova conta</string>
+    <string name="create_wallet_state">Estado</string>
+    <string name="create_wallet_country">País de residência</string>
+    <string name="bitpay_invoice_expired">Fatura BitPay expirada</string>
+    <string name="fee">Taxa</string>
+    <string name="address">Endereço</string>
+    <string name="amount">Montante</string>
+    <string name="the_exchange_open_email_app">Abrir aplicação de e-mail</string>
+    <string name="pax_renamed_card_title">USD Digital é agora Paxos Standard</string>
+    <string name="pax_renamed_card_body">Atualizámos o nome de USD Digital (USD-D) para Paxos Standard (PAX). Quaisquer fundos detidos não são afetados.</string>
+    <string name="airdrop_received_sheet_amount_label">Montante</string>
+    <string name="kyc_email_hint_focused">O seu e-mail</string>
+    <string name="available">Disponível</string>
+    <string name="need_some_help">Precisa de alguma ajuda?</string>
+    <string name="xlm_memo_text">Texto de memorando</string>
+    <string name="xlm_memo_id">ID do memorando</string>
+    <string name="cancel_order">Cancelar ordem</string>
+    <string name="activity_details_title_received">Receber</string>
+    <string name="activity_details_label_cancelled">Cancelado</string>
+    <string name="activity_details_buy_fee">Taxa</string>
+    <string name="custodial_only_asset_label">A funcionalidade para levantar %1$s da sua conta de negociação não está disponível neste momento, mas estará em breve.</string>
+    <string name="enter_amount_not_enough_balance">Saldo insuficiente para taxa</string>
+    <string name="send_enter_unexpected_error">Ocorreu um erro inesperado. Tente novamente.</string>
+    <string name="scan_no_available_account">Não há contas de origem financiadas disponíveis para enviar %1$s</string>
+    <string name="confirm_status_memo_invalid">Adicione um memorando.</string>
+    <string name="receive">Receber</string>
+    <string name="restore_wallet_cta">Restaurar Wallet</string>
+    <string name="recurring_buy_cta_1">Iniciar</string>
+    <string name="recurring_buy_title_1_1">Em vez de cronometrar o mercado, muitos investidores inteligentes utilizam</string>
+    <string name="recurring_buy_title_1_2">
+Média do custo em dólares</string>
+    <string name="recurring_buy_title_2_1">A estratégia é bastante simples</string>
+    <string name="recurring_buy_title_2_2">
+Invista a mesma quantia todas as semanas.</string>
+    <string name="recurring_buy_title_3_1">Quando o preço desce,</string>
+    <string name="recurring_buy_title_3_2">
+Comprará mais criptomoeda.</string>
+    <string name="recurring_buy_title_4_1">Quando o preço sobe.</string>
+    <string name="recurring_buy_title_4_2">
+Comprará menos criptomoeda.</string>
+    <string name="recurring_buy_title_5_1">Mas isso funciona?
+Nos últimos 5 anos, comprar Bitcoin todas as semanas teve um desempenho melhor do que cronometrar o mercado</string>
+    <string name="recurring_buy_title_5_2">
+86% das vezes.</string>
+    <string name="recurring_buy_note">O cálculo é baseado numa compra de 30 dólares por semana num dia aleatório. \"Timing the market\" é definido como a compra de Bitcoin em cada descida de 6%.
+<annotation link="learn_more">Saiba mais -></annotation></string>
+    <string name="recurring_buy_daily_1">Todos os dias</string>
+    <string name="recurring_buy_daily_selector">Diariamente</string>
+    <string name="recurring_buy_weekly_1">Uma vez por semana</string>
+    <string name="recurring_buy_weekly_selector">Semanalmente</string>
+    <string name="recurring_buy_bi_weekly_1">Duas vezes por mês</string>
+    <string name="recurring_buy_monthly_1">Uma vez por mês</string>
+    <string name="recurring_buy_monthly_selector">Mensalmente</string>
+    <string name="recurring_buy_frequency_label_1">Frequência</string>
+    <string name="recurring_buy_frequency_subtitle_biweekly">A cada outro %s</string>
+    <string name="recurring_buy_sheet_title_1">Compra recorrente</string>
+    <string name="recurring_buy_header">%1$s de %2$s</string>
+    <string name="recurring_buy_info_purchase_label_1">Próxima compra</string>
+    <string name="recurring_buy_details_fee">Taxa</string>
+    <string name="recurring_buy_insufficient_funds_error_1">O saldo do seu método de pagamento é demasiado baixo. Adicione mais dinheiro agora.</string>
+    <string name="recurring_buy_on_boarding_header">Defina uma Compra Recorrente fácil e automática para todos os dias, semanas ou meses. Aproveite o poder da Média de Custo em Dólares.</string>
+    <string name="recurring_buy_set_up_title">Configurar uma compra recorrente</string>
+    <string name="recurring_buy_first_time_toolbar">Compra recorrente</string>
+    <string name="recurring_buy_first_time_title">Comprar %1$s de %2$s</string>
+    <string name="recurring_buy_first_time_success_title">Compra recorrente iniciada!</string>
+    <string name="recurring_buy_first_time_info">Compre %1$s de %2$s todos os dias, semanas ou meses com uma Compra Recorrente. Não há necessidade de cronometrar o mercado.</string>
+    <string name="recurring_buy_first_time_success_subtitle">Compraremos %1$s de %2$s %3$s ao preço de mercado desse momento. Cancele esta compra recorrente em qualquer altura.</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.blockchain.koin
 
+import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.CreateNabuToken
 import com.blockchain.nabu.NabuToken
@@ -7,8 +8,6 @@ import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.datamanagers.AnalyticsNabuUserReporterImpl
 import com.blockchain.nabu.datamanagers.AnalyticsWalletReporter
-import com.blockchain.nabu.datamanagers.BalanceProviderImpl
-import com.blockchain.nabu.datamanagers.BalancesProvider
 import com.blockchain.nabu.datamanagers.CreateNabuTokenAdapter
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuAuthenticator
@@ -34,7 +33,6 @@ import com.blockchain.nabu.datamanagers.featureflags.BankLinkingEnabledProvider
 import com.blockchain.nabu.datamanagers.featureflags.BankLinkingEnabledProviderImpl
 import com.blockchain.nabu.datamanagers.featureflags.FeatureEligibility
 import com.blockchain.nabu.datamanagers.featureflags.KycFeatureEligibility
-import com.blockchain.nabu.datamanagers.repositories.CustodialAssetWalletsBalancesRepository
 import com.blockchain.nabu.datamanagers.repositories.NabuUserRepository
 import com.blockchain.nabu.datamanagers.repositories.QuotesProvider
 import com.blockchain.nabu.datamanagers.repositories.RecurringBuyEligibilityProvider
@@ -117,14 +115,13 @@ val nabuModule = module {
                 achDepositWithdrawFeatureFlag = get(achDepositWithdrawFeatureFlag),
                 sddFeatureFlag = get(sddFeatureFlag),
                 kycFeatureEligibility = get(),
-                assetBalancesRepository = get(),
+                tradingBalanceDataManager = get(),
                 interestRepository = get(),
                 custodialRepository = get(),
                 bankLinkingEnabledProvider = get(),
                 transactionErrorMapper = get(),
                 currencyPrefs = get(),
-                recurringBuysRepository = get(),
-                features = get()
+                recurringBuysRepository = get()
             )
         }.bind(CustodialWalletManager::class)
 
@@ -151,8 +148,7 @@ val nabuModule = module {
                 assetCatalogue = get(),
                 nabuService = get(),
                 authenticator = get(),
-                currencyPrefs = get(),
-                exchangeRates = get()
+                currencyPrefs = get()
             )
         }.bind(InterestLimitsProvider::class)
 
@@ -181,13 +177,6 @@ val nabuModule = module {
         }.bind(InterestBalancesProvider::class)
 
         factory {
-            BalanceProviderImpl(
-                balanceService = get(),
-                authenticator = get()
-            )
-        }.bind(BalancesProvider::class)
-
-        factory {
             TradingPairsProviderImpl(
                 assetCatalogue = get(),
                 nabuService = get(),
@@ -199,17 +188,14 @@ val nabuModule = module {
             SwapActivityProviderImpl(
                 assetCatalogue = get(),
                 nabuService = get(),
-                authenticator = get(),
-                currencyPrefs = get(),
-                exchangeRates = get()
+                authenticator = get()
             )
         }.bind(SwapActivityProvider::class)
 
         factory {
             RecurringBuyEligibilityProviderImpl(
                 nabuService = get(),
-                authenticator = get(),
-                features = get()
+                authenticator = get()
             )
         }.bind(RecurringBuyEligibilityProvider::class)
 
@@ -234,10 +220,6 @@ val nabuModule = module {
             AnalyticsWalletReporter(userAnalytics = get())
         }.bind(WalletReporter::class)
 
-        factory {
-            get<Retrofit>(nabu).create(Nabu::class.java)
-        }
-
         factory { NabuTierService(get(), get()) }
             .bind(TierService::class)
             .bind(TierUpdater::class)
@@ -260,10 +242,6 @@ val nabuModule = module {
             NabuUserRepository(
                 nabuDataUserProvider = get()
             )
-        }
-
-        scoped {
-            CustodialAssetWalletsBalancesRepository(balancesProvider = get())
         }
 
         scoped {
@@ -305,7 +283,11 @@ val nabuModule = module {
     single { NabuSessionTokenStore() }
 
     single {
-        NabuService(get(nabu))
+        NabuService(get())
+    }
+
+    factory {
+        get<Retrofit>(nabu).create(Nabu::class.java)
     }
 
     single {
@@ -359,6 +341,6 @@ val authenticationModule = module {
                 nabuDataManager = get(),
                 crashLogger = get()
             )
-        }.bind(Authenticator::class)
+        }.bind(Authenticator::class).bind(AuthHeaderProvider::class)
     }
 }

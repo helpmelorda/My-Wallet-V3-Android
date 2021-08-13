@@ -1,6 +1,8 @@
 package piuk.blockchain.android.coincore.eth
 
 import com.blockchain.annotations.CommonCode
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -24,8 +26,6 @@ import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.impl.CryptoAssetBase
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateService
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.android.coincore.impl.BackendNotificationUpdater
@@ -39,8 +39,8 @@ internal class EthAsset(
     private val feeDataManager: FeeDataManager,
     private val assetCatalogue: Lazy<AssetCatalogue>,
     custodialManager: CustodialWalletManager,
-    exchangeRates: ExchangeRateDataManager,
-    historicRates: ExchangeRateService,
+    tradingBalanceDataManager: TradingBalanceDataManager,
+    exchangeRates: ExchangeRatesDataManager,
     currencyPrefs: CurrencyPrefs,
     private val walletPrefs: WalletStatus,
     private val notificationUpdater: BackendNotificationUpdater,
@@ -52,10 +52,10 @@ internal class EthAsset(
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
-    historicRates,
     currencyPrefs,
     labels,
     custodialManager,
+    tradingBalanceDataManager,
     pitLinking,
     crashLogger,
     identity,
@@ -101,6 +101,7 @@ internal class EthAsset(
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
+                    tradingBalanceDataManager = tradingBalanceDataManager,
                     identity = identity,
                     features = features
                 )

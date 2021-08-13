@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.fragment.app.Fragment
 import com.blockchain.koin.scopedInject
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
@@ -15,13 +14,14 @@ import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.databinding.FragmentTransferAccountSelectorBinding
+import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.account.StatusDecorator
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
 
-abstract class AccountSelectorFragment : Fragment() {
+abstract class AccountSelectorFragment : ViewPagerFragment() {
 
     private var _binding: FragmentTransferAccountSelectorBinding? = null
     private val binding: FragmentTransferAccountSelectorBinding
@@ -60,6 +60,7 @@ abstract class AccountSelectorFragment : Fragment() {
 
         with(binding.accountSelectorAccountList) {
             this.onAccountSelected = onAccountSelected
+            this.activityIndicator = this@AccountSelectorFragment.activityIndicator
             initialise(
                 accounts(),
                 statusDecorator,
@@ -73,10 +74,12 @@ abstract class AccountSelectorFragment : Fragment() {
         _binding = null
     }
 
-    fun refreshItems() {
-        binding.accountSelectorAccountList.loadItems(
-            accounts()
-        )
+    override fun onResumeFragment() {
+        refreshItems(showLoader = false)
+    }
+
+    fun refreshItems(showLoader: Boolean = true) {
+        binding.accountSelectorAccountList.loadItems(accounts(), showLoader)
     }
 
     private fun accounts(): Single<List<BlockchainAccount>> =

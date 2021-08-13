@@ -3,6 +3,12 @@ apply plugin: 'kotlin'
 sourceCompatibility = Versions.javaCompatibilityVersion
 targetCompatibility = Versions.javaCompatibilityVersion
 
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = Versions.kotlinJvmTarget
+    }
+}
+
 dependencies {
     implementation project(':balance')
 
@@ -15,7 +21,6 @@ dependencies {
     implementation Libraries.moshi
     implementation Libraries.retrofitRxMoshiConverter
     implementation Libraries.retrofitRxJavaAdapter
-    implementation Libraries.mockWebServer
     implementation(Libraries.mockitoKotlin) {
         ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
     }

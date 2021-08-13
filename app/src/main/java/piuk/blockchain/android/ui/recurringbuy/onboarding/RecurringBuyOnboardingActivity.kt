@@ -1,17 +1,22 @@
 package piuk.blockchain.android.ui.recurringbuy.onboarding
 
+import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.blockchain.notifications.analytics.Analytics
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRecurringBuyOnBoardingBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.util.visibleIf
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class RecurringBuyOnboardingActivity : AppCompatActivity() {
 
@@ -19,7 +24,18 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
         ActivityRecurringBuyOnBoardingBinding.inflate(layoutInflater)
     }
 
-    val analytics: Analytics by inject()
+    private val analytics: Analytics by inject()
+    private val assetCatalogue: AssetCatalogue by inject()
+
+    private val fromCoinView: Boolean by unsafeLazy {
+        intent?.getBooleanExtra(ORIGIN_ON_BOARDING_RBS, true) ?: true
+    }
+
+    private val asset: AssetInfo? by unsafeLazy {
+        intent?.getStringExtra(ASSET)?.let {
+            assetCatalogue.fromNetworkTicker(it)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +48,13 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
         with(binding) {
             viewpager.adapter = recurringBuyOnBoardingPagerAdapter
             indicator.setViewPager(viewpager)
-            recurringBuyCta.setOnClickListener { goToRecurringSetUpScreen() }
+            recurringBuyCta.apply {
+                visibleIf { fromCoinView }
+                recurringBuyCta.setOnClickListener {
+                    goToRecurringSetUpScreen()
+                    finish()
+                }
+            }
             closeBtn.setOnClickListener { finish() }
         }
         setupViewPagerListener()
@@ -40,7 +62,7 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
 
     private fun showFullScreen() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.setDecorFitsSystemWindows(false)
+            window.setDecorFitsSystemWindows(true)
         } else {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
         }
@@ -58,14 +80,26 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
                 super.onPageSelected(position)
                 showHeader(position == 0)
                 analytics.logEvent(RecurringBuyAnalytics.RecurringBuyInfoViewed(position))
+                playLottieAnimationInterval(position)
             }
         })
+    }
+
+    private fun playLottieAnimationInterval(position: Int) {
+        val minFrames = FRAMES_PER_SCREEN.times(position)
+        val maxFrames = minFrames + FRAMES_PER_SCREEN
+        binding.lottieAnimation.apply {
+            setMinFrame(minFrames)
+            setMaxFrame(maxFrames)
+            playAnimation()
+        }
     }
 
     private fun goToRecurringSetUpScreen() {
         startActivity(
             SimpleBuyActivity.newInstance(
-                context = this
+                context = this,
+                asset = asset
             )
         )
     }
@@ -101,6 +135,20 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
             } else {
                 viewpager.currentItem = viewpager.currentItem - 1
             }
+        }
+    }
+
+    companion object {
+        private const val FRAMES_PER_SCREEN = 60
+        private const val ORIGIN_ON_BOARDING_RBS = "FROM_COINVIEW"
+        private const val ASSET = "ASSET"
+        fun newInstance(
+            context: Context,
+            fromCoinView: Boolean,
+            asset: AssetInfo? = null
+        ): Intent = Intent(context, RecurringBuyOnboardingActivity::class.java).apply {
+            putExtra(ORIGIN_ON_BOARDING_RBS, fromCoinView)
+            putExtra(ASSET, asset?.ticker)
         }
     }
 }

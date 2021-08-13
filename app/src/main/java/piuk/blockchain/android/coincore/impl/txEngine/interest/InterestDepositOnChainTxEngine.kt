@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine.interest
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -15,7 +16,7 @@ import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.ValidationState
 import piuk.blockchain.android.coincore.impl.CryptoNonCustodialAccount
 import piuk.blockchain.android.coincore.impl.txEngine.OnChainTxEngineBase
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
+import piuk.blockchain.android.coincore.toCrypto
 
 class InterestDepositOnChainTxEngine(
     private val walletManager: CustodialWalletManager,
@@ -38,7 +39,7 @@ class InterestDepositOnChainTxEngine(
     override fun start(
         sourceAccount: BlockchainAccount,
         txTarget: TransactionTarget,
-        exchangeRates: ExchangeRateDataManager,
+        exchangeRates: ExchangeRatesDataManager,
         refreshTrigger: RefreshTrigger
     ) {
         super.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)
@@ -50,8 +51,9 @@ class InterestDepositOnChainTxEngine(
             .flatMap { pendingTx ->
                 getLimits()
                     .map {
+                        val cryptoAsset = it.cryptoCurrency
                         pendingTx.copy(
-                            minLimit = it.minDepositAmount,
+                            minLimit = it.minDepositFiatValue.toCrypto(exchangeRates, cryptoAsset),
                             feeSelection = pendingTx.feeSelection.copy(
                                 selectedLevel = FeeLevel.Regular,
                                 availableLevels = AVAILABLE_FEE_LEVELS

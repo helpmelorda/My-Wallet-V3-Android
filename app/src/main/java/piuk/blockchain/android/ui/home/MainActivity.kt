@@ -9,14 +9,12 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.IdRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import com.aurelhubert.ahbottomnavigation.AHBottomNavigation
-import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.scopedInject
@@ -29,6 +27,7 @@ import com.blockchain.notifications.analytics.SendAnalytics
 import com.blockchain.notifications.analytics.TransactionsAnalyticsEvents
 import com.blockchain.notifications.analytics.activityShown
 import com.blockchain.remoteconfig.FeatureFlag
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
@@ -98,7 +97,6 @@ import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_SUPPORT_PORTAL
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.calloutToExternalSupportLinkDlg
 import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
@@ -144,43 +142,43 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     private var activityResultAction: () -> Unit = {}
 
     private val tabSelectedListener =
-        AHBottomNavigation.OnTabSelectedListener { position, wasSelected ->
-            if (!wasSelected) {
-                when (position) {
-                    ITEM_HOME -> {
-                        startDashboardFragment()
+        BottomNavigationView.OnNavigationItemSelectedListener { menuItem ->
+            if (binding.bottomNavigation.selectedItemId != menuItem.itemId) {
+                when (menuItem.itemId) {
+                    R.id.nav_home -> {
+                        startDashboardFragment(reload = false)
                     }
-                    ITEM_ACTIVITY -> {
-                        startActivitiesFragment()
+                    R.id.nav_activity -> {
+                        startActivitiesFragment(reload = false)
                         analytics.logEvent(TransactionsAnalyticsEvents.TabItemClick)
                     }
-                    ITEM_SWAP -> {
-                        tryTolaunchSwap()
+                    R.id.nav_swap -> {
+                        startSwapFlow(reload = false)
                         analytics.logEvent(SwapAnalyticsEvents.SwapTabItemClick)
                         analytics.logEvent(SwapAnalyticsEvents.SwapClickedEvent(LaunchOrigin.NAVIGATION))
                     }
-                    ITEM_BUY_SELL -> {
-                        launchSimpleBuySell()
+                    R.id.nav_buy_and_sell -> {
+                        startBuyAndSellFragment(reload = false)
                         analytics.logEvent(RequestAnalyticsEvents.TabItemClicked)
                         analytics.logEvent(BuySellClicked(origin = LaunchOrigin.NAVIGATION))
                     }
-                    ITEM_TRANSFER -> {
+                    R.id.nav_transfer -> {
                         analytics.logEvent(
                             TransferAnalyticsEvent.TransferClicked(
                                 origin = LaunchOrigin.NAVIGATION,
                                 type = TransferAnalyticsEvent.AnalyticsTransferType.RECEIVE
                             )
                         )
-                        startTransferFragment()
+                        startTransferFragment(reload = false)
                     }
                 }
-                binding.appbarLayout.elevation = 4f
             }
+
             true
         }
 
-    private val currentFragment: Fragment
-        get() = supportFragmentManager.findFragmentById(R.id.content_frame)!!
+    private val currentFragment: Fragment?
+        get() = supportFragmentManager.primaryNavigationFragment
 
     internal val activity: Context
         get() = this
@@ -225,24 +223,12 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         }
         // Styling
         binding.bottomNavigation.apply {
-            addItems(toolbarNavigationItems())
-            accentColor = context.getResolvedColor(R.color.bottom_toolbar_icon_active)
-            inactiveColor = context.getResolvedColor(R.color.bottom_toolbar_icon_inactive)
-
-            titleState = AHBottomNavigation.TitleState.ALWAYS_SHOW
-            isForceTint = true
-
-            setUseElevation(true)
-            setTitleTypeface(ResourcesCompat.getFont(context, R.font.inter_medium))
-
-            setTitleTextSizeInSp(10.0f, 10.0f)
-
-            // Select Dashboard by default
-            setOnTabSelectedListener(tabSelectedListener)
-
+            setOnNavigationItemSelectedListener(tabSelectedListener)
             if (savedInstanceState == null) {
-                currentItem = if (intent.getBooleanExtra(START_BUY_SELL_INTRO_KEY, false)) ITEM_BUY_SELL
-                else ITEM_HOME
+                val currentItem = if (intent.getBooleanExtra(START_BUY_SELL_INTRO_KEY, false)) {
+                    R.id.nav_buy_and_sell
+                } else R.id.nav_home
+                selectedItemId = currentItem
             }
         }
 
@@ -283,7 +269,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             selectDrawerItem(menuItem)
             true
         }
-        presenter.updateTicker()
 
         if (!handlingResult) {
             resetUi()
@@ -331,9 +316,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 SETTINGS_EDIT,
                 ACCOUNT_EDIT,
                 KYC_STARTED -> {
-                    replaceContentFragment(DashboardFragment.newInstance())
                     // Reset state in case of changing currency etc
-                    binding.bottomNavigation.currentItem = ITEM_HOME
+                    startDashboardFragment()
 
                     // Pass this result to balance fragment
                     for (fragment in supportFragmentManager.fragments) {
@@ -344,9 +328,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                     if (resultCode == RESULT_FIRST_USER) {
                         data?.let { intent ->
                             val account = intent.extras?.getAccount(InterestDashboardActivity.ACTIVITY_ACCOUNT)
-
-                            replaceContentFragment(ActivitiesFragment.newInstance(account))
-                            setCurrentTabItem(ITEM_ACTIVITY)
+                            startActivitiesFragment(account)
                         }
                     }
                 }
@@ -377,8 +359,9 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     private fun launchDashboardFlow(action: AssetAction, currency: String?) {
         currency?.let {
+            gotoDashboard()
             val fragment = DashboardFragment.newInstance(action, it)
-            replaceContentFragment(fragment)
+            showFragment(fragment)
         }
     }
 
@@ -394,7 +377,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
             else -> {
                 // Switch to dashboard fragment
-                setCurrentTabItem(ITEM_HOME)
                 startDashboardFragment()
                 true
             }
@@ -434,10 +416,12 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override fun showLoading() {
         binding.progress.visible()
+        binding.progress.playAnimation()
     }
 
     override fun hideLoading() {
         binding.progress.gone()
+        binding.progress.pauseAnimation()
     }
 
     override fun launchThePitLinking(linkId: String) {
@@ -495,16 +479,17 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     }
 
     private fun resetUi() {
-        toolbar.title = ""
-
         // Set selected appropriately.
         with(binding.bottomNavigation) {
-            when (currentFragment) {
-                is DashboardFragment -> currentItem = ITEM_HOME
-                is ActivitiesFragment -> currentItem = ITEM_ACTIVITY
-                is TransferFragment -> currentItem = ITEM_TRANSFER
-                is BuySellFragment -> currentItem = ITEM_BUY_SELL
+            val currentItem = when (currentFragment) {
+                is DashboardFragment -> R.id.nav_home
+                is ActivitiesFragment -> R.id.nav_activity
+                is TransferFragment -> R.id.nav_transfer
+                is BuySellFragment -> R.id.nav_buy_and_sell
+                is SwapFragment -> R.id.nav_swap
+                else -> R.id.nav_home
             }
+            selectedItemId = currentItem
         }
     }
 
@@ -549,11 +534,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override fun enableSwapButton(isEnabled: Boolean) {
         with(binding.bottomNavigation) {
-            if (isEnabled) {
-                enableItemAtPosition(ITEM_SWAP)
-            } else {
-                disableItemAtPosition(ITEM_SWAP)
-            }
+            menu.findItem(R.id.nav_swap).isEnabled = isEnabled
         }
     }
 
@@ -567,6 +548,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     @SuppressLint("CheckResult")
     override fun startTransactionFlowWithTarget(targets: Collection<CryptoTarget>) {
+        val currentFragment = this.currentFragment ?: return
         if (targets.size > 1) {
             disambiguateSendScan(targets)
         } else {
@@ -669,21 +651,26 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     }
 
     private fun startTransferFragment(
-        viewToShow: TransferFragment.TransferViewType = TransferFragment.TransferViewType.TYPE_SEND
+        viewToShow: TransferFragment.TransferViewType = TransferFragment.TransferViewType.TYPE_SEND,
+        reload: Boolean = true
     ) {
-        setCurrentTabItem(ITEM_TRANSFER)
+        setCurrentTabItem(R.id.nav_transfer)
         toolbar.title = getString(R.string.transfer)
 
         val transferFragment = TransferFragment.newInstance(viewToShow)
-        replaceContentFragment(transferFragment)
+        showFragment(transferFragment, reload)
     }
 
-    private fun startSwapFlow(sourceAccount: CryptoAccount? = null, destinationAccount: CryptoAccount? = null) {
+    private fun startSwapFlow(
+        sourceAccount: CryptoAccount? = null,
+        destinationAccount: CryptoAccount? = null,
+        reload: Boolean = true
+    ) {
         if (sourceAccount == null && destinationAccount == null) {
-            setCurrentTabItem(ITEM_SWAP)
+            setCurrentTabItem(R.id.nav_swap)
             toolbar.title = getString(R.string.common_swap)
             val swapFragment = SwapFragment.newInstance()
-            replaceContentFragment(swapFragment)
+            showFragment(swapFragment, reload)
         } else if (sourceAccount != null) {
             txLauncher.startFlow(
                 activity = this,
@@ -697,14 +684,27 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     }
 
     override fun gotoDashboard() {
-        binding.bottomNavigation.currentItem = ITEM_HOME
+        setCurrentTabItem(R.id.nav_home)
     }
 
-    private fun startDashboardFragment() {
+    private fun startDashboardFragment(reload: Boolean = true) {
         runOnUiThread {
             val fragment = DashboardFragment.newInstance()
-            replaceContentFragment(fragment)
+            showFragment(fragment, reload)
+            setCurrentTabItem(R.id.nav_home)
+            toolbar.title = getString(R.string.dashboard_title)
         }
+    }
+
+    private fun startBuyAndSellFragment(
+        viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,
+        asset: AssetInfo? = null,
+        reload: Boolean = true
+    ) {
+        setCurrentTabItem(R.id.nav_buy_and_sell)
+        toolbar.title = getString(R.string.buy_and_sell)
+        val buySellFragment = BuySellFragment.newInstance(asset, viewType)
+        showFragment(buySellFragment, reload)
     }
 
     override fun resumeSimpleBuyKyc() {
@@ -737,10 +737,10 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         analytics.logEvent(InterestAnalytics.InterestClicked)
     }
 
-    private fun startActivitiesFragment(account: BlockchainAccount? = null) {
-        setCurrentTabItem(ITEM_ACTIVITY)
+    private fun startActivitiesFragment(account: BlockchainAccount? = null, reload: Boolean = true) {
+        setCurrentTabItem(R.id.nav_activity)
         val fragment = ActivitiesFragment.newInstance(account)
-        replaceContentFragment(fragment)
+        showFragment(fragment, reload)
         toolbar.title = ""
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
     }
@@ -756,19 +756,39 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     override fun shouldIgnoreDeepLinking() =
         (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
 
-    private fun replaceContentFragment(fragment: Fragment) {
-        val fragmentManager = supportFragmentManager
-        fragmentManager.beginTransaction()
-            .replace(R.id.content_frame, fragment, fragment.javaClass.simpleName)
-            .commitAllowingStateLoss()
+    private fun showFragment(fragment: Fragment, reloadFragment: Boolean = true) {
+        val transaction = supportFragmentManager.beginTransaction()
+        val primaryFragment = supportFragmentManager.primaryNavigationFragment
+        primaryFragment?.let {
+            transaction.hide(it)
+        }
+
+        val tag = fragment.javaClass.simpleName
+        var tempFragment = supportFragmentManager.findFragmentByTag(tag)
+
+        if (reloadFragment && tempFragment != null) {
+            transaction.remove(tempFragment)
+            tempFragment = null
+        }
+
+        if (tempFragment == null) {
+            tempFragment = fragment
+            transaction.add(R.id.content_frame, tempFragment, tag)
+        } else {
+            transaction.show(tempFragment)
+        }
+
+        hideLoading()
+        transaction.setPrimaryNavigationFragment(tempFragment)
+        transaction.commitNowAllowingStateLoss()
     }
 
     /*** Silently switch the current tab in the tab_bar */
-    private fun setCurrentTabItem(item: Int) {
+    private fun setCurrentTabItem(@IdRes item: Int) {
         binding.bottomNavigation.apply {
-            removeOnTabSelectedListener()
-            currentItem = item
-            setOnTabSelectedListener(tabSelectedListener)
+            setOnNavigationItemSelectedListener(null)
+            selectedItemId = item
+            setOnNavigationItemSelectedListener(tabSelectedListener)
         }
     }
 
@@ -787,39 +807,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         const val BANK_DEEP_LINK_DEPOSIT = 2015
         const val BANK_DEEP_LINK_WITHDRAW = 2021
 
-        // Keep these constants - the position of the toolbar items - and the generation of the toolbar items
-        // together.
-        private const val ITEM_ACTIVITY = 0
-        private const val ITEM_SWAP = 1
-        private const val ITEM_HOME = 2
-        private const val ITEM_BUY_SELL = 3
-        private const val ITEM_TRANSFER = 4
-
-        private fun toolbarNavigationItems(): List<AHBottomNavigationItem> =
-            listOf(
-                AHBottomNavigationItem(
-                    R.string.toolbar_cmd_activity,
-                    R.drawable.ic_vector_toolbar_activity,
-                    R.color.white
-                ), AHBottomNavigationItem(
-                    R.string.toolbar_cmd_swap,
-                    R.drawable.ic_vector_toolbar_swap,
-                    R.color.white
-                ), AHBottomNavigationItem(
-                    R.string.toolbar_cmd_home,
-                    R.drawable.ic_vector_toolbar_home,
-                    R.color.white
-                ), AHBottomNavigationItem(
-                    R.string.buy_and_sell,
-                    R.drawable.ic_tab_cart,
-                    R.color.white
-                ), AHBottomNavigationItem(
-                    R.string.toolbar_cmd_transfer,
-                    R.drawable.ic_vector_toolbar_transfer,
-                    R.color.white
-                )
-            )
-
         fun start(context: Context, bundle: Bundle) {
             Intent(context, MainActivity::class.java).apply {
                 putExtras(bundle)
@@ -830,11 +817,11 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         }
     }
 
-    override fun launchSimpleBuySell(viewType: BuySellFragment.BuySellViewType, asset: AssetInfo?) {
-        setCurrentTabItem(ITEM_BUY_SELL)
-
-        val buySellFragment = BuySellFragment.newInstance(asset, viewType)
-        replaceContentFragment(buySellFragment)
+    override fun launchSimpleBuySell(
+        viewType: BuySellFragment.BuySellViewType,
+        asset: AssetInfo?
+    ) {
+        startBuyAndSellFragment(viewType, asset)
     }
 
     override fun performAssetActionFor(action: AssetAction, account: BlockchainAccount) =
@@ -955,7 +942,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override fun launchFiatDeposit(currency: String) {
         runOnUiThread {
-            gotoDashboard()
             launchDashboardFlow(AssetAction.FiatDeposit, currency)
         }
     }

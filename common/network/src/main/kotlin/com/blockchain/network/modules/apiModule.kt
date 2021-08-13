@@ -65,7 +65,7 @@ val apiModule = module {
      */
     single(moshiExplorerRetrofit) {
         Retrofit.Builder()
-            .baseUrl(getProperty<String>("explorer-api"))
+            .baseUrl(getProperty("explorer-api"))
             .client(get())
             .addConverterFactory(get<MoshiConverterFactory>())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
@@ -101,7 +101,7 @@ val apiModule = module {
 
     single(apiRetrofit) {
         Retrofit.Builder()
-            .baseUrl(getProperty<String>("blockchain-api"))
+            .baseUrl(getProperty("blockchain-api"))
             .client(get())
             .addConverterFactory(get<JacksonConverterFactory>())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
@@ -110,7 +110,7 @@ val apiModule = module {
 
     single(explorerRetrofit) {
         Retrofit.Builder()
-            .baseUrl(getProperty<String>("explorer-api"))
+            .baseUrl(getProperty("explorer-api"))
             .client(get())
             .addConverterFactory(get<JacksonConverterFactory>())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())

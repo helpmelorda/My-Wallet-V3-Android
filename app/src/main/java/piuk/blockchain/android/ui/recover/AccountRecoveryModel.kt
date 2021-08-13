@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.recover
 
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.models.responses.nabu.NabuApiException
+import com.blockchain.nabu.models.responses.nabu.NabuErrorTypes
 import info.blockchain.wallet.bip44.HDWalletFactory
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
@@ -10,6 +12,7 @@ import org.bitcoinj.crypto.MnemonicException
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import timber.log.Timber
 import java.util.Locale
 
 class AccountRecoveryModel(
@@ -81,8 +84,14 @@ class AccountRecoveryModel(
                 onComplete = {
                     process(AccountRecoveryIntents.UpdateStatus(AccountRecoveryStatus.RECOVERY_SUCCESSFUL))
                 },
-                onError = {
-                    process(AccountRecoveryIntents.UpdateStatus(AccountRecoveryStatus.RESET_KYC_FAILED))
+                onError = { throwable ->
+                    Timber.e(throwable)
+                    if (throwable is NabuApiException && throwable.getErrorType() == NabuErrorTypes.Conflict) {
+                        // Resetting KYC is already in progress
+                        process(AccountRecoveryIntents.UpdateStatus(AccountRecoveryStatus.RECOVERY_SUCCESSFUL))
+                    } else {
+                        process(AccountRecoveryIntents.UpdateStatus(AccountRecoveryStatus.RESET_KYC_FAILED))
+                    }
                 }
             )
 }

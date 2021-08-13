@@ -22,6 +22,7 @@ import com.blockchain.utils.Optional
 import com.blockchain.veriff.VeriffApplicantAndToken
 import info.blockchain.balance.AssetInfo
 import com.blockchain.api.ApiException
+import com.blockchain.nabu.metadata.NabuCredentialsMetadata
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.MaybeSource
@@ -117,6 +118,8 @@ interface NabuDataManager {
 
     fun currentToken(offlineToken: NabuOfflineTokenResponse): Single<NabuSessionTokenResponse>
 
+    fun recoverAccount(recoveryToken: String): Single<NabuCredentialsMetadata>
+
     fun resetUserKyc(): Completable
 
     fun linkWalletWithMercury(offlineTokenResponse: NabuOfflineTokenResponse): Single<String>
@@ -182,11 +185,29 @@ internal class NabuDataManagerImpl(
             trust.setUserId(it.userId)
         }
 
-    @VisibleForTesting
+    private var sessionToken: Single<NabuSessionTokenResponse>? = null
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal fun getSessionToken(
         offlineTokenResponse: NabuOfflineTokenResponse
-    ): Single<NabuSessionTokenResponse> =
-        emailSingle.flatMap {
+    ): Single<NabuSessionTokenResponse> {
+        sessionToken?.let {
+            return it
+        } ?: kotlin.run {
+            return getSessionTokenCachedRequest(offlineTokenResponse)
+                .doFinally {
+                    sessionToken = null
+                }
+                .also {
+                    sessionToken = it
+                }
+        }
+    }
+
+    private fun getSessionTokenCachedRequest(
+        offlineTokenResponse: NabuOfflineTokenResponse
+    ): Single<NabuSessionTokenResponse> {
+        return emailSingle.flatMap {
             nabuService.getSessionToken(
                 userId = offlineTokenResponse.userId,
                 offlineToken = offlineTokenResponse.token,
@@ -195,7 +216,8 @@ internal class NabuDataManagerImpl(
                 appVersion = appVersion,
                 deviceId = prefs.deviceId
             )
-        }
+        }.cache()
+    }
 
     override fun createBasicUser(
         firstName: String,
@@ -361,6 +383,26 @@ internal class NabuDataManagerImpl(
                 .map { (it as Optional.Some).element }
                 .singleOrError()
         }
+
+    override fun recoverAccount(recoveryToken: String): Single<NabuCredentialsMetadata> {
+        return requestJwt().flatMap { jwt ->
+            nabuService.getAuthToken(jwt).flatMap { response ->
+                nabuService.recoverAccount(
+                    offlineToken = response,
+                    jwt = jwt,
+                    recoveryToken = recoveryToken
+                )
+                    .flatMap { recoverAccountResponse ->
+                        Single.just(
+                            NabuCredentialsMetadata(
+                                userId = response.userId,
+                                lifetimeToken = recoverAccountResponse.token
+                            )
+                        )
+                    }
+            }
+        }
+    }
 
     override fun resetUserKyc(): Completable {
         return requestJwt().flatMapCompletable { jwt ->

@@ -913,7 +913,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
     }
 
     private fun showDialogFiatUnits() {
-        val currencies = settingsPresenter.currencyLabels
+        val currencies = settingsPresenter.currencyLabels.toTypedArray()
         val strCurrency = currencyPrefs.selectedFiatCurrency
         var selected = 0
         for (i in currencies.indices) {

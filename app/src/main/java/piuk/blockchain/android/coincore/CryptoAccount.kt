@@ -1,24 +1,40 @@
 package piuk.blockchain.android.coincore
 
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.ExchangeRates
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
 
+data class AccountBalance(
+    val total: Money,
+    val actionable: Money,
+    val pending: Money,
+    val exchangeRate: ExchangeRate
+) {
+    val totalFiat: Money
+        get() = exchangeRate.convert(total)
+}
+
 interface BlockchainAccount {
 
     val label: String
 
+//    val balance: Observable<AccountBalance>
+
+    @Deprecated("Use balance")
     val accountBalance: Single<Money> // Total balance, including uncleared and locked
 
+    @Deprecated("Use balance")
     // Available balance, not including uncleared and locked, that may be used for transactions
     val actionableBalance: Single<Money>
 
+    @Deprecated("Use balance")
     val pendingBalance: Single<Money>
 
     val activity: Single<ActivitySummaryList>
@@ -33,6 +49,7 @@ interface BlockchainAccount {
 
     val disabledReason: Single<IneligibilityReason>
 
+    @Deprecated("Use balance")
     fun fiatBalance(fiatCurrency: String, exchangeRates: ExchangeRates): Single<Money>
 
     val receiveAddress: Single<ReceiveAddress>

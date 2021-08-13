@@ -4,14 +4,14 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.ExchangeRates
+import org.koin.core.component.KoinComponent
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import org.koin.core.KoinComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.impl.AllWalletsAccount

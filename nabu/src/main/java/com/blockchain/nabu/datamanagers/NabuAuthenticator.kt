@@ -1,5 +1,6 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.NabuToken
@@ -13,7 +14,7 @@ internal class NabuAuthenticator(
     private val nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
     private val crashLogger: CrashLogger
-) : Authenticator {
+) : Authenticator, AuthHeaderProvider {
 
     override fun <T> authenticateSingle(singleFunction: (Single<NabuSessionTokenResponse>) -> Single<T>): Single<T> =
         nabuToken.fetchNabuToken()
@@ -54,6 +55,10 @@ internal class NabuAuthenticator(
     private fun logMessageIfNeeded(message: String) {
         if (message.contains("BLOCKED_IP", ignoreCase = true))
             crashLogger.logException(BlockedIpException(message))
+    }
+
+    override fun getAuthHeader(): Single<String> {
+        return authenticate().map { it.authHeader }
     }
 }
 

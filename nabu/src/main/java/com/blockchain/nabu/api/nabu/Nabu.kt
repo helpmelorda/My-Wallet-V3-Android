@@ -26,6 +26,8 @@ import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.NabuBasicUser
 import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
 import com.blockchain.nabu.models.responses.nabu.NabuJwt
+import com.blockchain.nabu.models.responses.nabu.NabuRecoverAccountRequest
+import com.blockchain.nabu.models.responses.nabu.NabuRecoverAccountResponse
 import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.RecordCountryRequest
@@ -53,7 +55,6 @@ import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyEligibilityResponse
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyResponse
-import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyTransactionResponse
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
@@ -174,6 +175,13 @@ internal interface Nabu {
         @Body applicantIdRequest: ApplicantIdRequest,
         @Header("authorization") authorization: String
     ): Completable
+
+    @POST("$NABU_RECOVER_ACCOUNT/{userId}")
+    fun recoverAccount(
+        @Path("userId") userId: String,
+        @Body recoverAccountRequest: NabuRecoverAccountRequest,
+        @Header("authorization") authorization: String
+    ): Single<NabuRecoverAccountResponse>
 
     @POST("$NABU_RECOVER_USER/{userId}")
     fun recoverUser(
@@ -547,17 +555,15 @@ internal interface Nabu {
         @Query("currency") assetTicker: String? = null
     ): Single<List<RecurringBuyResponse>>
 
+    @GET(NABU_RECURRING_BUY_LIST)
+    fun getRecurringBuyById(
+        @Header("authorization") authorization: String,
+        @Query("id") recurringBuyId: String
+    ): Single<List<RecurringBuyResponse>>
+
     @DELETE("$NABU_RECURRING_BUY/{id}/cancel")
     fun cancelRecurringBuy(
         @Header("authorization") authorization: String,
         @Path("id") id: String
     ): Completable
-
-    @GET(NABU_RECURRING_BUY_TRANSACTIONS)
-    fun fetchRecurringBuysTransactions(
-        @Header("authorization") authorization: String,
-        @Query("recurringBuyId") recurringBuyId: String? = null,
-        @Query("currency") assetTicker: String? = null,
-        @Query("limit") limit: Int? = null
-    ): Single<List<RecurringBuyTransactionResponse>>
 }

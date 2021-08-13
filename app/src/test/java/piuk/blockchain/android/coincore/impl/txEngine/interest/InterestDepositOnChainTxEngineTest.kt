@@ -1,10 +1,8 @@
 package piuk.blockchain.android.coincore.impl.txEngine.interest
 
-import com.blockchain.android.testutils.rxInit
-import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
@@ -16,17 +14,14 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.shouldEqual
-import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
-import org.junit.Rule
 import org.junit.Test
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.CryptoAddress
@@ -37,25 +32,12 @@ import piuk.blockchain.android.coincore.TransactionTarget
 import piuk.blockchain.android.coincore.ValidationState
 import piuk.blockchain.android.coincore.btc.BtcCryptoWalletAccount
 import piuk.blockchain.android.coincore.impl.CryptoInterestAccount
-import piuk.blockchain.android.coincore.impl.injectMocks
 import piuk.blockchain.android.coincore.impl.txEngine.OnChainTxEngineBase
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 
-class InterestDepositOnChainTxEngineTest {
-
-    @get:Rule
-    val initSchedulers = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
-    }
+class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
 
     private val walletManager: CustodialWalletManager = mock()
-    private val exchangeRates: ExchangeRateDataManager = mock()
-
-    private val currencyPrefs: CurrencyPrefs = mock {
-        on { selectedFiatCurrency }.thenReturn(SELECTED_FIAT)
-    }
 
     private val onChainEngine: OnChainTxEngineBase = mock()
 
@@ -66,20 +48,25 @@ class InterestDepositOnChainTxEngineTest {
 
     @Before
     fun setup() {
-        injectMocks(
-            module {
-                scope(payloadScopeQualifier) {
-                    factory {
-                        currencyPrefs
-                    }
-                }
-            }
-        )
-    }
+        initMocks()
 
-    @After
-    fun teardown() {
-        stopKoin()
+        whenever(exchangeRates.getLastCryptoToUserFiatRate(ASSET))
+            .thenReturn(
+                ExchangeRate.CryptoToFiat(
+                    from = ASSET,
+                    to = TEST_USER_FIAT,
+                    rate = ASSET_TO_USER_FIAT_RATE
+                )
+            )
+
+        whenever(exchangeRates.getLastCryptoToFiatRate(ASSET, TEST_API_FIAT))
+            .thenReturn(
+                ExchangeRate.CryptoToFiat(
+                    from = ASSET,
+                    to = TEST_API_FIAT,
+                    rate = ASSET_TO_API_FIAT_RATE
+                )
+            )
     }
 
     @Ignore("restore once start engine returns completable")
@@ -200,7 +187,7 @@ class InterestDepositOnChainTxEngineTest {
             availableBalance = CryptoValue.zero(ASSET),
             feeForFullAvailable = CryptoValue.zero(ASSET),
             feeAmount = CryptoValue.zero(ASSET),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = setOf(FeeLevel.Regular, FeeLevel.Priority),
@@ -211,7 +198,8 @@ class InterestDepositOnChainTxEngineTest {
         whenever(onChainEngine.doInitialiseTx()).thenReturn(Single.just(pendingTx))
 
         val limits = mock<InterestLimits> {
-            on { minDepositAmount }.thenReturn(MIN_DEPOSIT_AMOUNT)
+            on { minDepositFiatValue }.thenReturn(MIN_DEPOSIT_AMOUNT_FIAT)
+            on { cryptoCurrency }.thenReturn(ASSET)
         }
 
         whenever(walletManager.getInterestLimits(ASSET)).thenReturn(Maybe.just(limits))
@@ -224,9 +212,9 @@ class InterestDepositOnChainTxEngineTest {
                     it.totalBalance == CryptoValue.zero(ASSET) &&
                     it.availableBalance == CryptoValue.zero(ASSET) &&
                     it.feeAmount == CryptoValue.zero(ASSET) &&
-                    it.selectedFiat == SELECTED_FIAT &&
+                    it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.minLimit == MIN_DEPOSIT_AMOUNT &&
+                    it.minLimit == MIN_DEPOSIT_AMOUNT_CRYPTO &&
                     it.maxLimit == null &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
@@ -240,6 +228,7 @@ class InterestDepositOnChainTxEngineTest {
 
         verify(onChainEngine).doInitialiseTx()
         verify(walletManager).getInterestLimits(ASSET)
+        verify(exchangeRates).getLastCryptoToFiatRate(ASSET, TEST_API_FIAT)
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -262,7 +251,7 @@ class InterestDepositOnChainTxEngineTest {
             availableBalance = CryptoValue.zero(ASSET),
             feeForFullAvailable = CryptoValue.zero(ASSET),
             feeAmount = CryptoValue.zero(ASSET),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = setOf(FeeLevel.Regular, FeeLevel.Priority),
@@ -307,7 +296,7 @@ class InterestDepositOnChainTxEngineTest {
             availableBalance = CryptoValue.zero(ASSET),
             feeForFullAvailable = CryptoValue.zero(ASSET),
             feeAmount = CryptoValue.zero(ASSET),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -361,7 +350,7 @@ class InterestDepositOnChainTxEngineTest {
             availableBalance = CryptoValue.zero(ASSET),
             feeForFullAvailable = CryptoValue.zero(ASSET),
             feeAmount = CryptoValue.zero(ASSET),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Priority,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -399,7 +388,7 @@ class InterestDepositOnChainTxEngineTest {
             availableBalance = CryptoValue.zero(ASSET),
             feeForFullAvailable = CryptoValue.zero(ASSET),
             feeAmount = CryptoValue.zero(ASSET),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -437,7 +426,7 @@ class InterestDepositOnChainTxEngineTest {
             availableBalance = CryptoValue.zero(ASSET),
             feeForFullAvailable = CryptoValue.zero(ASSET),
             feeAmount = CryptoValue.zero(ASSET),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Priority,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -475,7 +464,7 @@ class InterestDepositOnChainTxEngineTest {
             availableBalance = CryptoValue.zero(ASSET),
             feeForFullAvailable = CryptoValue.zero(ASSET),
             feeAmount = CryptoValue.zero(ASSET),
-            selectedFiat = SELECTED_FIAT,
+            selectedFiat = TEST_USER_FIAT,
             feeSelection = FeeSelection(
                 selectedLevel = FeeLevel.Regular,
                 availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
@@ -520,6 +509,7 @@ class InterestDepositOnChainTxEngineTest {
         )
     }
 
+    @Suppress("SameParameterValue")
     private fun verifyFeeLevels(feeSelection: FeeSelection, expectedLevel: FeeLevel) =
         feeSelection.selectedLevel == expectedLevel &&
             feeSelection.availableLevels == EXPECTED_AVAILABLE_FEE_LEVELS &&
@@ -540,9 +530,11 @@ class InterestDepositOnChainTxEngineTest {
         private val ASSET = CryptoCurrency.BTC
         private val WRONG_ASSET = CryptoCurrency.XLM
         private val FEE_ASSET = CryptoCurrency.BTC
-        private const val SELECTED_FIAT = "INR"
 
-        private val MIN_DEPOSIT_AMOUNT = CryptoValue.fromMajor(ASSET, 10.toBigDecimal())
+        private val ASSET_TO_API_FIAT_RATE = 10.toBigDecimal()
+        private val ASSET_TO_USER_FIAT_RATE = 5.toBigDecimal()
+        private val MIN_DEPOSIT_AMOUNT_FIAT = FiatValue.fromMajor(TEST_API_FIAT, 10.toBigDecimal())
+        private val MIN_DEPOSIT_AMOUNT_CRYPTO = CryptoValue.fromMajor(ASSET, 1.toBigDecimal())
         private val EXPECTED_AVAILABLE_FEE_LEVELS = setOf(FeeLevel.Regular)
     }
 }

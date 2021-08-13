@@ -3,15 +3,16 @@ package com.blockchain.network.websocket
 import com.blockchain.logging.Logger
 import com.blockchain.logging.NullLogger
 import io.reactivex.rxjava3.core.Observable
-import org.koin.core.parameter.emptyParametersHolder
 import org.koin.java.KoinJavaComponent.getKoin
 
-fun <OUTGOING, INCOMING> WebSocket<OUTGOING, INCOMING>.debugLog(label: String): WebSocket<OUTGOING, INCOMING> =
-    getLoggerFromKoin().let { logger ->
-        if (logger == NullLogger) this else DebugLogWebSocket(label, this, logger)
+fun <OUTGOING, INCOMING> WebSocket<OUTGOING, INCOMING>.debugLog(label: String): WebSocket<OUTGOING, INCOMING> {
+    val logger: Logger = getKoin().get()
+    return if (logger == NullLogger) {
+        this
+    } else {
+        DebugLogWebSocket(label, this, logger)
     }
-
-private fun getLoggerFromKoin(): Logger = getKoin().get(qualifier = null, parameters = { emptyParametersHolder() })
+}
 
 private class DebugLogWebSocket<OUTGOING, INCOMING>(
     private val label: String,

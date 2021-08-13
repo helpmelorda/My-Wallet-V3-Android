@@ -2,20 +2,15 @@ package piuk.blockchain.androidcore.data.fees;
 
 import info.blockchain.wallet.api.FeeApi;
 import info.blockchain.wallet.api.data.FeeOptions;
-import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-
-import piuk.blockchain.androidcore.data.rxjava.RxBus;
-import piuk.blockchain.androidcore.data.rxjava.RxPinning;
+import io.reactivex.rxjava3.core.Observable;
 
 public class FeeDataManager {
 
-    private final RxPinning rxPinning;
     private final FeeApi feeApi;
 
-    public FeeDataManager(FeeApi feeApi, RxBus rxBus) {
+    public FeeDataManager(FeeApi feeApi) {
         this.feeApi = feeApi;
-        rxPinning = new RxPinning(rxBus);
     }
 
     /**
@@ -25,7 +20,7 @@ public class FeeDataManager {
      * @return An {@link Observable} wrapping a {@link FeeOptions} object
      */
     public Observable<FeeOptions> getBtcFeeOptions() {
-        return rxPinning.call(() -> feeApi.getBtcFeeOptions())
+        return feeApi.getBtcFeeOptions()
             .onErrorReturnItem(FeeOptions.Companion.defaultForBtc())
             .observeOn(AndroidSchedulers.mainThread());
     }
@@ -37,7 +32,7 @@ public class FeeDataManager {
      * @return An {@link Observable} wrapping a {@link FeeOptions} object
      */
     public Observable<FeeOptions> getEthFeeOptions() {
-        return rxPinning.call(() -> feeApi.getEthFeeOptions())
+        return feeApi.getEthFeeOptions()
                 .onErrorReturnItem(FeeOptions.Companion.defaultForEth())
                 .observeOn(AndroidSchedulers.mainThread());
     }
@@ -50,7 +45,7 @@ public class FeeDataManager {
      * @return An {@link Observable} wrapping a {@link FeeOptions} object
      */
     public Observable<FeeOptions> getErc20FeeOptions(String contractAddress) {
-        return rxPinning.call(() -> feeApi.getErc20FeeOptions(contractAddress))
+        return feeApi.getErc20FeeOptions(contractAddress)
             .onErrorReturnItem(FeeOptions.Companion.defaultForErc20())
             .observeOn(AndroidSchedulers.mainThread());
     }

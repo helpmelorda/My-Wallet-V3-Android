@@ -1,19 +1,17 @@
 package piuk.blockchain.android.coincore
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.RecurringBuyTransactionState
-import com.blockchain.nabu.datamanagers.RecurringBuyErrorState
+import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import info.blockchain.balance.AssetInfo
-import com.blockchain.nabu.models.data.RecurringBuyFrequency
-import com.blockchain.nabu.models.data.RecurringBuyState
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -21,27 +19,24 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.JavaHashCode
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.util.Date
 import kotlin.math.sign
 
 abstract class CryptoActivitySummaryItem : ActivitySummaryItem() {
     abstract val asset: AssetInfo
     override fun totalFiatWhenExecuted(selectedFiat: String): Single<Money> =
-        exchangeRates.getHistoricPrice(
-            value = value,
-            fiat = selectedFiat,
-            timeInSeconds = timeStampMs / 1000 // API uses seconds
+        exchangeRates.getHistoricRate(
+            fromAsset = asset,
+            secSinceEpoch = timeStampMs / 1000 // API uses seconds
         ).map {
-            it
+            it.convert(value)
         }
 }
 
 class FiatActivitySummaryItem(
     val currency: String,
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val txId: String,
     override val timeStampMs: Long,
     override val value: Money,
@@ -60,7 +55,7 @@ class FiatActivitySummaryItem(
 }
 
 abstract class ActivitySummaryItem : Comparable<ActivitySummaryItem> {
-    protected abstract val exchangeRates: ExchangeRateDataManager
+    protected abstract val exchangeRates: ExchangeRatesDataManager
 
     abstract val txId: String
     abstract val timeStampMs: Long
@@ -68,7 +63,7 @@ abstract class ActivitySummaryItem : Comparable<ActivitySummaryItem> {
     abstract val value: Money
 
     fun fiatValue(selectedFiat: String): Money =
-        value.toFiat(exchangeRates, selectedFiat)
+        value.toFiat(selectedFiat, exchangeRates)
 
     abstract fun totalFiatWhenExecuted(selectedFiat: String): Single<Money>
 
@@ -80,7 +75,7 @@ abstract class ActivitySummaryItem : Comparable<ActivitySummaryItem> {
 }
 
 data class TradeActivitySummaryItem(
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val txId: String,
     override val timeStampMs: Long,
     val sendingValue: Money,
@@ -106,29 +101,26 @@ data class TradeActivitySummaryItem(
 }
 
 data class RecurringBuyActivitySummaryItem(
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val asset: AssetInfo,
     override val txId: String,
     override val timeStampMs: Long,
     override val value: Money,
     override val account: SingleAccount,
-    val originMoney: FiatValue,
-    val destinationMoney: Money,
-    val recurringBuyState: RecurringBuyState,
-    val transactionState: RecurringBuyTransactionState,
-    val failureReason: RecurringBuyErrorState?,
-    val nextPayment: Date,
-    val insertedAt: Date,
-    val period: RecurringBuyFrequency,
+    val fundedFiat: FiatValue,
+    val transactionState: OrderState,
+    val failureReason: RecurringBuyFailureReason?,
     val fee: FiatValue,
     val paymentMethodId: String,
-    val paymentMethodType: PaymentMethodType
+    val paymentMethodType: PaymentMethodType,
+    val type: OrderType,
+    val recurringBuyId: String?
 ) : CryptoActivitySummaryItem() {
     override fun totalFiatWhenExecuted(selectedFiat: String): Single<Money> = Single.just(value)
 }
 
 data class CustodialInterestActivitySummaryItem(
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val asset: AssetInfo,
     override val txId: String,
     override val timeStampMs: Long,
@@ -147,7 +139,7 @@ data class CustodialInterestActivitySummaryItem(
 }
 
 data class CustodialTradingActivitySummaryItem(
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val asset: AssetInfo,
     override val txId: String,
     override val timeStampMs: Long,
@@ -159,12 +151,13 @@ data class CustodialTradingActivitySummaryItem(
     val fee: FiatValue,
     val paymentMethodId: String,
     val paymentMethodType: PaymentMethodType,
-    val depositPaymentId: String
+    val depositPaymentId: String,
+    val recurringBuyId: String? = null
 ) : CryptoActivitySummaryItem()
 
 data class CustodialTransferActivitySummaryItem(
     override val asset: AssetInfo,
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val txId: String,
     override val timeStampMs: Long,
     override val value: Money,

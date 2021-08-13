@@ -4,7 +4,6 @@
     <string name="app_name" translatable="false">Blockchain</string>
     <string name="alpha_app_name" translatable="false">Blockchain Alpha</string>
     <string name="staging_app_name" translatable="false">BlockStaging</string>
-    <string name="dev_app_name" translatable="false">BlockDev</string>
     <string name="debug_app_shortcut">BC Debug Opts</string>
     <string name="debug_app_shortcut_short">BC Opts</string>
     <string name="common_company_name" translatable="false">Blockchain.com</string>
@@ -25,6 +24,7 @@
     <string name="common_ok">OK</string>
     <string name="common_cancel">Cancel</string>
     <string name="common_total">Total</string>
+    <string name="common_remove">Remove</string>
     <string name="common_deposit">Deposit</string>
     <string name="common_transfer">Transfer</string>
     <string name="common_error">Something went wrong, please try again</string>
@@ -50,6 +50,7 @@
     <string name="common_unknown">Unknown</string>
     <string name="common_wallets">Wallets</string>
     <string name="common_go_back">Go Back</string>
+    <string name="common_reset_password">Reset Password</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -112,6 +113,8 @@
     <string name="invalid_mobile">Invalid mobile phone number</string>
     <string name="invalid_password">Invalid password</string>
     <string name="invalid_password_too_short">Please enter more than 3 characters</string>
+    <string name="country_not_selected">Please select your Country of Residence</string>
+    <string name="state_not_selected">Please select your State</string>
     <string name="invalid_guid">Invalid Wallet ID</string>
 
     <string name="password_mismatch_error">Passwords do not match</string>
@@ -187,8 +190,13 @@
     <string name="email">Your Email</string>
     <string name="password_disclaimer">I understand that Blockchain.com cannot recover my password for me. If I lose access to my Wallet, I must use my <annotation link="backup">Secret Phrase</annotation> to access my funds.</string>
     <string name="you_agree_terms_of_service">By creating an account, you agree to Blockchain’s <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>
-    <string name="new_account_cta_text">Continue</string>
+    <string name="sign_up_email">Email</string>
     <string name="new_account_title">Create an Account</string>
+    <string name="password_disclaimer_1">I understand that Blockchain.com never stores passwords and therefore cannot recover or reset my password. If I lose access to my wallet, I must use my <annotation link="backup">Secret Private Key Recovery Phrase</annotation> to access my funds. By creating an account, you agree to Blockchain’s <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>>
+    <string name="new_account_cta_text">Next</string>
+    <string name="new_account_title_1">New Account</string>
+    <string name="create_wallet_state">State</string>
+    <string name="create_wallet_country">Country of Residence</string>
     <string name="strength_weak">Weak</string>
     <string name="strength_medium">Regular</string>
     <string name="strength_normal">Good</string>
@@ -1473,6 +1481,7 @@
     <string name="activity_details_title_recurring_buy">Recurring Buy</string>
     <string name="activity_details_title_withdraw">Withdrawal</string>
     <string name="activity_details_label_confirming">Confirming</string>
+    <string name="activity_details_label_cancelled">Cancelled</string>
     <string name="activity_details_label_waiting_on_funds">Waiting on Funds</string>
     <string name="activity_details_label_confirmations">%1$d of %2$d\nConfirmations</string>
     <string name="activity_details_title_fee">Gas Fee</string>
@@ -1481,7 +1490,7 @@
     <string name="activity_details_buy_tx_id">Transaction ID</string>
     <string name="activity_details_buy_sending_to">Sending to</string>
     <string name="activity_details_buy_purchase_amount">Purchasing</string>
-    <string name="activity_details_buy_fees">Fees</string>
+    <string name="activity_details_buy_fee">Fee</string>
     <string name="activity_details_buy_payment_method">Payment Method</string>
     <string name="activity_details_swap_for">For</string>
     <string name="activity_details_view_bank_transfer_details">View Bank Transfer Details</string>
@@ -1569,9 +1578,6 @@
     <string name="withdrawing_amount">Withdrawing %1$s</string>
     <string name="withdrawing_amount_message">We’re completing your withdrawal now.</string>
     <string name="withdrawal_success_message">Success! We’re are withdrawing the cash from your %1$s Wallet now. The funds should be in your bank in 1&#8211;3 business days.</string>
-
-    <string name="dashboard_asset_item_label_title">Please note.</string>
-    <string name="custodial_only_asset_label">Functionality to withdraw %1$s from your trading account is currently unavailable, but coming soon.</string>
 
     <!-- Transaction flows -->
     <string name="send_enter_amount_from">From: %1$s</string>
@@ -1804,7 +1810,8 @@
     <!-- Transaction Flow confirmation screen -->
     <string name="confirm_status_msg_insufficient_funds">You have insufficient funds in this account to process this transaction</string>
     <string name="confirm_status_msg_insufficient_gas">You do not have enough ETH to process this transaction.</string>
-    <string name="confirm_status_msg_option_invalid">Please ensure you`ve agreed to our Terms.</string>
+    <string name="confirm_status_msg_option_invalid">Please ensure you\'ve agreed to our Terms.</string>
+    <string name="confirm_status_memo_invalid">Please add a memo.</string>
     <string name="confirm_status_msg_invoice_expired">BitPay Invoice Expired</string>
     <string name="confirm_status_msg_unexpected_error">An unexpected error has occurred. Please try again.</string>
     <string name="pending_swap_info_message">You have 1 swap pending. Once that clears, you can make a new swap.</string>
@@ -2016,6 +2023,7 @@
     <string name="bank_linking_declined_subtitle">Looks like there was an issue with approving the payment, please try again. If this keeps happening, please contact support.</string>
 
     <string name="wallet_outage_message">We are experiencing an outage. Please rest assured your funds are safe. <annotation link="learn_more">Learn more</annotation></string>
+    <string name="wallet_issue_message">There is a notice up on our status page. Full wallet functionality might not be available. Rest assured that your funds are safe. <annotation link="learn_more">Learn more →</annotation></string>
     <string name="increase_your_limits">Increase your limits</string>
     <string name="increase_your_limits_body">Continue your verification to become Gold level and increase your limits and payment methods.</string>
     <string name="continue_to_gold">Continue to Gold</string>
@@ -2106,14 +2114,18 @@
     <string name="enter_recovery_phrase_hint">Enter your secret recovery phrase</string>
     <string name="recovery_phrase_word_count_error">The Recovery Phrase must be exactly 12 words</string>
     <string name="reset_account_notice">Can’t find your recovery phrase? <annotation link="reset_account">Reset your account</annotation></string>
-    <string name="reset_kyc_notice">For your security, you may have to re-verify your identity before accessing your trading or interest account.\n<annotation link="learn_more">Learn more</annotation></string>
+    <string name="reset_kyc_notice">For your security, you may have to re-verify your identity before accessing your trading or interest account.</string>
     <string name="reset_kyc_failed">Restoring account failed. Please try again.</string>
-    <string name="reset_account_title">Reset Account?</string>
+    <string name="reset_account_title">Reset Your Account?</string>
     <string name="reset_account_description">Resetting will restore your Trading, Interest, and Exchange accounts.</string>
     <string name="reset_account_cta">Reset Account</string>
     <string name="retry_recovery_phrase_cta">Retry Recovery Phrase</string>
-    <string name="reset_account_warning_title">Resetting Account may result in lost funds</string>
+    <string name="reset_account_warning_title">Resetting Account May Result In Lost Funds</string>
     <string name="reset_account_warning_description">This means that if you lose your recovery phrase, you will lose access to your Private Key Wallet funds. You can always restore your Private Key Wallet funds later if you find your recovery phrase.</string>
+    <string name="reset_password_optional_label">Would you like to reset your password? You can always do this later in Settings.</string>
+    <string name="reset_password_hint">New Password</string>
+    <string name="reset_password_confirm_hint">Confirm New Password</string>
+    <string name="reset_password_optional_title">Reset Password?</string>
     <string name="restore_wallet_cta">Restore Wallet</string>
 
     <!-- Recurring buy screens -->
@@ -2132,14 +2144,19 @@
     <string name="recurring_buy_note">Calculation is based on one $30 purchase a week on a random day. \"Timing the market\" is defined as buying Bitcoin on every 6% dip.\n<annotation link="learn_more">Learn more -></annotation></string>
     <string name="recurring_buy_one_time_short">One time</string>
     <string name="recurring_buy_one_time">One time purchase</string>
-    <string name="recurring_buy_daily">Every day</string>
-    <string name="recurring_buy_weekly">Every week</string>
-    <string name="recurring_buy_bi_weekly">Every 2 weeks</string>
-    <string name="recurring_buy_monthly">Every month</string>
-    <string name="recurring_buy_frequency_label">Recurring</string>
-    <string name="recurring_buy_frequency_subtitle">on %1$s</string>
+    <string name="recurring_buy_daily_1">Everyday</string>
+    <string name="recurring_buy_daily_selector">Daily</string>
+    <string name="recurring_buy_weekly_1">Once a Week</string>
+    <string name="recurring_buy_weekly_selector">Weekly</string>
+    <string name="recurring_buy_bi_weekly_1">Twice a Month</string>
+    <string name="recurring_buy_monthly_1">Once a Month</string>
+    <string name="recurring_buy_monthly_selector">Monthly</string>
+    <string name="recurring_buy_frequency_label_1">Frequency</string>
+    <string name="recurring_buy_frequency_subtitle">On %s</string>
+    <string name="recurring_buy_frequency_subtitle_biweekly">Every other %s</string>
     <string name="recurring_buy_frequency_subtitle_each_day">around %s</string>
-    <string name="recurring_buy_frequency_subtitle_monthly">on day %s</string>
+    <string name="recurring_buy_frequency_subtitle_monthly">On the %s</string>
+    <string name="recurring_buy_frequency_subtitle_last_day_selector">On the Last Day of the Month</string>
     <string name="recurring_buy_frequency_subtitle_monthly_last_day">on the last day</string>
     <string name="recurring_buy_frequency_subtitle_today">Today</string>
     <string name="recurring_buy_unavailable_title">Recurring buy unavailable</string>
@@ -2151,26 +2168,25 @@
     <string name="dashboard_title_recurring_buy">Unsure when to buy?</string>
     <string name="dashboard_recurring_buy_description">Timing the market is hard, which is why many investors use dollar cost averaging.</string>
     <string name="dashboard_recurring_buy_learn_more">Learn more →</string>
-    <string name="dashboard_recurring_buy_item_title">Buy %1$s in %2$s %3$s</string>
-    <string name="dashboard_recurring_buy_item_label">Next buy: %1$s</string>
+    <string name="dashboard_recurring_buy_item_title_1">%1$s %2$s</string>
+    <string name="dashboard_recurring_buy_item_label">Next buy on %s</string>
     <string name="dashboard_recurring_buy_item_label_error">Low balance. Add Funds</string>
     <string name="dashboard_recurring_buy_title">Recurring buys</string>
-    <string name="recurring_buy_info_cta">Cancel Recurring Buy</string>
-    <string name="recurring_buy_sheet_title">Recurring %1$s Buy</string>
-    <string name="recurring_buy_info_purchase_label">Next Purchase</string>
+    <string name="recurring_buy_sheet_title_1">Recurring Buy</string>
+    <string name="recurring_buy_header">%1$s of %2$s</string>
+    <string name="recurring_buy_info_purchase_label_1">Next Buy</string>
     <string name="recurring_buy_cancelled_toast">Recurring buy cancelled</string>
     <string name="recurring_buy_cancelled_error_toast">Oops! There was an issue cancelling your recurring buy. Please try again later.</string>
     <string name="recurring_buy_cancel_dialog_desc">Are you sure you want to cancel this Recurring Buy?</string>
     <string name="recurring_buy_activity_pending">Pending</string>
     <string name="recurring_buy_details_next_payment">Next Payment</string>
     <string name="recurring_buy_details_recurring">Recurring</string>
-    <string name="recurring_buy_details_total_cost">Total Cost</string>
-    <string name="recurring_buy_details_fees">Fees</string>
+    <string name="recurring_buy_details_fee">Fee</string>
     <string name="activity_details_label_btn_cash">Add Cash</string>
     <string name="recurring_buy_funds_label">%s Account</string>
     <string name="recurring_buy_short_error">Failed</string>
     <string name="recurring_buy_insufficient_funds_short_error">Failed. Low Balance</string>
-    <string name="recurring_buy_insufficient_funds_error">Your payment method has insufficient funds. Add more to complete the recurring buy.</string>
+    <string name="recurring_buy_insufficient_funds_error_1">Your payment method\'s balance is too low. Please add more cash now.</string>
     <string name="recurring_buy_internal_server_error">There has been an error with your purchase. We will retry shortly.</string>
     <string name="recurring_buy_final_attempt_error">There has been an error with your purchase. <annotation link="contact_support_link">Contact support</annotation> for more information.</string>
     <string name="recurring_buy_beneficiary_error">Your selected payment method is not active. Please use another.</string>

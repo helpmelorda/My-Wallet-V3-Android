@@ -18,7 +18,9 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
 import com.blockchain.logging.CrashLogger
 import com.blockchain.remoteconfig.FeatureFlag
-import com.google.android.material.textfield.TextInputLayout
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
@@ -37,7 +39,9 @@ import piuk.blockchain.android.ui.start.ManualPairingActivity
 import piuk.blockchain.android.urllinks.RESET_2FA
 import piuk.blockchain.android.urllinks.SECOND_PASSWORD_EXPLANATION
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.clearErrorState
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.setErrorState
 import piuk.blockchain.android.util.visible
 import timber.log.Timber
 import java.lang.Exception
@@ -51,31 +55,35 @@ class LoginAuthActivity :
     override val model: LoginAuthModel by scopedInject()
 
     private val crashLogger: CrashLogger by inject()
-
-    private lateinit var currentState: LoginAuthState
-
     private val internalFlags: InternalFeatureFlagApi by inject()
-
     private val ssoARFF: FeatureFlag by inject(ssoAccountRecoveryFeatureFlag)
 
     private var isAccountRecoveryEnabled: Boolean = false
+    private var email: String = ""
+    private var recoveryToken: String = ""
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-        subscription = ssoARFF.enabled.subscribeBy(
-            onSuccess = { enabled ->
-                isAccountRecoveryEnabled = enabled
-            },
-            onError = { isAccountRecoveryEnabled = false }
-        )
         initControls()
     }
 
     override fun onStart() {
         super.onStart()
+        compositeDisposable += ssoARFF.enabled.observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onSuccess = { enabled ->
+                    isAccountRecoveryEnabled = enabled
+                },
+                onError = { isAccountRecoveryEnabled = false }
+            )
         processIntentData()
+    }
+
+    override fun onStop() {
+        compositeDisposable.clear()
+        super.onStop()
     }
 
     private fun processIntentData() {
@@ -85,9 +93,15 @@ class LoginAuthActivity :
                     validateAndLogDeeplinkHost(uri.host)
                     val json = decodeJson(fragment)
                     val guid = json.getString(GUID)
+                    email = json.getString(EMAIL)
 
-                    binding.loginEmailText.setText(json.getString(EMAIL))
+                    binding.loginEmailText.setText(email)
                     binding.loginWalletLabel.text = getString(R.string.login_wallet_id_text, guid)
+                    if (isAccountRecoveryEnabled &&
+                        internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY) &&
+                        json.has(RECOVERY_TOKEN)) {
+                        recoveryToken = json.getString(RECOVERY_TOKEN)
+                    }
                     if (json.has(EMAIL_CODE)) {
                         val authToken = json.getString(EMAIL_CODE)
                         model.process(LoginAuthIntents.GetSessionId(guid, authToken))
@@ -130,26 +144,12 @@ class LoginAuthActivity :
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             })
             forgotPasswordButton.setOnClickListener { launchPasswordRecoveryFlow() }
-            continueButton.setOnClickListener {
-                if (currentState.authMethod != TwoFAMethod.OFF) {
-                    model.process(
-                        LoginAuthIntents.SubmitTwoFactorCode(
-                            password = passwordText.text.toString(),
-                            code = codeText.text.toString()
-                        )
-                    )
-                    analytics.logEvent(SettingsAnalytics.TwoStepVerificationCodeSubmitted(TWO_SET_MOBILE_NUMBER_OPTION))
-                } else {
-                    model.process(LoginAuthIntents.VerifyPassword(passwordText.text.toString()))
-                }
-            }
         }
     }
 
     override fun initBinding(): ActivityLoginAuthBinding = ActivityLoginAuthBinding.inflate(layoutInflater)
 
     override fun render(newState: LoginAuthState) {
-        currentState = newState
         when (newState.authStatus) {
             AuthStatus.None -> binding.progressBar.visible()
             AuthStatus.GetSessionId,
@@ -218,6 +218,19 @@ class LoginAuthActivity :
                     )
                 }
             }.exhaustive
+            continueButton.setOnClickListener {
+                if (authMethod != TwoFAMethod.OFF) {
+                    model.process(
+                        LoginAuthIntents.SubmitTwoFactorCode(
+                            password = passwordText.text.toString(),
+                            code = codeText.text.toString()
+                        )
+                    )
+                    analytics.logEvent(SettingsAnalytics.TwoStepVerificationCodeSubmitted(TWO_SET_MOBILE_NUMBER_OPTION))
+                } else {
+                    model.process(LoginAuthIntents.VerifyPassword(passwordText.text.toString()))
+                }
+            }
         }
     }
 
@@ -244,7 +257,11 @@ class LoginAuthActivity :
 
     private fun launchPasswordRecoveryFlow() {
         if (internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY) && isAccountRecoveryEnabled) {
-            start<AccountRecoveryActivity>(this)
+            val intent = Intent(this, AccountRecoveryActivity::class.java).apply {
+                putExtra(EMAIL, email)
+                putExtra(RECOVERY_TOKEN, recoveryToken)
+            }
+            startActivity(intent)
         } else {
             RecoverFundsActivity.start(this)
         }
@@ -323,6 +340,7 @@ class LoginAuthActivity :
         private const val GUID = "guid"
         private const val EMAIL = "email"
         private const val EMAIL_CODE = "email_code"
+        private const val RECOVERY_TOKEN = "recovery_token"
         private const val DIGITS = "1234567890"
         private const val SECOND_PASSWORD_LINK_ANNOTATION = "learn_more"
         private const val RESET_2FA_LINK_ANNOTATION = "reset_2fa"
@@ -336,16 +354,6 @@ class LoginAuthActivity :
             "%2b" to "+",
             "%2f" to "/"
         )
-    }
-
-    private fun TextInputLayout.setErrorState(errorMessage: String) {
-        isErrorEnabled = true
-        error = errorMessage
-    }
-
-    private fun TextInputLayout.clearErrorState() {
-        error = ""
-        isErrorEnabled = false
     }
 }
 

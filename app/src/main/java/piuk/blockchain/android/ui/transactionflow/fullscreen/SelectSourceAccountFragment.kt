@@ -23,6 +23,7 @@ import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 
 class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSelectorBinding>() {
+
     private val customiser: SourceSelectionCustomisations by inject()
 
     private var availableSources: List<BlockchainAccount>? = null

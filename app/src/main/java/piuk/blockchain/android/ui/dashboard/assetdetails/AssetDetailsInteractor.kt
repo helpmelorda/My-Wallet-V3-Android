@@ -1,5 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.HistoricalRateList
+import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.FundsAccount
@@ -8,9 +11,7 @@ import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
-import info.blockchain.wallet.prices.TimeInterval
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
@@ -21,7 +22,6 @@ import piuk.blockchain.android.coincore.AvailableActions
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAsset
-import piuk.blockchain.androidcore.data.exchangerate.TimeSpan
 
 typealias AssetDisplayMap = Map<AssetFilter, AssetDisplayInfo>
 
@@ -38,8 +38,6 @@ sealed class AssetDetailsItem {
     data class RecurringBuyInfo(
         val recurringBuy: RecurringBuy
     ) : AssetDetailsItem()
-
-    object AssetLabel : AssetDetailsItem()
 
     object RecurringBuyBanner : AssetDetailsItem()
 }
@@ -63,13 +61,13 @@ class AssetDetailsInteractor(
     fun loadAssetDetails(asset: CryptoAsset) =
         getAssetDisplayDetails(asset)
 
-    fun loadExchangeRate(asset: CryptoAsset) =
+    fun loadExchangeRate(asset: CryptoAsset): Single<String> =
         asset.exchangeRate().map {
             it.price().toStringWithSymbol()
         }
 
-    fun loadHistoricPrices(asset: CryptoAsset, timeSpan: TimeSpan) =
-        asset.historicRateSeries(timeSpan, TimeInterval.FIFTEEN_MINUTES)
+    fun loadHistoricPrices(asset: CryptoAsset, timeSpan: HistoricalTimeSpan): Single<HistoricalRateList> =
+        asset.historicRateSeries(timeSpan)
             .onErrorResumeNext { Single.just(emptyList()) }
 
     fun shouldShowCustody(asset: AssetInfo): Single<Boolean> {

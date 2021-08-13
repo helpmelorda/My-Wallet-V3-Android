@@ -57,7 +57,6 @@ import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.androidcore.data.access.AccessState
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import com.blockchain.notifications.analytics.Logging
@@ -100,7 +99,6 @@ class MainPresenter internal constructor(
     private val prefs: PersistentPrefs,
     private val accessState: AccessState,
     private val payloadDataManager: PayloadDataManager,
-    private val exchangeRateFactory: ExchangeRateDataManager,
     private val qrProcessor: QrScanResultProcessor,
     private val kycStatusHelper: KycStatusHelper,
     private val deepLinkProcessor: DeepLinkProcessor,
@@ -495,12 +493,6 @@ class MainPresenter internal constructor(
     internal fun unPair() {
         view?.clearAllDynamicShortcuts()
         credentialsWiper.wipe()
-    }
-
-    internal fun updateTicker() {
-        compositeDisposable +=
-            exchangeRateFactory.updateTickers()
-                .subscribeBy(onError = { it.printStackTrace() }, onComplete = {})
     }
 
     private fun logEvents() {

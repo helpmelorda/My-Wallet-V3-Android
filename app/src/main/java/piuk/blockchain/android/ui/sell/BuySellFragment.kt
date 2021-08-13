@@ -83,7 +83,9 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
         analytics.logEvent(BuySellViewedEvent())
     }
 
-    private fun subscribeForNavigation() {
+    private fun subscribeForNavigation(showLoader: Boolean = true) {
+        val activityIndicator = if (showLoader) appUtil.activityIndicator else null
+
         compositeDisposable += simpleBuySync.performSync()
             .onErrorComplete()
             .toSingleDefault(false)
@@ -94,7 +96,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
             .doOnSubscribe {
                 binding.buySellEmpty.gone()
             }
-            .trackProgress(appUtil.activityIndicator)
+            .trackProgress(activityIndicator)
             .subscribeBy(
                 onSuccess = {
                     renderBuySellFragments(it)
@@ -119,7 +121,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
                         renderNotEligibleUi()
                     }
                 }
-                is BuySellIntroAction.StarBuyWithSelectedAsset -> {
+                is BuySellIntroAction.StartBuyWithSelectedAsset -> {
                     renderBuySellUi(action.hasPendingBuy)
                     if (!action.hasPendingBuy && !hasReturnedFromBuyActivity) {
                         hasReturnedFromBuyActivity = false
@@ -140,6 +142,13 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
                     )
                 )
             }
+        }
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden) {
+            subscribeForNavigation(showLoader = false)
         }
     }
 
@@ -179,7 +188,6 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
     private fun renderBuySellUi(hasPendingBuy: Boolean) {
         with(binding) {
             tabLayout.setupWithViewPager(pager)
-            activity?.setupToolbar(R.string.buy_and_sell)
 
             if (pager.adapter == null) {
                 pager.adapter = pagerAdapter
@@ -234,9 +242,9 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
         TYPE_SELL
     }
 
-    override fun onSheetClosed() = subscribeForNavigation()
+    override fun onSheetClosed() = subscribeForNavigation(showLoader = false)
 
-    override fun onSellFinished() = subscribeForNavigation()
+    override fun onSellFinished() = subscribeForNavigation(showLoader = false)
 
     override fun onSellInfoClicked() = navigator().goToTransfer()
 
@@ -246,6 +254,7 @@ class BuySellFragment : HomeScreenFragment, Fragment(), SellIntroFragment.SellIn
 
     override fun onResume() {
         super.onResume()
+        if (isHidden) return
         subscribeForNavigation()
     }
 

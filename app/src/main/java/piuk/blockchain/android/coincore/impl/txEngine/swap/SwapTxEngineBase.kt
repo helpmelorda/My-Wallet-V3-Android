@@ -1,6 +1,7 @@
 package piuk.blockchain.android.coincore.impl.txEngine.swap
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -10,7 +11,6 @@ import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -26,6 +26,7 @@ import piuk.blockchain.android.coincore.copyAndPut
 import piuk.blockchain.android.coincore.impl.txEngine.PricedQuote
 import piuk.blockchain.android.coincore.impl.txEngine.QuotedEngine
 import piuk.blockchain.android.coincore.impl.txEngine.TransferQuotesEngine
+import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.coincore.updateTxValidity
 import piuk.blockchain.android.ui.transactionflow.flow.FeeInfo
 import java.math.BigDecimal
@@ -66,11 +67,7 @@ abstract class SwapTxEngineBase(
         pendingTx: PendingTx,
         pricedQuote: PricedQuote
     ): PendingTx {
-        val exchangeRate = ExchangeRate.CryptoToFiat(
-            sourceAsset,
-            userFiat,
-            exchangeRates.getLastPrice(sourceAsset, userFiat)
-        )
+        val exchangeRate = exchangeRates.getLastCryptoToUserFiatRate(sourceAsset)
 
         minApiLimit = exchangeRate.inverse()
             .convert(limits.minLimit) as CryptoValue
@@ -129,7 +126,7 @@ abstract class SwapTxEngineBase(
                     } else
                         FeeInfo(
                             pendingTx.feeAmount,
-                            pendingTx.feeAmount.toFiat(exchangeRates, userFiat),
+                            pendingTx.feeAmount.toUserFiat(exchangeRates),
                             sourceAsset
                         ),
                     if (pricedQuote.transferQuote.networkFee.isZero) {
@@ -137,7 +134,7 @@ abstract class SwapTxEngineBase(
                     } else
                         FeeInfo(
                             pricedQuote.transferQuote.networkFee,
-                            pricedQuote.transferQuote.networkFee.toFiat(exchangeRates, userFiat),
+                            pricedQuote.transferQuote.networkFee.toUserFiat(exchangeRates),
                             target.asset
                         )
                 )
@@ -179,7 +176,7 @@ abstract class SwapTxEngineBase(
                     } else
                         FeeInfo(
                             pendingTx.feeAmount,
-                            pendingTx.feeAmount.toFiat(exchangeRates, userFiat),
+                            pendingTx.feeAmount.toUserFiat(exchangeRates),
                             sourceAsset
                         ),
                     if (pricedQuote.transferQuote.networkFee.isZero) {
@@ -187,7 +184,7 @@ abstract class SwapTxEngineBase(
                     } else
                         FeeInfo(
                             pricedQuote.transferQuote.networkFee,
-                            pricedQuote.transferQuote.networkFee.toFiat(exchangeRates, userFiat),
+                            pricedQuote.transferQuote.networkFee.toUserFiat(exchangeRates),
                             target.asset
                         )
                 )

@@ -1,7 +1,5 @@
 package piuk.blockchain.android.coincore.eth
 
-import com.blockchain.android.testutils.rxInit
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -22,24 +20,21 @@ import info.blockchain.wallet.ethereum.data.EthTransaction
 import io.reactivex.rxjava3.core.Single
 
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.spy
 import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
 import piuk.blockchain.android.coincore.TradeActivitySummaryItem
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
-class EthAccountActivityTest {
+class EthAccountActivityTest : CoincoreTestBase() {
 
     private val payloadManager: PayloadDataManager = mock()
     private val ethDataManager: EthDataManager = mock()
     private val feeDataManager: FeeDataManager = mock()
-    private val exchangeRates: ExchangeRateDataManager = mock()
-    private val currencyPrefs: CurrencyPrefs = mock()
     private val walletPrefs: WalletStatus = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val ethAccount: EthereumAccount = mock {
@@ -62,16 +57,9 @@ class EthAccountActivityTest {
             )
         )
 
-    @get:Rule
-    val rxSchedulers = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
-    }
-
     @Before
     fun setup() {
-        whenever(currencyPrefs.selectedFiatCurrency).thenReturn("USD")
+        initMocks()
     }
 
     @Test
@@ -96,18 +84,17 @@ class EthAccountActivityTest {
             .thenReturn(ethModel)
 
         val swapSummary = TradeTransactionItem(
-            "hash",
-            1L,
-            TransferDirection.ON_CHAIN,
-            "sendingAddress",
-            "receivingAddress",
-            CustodialOrderState.FINISHED,
-            CryptoValue.zero(CryptoCurrency.ETHER),
-            CryptoValue.zero(CryptoCurrency.BTC),
-            CryptoValue.zero(CryptoCurrency.BTC),
-            CurrencyPair.CryptoCurrencyPair(CryptoCurrency.ETHER, CryptoCurrency.BTC),
-            FiatValue.zero("USD"),
-            "USD"
+            txId = "hash",
+            timeStampMs = 1L,
+            direction = TransferDirection.ON_CHAIN,
+            sendingAddress = "sendingAddress",
+            receivingAddress = "receivingAddress",
+            state = CustodialOrderState.FINISHED,
+            sendingValue = CryptoValue.zero(CryptoCurrency.ETHER),
+            receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
+            withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
+            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.ETHER, CryptoCurrency.BTC),
+            apiFiatValue = FiatValue.zero(TEST_USER_FIAT)
         )
 
         val summaryList = listOf(swapSummary)
@@ -133,8 +120,8 @@ class EthAccountActivityTest {
                             sendingAddress == swapSummary.sendingAddress &&
                             receivingAddress == swapSummary.receivingAddress &&
                             state == swapSummary.state &&
-                            fiatValue == swapSummary.fiatValue &&
-                            fiatCurrency == swapSummary.fiatCurrency
+                            fiatValue == swapSummary.apiFiatValue &&
+                            fiatCurrency == TEST_USER_FIAT
                     }
             }
 
@@ -164,18 +151,17 @@ class EthAccountActivityTest {
             .thenReturn(ethModel)
 
         val swapSummary = TradeTransactionItem(
-            "123",
-            1L,
-            TransferDirection.ON_CHAIN,
-            "sendingAddress",
-            "receivingAddress",
-            CustodialOrderState.FINISHED,
-            CryptoValue.zero(CryptoCurrency.ETHER),
-            CryptoValue.zero(CryptoCurrency.BTC),
-            CryptoValue.zero(CryptoCurrency.BTC),
-            CurrencyPair.CryptoCurrencyPair(CryptoCurrency.ETHER, CryptoCurrency.BTC),
-            FiatValue.zero("USD"),
-            "USD"
+            txId = "123",
+            timeStampMs = 1L,
+            direction = TransferDirection.ON_CHAIN,
+            sendingAddress = "sendingAddress",
+            receivingAddress = "receivingAddress",
+            state = CustodialOrderState.FINISHED,
+            sendingValue = CryptoValue.zero(CryptoCurrency.ETHER),
+            receivingValue = CryptoValue.zero(CryptoCurrency.BTC),
+            withdrawalNetworkFee = CryptoValue.zero(CryptoCurrency.BTC),
+            currencyPair = CurrencyPair.CryptoCurrencyPair(CryptoCurrency.ETHER, CryptoCurrency.BTC),
+            apiFiatValue = FiatValue.zero(TEST_USER_FIAT)
         )
 
         val summaryList = listOf(swapSummary)

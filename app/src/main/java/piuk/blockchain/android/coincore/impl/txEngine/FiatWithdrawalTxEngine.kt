@@ -28,9 +28,6 @@ class FiatWithdrawalTxEngine(
         check(txTarget is LinkedBankAccount)
     }
 
-    override val userFiat: String
-        get() = (sourceAccount as FiatAccount).fiatCurrency
-
     override val canTransactFiat: Boolean
         get() = true
 

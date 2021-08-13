@@ -1,7 +1,6 @@
 package com.blockchain.api
 
 import com.blockchain.api.bitcoin.BitcoinApi
-import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.bitcoin.data.AddressSummary
 import com.blockchain.api.bitcoin.data.BalanceDto
 import com.blockchain.api.bitcoin.data.Info
@@ -14,6 +13,8 @@ import com.blockchain.api.bitcoin.data.Transaction
 import com.blockchain.api.bitcoin.data.UnspentOutputDto
 import com.blockchain.api.bitcoin.data.UnspentOutputsDto
 import com.blockchain.api.bitcoin.data.XpubDto
+import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.testutils.FakeHttpExceptionFactory
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -45,7 +46,7 @@ class NonCustodialBitcoinServiceTest {
         val legacyAddresses = listLegacy.joinToString(",")
         val bech32Addresses = listBech32.joinToString(",")
 
-        val balanceResponse = mockApiResponse(
+        val balanceResponse = FakeHttpExceptionFactory.mockApiCall(
             mapOf(
                 "xpub6CmZamQcHw2TPtbGmJNEvRgfhLwitarvzFn3fBYEEkFTqzt" +
                     "us7W7CNbf48Kxuj1bRRBmZPzQocB6qar9ay6buVkQk73ftKE1z4tt9cPHWRn"
@@ -170,7 +171,7 @@ class NonCustodialBitcoinServiceTest {
             info = Info(latestBlock = RawBlock(prevBlock = "1234"))
         )
 
-        val balanceResponse = mockApiResponse(response)
+        val balanceResponse = FakeHttpExceptionFactory.mockApiCall(response)
 
         whenever(
             api.getMultiAddress(
@@ -431,15 +432,5 @@ class NonCustodialBitcoinServiceTest {
         val callClient = client.pushTx("bch", txHash)
         val execution = callClient.execute()
         assertTrue(execution.isSuccessful)
-    }
-
-    private fun <T> mockApiResponse(responseBody: T): Call<T> {
-        val response: Response<T> = mock {
-            on { body() }.thenReturn(responseBody)
-            on { isSuccessful }.thenReturn(true)
-        }
-        return mock {
-            on { execute() }.thenReturn(response)
-        }
     }
 }

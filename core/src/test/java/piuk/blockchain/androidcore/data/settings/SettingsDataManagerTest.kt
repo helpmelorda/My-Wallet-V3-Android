@@ -16,7 +16,6 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import piuk.blockchain.android.testutils.RxTest
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.data.settings.datastore.SettingsDataStore
 import java.util.Arrays
 
@@ -27,11 +26,10 @@ class SettingsDataManagerTest : RxTest() {
     private val settingsDataStore: SettingsDataStore = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val walletSettingsService: WalletSettingsService = mock()
-    private val rxBus: RxBus = mock()
 
     @Before
     fun setUp() {
-        subject = SettingsDataManager(settingsService, settingsDataStore, currencyPrefs, walletSettingsService, rxBus)
+        subject = SettingsDataManager(settingsService, settingsDataStore, currencyPrefs, walletSettingsService)
     }
 
     @Test

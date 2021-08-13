@@ -9,7 +9,6 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.google.gms.google-services'
 
-
 buildProperties {
     secrets {
         using(file('secrets.properties')) | file('secretsDefaults.properties')
@@ -58,6 +57,7 @@ android {
         // Flag to hide or show the Contacts feature
         buildConfigBoolean "LOG_KOIN_STARTUP", false
         buildConfigBoolean "SKIP_VERIFF_KYC", false
+        buildConfigBoolean "INTERNAL", true
 
         buildConfigString "SHAPE_SHIFT_API_KEY", buildProperties.secrets['shapeShiftApiKey']
 
@@ -123,6 +123,7 @@ android {
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['prodSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
             buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['prodLoginLink']
+            buildConfigBoolean "INTERNAL", false
 
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
             if (ciVersionCode != null) {
@@ -163,45 +164,8 @@ android {
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
             if (ciVersionCode != null) {
                 versionCode = ciVersionCode.toInteger()
-                versionName = ciVersionCode
-                versionNameSuffix = ".$ciVersionCode"
-            } else {
-                versionCode = 1
-                versionName = 1
-                versionNameSuffix = ".local"
+                versionNameSuffix = ".${ciVersionCode}_alpha"
             }
-        }
-
-        envDev {
-            dimension "environment"
-            manifestPlaceholders = [
-                    APP_NAME: "@string/dev_app_name",
-                    BACKUP_API_KEY     : buildProperties.secrets['devGoogleBackupApiKey'].string,
-                    DYNAMIC_LINK_HOST  : buildProperties.secrets['devDynamicLink'].string,
-                    DYNAMIC_LINK_HOST_2: buildProperties.secrets['devDynamicLink2'].string,
-                    LOGIN_LINK_HOST    : buildProperties.secrets['devLoginLink'].string,
-            ]
-            buildConfigString "EXPLORER_URL", buildProperties.secrets['devExplorer']
-            buildConfigString "API_URL", buildProperties.secrets['devApiServer']
-            buildConfigString "EVERYPAY_HOST_URL", buildProperties.secrets['stagingEverypayHost']
-            buildConfigString "ETHEREUM_WEBSOCKET_URL", buildProperties.secrets['devEthWebsocket']
-            buildConfigString "BITCOIN_CASH_WEBSOCKET_URL", buildProperties.secrets['devBchWebsocket']
-            buildConfigString "NABU_WEBSOCKET_URL", buildProperties.secrets['devNabuWebsocket']
-            buildConfigString "HORIZON_URL", buildProperties.secrets['devHorizonUrl']
-            buildConfigString "PIT_LINKING_URL", buildProperties.secrets['devPitDoLink']
-            buildConfigString "PIT_LAUNCHING_URL", buildProperties.secrets['devPitLaunch']
-            buildConfigString "STATUS_API_URL", buildProperties.secrets['devApiStatus']
-            buildConfigString "COINS_WEBSOCKET_URL", buildProperties.secrets['devCoinsWebsocket']
-            buildConfigField "String", "ENVIRONMENT", '"env_dev"'
-            buildConfigField "String", "COMMIT_HASH", "\"${getGitCommitHash()}\""
-            buildConfigField "String", "VERSION_NAME_SUFFIX", "\"" + versionNameSuffix + "\""
-            buildConfigString "SIFT_ACCOUNT_ID", buildProperties.secrets['devSiftAccount']
-            buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['devSiftBeaconId']
-            buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaDevSiteKey']
-            buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['devLoginLink']
-
-            versionNameSuffix '-dev'
-            applicationId "piuk.blockchain.android.dev"
         }
         
         envStaging {
@@ -258,6 +222,10 @@ android {
 
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+
+        kotlinOptions {
+            jvmTarget = Versions.kotlinJvmTarget
+        }
     }
 
     lintOptions {
@@ -330,7 +298,6 @@ dependencies {
 
     // Views
     implementation Libraries.countryPicker
-    implementation Libraries.bottomNav
     implementation Libraries.circleIndicator
     implementation Libraries.charts
     implementation Libraries.sparkline

@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.recurringbuy
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -40,8 +39,9 @@ class RecurringBuyFirstTimeBuyerFragment :
                 getActivity()?.finish()
             }
             learnMoreBtn.setOnClickListener {
-                val intent = Intent(requireContext(), RecurringBuyOnboardingActivity::class.java)
-                startActivity(intent)
+                startActivity(
+                    RecurringBuyOnboardingActivity.newInstance(requireContext(), false)
+                )
             }
         }
     }

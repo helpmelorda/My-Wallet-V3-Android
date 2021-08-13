@@ -8,7 +8,6 @@ import piuk.blockchain.android.data.api.bitpay.models.RawPaymentRequest
 import piuk.blockchain.android.data.api.bitpay.models.exceptions.wrapErrorMessage
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.data.rxjava.RxPinning
 import retrofit2.Retrofit
 
 class BitPayService constructor(
@@ -18,17 +17,14 @@ class BitPayService constructor(
 ) {
 
     private val service: BitPay = retrofit.create(BitPay::class.java)
-    private val rxPinning: RxPinning = RxPinning(rxBus)
     private val baseUrl: String = environmentConfig.bitpayUrl
 
     internal fun getRawPaymentRequest(
         path: String = "$baseUrl$PATH_BITPAY_INVOICE",
         invoiceId: String,
         chain: String
-    ): Single<RawPaymentRequest> = rxPinning.callSingle {
-        service.getRawPaymentRequest("$path/$invoiceId", BitPayChain(chain))
-            .wrapErrorMessage()
-    }
+    ): Single<RawPaymentRequest> = service.getRawPaymentRequest("$path/$invoiceId", BitPayChain(chain))
+        .wrapErrorMessage()
 
     internal fun getPaymentVerificationRequest(
         path: String = "$baseUrl$PATH_BITPAY_INVOICE",

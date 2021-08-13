@@ -1,11 +1,11 @@
 package piuk.blockchain.android.coincore.fiat
 
+import com.blockchain.core.price.ExchangeRates
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
-import info.blockchain.balance.ExchangeRates
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single

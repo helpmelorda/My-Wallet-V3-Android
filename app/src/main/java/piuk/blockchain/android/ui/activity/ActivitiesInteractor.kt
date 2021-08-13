@@ -11,7 +11,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.Coincore
-import piuk.blockchain.android.repositories.AssetActivityRepository
+import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import timber.log.Timber
 
 class ActivitiesInteractor(

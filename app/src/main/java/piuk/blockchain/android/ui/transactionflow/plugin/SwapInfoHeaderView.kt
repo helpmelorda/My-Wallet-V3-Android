@@ -4,11 +4,13 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.coincore.CryptoAccount
+import piuk.blockchain.android.coincore.toFiat
 import piuk.blockchain.android.databinding.ViewCheckoutSwapHeaderBinding
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
@@ -18,7 +20,6 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.Transactio
 import piuk.blockchain.android.util.setAssetIconColoursNoTint
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 
 class SwapInfoHeaderView @JvmOverloads constructor(
     ctx: Context,
@@ -30,7 +31,7 @@ class SwapInfoHeaderView @JvmOverloads constructor(
     private lateinit var customiser: TransactionConfirmationCustomisations
     private lateinit var analytics: TxFlowAnalytics
     private val assetResources: AssetResources by inject()
-    private val exchangeRates: ExchangeRateDataManager by scopedInject()
+    private val exchangeRates: ExchangeRatesDataManager by scopedInject()
 
     private val binding: ViewCheckoutSwapHeaderBinding =
         ViewCheckoutSwapHeaderBinding.inflate(LayoutInflater.from(context), this, true)
@@ -52,7 +53,7 @@ class SwapInfoHeaderView @JvmOverloads constructor(
 
         with(binding) {
             state.pendingTx?.amount?.let { amount ->
-                sendingAmountCrypto.text = amount.toStringWithoutSymbol()
+                sendingAmountCrypto.text = amount.toStringWithSymbol()
                 state.fiatRate?.let {
                     sendingAmountFiat.text = it.convert(amount, false).toStringWithSymbol()
                 }
@@ -60,9 +61,9 @@ class SwapInfoHeaderView @JvmOverloads constructor(
 
             state.targetRate?.let { cryptoExchangeRate ->
                 val receivingAmount = cryptoExchangeRate.convert(state.amount)
-                receivingAmountCrypto.text = receivingAmount.toStringWithoutSymbol()
+                receivingAmountCrypto.text = receivingAmount.toStringWithSymbol()
                 state.pendingTx?.selectedFiat?.let { fiat ->
-                    receivingAmountFiat.text = receivingAmount.toFiat(exchangeRates, fiat).toStringWithSymbol()
+                    receivingAmountFiat.text = receivingAmount.toFiat(fiat, exchangeRates).toStringWithSymbol()
                 }
             }
 

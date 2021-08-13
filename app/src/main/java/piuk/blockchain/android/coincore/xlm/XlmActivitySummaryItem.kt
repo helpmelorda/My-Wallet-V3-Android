@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.xlm
 
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.sunriver.models.XlmTransaction
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
@@ -10,13 +11,12 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class XlmActivitySummaryItem(
     private val xlmTransaction: XlmTransaction,
-    override val exchangeRates: ExchangeRateDataManager,
+    override val exchangeRates: ExchangeRatesDataManager,
     override val account: CryptoAccount,
     private val payloadDataManager: PayloadDataManager
 ) : NonCustodialActivitySummaryItem() {

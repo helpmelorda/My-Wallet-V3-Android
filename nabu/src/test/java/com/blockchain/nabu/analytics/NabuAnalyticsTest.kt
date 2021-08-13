@@ -1,25 +1,23 @@
 package com.blockchain.nabu.analytics
 
+import com.blockchain.api.analytics.AnalyticsContext
+import com.blockchain.api.services.AnalyticsService
+import com.blockchain.api.services.NabuAnalyticsEvent
 import com.blockchain.nabu.datamanagers.analytics.AnalyticsContextProvider
 import com.blockchain.nabu.datamanagers.analytics.AnalyticsLocalPersistence
 import com.blockchain.nabu.datamanagers.analytics.NabuAnalytics
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import com.blockchain.utils.Optional
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.whenever
-import com.blockchain.api.services.AnalyticsService
-import com.blockchain.api.services.NabuAnalyticsEvent
-import com.blockchain.api.analytics.AnalyticsContext
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.anyOrNull
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import org.junit.Test
 import org.mockito.Mockito
 import piuk.blockchain.androidcore.utils.PersistentPrefs
@@ -69,6 +67,7 @@ class NabuAnalyticsTest {
                 authorization = anyOrNull()
             )
         ).thenReturn(Completable.complete())
+
         whenever(localAnalyticsPersistence.getAllItems()).thenReturn(Single.just(randomListOfEventsWithSize(84)))
         whenever(localAnalyticsPersistence.removeOldestItems(any())).thenReturn(Completable.complete())
         val testSubscriber = nabuAnalytics.flush().test()

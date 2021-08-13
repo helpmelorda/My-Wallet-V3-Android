@@ -3,6 +3,7 @@ package piuk.blockchain.android.coincore.erc20
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -15,7 +16,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.androidcore.data.exchangerate.ExchangeRateDataManager
 import kotlin.test.assertEquals
 
 class Erc20ActivitySummaryTest {
@@ -28,7 +28,7 @@ class Erc20ActivitySummaryTest {
     }
 
     private val erc20DataManager: Erc20DataManager = mock()
-    private val exchangeRates: ExchangeRateDataManager = mock()
+    private val exchangeRates: ExchangeRatesDataManager = mock()
 
     @Test
     fun transactionMapsToReceive() {

@@ -9,8 +9,8 @@ import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import info.blockchain.balance.AssetInfo
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewTransactionProgressBinding
 import piuk.blockchain.android.ui.resources.AssetResources
