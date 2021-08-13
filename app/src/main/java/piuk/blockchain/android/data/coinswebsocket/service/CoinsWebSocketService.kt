@@ -5,6 +5,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import com.blockchain.koin.scopedInject
+import com.blockchain.lifecycle.AppState
+import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.Analytics
 import org.koin.core.component.KoinComponent
@@ -15,8 +17,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.home.MainActivity
-import piuk.blockchain.android.util.lifecycle.AppState
-import piuk.blockchain.android.util.lifecycle.LifecycleInterestedComponent
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 

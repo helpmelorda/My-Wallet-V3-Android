@@ -86,6 +86,7 @@ class CreateWalletPresenter(
 
         compositeDisposable += payloadDataManager.createHdWallet(password, view.getDefaultAccountName(), email)
             .doOnSuccess {
+                analytics.logEvent(WalletCreationEvent.WalletSignUp)
                 accessState.isNewlyCreated = true
                 prefs.walletGuid = payloadDataManager.wallet!!.guid
                 prefs.sharedKey = payloadDataManager.wallet!!.sharedKey

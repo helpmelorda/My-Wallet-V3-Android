@@ -3,6 +3,8 @@ package com.blockchain.nabu.analytics
 import com.blockchain.api.analytics.AnalyticsContext
 import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.NabuAnalyticsEvent
+import com.blockchain.lifecycle.AppState
+import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.nabu.datamanagers.analytics.AnalyticsContextProvider
 import com.blockchain.nabu.datamanagers.analytics.AnalyticsLocalPersistence
 import com.blockchain.nabu.datamanagers.analytics.NabuAnalytics
@@ -48,11 +50,15 @@ class NabuAnalyticsTest {
         on { context() }.thenReturn(mockedContext)
     }
 
-    private val nabuAnalytics =
-        NabuAnalytics(
+    private val lifecycleObservable = mock<LifecycleObservable> {
+        on { onStateUpdated }.thenReturn(Observable.just(AppState.FOREGROUNDED))
+    }
+
+    private val subject = NabuAnalytics(
             localAnalyticsPersistence = localAnalyticsPersistence, prefs = prefs,
             crashLogger = mock(), analyticsService = analyticsService, tokenStore = tokenStore,
-            analyticsContextProvider = analyticsContextProvider
+            analyticsContextProvider = analyticsContextProvider,
+            lifecycleObservable = lifecycleObservable
         )
 
     @Test
@@ -70,7 +76,7 @@ class NabuAnalyticsTest {
 
         whenever(localAnalyticsPersistence.getAllItems()).thenReturn(Single.just(randomListOfEventsWithSize(84)))
         whenever(localAnalyticsPersistence.removeOldestItems(any())).thenReturn(Completable.complete())
-        val testSubscriber = nabuAnalytics.flush().test()
+        val testSubscriber = subject.flush().test()
 
         testSubscriber.assertComplete()
         Mockito.verify(analyticsService, times(9))
@@ -95,7 +101,7 @@ class NabuAnalyticsTest {
 
         whenever(localAnalyticsPersistence.getAllItems()).thenReturn(Single.just(randomListOfEventsWithSize(0)))
         whenever(localAnalyticsPersistence.removeOldestItems(any())).thenReturn(Completable.complete())
-        val testSubscriber = nabuAnalytics.flush().test()
+        val testSubscriber = subject.flush().test()
 
         testSubscriber.assertComplete()
         Mockito.verify(analyticsService, never())
@@ -119,7 +125,7 @@ class NabuAnalyticsTest {
 
         whenever(localAnalyticsPersistence.getAllItems()).thenReturn(Single.just(randomListOfEventsWithSize(10)))
         whenever(localAnalyticsPersistence.removeOldestItems(any())).thenReturn(Completable.complete())
-        val testSubscriber = nabuAnalytics.flush().test()
+        val testSubscriber = subject.flush().test()
 
         testSubscriber.assertNotComplete()
     }

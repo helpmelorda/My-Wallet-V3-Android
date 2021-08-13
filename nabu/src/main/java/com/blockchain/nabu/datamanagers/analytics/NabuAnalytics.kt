@@ -10,6 +10,8 @@ import com.blockchain.utils.Optional
 import com.blockchain.utils.toUtcIso8601
 import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.NabuAnalyticsEvent
+import com.blockchain.lifecycle.AppState
+import com.blockchain.lifecycle.LifecycleObservable
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -26,10 +28,18 @@ class NabuAnalytics(
     private val prefs: Lazy<PersistentPrefs>,
     private val localAnalyticsPersistence: AnalyticsLocalPersistence,
     private val crashLogger: CrashLogger,
+    lifecycleObservable: LifecycleObservable,
     private val analyticsContextProvider: AnalyticsContextProvider,
     private val tokenStore: NabuSessionTokenStore
 ) : Analytics, AppStartUpFlushable {
     private val compositeDisposable = CompositeDisposable()
+
+    init {
+        compositeDisposable += lifecycleObservable.onStateUpdated.filter { it == AppState.BACKGROUNDED }
+            .flatMapCompletable {
+                flush().onErrorComplete()
+            }.emptySubscribe()
+    }
 
     private val id: String by lazy {
         prefs.value.deviceId

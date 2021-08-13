@@ -9,12 +9,15 @@ import com.blockchain.koin.moshiExplorerRetrofit
 import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.usd
+import com.blockchain.lifecycle.LifecycleObservable
+import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentAccountMapper
 import com.blockchain.network.websocket.Options
 import com.blockchain.network.websocket.autoRetry
 import com.blockchain.network.websocket.debugLog
 import com.blockchain.network.websocket.newBlockchainWebSocket
+import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.DefaultLabels
 import com.google.gson.GsonBuilder
@@ -126,7 +129,6 @@ import piuk.blockchain.android.util.PrngHelper
 import piuk.blockchain.android.util.ResourceDefaultLabels
 import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.lifecycle.LifecycleInterestedComponent
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.PrngFixer
@@ -160,6 +162,7 @@ val applicationModule = module {
     single { CurrentContextAccess() }
 
     single { LifecycleInterestedComponent() }
+        .bind(LifecycleObservable::class)
 
     single {
         SiftDigitalTrust(
@@ -757,7 +760,7 @@ val applicationModule = module {
                 crashLogger = get(),
                 simpleBuySync = get(),
                 rxBus = get(),
-                flushables = getAll(),
+                flushables = getAll(AppStartUpFlushable::class),
                 walletCredentialsUpdater = get()
             )
         }

@@ -316,7 +316,8 @@ val nabuModule = module {
             analyticsContextProvider = get(),
             localAnalyticsPersistence = get(),
             crashLogger = get(),
-            tokenStore = get()
+            tokenStore = get(),
+            lifecycleObservable = get()
         )
     }
         .bind(AppStartUpFlushable::class)
