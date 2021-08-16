@@ -70,7 +70,7 @@ class LoadCustodialTradingHeaderDataIntent(
             isPendingExecution = summaryItem.status == OrderState.PENDING_EXECUTION,
             isFeeTransaction = false,
             confirmations = 0,
-            totalConfirmations = 0
+            totalConfirmations = if (summaryItem.status.isFinished()) 0 else null
         )
     }
 }
@@ -92,7 +92,7 @@ class LoadRecurringBuyDetailsHeaderDataIntent(
             isError = recurringBuyItem.transactionState.hasFailed(),
             isFeeTransaction = false,
             confirmations = 0,
-            totalConfirmations = 0,
+            totalConfirmations = if (recurringBuyItem.transactionState.isFinished()) 0 else null,
             recurringBuyError = recurringBuyItem.failureReason,
             transactionRecurringBuyState = recurringBuyItem.transactionState,
             recurringBuyPaymentMethodType = recurringBuyItem.paymentMethodType,

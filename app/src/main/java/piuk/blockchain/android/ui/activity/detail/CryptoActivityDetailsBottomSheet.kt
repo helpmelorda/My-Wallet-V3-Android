@@ -351,7 +351,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         pending: Boolean,
         pendingExecution: Boolean,
         confirmations: Int,
-        totalConfirmations: Int,
+        totalConfirmations: Int?,
         transactionType: TransactionSummary.TransactionType?,
         isFeeTransaction: Boolean,
         orderState: OrderState
@@ -393,7 +393,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
                     status.text = getString(R.string.activity_details_label_cancelled)
                     showPendingPill()
                 }
-                confirmations >= totalConfirmations -> {
+                totalConfirmations != null && confirmations >= totalConfirmations -> {
                     showCompletePill()
                     logAnalyticsForComplete(transactionType, isFeeTransaction)
                 }
@@ -406,9 +406,9 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
 
     private fun showConfirmationUi(
         confirmations: Int,
-        totalConfirmations: Int
+        totalConfirmations: Int?
     ) {
-        if (totalConfirmations > 0 && confirmations != totalConfirmations) {
+        if (totalConfirmations != null && totalConfirmations > 0 && confirmations != totalConfirmations) {
             binding.apply {
                 confirmationLabel.text =
                     getString(
