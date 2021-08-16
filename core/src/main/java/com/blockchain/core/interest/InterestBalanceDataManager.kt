@@ -26,7 +26,7 @@ internal class InterestBalanceDataManagerImpl(
 ) : InterestBalanceDataManager {
     override fun getBalanceForAsset(asset: AssetInfo): Single<InterestBalance> =
         balanceCallCache.getBalances().map {
-            it[asset] ?: zeroBalance(asset)
+            it.getOrDefault(asset, zeroBalance(asset))
         }
 
     override fun getAssetsWithBalance(): Single<Set<AssetInfo>> =

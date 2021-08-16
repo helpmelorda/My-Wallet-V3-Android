@@ -148,8 +148,8 @@ internal class CryptoInterestAccount(
                 reason
             }
 
-    override val actions: Single<AvailableActions> =
-        actionableBalance.map { balance ->
+    override val actions: Single<AvailableActions>
+        get() = actionableBalance.map { balance ->
             setOfNotNull(
                 AssetAction.InterestWithdraw.takeIf { balance.isPositive },
                 AssetAction.ViewStatement,

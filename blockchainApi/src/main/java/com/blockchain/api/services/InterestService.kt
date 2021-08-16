@@ -45,7 +45,13 @@ class InterestService internal constructor(
         authHeader: String
     ): Single<InterestBalanceDetailsList> =
         api.getAllInterestAccountBalances(authHeader)
-            .map { balanceMap ->
+            .map { response ->
+                when (response.code()) {
+                    HttpStatus.OK -> response.body() ?: emptyMap()
+                    HttpStatus.NO_CONTENT -> emptyMap()
+                    else -> throw HttpException(response)
+                }
+            }.map { balanceMap ->
                 balanceMap.mapValues { (assetTicker, balance) ->
                     balance.toBalanceDetails(assetTicker)
                 }.values.toList()

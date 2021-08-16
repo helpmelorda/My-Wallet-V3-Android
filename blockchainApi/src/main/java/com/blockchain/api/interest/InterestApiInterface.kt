@@ -18,5 +18,5 @@ internal interface InterestApiInterface {
     @GET("accounts/savings")
     fun getAllInterestAccountBalances(
         @Header("authorization") authorization: String
-    ): Single<Map<String, InterestAccountBalanceDto>>
+    ): Single<Response<Map<String, InterestAccountBalanceDto>>>
 }

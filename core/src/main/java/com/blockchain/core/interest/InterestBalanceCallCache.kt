@@ -26,8 +26,8 @@ internal class InterestBalanceCallCache(
                         assetInfo to entry.toInterestBalance(assetInfo)
                     }
                 }.toMap()
-            }
-        }
+            }.onErrorReturn { emptyMap() }
+    }
 
     private val cache = TimedCacheRequest(
         cacheLifetimeSeconds = CACHE_LIFETIME,
