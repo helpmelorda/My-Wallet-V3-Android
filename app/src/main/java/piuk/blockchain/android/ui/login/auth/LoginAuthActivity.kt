@@ -90,7 +90,7 @@ class LoginAuthActivity :
         intent.data?.let { uri ->
             uri.fragment?.let { fragment ->
                 try {
-                    validateAndLogDeeplinkHost(uri.host)
+                    validateAndLogDeeplinkHost(uri.host, uri.path)
                     val json = decodeJson(fragment)
                     val guid = json.getString(GUID)
                     email = json.getString(EMAIL)
@@ -99,7 +99,8 @@ class LoginAuthActivity :
                     binding.loginWalletLabel.text = getString(R.string.login_wallet_id_text, guid)
                     if (isAccountRecoveryEnabled &&
                         internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY) &&
-                        json.has(RECOVERY_TOKEN)) {
+                        json.has(RECOVERY_TOKEN)
+                    ) {
                         recoveryToken = json.getString(RECOVERY_TOKEN)
                     }
                     if (json.has(EMAIL_CODE)) {
@@ -296,7 +297,7 @@ class LoginAuthActivity :
         }
     }
 
-    private fun validateAndLogDeeplinkHost(host: String?) {
+    private fun validateAndLogDeeplinkHost(host: String?, path: String?) {
         host?.let {
             when (host) {
                 BuildConfig.LOGIN_HOST_LINK -> {
@@ -304,6 +305,7 @@ class LoginAuthActivity :
                         VALID_DEEPLINK_HOST,
                         BuildConfig.LOGIN_HOST_LINK
                     )
+                    crashLogger.logState(VALID_DEEPLINK_PATH, path ?: "No path")
                 }
                 else -> {
                     crashLogger.logState(
@@ -346,6 +348,7 @@ class LoginAuthActivity :
         private const val RESET_2FA_LINK_ANNOTATION = "reset_2fa"
         private const val INVALID_PAYLOAD_CHARACTER = "invalid_payload_character"
         private const val VALID_DEEPLINK_HOST = "valid_deeplink_host"
+        private const val VALID_DEEPLINK_PATH = "valid_deeplink_path"
         private const val INVALID_DEEPLINK_HOST = "invalid_deeplink_host"
         private val alphaNumericRegex = Regex("[a-zA-Z0-9]")
         private val unEscapedCharactersMap = mapOf(
