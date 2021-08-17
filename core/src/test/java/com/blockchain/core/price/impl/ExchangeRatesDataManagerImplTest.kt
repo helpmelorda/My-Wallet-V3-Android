@@ -18,6 +18,12 @@ import java.util.Calendar
 
 class ExchangeRatesDataManagerImplTest {
 
+    @get:Rule
+    val initSchedulers = rxInit {
+        mainTrampoline()
+        computationTrampoline()
+        ioTrampoline()
+    }
     private val priceService: AssetPriceService = mock {
         on {
             getHistoricPriceSince(
@@ -47,12 +53,6 @@ class ExchangeRatesDataManagerImplTest {
         currencyPrefs = currencyPrefs,
         calendar = calendar
     )
-
-    @get:Rule
-    val initSchedulers = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-    }
 
     @Test
     fun `get All Time Price`() {

@@ -576,16 +576,18 @@ class LiveCustodialWalletManager(
         }
 
     private fun paymentMethods(fiatCurrency: String, onlyEligible: Boolean, fetchSdddLimits: Boolean = false) =
-        authenticator.authenticate {
+        authenticator.authenticate { authToken ->
             Single.zip(
-                tradingBalanceDataManager.getFiatTotalBalanceForAsset(fiatCurrency)
-                    .map { balance -> CustodialFiatBalance(fiatCurrency, true, balance) }
-                    .defaultIfEmpty(CustodialFiatBalance(fiatCurrency, false, null)),
-                nabuService.getCards(it).onErrorReturn { emptyList() },
-                getBanks().map { banks -> banks.filter { it.paymentMethodType == PaymentMethodType.BANK_TRANSFER } }
-                    .onErrorReturn { emptyList() },
+                tradingBalanceDataManager.getBalanceForFiat(fiatCurrency)
+                    .singleOrError()
+                    .map { balance -> balance.total as FiatValue }
+                    .map { total -> CustodialFiatBalance(fiatCurrency, true, total) },
+                nabuService.getCards(authToken).onErrorReturn { emptyList() },
+                getBanks().map {
+                        banks -> banks.filter { it.paymentMethodType == PaymentMethodType.BANK_TRANSFER }
+                    }.onErrorReturn { emptyList() },
                 getSupportedPaymentMethods(
-                    sessionTokenResponse = it,
+                    sessionTokenResponse = authToken,
                     fiatCurrency = fiatCurrency,
                     onlyEligible = onlyEligible,
                     shouldFetchSddLimits = fetchSdddLimits
@@ -608,7 +610,7 @@ class LiveCustodialWalletManager(
                         paymentMethod.currency == fiatCurrency &&
                         SUPPORTED_FUNDS_CURRENCIES.contains(paymentMethod.currency)
                     ) {
-                        custodialFiatBalance.balance?.takeIf { balance ->
+                        custodialFiatBalance.balance.takeIf { balance ->
                             balance > FiatValue.fromMinor(
                                 paymentMethod.currency,
                                 paymentMethod.limits.min
@@ -1580,5 +1582,5 @@ interface PaymentAccountMapper {
 private data class CustodialFiatBalance(
     val currency: String,
     val available: Boolean,
-    val balance: FiatValue?
+    val balance: FiatValue
 )

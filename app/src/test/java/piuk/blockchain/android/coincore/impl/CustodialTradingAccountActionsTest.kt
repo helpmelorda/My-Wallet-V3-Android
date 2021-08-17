@@ -1,8 +1,8 @@
 package piuk.blockchain.android.coincore.impl
 
-import com.blockchain.android.testutils.rxInit
-import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.custodial.TradingAccountBalance
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
@@ -12,35 +12,25 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import org.junit.Rule
+import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.coincore.AssetAction
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 
-class CustodialTradingAccountTest {
+class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
-    @get:Rule
-    val rx = rxInit {
-        mainTrampoline()
-        ioTrampoline()
-        computationTrampoline()
-    }
-
-    private val testAsset = CryptoCurrency(
-        ticker = "NOPE",
-        name = "Not a real thing",
-        categories = setOf(AssetCategory.CUSTODIAL),
-        precisionDp = 8,
-        requiredConfirmations = 3,
-        colour = "000000"
-    )
-
-    private val exchangeRates: ExchangeRatesDataManager = mock()
     private val custodialManager: CustodialWalletManager = mock()
     private val tradingBalances: TradingBalanceDataManager = mock()
     private val identity: UserIdentity = mock()
     private val features: InternalFeatureFlagApi = mock()
+
+    @Before
+    fun setup() {
+        whenever(exchangeRates.cryptoToUserFiatRate(TEST_ASSET))
+            .thenReturn(Observable.just(TEST_TO_USER_RATE))
+    }
 
     @Test
     fun `If no base Actions set then action set is empty`() {
@@ -49,8 +39,8 @@ class CustodialTradingAccountTest {
         val subject = configureActionSubject(emptySet())
 
         configureActionTest(
-            accountBalance = CryptoValue.fromMinor(testAsset, 1000.toBigInteger()),
-            actionableBalance = CryptoValue.fromMinor(testAsset, 1000.toBigInteger()),
+            accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
+            actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             simpleBuy = true,
             interest = true,
             supportedFiat = listOf("USD")
@@ -71,8 +61,8 @@ class CustodialTradingAccountTest {
         val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
 
         configureActionTest(
-            accountBalance = CryptoValue.fromMinor(testAsset, 1000.toBigInteger()),
-            actionableBalance = CryptoValue.fromMinor(testAsset, 1000.toBigInteger()),
+            accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
+            actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             simpleBuy = true,
             interest = true,
             supportedFiat = listOf("USD")
@@ -93,8 +83,8 @@ class CustodialTradingAccountTest {
         val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
 
         configureActionTest(
-            accountBalance = CryptoValue.zero(testAsset),
-            actionableBalance = CryptoValue.zero(testAsset),
+            accountBalance = CryptoValue.zero(TEST_ASSET),
+            actionableBalance = CryptoValue.zero(TEST_ASSET),
             simpleBuy = true,
             interest = true,
             supportedFiat = listOf("USD")
@@ -119,8 +109,8 @@ class CustodialTradingAccountTest {
         val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
 
         configureActionTest(
-            accountBalance = CryptoValue.fromMinor(testAsset, 1000.toBigInteger()),
-            actionableBalance = CryptoValue.fromMinor(testAsset, 1000.toBigInteger()),
+            accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
+            actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             simpleBuy = false,
             interest = true,
             supportedFiat = listOf("USD")
@@ -147,8 +137,8 @@ class CustodialTradingAccountTest {
         val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
 
         configureActionTest(
-            accountBalance = CryptoValue.fromMinor(testAsset, 1000.toBigInteger()),
-            actionableBalance = CryptoValue.zero(testAsset),
+            accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
+            actionableBalance = CryptoValue.zero(TEST_ASSET),
             simpleBuy = true,
             interest = true,
             supportedFiat = listOf("USD")
@@ -176,8 +166,8 @@ class CustodialTradingAccountTest {
         val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
 
         configureActionTest(
-            accountBalance = CryptoValue.fromMinor(testAsset, 1000.toBigInteger()),
-            actionableBalance = CryptoValue.zero(testAsset),
+            accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
+            actionableBalance = CryptoValue.zero(TEST_ASSET),
             simpleBuy = true,
             interest = false,
             supportedFiat = listOf("USD")
@@ -204,8 +194,8 @@ class CustodialTradingAccountTest {
         val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
 
         configureActionTest(
-            accountBalance = CryptoValue.fromMinor(testAsset, 1000.toBigInteger()),
-            actionableBalance = CryptoValue.fromMinor(testAsset, 1000.toBigInteger()),
+            accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
+            actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             simpleBuy = true,
             interest = true,
             supportedFiat = emptyList()
@@ -239,8 +229,8 @@ class CustodialTradingAccountTest {
         )
 
         configureActionTest(
-            accountBalance = CryptoValue.fromMinor(testAsset, 1000.toBigInteger()),
-            actionableBalance = CryptoValue.fromMinor(testAsset, 1000.toBigInteger()),
+            accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
+            actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             simpleBuy = true,
             interest = true,
             supportedFiat = listOf("USD")
@@ -259,7 +249,7 @@ class CustodialTradingAccountTest {
 
     private fun configureActionSubject(actions: Set<AssetAction>): CustodialTradingAccount =
         CustodialTradingAccount(
-            asset = testAsset,
+            asset = TEST_ASSET,
             label = "Test Account",
             exchangeRates = exchangeRates,
             custodialWalletManager = custodialManager,
@@ -272,18 +262,23 @@ class CustodialTradingAccountTest {
     private fun configureActionTest(
         accountBalance: CryptoValue,
         actionableBalance: CryptoValue,
+        pendingBalance: CryptoValue = CryptoValue.zero(TEST_ASSET),
         simpleBuy: Boolean,
         interest: Boolean,
         supportedFiat: List<String>
     ) {
         whenever(identity.isEligibleFor(Feature.SimpleBuy)).thenReturn(Single.just(simpleBuy))
-        val interestFeature = Feature.Interest(testAsset)
+        val interestFeature = Feature.Interest(TEST_ASSET)
         whenever(identity.isEligibleFor(interestFeature)).thenReturn(Single.just(interest))
 
-        whenever(tradingBalances.getTotalBalanceForAsset(testAsset))
-            .thenReturn(Maybe.just(accountBalance))
-        whenever(tradingBalances.getActionableBalanceForAsset(testAsset))
-            .thenReturn(Maybe.just(actionableBalance))
+        val balance = TradingAccountBalance(
+            total = accountBalance,
+            actionable = actionableBalance,
+            pending = pendingBalance
+        )
+        whenever(tradingBalances.getBalanceForAsset(TEST_ASSET))
+            .thenReturn(Observable.just(balance))
+
         whenever(custodialManager.getSupportedFundsFiats())
             .thenReturn(Single.just(supportedFiat))
     }
@@ -297,6 +292,21 @@ class CustodialTradingAccountTest {
             AssetAction.Sell,
             AssetAction.Receive,
             AssetAction.Buy
+        )
+
+        private val TEST_ASSET = object : CryptoCurrency(
+            ticker = "NOPE",
+            name = "Not a real thing",
+            categories = setOf(AssetCategory.CUSTODIAL),
+            precisionDp = 8,
+            requiredConfirmations = 3,
+            colour = "000000"
+        ) {}
+
+        private val TEST_TO_USER_RATE = ExchangeRate.CryptoToFiat(
+            from = TEST_ASSET,
+            to = TEST_USER_FIAT,
+            rate = 1.2.toBigDecimal()
         )
     }
 }

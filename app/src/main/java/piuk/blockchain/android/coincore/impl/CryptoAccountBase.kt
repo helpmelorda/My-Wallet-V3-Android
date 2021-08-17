@@ -15,8 +15,10 @@ import info.blockchain.balance.Money
 import info.blockchain.balance.total
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
+import piuk.blockchain.android.coincore.AccountBalance
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.ActivitySummaryList
@@ -24,6 +26,7 @@ import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AvailableActions
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAccount
+import piuk.blockchain.android.coincore.ExchangeAccount
 import piuk.blockchain.android.coincore.NonCustodialAccount
 import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
 import piuk.blockchain.android.coincore.ReceiveAddress
@@ -46,6 +49,15 @@ abstract class CryptoAccountBase : CryptoAccount {
 
     final override var hasTransactions: Boolean = false
         private set
+
+    final override val accountBalance: Single<Money>
+        get() = balance.map { it.total }.singleOrError()
+
+    final override val actionableBalance: Single<Money>
+        get() = balance.map { it.actionable }.singleOrError()
+
+    final override val pendingBalance: Single<Money>
+        get() = balance.map { it.pending }.singleOrError()
 
     final override fun fiatBalance(
         fiatCurrency: String,
@@ -132,7 +144,7 @@ internal class CryptoExchangeAccount(
     override val label: String,
     private val address: String,
     override val exchangeRates: ExchangeRatesDataManager
-) : CryptoAccountBase() {
+) : CryptoAccountBase(), ExchangeAccount {
 
     override val baseActions: Set<AssetAction> = setOf()
 
@@ -142,11 +154,8 @@ internal class CryptoExchangeAccount(
     override fun matches(other: CryptoAccount): Boolean =
         other is CryptoExchangeAccount && other.asset == asset
 
-    override val accountBalance: Single<Money>
-        get() = Single.just(CryptoValue.zero(asset))
-
-    override val actionableBalance: Single<Money>
-        get() = accountBalance
+    override val balance: Observable<AccountBalance>
+        get() = Observable.just(AccountBalance.zero(asset))
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.just(
@@ -186,6 +195,21 @@ abstract class CryptoNonCustodialAccount(
 ) : CryptoAccountBase(), NonCustodialAccount {
 
     override val isFunded: Boolean = true
+
+    override val balance: Observable<AccountBalance>
+        get() = Observable.combineLatest(
+            getOnChainBalance(),
+            exchangeRates.cryptoToUserFiatRate(asset)
+        ) { balance, rate ->
+            AccountBalance(
+                total = balance,
+                actionable = balance,
+                pending = CryptoValue.zero(asset),
+                exchangeRate = rate
+            )
+        }
+
+    protected abstract fun getOnChainBalance(): Observable<Money>
 
     // The plan here is once we are caching the non custodial balances to remove this isFunded
     override val actions: Single<AvailableActions>
@@ -298,6 +322,9 @@ class CryptoAccountCustodialGroup(
     override val receiveAddress: Single<ReceiveAddress>
         get() = account.receiveAddress
 
+    override val balance: Observable<AccountBalance>
+        get() = account.balance
+
     override val accountBalance: Single<Money>
         get() = account.accountBalance
 
@@ -334,33 +361,33 @@ class CryptoAccountNonCustodialGroup(
     override val label: String,
     override val accounts: SingleAccountList
 ) : AccountGroup {
+
     // Produce the sum of all balances of all accounts
-    override val accountBalance: Single<Money>
+    override val balance: Observable<AccountBalance>
         get() = if (accounts.isEmpty()) {
-            Single.just(CryptoValue.zero(asset))
+            Observable.just(AccountBalance.zero(asset))
         } else {
-            Single.zip(
-                accounts.map { it.accountBalance }
+            Observable.zip(
+                accounts.map { it.balance }
             ) { t: Array<Any> ->
-                t.map { it as Money }
-                    .total()
+                val balances = t.map { it as AccountBalance }
+                AccountBalance(
+                    total = balances.map { it.total }.total(),
+                    actionable = balances.map { it.actionable }.total(),
+                    pending = balances.map { it.pending }.total(),
+                    exchangeRate = balances.first().exchangeRate
+                )
             }
         }
+
+    override val accountBalance: Single<Money>
+        get() = balance.map { it.total }.singleOrError()
 
     override val actionableBalance: Single<Money>
-        get() = if (accounts.isEmpty()) {
-            Single.just(CryptoValue.zero(asset))
-        } else {
-            Single.zip(
-                accounts.map { it.actionableBalance }
-            ) { t: Array<Any> ->
-                t.map { it as Money }
-                    .total()
-            }
-        }
+        get() = balance.map { it.actionable }.singleOrError()
 
     override val pendingBalance: Single<Money>
-        get() = Single.just(CryptoValue.zero(asset))
+        get() = balance.map { it.pending }.singleOrError()
 
     // All the activities for all the accounts
     override val activity: Single<ActivitySummaryList>

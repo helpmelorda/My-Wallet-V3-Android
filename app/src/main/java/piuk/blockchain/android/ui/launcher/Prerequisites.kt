@@ -79,7 +79,7 @@ class Prerequisites(
     fun warmCaches(): Completable =
         exchangeRates.prefetchCache(
             assetList = coincore.activeCryptoAssets(),
-            fiatList = SUPPORTED_API_FIAT
+            fiatList = coincore.supportedFiatAssets()
         ).logOnError(PRICE_CACHE_PREFETCH)
 
     companion object {
@@ -87,8 +87,5 @@ class Prerequisites(
         private const val SIMPLE_BUY_SYNC = "simple_buy_sync"
         private const val WALLET_CREDENTIALS = "wallet_credentials"
         private const val PRICE_CACHE_PREFETCH = "price_prefetch"
-
-        // TEMP: This will come from the /fiat BE supported assets call
-        private val SUPPORTED_API_FIAT = listOf("GBP", "EUR", "USD")
     }
 }

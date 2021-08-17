@@ -11,8 +11,10 @@ import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReaso
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.total
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
+import piuk.blockchain.android.coincore.AccountBalance
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.ActivitySummaryList
@@ -23,6 +25,7 @@ import piuk.blockchain.android.coincore.FiatAccount
 import piuk.blockchain.android.coincore.FiatActivitySummaryItem
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.SingleAccountList
+import piuk.blockchain.android.coincore.TradingAccount
 import piuk.blockchain.android.coincore.TxSourceState
 import piuk.blockchain.android.coincore.toFiat
 import java.util.concurrent.atomic.AtomicBoolean
@@ -33,34 +36,26 @@ internal class FiatCustodialAccount(
     override val isDefault: Boolean = false,
     private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
-    private val exchangesRatesDataManager: ExchangeRatesDataManager
-) : FiatAccount {
+    private val exchangesRates: ExchangeRatesDataManager
+) : FiatAccount, TradingAccount {
     private val hasFunds = AtomicBoolean(false)
 
+    override val balance: Observable<AccountBalance>
+        get() = Observable.combineLatest(
+            tradingBalanceDataManager.getBalanceForFiat(fiatCurrency),
+            exchangesRates.fiatToUserFiatRate(fiatCurrency)
+        ) { balance, rate ->
+            AccountBalance.from(balance, rate)
+        }.doOnNext { hasFunds.set(it.total.isPositive) }
+
     override val accountBalance: Single<Money>
-        get() = tradingBalanceDataManager.getFiatTotalBalanceForAsset(fiatCurrency)
-            .defaultIfEmpty(FiatValue.zero(fiatCurrency))
-            .map {
-                it as Money
-            }.doOnSuccess {
-                hasFunds.set(it.isPositive)
-            }
+        get() = balance.map { it.total }.singleOrError()
 
     override val actionableBalance: Single<Money>
-        get() = tradingBalanceDataManager.getFiatActionableBalanceForAsset(fiatCurrency)
-            .defaultIfEmpty(FiatValue.zero(fiatCurrency))
-            .map {
-                it as Money
-            }.doOnSuccess {
-                hasFunds.set(it.isPositive)
-            }
+        get() = balance.map { it.actionable }.singleOrError()
 
     override val pendingBalance: Single<Money>
-        get() = tradingBalanceDataManager.getFiatPendingBalanceForAsset(fiatCurrency)
-            .defaultIfEmpty(FiatValue.zero(fiatCurrency))
-            .map {
-                it as Money
-            }
+        get() = balance.map { it.total }.singleOrError()
 
     override var hasTransactions: Boolean = false
         private set
@@ -73,7 +68,7 @@ internal class FiatCustodialAccount(
                 it.map { fiatTransaction ->
                     FiatActivitySummaryItem(
                         currency = fiatCurrency,
-                        exchangeRates = exchangesRatesDataManager,
+                        exchangeRates = exchangesRates,
                         txId = fiatTransaction.id,
                         timeStampMs = fiatTransaction.date.time,
                         value = fiatTransaction.amount,
@@ -134,6 +129,9 @@ class FiatAccountGroup(
     override val accounts: SingleAccountList
 ) : AccountGroup {
     // Produce the sum of all balances of all accounts
+    override val balance: Observable<AccountBalance>
+        get() = Observable.error(NotImplementedError("No unified balance for All Fiat accounts"))
+
     override val accountBalance: Single<Money>
         get() = Single.error(NotImplementedError("No unified balance for All Fiat accounts"))
 

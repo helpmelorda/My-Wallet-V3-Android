@@ -18,9 +18,10 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
-import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import piuk.blockchain.android.coincore.AccountBalance
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.AssetAction
@@ -37,7 +38,6 @@ import piuk.blockchain.android.coincore.TxSourceState
 import piuk.blockchain.android.coincore.takeEnabledIf
 import piuk.blockchain.android.coincore.toFiat
 import piuk.blockchain.androidcore.utils.extensions.mapList
-import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
 
 class CustodialTradingAccount(
@@ -88,30 +88,13 @@ class CustodialTradingAccount(
     override fun matches(other: CryptoAccount): Boolean =
         other is CustodialTradingAccount && other.asset == asset
 
-    override val accountBalance: Single<Money>
-        get() = tradingBalances.getTotalBalanceForAsset(asset)
-            .defaultIfEmpty(CryptoValue.zero(asset))
-            .onErrorReturn {
-                Timber.d("Unable to get custodial trading total balance: $it")
-                CryptoValue.zero(asset)
-            }
-            .doOnSuccess { hasFunds.set(it.isPositive) }
-            .map { it }
-
-    override val actionableBalance: Single<Money>
-        get() = tradingBalances.getActionableBalanceForAsset(asset)
-            .defaultIfEmpty(CryptoValue.zero(asset))
-            .onErrorReturn {
-                Timber.d("Unable to get custodial trading actionable balance: $it")
-                CryptoValue.zero(asset)
-            }
-            .doOnSuccess { hasFunds.set(it.isPositive) }
-            .map { it }
-
-    override val pendingBalance: Single<Money>
-        get() = tradingBalances.getPendingBalanceForAsset(asset)
-            .defaultIfEmpty(CryptoValue.zero(asset))
-            .map { it }
+    override val balance: Observable<AccountBalance>
+        get() = Observable.combineLatest(
+            tradingBalances.getBalanceForAsset(asset),
+            exchangeRates.cryptoToUserFiatRate(asset)
+        ) { balance, rate ->
+            AccountBalance.from(balance, rate)
+        }.doOnNext { hasFunds.set(it.total.isPositive) }
 
     override val activity: Single<ActivitySummaryList>
         get() = custodialWalletManager.getAllOrdersFor(asset)

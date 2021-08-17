@@ -1,6 +1,6 @@
 package info.blockchain.wallet.api.dust
 
-import com.blockchain.nabu.util.waitForCompletionWithoutErrors
+import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever

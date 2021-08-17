@@ -81,7 +81,7 @@ private class InterestAssetItemViewHolder(
         }
 
         disposables += Single.zip(
-            interestBalance.getBalanceForAsset(item.asset),
+            interestBalance.getBalanceForAsset(item.asset).singleOrError(),
             custodialWalletManager.getInterestAccountRates(item.asset),
             custodialWalletManager.getInterestEligibilityForAsset(item.asset)
         ) { details, rate, eligibility ->

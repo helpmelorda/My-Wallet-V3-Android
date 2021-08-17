@@ -1,6 +1,6 @@
 package info.blockchain.wallet.ethereum
 
-import com.blockchain.nabu.util.waitForCompletionWithoutErrors
+import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.internal.createInstance
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever

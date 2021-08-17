@@ -110,6 +110,7 @@ val coreModule = module {
         factory {
             TradingBalanceCallCache(
                 balanceService = get(),
+                assetCatalogue = get(),
                 authHeaderProvider = get()
             )
         }

@@ -7,7 +7,7 @@ import com.blockchain.nabu.models.responses.nabu.TierUpdateJson
 import com.blockchain.nabu.service.NabuTierService
 import com.blockchain.nabu.util.fakefactory.nabu.FakeKycTiersFactory
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
-import com.blockchain.nabu.util.waitForCompletionWithoutErrors
+import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable

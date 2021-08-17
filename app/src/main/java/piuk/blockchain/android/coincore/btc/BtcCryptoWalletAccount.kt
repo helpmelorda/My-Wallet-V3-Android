@@ -6,7 +6,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.serialization.JsonSerializableAccount
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.data.Account
@@ -14,6 +13,7 @@ import info.blockchain.wallet.payload.data.ImportedAddress
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.AssetAction
@@ -65,18 +65,16 @@ internal class BtcCryptoWalletAccount(
     override val isFunded: Boolean
         get() = hasFunds.get()
 
-    override val accountBalance: Single<Money>
-        get() = getAccountBalance(false)
+    override fun getOnChainBalance(): Observable<Money> =
+        getAccountBalance(false)
+            .toObservable()
 
     private fun getAccountBalance(forceRefresh: Boolean): Single<Money> =
         payloadDataManager.getAddressBalanceRefresh(xpubs, forceRefresh)
             .doOnSuccess {
-                hasFunds.set(it > CryptoValue.zero(asset))
+                hasFunds.set(it.isPositive)
             }
             .map { it }
-
-    override val actionableBalance: Single<Money>
-        get() = accountBalance
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = when (internalAccount) {

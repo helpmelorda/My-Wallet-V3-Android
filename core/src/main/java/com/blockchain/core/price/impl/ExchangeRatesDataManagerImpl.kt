@@ -8,6 +8,7 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -38,6 +39,15 @@ internal class ExchangeRatesDataManagerImpl(
         sparklineCall.flush()
         return priceStore.populateCache(currencyPrefs.selectedFiatCurrency)
     }
+
+    override fun cryptoToUserFiatRate(fromAsset: AssetInfo): Observable<ExchangeRate> =
+        Observable.just(getLastCryptoToUserFiatRate(fromAsset))
+
+    override fun fiatToUserFiatRate(fromFiat: String): Observable<ExchangeRate> =
+        Observable.just(getLastFiatToUserFiatRate(fromFiat))
+
+    override fun fiatToRateFiatRate(fromFiat: String, toFiat: String): Observable<ExchangeRate> =
+        Observable.just(getLastFiatToFiatRate(fromFiat, toFiat))
 
     override fun getLastCryptoToUserFiatRate(sourceCrypto: AssetInfo): ExchangeRate.CryptoToFiat {
         checkAndTriggerPriceRefresh()

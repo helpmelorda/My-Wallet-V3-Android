@@ -10,6 +10,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.ethereum.EthereumAccount
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.AssetAction
@@ -38,25 +39,19 @@ internal class EthCryptoWalletAccount(
 
     internal val address: String
         get() = jsonAccount.address
+
     override val label: String
         get() = jsonAccount.label
 
     private val hasFunds = AtomicBoolean(false)
 
+    override fun getOnChainBalance(): Observable<Money> =
+        ethDataManager.fetchEthAddress()
+            .map { CryptoValue(asset, it.getTotalBalance()) as Money }
+            .doOnNext { hasFunds.set(it.isPositive) }
+
     override val isFunded: Boolean
         get() = hasFunds.get()
-
-    override val accountBalance: Single<Money>
-        get() = ethDataManager.fetchEthAddress()
-            .singleOrError()
-            .map { CryptoValue(CryptoCurrency.ETHER, it.getTotalBalance()) }
-            .doOnSuccess {
-                hasFunds.set(it > CryptoValue.zero(CryptoCurrency.ETHER))
-            }
-            .map { it }
-
-    override val actionableBalance: Single<Money>
-        get() = accountBalance
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.just(

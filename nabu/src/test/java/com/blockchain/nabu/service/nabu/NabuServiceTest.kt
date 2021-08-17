@@ -16,7 +16,7 @@ import com.blockchain.nabu.util.fakefactory.nabu.FakeAddressFactory
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuCountryFactory
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuUserFactory
-import com.blockchain.nabu.util.waitForCompletionWithoutErrors
+import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable

@@ -1,5 +1,6 @@
 package com.blockchain.testutils
 
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -38,3 +39,5 @@ fun Number.bitcoinCash() = CryptoValue.fromMajor(CryptoCurrency.BCH, numberToBig
 fun Number.satoshiCash() = CryptoValue.fromMinor(CryptoCurrency.BCH, numberToBigDecimal())
 fun Number.lumens() = CryptoValue.fromMajor(CryptoCurrency.XLM, numberToBigDecimal())
 fun Number.stroops() = CryptoValue.fromMinor(CryptoCurrency.XLM, numberToBigInteger())
+
+fun Number.testValue(asset: AssetInfo) = CryptoValue.fromMajor(asset, numberToBigDecimal())

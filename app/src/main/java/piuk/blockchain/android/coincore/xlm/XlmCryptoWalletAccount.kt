@@ -4,14 +4,18 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.sunriver.BalanceAndMin
 import com.blockchain.sunriver.XlmAccountReference
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.Money.Companion.max
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import piuk.blockchain.android.coincore.AccountBalance
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.ReceiveAddress
@@ -48,17 +52,27 @@ internal class XlmCryptoWalletAccount(
     override val isFunded: Boolean
         get() = hasFunds.get()
 
-    override val accountBalance: Single<Money>
-        get() = xlmManager.getBalance()
-            .doOnSuccess {
-                hasFunds.set(it > CryptoValue.zero(asset))
-            }
-            .map { it }
+    override val balance: Observable<AccountBalance>
+        get() = Observable.combineLatest(
+            getMinBalance(),
+            exchangeRates.cryptoToUserFiatRate(asset)
+        ) { balanceAndMin, rate ->
+            AccountBalance(
+                total = balanceAndMin.balance,
+                actionable = balanceAndMin.actionable,
+                pending = CryptoValue.zero(asset),
+                exchangeRate = rate
+            )
+        }.doOnNext { hasFunds.set(it.total.isPositive) }
 
-    override val actionableBalance: Single<Money>
-        get() = xlmManager.getBalanceAndMin().map {
-            it.balance - it.minimumBalance
-        }
+    override fun getOnChainBalance(): Observable<Money> =
+        getMinBalance()
+        .doOnNext { hasFunds.set(it.balance.isPositive) }
+        .map { it.balance as Money }
+
+    private fun getMinBalance(): Observable<BalanceAndMin> =
+        xlmManager.getBalanceAndMin()
+            .toObservable()
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.just(
@@ -97,3 +111,6 @@ internal class XlmCryptoWalletAccount(
             walletPreferences = walletPreferences
         )
 }
+
+private val BalanceAndMin.actionable: Money
+    get() = max(balance - minimumBalance, CryptoValue.zero(CryptoCurrency.XLM))

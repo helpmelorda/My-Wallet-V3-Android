@@ -37,11 +37,13 @@ val AssetInfo.isNonCustodial: Boolean
     get() = categories.contains(AssetCategory.NON_CUSTODIAL)
 
 interface AssetCatalogue {
+    val supportedFiatAssets: List<String>
     val supportedCryptoAssets: List<AssetInfo>
     val supportedCustodialAssets: List<AssetInfo>
 
     fun fromNetworkTicker(symbol: String): AssetInfo?
     fun supportedL2Assets(chain: AssetInfo): List<AssetInfo>
+    fun isFiatTicker(symbol: String): Boolean
 }
 
 open class CryptoCurrency(

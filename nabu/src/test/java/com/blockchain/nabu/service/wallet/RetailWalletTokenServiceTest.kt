@@ -4,7 +4,7 @@ import com.blockchain.nabu.api.wallet.RETAIL_JWT_TOKEN
 import com.blockchain.nabu.api.wallet.RetailWallet
 import com.blockchain.nabu.models.responses.wallet.RetailJwtResponse
 import com.blockchain.nabu.service.RetailWalletTokenService
-import com.blockchain.nabu.util.waitForCompletionWithoutErrors
+import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single

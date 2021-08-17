@@ -9,6 +9,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.AssetAction
@@ -48,14 +49,11 @@ class Erc20NonCustodialAccount(
             Erc20Address(asset, address, label)
         )
 
-    override val accountBalance: Single<Money>
-        get() = erc20DataManager.getErc20Balance(asset)
-            .map { it.balance }
-            .doOnSuccess { hasFunds.set(it.isPositive) }
-            .map { it }
-
-    override val actionableBalance: Single<Money>
-        get() = accountBalance
+    override fun getOnChainBalance(): Observable<Money> =
+        erc20DataManager.getErc20Balance(asset)
+            .doOnSuccess { hasFunds.set(it.balance.isPositive) }
+            .map { it.balance as Money }
+            .toObservable()
 
     override val activity: Single<ActivitySummaryList>
         get() {
