@@ -114,10 +114,11 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
             )
     }
 
-    object ShowManualPairing : LoginAuthIntents() {
+    class ShowManualPairing(private val guid: String?) : LoginAuthIntents() {
         override fun reduce(oldState: LoginAuthState): LoginAuthState =
             oldState.copy(
-                authStatus = AuthStatus.ShowManualPairing
+                authStatus = AuthStatus.ShowManualPairing,
+                guid = guid.orEmpty()
             )
     }
 
