@@ -14,6 +14,7 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.NonCustodialActivitySummaryItem
+import piuk.blockchain.android.data.historicRate.HistoricRateFetcher
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -25,6 +26,7 @@ import java.util.Date
 
 class NonCustodialActivityItemDelegate<in T>(
     private val currencyPrefs: CurrencyPrefs,
+    private val historicRateFetcher: HistoricRateFetcher,
     private val onItemClicked: (AssetInfo, String, CryptoActivityType) -> Unit // crypto, txID, type
 ) : AdapterDelegate<T> {
 
@@ -43,6 +45,7 @@ class NonCustodialActivityItemDelegate<in T>(
     ) = (holder as NonCustodialActivityItemViewHolder).bind(
         items[position] as NonCustodialActivitySummaryItem,
         currencyPrefs.selectedFiatCurrency,
+        historicRateFetcher,
         onItemClicked
     )
 }
@@ -56,6 +59,7 @@ private class NonCustodialActivityItemViewHolder(
     fun bind(
         tx: NonCustodialActivitySummaryItem,
         selectedFiatCurrency: String,
+        historicRateFetcher: HistoricRateFetcher,
         onAccountClicked: (AssetInfo, String, CryptoActivityType) -> Unit
     ) {
         disposables.clear()
@@ -75,7 +79,7 @@ private class NonCustodialActivityItemViewHolder(
 
             assetBalanceFiat.gone()
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
-            assetBalanceFiat.bindAndConvertFiatBalance(tx, disposables, selectedFiatCurrency)
+            assetBalanceFiat.bindAndConvertFiatBalance(tx, disposables, selectedFiatCurrency, historicRateFetcher)
 
             txRoot.setOnClickListener { onAccountClicked(tx.asset, tx.txId, CryptoActivityType.NON_CUSTODIAL) }
         }

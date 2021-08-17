@@ -13,6 +13,7 @@ import com.blockchain.utils.toFormattedDate
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.CustodialTradingActivitySummaryItem
+import piuk.blockchain.android.data.historicRate.HistoricRateFetcher
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -24,6 +25,7 @@ import java.util.Date
 
 class CustodialTradingActivityItemDelegate<in T>(
     private val currencyPrefs: CurrencyPrefs,
+    private val historicRateFetcher: HistoricRateFetcher,
     private val onItemClicked: (AssetInfo, String, CryptoActivityType) -> Unit // crypto, txID, type
 ) : AdapterDelegate<T> {
 
@@ -42,6 +44,7 @@ class CustodialTradingActivityItemDelegate<in T>(
     ) = (holder as CustodialTradingActivityItemViewHolder).bind(
         items[position] as CustodialTradingActivitySummaryItem,
         currencyPrefs.selectedFiatCurrency,
+        historicRateFetcher,
         onItemClicked
     )
 }
@@ -55,6 +58,7 @@ private class CustodialTradingActivityItemViewHolder(
     fun bind(
         tx: CustodialTradingActivitySummaryItem,
         selectedFiatCurrency: String,
+        historicRateFetcher: HistoricRateFetcher,
         onAccountClicked: (AssetInfo, String, CryptoActivityType) -> Unit
     ) {
         disposables.clear()
@@ -77,7 +81,7 @@ private class CustodialTradingActivityItemViewHolder(
             statusDate.setTxStatus(tx)
             setTextColours(tx.status)
 
-            assetBalanceFiat.bindAndConvertFiatBalance(tx, disposables, selectedFiatCurrency)
+            assetBalanceFiat.bindAndConvertFiatBalance(tx, disposables, selectedFiatCurrency, historicRateFetcher)
 
             assetBalanceCrypto.text = tx.value.toStringWithSymbol()
 

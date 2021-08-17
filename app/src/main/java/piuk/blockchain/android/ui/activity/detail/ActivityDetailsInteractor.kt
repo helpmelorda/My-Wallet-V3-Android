@@ -36,6 +36,7 @@ import piuk.blockchain.android.coincore.btc.BtcActivitySummaryItem
 import piuk.blockchain.android.coincore.erc20.Erc20ActivitySummaryItem
 import piuk.blockchain.android.coincore.eth.EthActivitySummaryItem
 import piuk.blockchain.android.coincore.xlm.XlmActivitySummaryItem
+import piuk.blockchain.android.data.historicRate.HistoricRateFetcher
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.ui.dashboard.assetdetails.selectFirstAccount
 import piuk.blockchain.android.util.StringUtils
@@ -49,6 +50,7 @@ class ActivityDetailsInteractor(
     private val custodialWalletManager: CustodialWalletManager,
     private val stringUtils: StringUtils,
     private val coincore: Coincore,
+    private val historicRateFetcher: HistoricRateFetcher,
     private val defaultLabels: DefaultLabels
 ) {
 
@@ -422,7 +424,7 @@ class ActivityDetailsInteractor(
 
     fun loadFeeItems(
         item: NonCustodialActivitySummaryItem
-    ) = item.totalFiatWhenExecuted(currencyPrefs.selectedFiatCurrency)
+    ) = item.totalFiatWhenExecuted(currencyPrefs.selectedFiatCurrency, historicRateFetcher)
         .flatMap { fiatValue ->
             getTransactionsMapForFeeItems(item, fiatValue)
         }.onErrorResumeNext {
@@ -455,7 +457,7 @@ class ActivityDetailsInteractor(
 
     fun loadReceivedItems(
         item: NonCustodialActivitySummaryItem
-    ) = item.totalFiatWhenExecuted(currencyPrefs.selectedFiatCurrency)
+    ) = item.totalFiatWhenExecuted(currencyPrefs.selectedFiatCurrency, historicRateFetcher)
         .flatMap { fiatValue ->
             getTransactionsMapForReceivedItems(item, fiatValue)
         }.onErrorResumeNext {
@@ -488,7 +490,7 @@ class ActivityDetailsInteractor(
 
     fun loadTransferItems(
         item: NonCustodialActivitySummaryItem
-    ) = item.totalFiatWhenExecuted(currencyPrefs.selectedFiatCurrency)
+    ) = item.totalFiatWhenExecuted(currencyPrefs.selectedFiatCurrency, historicRateFetcher)
         .flatMap { fiatValue ->
             getTransactionsMapForTransferItems(item, fiatValue)
         }.onErrorResumeNext {
@@ -531,7 +533,7 @@ class ActivityDetailsInteractor(
         item: NonCustodialActivitySummaryItem,
         value: Money?,
         selectedFiatCurrency: String
-    ) = item.totalFiatWhenExecuted(selectedFiatCurrency).flatMap { fiatValue ->
+    ) = item.totalFiatWhenExecuted(selectedFiatCurrency, historicRateFetcher).flatMap { fiatValue ->
         getTransactionsMapForConfirmedSentItems(value, fiatValue, item)
     }.onErrorResumeNext {
         getTransactionsMapForConfirmedSentItems(value, null, item)

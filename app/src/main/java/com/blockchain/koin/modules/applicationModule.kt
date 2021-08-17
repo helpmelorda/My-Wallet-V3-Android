@@ -21,12 +21,15 @@ import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.DefaultLabels
 import com.google.gson.GsonBuilder
+import com.squareup.sqldelight.android.AndroidSqliteDriver
+import com.squareup.sqldelight.db.SqlDriver
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import okhttp3.OkHttpClient
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
+import piuk.blockchain.android.Database
 import piuk.blockchain.android.cards.CardModel
 import piuk.blockchain.android.cards.partners.EverypayCardActivator
 import piuk.blockchain.android.data.api.bitpay.BitPayDataManager
@@ -103,6 +106,9 @@ import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapp
 import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
 import piuk.blockchain.android.data.TradeDataManagerImpl
 import piuk.blockchain.android.data.Mapper
+import piuk.blockchain.android.data.historicRate.HistoricRateFetcher
+import piuk.blockchain.android.data.historicRate.HistoricRateLocalSource
+import piuk.blockchain.android.data.historicRate.HistoricRateRemoteSource
 import piuk.blockchain.android.domain.repositories.TradeDataManager
 import piuk.blockchain.android.domain.usecases.GetNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
@@ -814,6 +820,18 @@ val applicationModule = module {
                 assetCatalogue = get()
             )
         }.bind(AccountsSorting::class)
+
+        scoped {
+            HistoricRateLocalSource(get())
+        }
+
+        scoped {
+            HistoricRateRemoteSource(get())
+        }
+
+        scoped {
+            HistoricRateFetcher(get(), get())
+        }
     }
 
     factory {
@@ -869,4 +887,10 @@ val applicationModule = module {
     }
 
     factory { FormatChecker() }
+
+    single<SqlDriver> { AndroidSqliteDriver(Database.Schema, get(), "cache.db") }
+
+    single {
+        Database(get())
+    }
 }

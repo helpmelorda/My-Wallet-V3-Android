@@ -51,7 +51,8 @@ val activitiesModule = module {
                 custodialWalletManager = get(),
                 stringUtils = get(),
                 coincore = get(),
-                defaultLabels = get()
+                defaultLabels = get(),
+                historicRateFetcher = get()
             )
         }
 

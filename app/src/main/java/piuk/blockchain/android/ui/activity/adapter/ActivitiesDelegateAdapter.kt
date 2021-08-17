@@ -9,6 +9,7 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.CryptoActivitySummaryItem
+import piuk.blockchain.android.data.historicRate.HistoricRateFetcher
 import piuk.blockchain.android.ui.activity.CryptoActivityType
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
@@ -17,6 +18,7 @@ import timber.log.Timber
 
 class ActivitiesDelegateAdapter(
     prefs: CurrencyPrefs,
+    historicRateFetcher: HistoricRateFetcher,
     onCryptoItemClicked: (AssetInfo, String, CryptoActivityType) -> Unit,
     onFiatItemClicked: (String, String) -> Unit
 ) : DelegationAdapter<ActivitySummaryItem>(AdapterDelegatesManager(), emptyList()) {
@@ -24,14 +26,14 @@ class ActivitiesDelegateAdapter(
     init {
         // Add all necessary AdapterDelegate objects here
         with(delegatesManager) {
-            addAdapterDelegate(NonCustodialActivityItemDelegate(prefs, onCryptoItemClicked))
+            addAdapterDelegate(NonCustodialActivityItemDelegate(prefs, historicRateFetcher, onCryptoItemClicked))
             addAdapterDelegate(SwapActivityItemDelegate(onCryptoItemClicked))
-            addAdapterDelegate(CustodialTradingActivityItemDelegate(prefs, onCryptoItemClicked))
+            addAdapterDelegate(CustodialTradingActivityItemDelegate(prefs, historicRateFetcher, onCryptoItemClicked))
             addAdapterDelegate(SellActivityItemDelegate(onCryptoItemClicked))
             addAdapterDelegate(CustodialFiatActivityItemDelegate(onFiatItemClicked))
-            addAdapterDelegate(CustodialInterestActivityItemDelegate(prefs, onCryptoItemClicked))
+            addAdapterDelegate(CustodialInterestActivityItemDelegate(prefs, historicRateFetcher, onCryptoItemClicked))
             addAdapterDelegate(CustodialRecurringBuyActivityItemDelegate(onCryptoItemClicked))
-            addAdapterDelegate(CustodialSendActivityItemDelegate(prefs, onCryptoItemClicked))
+            addAdapterDelegate(CustodialSendActivityItemDelegate(prefs, historicRateFetcher, onCryptoItemClicked))
         }
     }
 }
@@ -39,9 +41,10 @@ class ActivitiesDelegateAdapter(
 fun TextView.bindAndConvertFiatBalance(
     tx: CryptoActivitySummaryItem,
     disposables: CompositeDisposable,
-    selectedFiatCurrency: String
+    selectedFiatCurrency: String,
+    historicRateFetcher: HistoricRateFetcher
 ) {
-    disposables += tx.totalFiatWhenExecuted(selectedFiatCurrency).observeOn(AndroidSchedulers.mainThread())
+    disposables += tx.totalFiatWhenExecuted(selectedFiatCurrency, historicRateFetcher).observeOn(AndroidSchedulers.mainThread())
         .subscribeBy(
             onSuccess = {
                 text = it.toStringWithSymbol()

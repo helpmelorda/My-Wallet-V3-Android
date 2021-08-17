@@ -24,6 +24,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAccount
+import piuk.blockchain.android.data.historicRate.HistoricRateFetcher
 import piuk.blockchain.android.databinding.FragmentActivitiesBinding
 import piuk.blockchain.android.ui.activity.adapter.ActivitiesDelegateAdapter
 import piuk.blockchain.android.ui.activity.detail.CryptoActivityDetailsBottomSheet
@@ -56,6 +57,7 @@ class ActivitiesFragment :
     private val activityAdapter: ActivitiesDelegateAdapter by lazy {
         ActivitiesDelegateAdapter(
             prefs = get(),
+            historicRateFetcher = historicRateFetcher,
             onCryptoItemClicked = { assetInfo, tx, type ->
                 onCryptoActivityClicked(assetInfo, tx, type)
                 sendAnalyticsOnItemClickEvent(type, assetInfo)
@@ -71,6 +73,7 @@ class ActivitiesFragment :
     private val currencyPrefs: CurrencyPrefs by inject()
     private val exchangeRates: ExchangeRatesDataManager by scopedInject()
     private val assetResources: AssetResources by inject()
+    private val historicRateFetcher: HistoricRateFetcher by scopedInject()
 
     private val actionEvent by unsafeLazy {
         rxBus.register(ActionEvent::class.java)

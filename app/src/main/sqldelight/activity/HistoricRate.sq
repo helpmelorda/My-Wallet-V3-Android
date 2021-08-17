@@ -1,0 +1,17 @@
+CREATE TABLE historicRate (
+    currency TEXT NOT NULL,
+    fiatCurrency TEXT NOT NULL,
+    price REAL NOT NULL,
+    requestedTimestamp INTEGER NOT NULL,
+    PRIMARY KEY (fiatCurrency, currency, requestedTimestamp)
+);
+
+selectByKeys:
+SELECT * FROM historicRate WHERE currency = ? AND fiatCurrency = ? AND requestedTimestamp = ?;
+
+insert:
+INSERT INTO historicRate(currency, fiatCurrency, price, requestedTimestamp)
+VALUES (?, ?, ?, ?);
+
+clear:
+DELETE FROM historicRate;

@@ -61,6 +61,9 @@ object Versions {
     const val kotlinJson = "1.2.1"
     const val kotlinJsonConverter = "0.8.0"
 
+    // SqlDelight
+    const val sqlDelight = "1.5.0"
+
     const val koin = "3.1.2"
     const val rxJava = "3.0.7"
     const val rxKotlin = "3.0.1"
@@ -200,6 +203,11 @@ object Libraries {
     const val jacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jacksonCore}"
     const val gson = "com.google.code.gson:gson:${Versions.gson}"
     const val kotlinJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinJson}"
+
+    // SqlDelight
+    const val sqlDelight = "com.squareup.sqldelight:android-driver:${Versions.sqlDelight}"
+    const val sqlDelightPlugin = "com.squareup.sqldelight:gradle-plugin:${Versions.sqlDelight}"
+    const val rxSqlDelight = "com.squareup.sqldelight:rxjava3-extensions:${Versions.sqlDelight}"
 
     const val koin = "io.insert-koin:koin-core:${Versions.koin}"
     const val koinAndroid = "io.insert-koin:koin-android:${Versions.koin}"
