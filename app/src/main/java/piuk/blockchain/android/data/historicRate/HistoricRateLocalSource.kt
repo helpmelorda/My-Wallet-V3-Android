@@ -7,15 +7,16 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.Database
+import java.math.BigDecimal
 
 class HistoricRateLocalSource(private val database: Database) {
-    fun get(selectedFiat: String, asset: AssetInfo, requestedTimestamp: Long, value: Money): Single<Money> {
+    fun get(selectedFiat: String, asset: AssetInfo, requestedTimestamp: Long): Single<ExchangeRate> {
         return database.historicRateQueries.selectByKeys(asset.ticker, selectedFiat, requestedTimestamp).asObservable().mapToOne().map {
             ExchangeRate.CryptoToFiat(
                 from = asset,
                 to = selectedFiat,
                 rate = it.price.toBigDecimal()
-            ).convert(value)
+            ) as ExchangeRate
         }.firstOrError()
     }
 
