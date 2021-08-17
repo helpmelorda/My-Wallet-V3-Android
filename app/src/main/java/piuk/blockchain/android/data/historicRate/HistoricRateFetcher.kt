@@ -2,7 +2,6 @@ package piuk.blockchain.android.data.historicRate
 
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 
 class HistoricRateFetcher(val localSource: HistoricRateLocalSource, val remoteSource: HistoricRateRemoteSource) {

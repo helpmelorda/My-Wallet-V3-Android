@@ -3,7 +3,6 @@ package piuk.blockchain.android.data.historicRate
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 
 class HistoricRateRemoteSource(private val exchangeRates: ExchangeRatesDataManager) {
