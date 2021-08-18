@@ -77,7 +77,7 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
 
     private fun sendAnalyticsForRecurringBuyCancelClicked(state: AssetDetailsState) {
         state.selectedRecurringBuy?.let {
-            val paymentMethodType = it.paymentDetails?.let { paymentType -> paymentType.paymentDetails }
+            val paymentMethodType = it.paymentDetails?.paymentDetails
                 ?: throw IllegalStateException("Missing Payment Method on RecurringBuy")
             analytics.logEvent(
                 RecurringBuyAnalytics
@@ -94,11 +94,11 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
 
     override fun render(newState: AssetDetailsState) {
         cacheState = newState
-        if (newState.selectedRecurringBuy?.paymentDetails == null
-        ) {
+        if (newState.selectedRecurringBuy?.paymentDetails == null) {
             model.process(GetPaymentDetails)
+            return
         }
-        newState.selectedRecurringBuy?.let {
+        newState.selectedRecurringBuy.let {
             when {
                 it.state == RecurringBuyState.INACTIVE -> {
                     ToastCustom.makeText(

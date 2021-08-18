@@ -2,13 +2,11 @@ package piuk.blockchain.android.ui.activity.detail
 
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
@@ -694,14 +692,3 @@ private fun PaymentMethod.accountType(): String? =
         is PaymentMethod.Bank -> uiAccountType
         else -> null
     }
-
-private fun LinkedBank.toPaymentMethod() =
-    PaymentMethod.Bank(
-        bankId = id,
-        limits = PaymentLimits(0, 0, currency),
-        bankName = accountName,
-        accountEnding = accountNumber,
-        accountType = accountType,
-        isEligible = true,
-        iconUrl = iconUrl
-    )

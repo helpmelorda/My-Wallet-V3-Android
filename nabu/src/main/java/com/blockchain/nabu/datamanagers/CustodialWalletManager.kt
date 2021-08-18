@@ -601,7 +601,7 @@ sealed class PaymentMethod(
         val accountType: String,
         override val isEligible: Boolean,
         val iconUrl: String
-    ) : PaymentMethod(bankId, limits, BANK_PAYMENT_METHOD_ORDER, isEligible), Serializable {
+    ) : PaymentMethod(bankId, limits, BANK_PAYMENT_METHOD_ORDER, isEligible), Serializable, RecurringBuyPaymentDetails {
 
         override fun detailedLabel() =
             "$bankName $accountEnding"
@@ -613,6 +613,9 @@ sealed class PaymentMethod(
         @SuppressLint("DefaultLocale") // Yes, lint is broken
         val uiAccountType: String =
             accountType.toLowerCase(Locale.getDefault()).capitalize(Locale.getDefault())
+
+        override val paymentDetails: PaymentMethodType
+            get() = PaymentMethodType.BANK_TRANSFER
     }
 
     data class Card(
