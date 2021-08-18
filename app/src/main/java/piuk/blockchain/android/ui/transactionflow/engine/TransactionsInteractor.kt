@@ -59,7 +59,7 @@ class TransactionInteractor(
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
 
-    fun invalidateTransaction() =
+    fun invalidateTransaction(): Completable =
         Completable.fromAction {
             reset()
             transactionProcessor = null
@@ -125,8 +125,10 @@ class TransactionInteractor(
     private fun sellTargets(sourceAccount: CryptoAccount): Single<List<SingleAccount>> {
         val availableFiats =
             custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency)
-        val apiPairs = custodialWalletManager.getSupportedBuySellCryptoCurrencies()
-            .zipWith(availableFiats) { supportedPairs, fiats ->
+        val apiPairs = Single.zip(
+            custodialWalletManager.getSupportedBuySellCryptoCurrencies(),
+            availableFiats
+        ) { supportedPairs, fiats ->
                 supportedPairs.pairs.filter { fiats.contains(it.fiatCurrency) }
                     .map {
                         CurrencyPair.CryptoToFiatCurrencyPair(
@@ -161,7 +163,10 @@ class TransactionInteractor(
                 }
         }
 
-    fun getAvailableSourceAccounts(action: AssetAction, targetAccount: TransactionTarget) =
+    fun getAvailableSourceAccounts(
+        action: AssetAction,
+        targetAccount: TransactionTarget
+    ): Single<SingleAccountList> =
         when (action) {
             AssetAction.Swap -> {
                 coincore.allWalletsWithActions(setOf(action), accountsSorting.sorter())
@@ -185,7 +190,7 @@ class TransactionInteractor(
                 }
             }
             AssetAction.FiatDeposit -> {
-                linkedBanksFactory.getNonWireTransferBanks()
+                linkedBanksFactory.getNonWireTransferBanks().map { it }
             }
             else -> throw IllegalStateException("Source account should be preselected for action $action")
         }

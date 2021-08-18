@@ -29,6 +29,8 @@ import org.junit.Test
 import piuk.blockchain.android.coincore.impl.BackendNotificationUpdater
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -204,6 +206,119 @@ class BtcAssetTest {
             .assertError(BadPassphraseException::class.java)
 
         verifyNoMoreInteractions(coinsWebsocket)
+    }
+
+    @Test
+    fun parseGoodAddressWithNoPrefix() {
+        val goodAddress = "17GBRdfBHtEaBs7MesvMgob6YUEn5fFN4C"
+
+        whenever(sendDataManager.isValidBtcAddress(goodAddress)).thenReturn(true)
+
+        subject.parseAddress(goodAddress, TEST_LABEL)
+            .test()
+            .assertNoErrors()
+            .assertComplete()
+            .assertValue { v ->
+                v is BtcAddress &&
+                    v.address == goodAddress &&
+                    v.amount == null &&
+                    v.label == TEST_LABEL
+            }
+    }
+
+    @Test
+    fun parseGoodAddressWithPrefix() {
+        val prefix = "bitcoin:"
+        val goodAddress = "17GBRdfBHtEaBs7MesvMgob6YUEn5fFN4C"
+        val testInput = "$prefix$goodAddress"
+
+        whenever(sendDataManager.isValidBtcAddress(goodAddress)).thenReturn(true)
+
+        subject.parseAddress(testInput, TEST_LABEL)
+            .test()
+            .assertNoErrors()
+            .assertComplete()
+            .assertValue { v ->
+                v is BtcAddress &&
+                    v.address == goodAddress &&
+                    v.amount == null &&
+                    v.label == TEST_LABEL
+            }
+    }
+
+    @Test
+    fun parseGoodAddressWithPrefixAndAmount() {
+        val prefix = "bitcoin:"
+        val goodAddress = "17GBRdfBHtEaBs7MesvMgob6YUEn5fFN4C"
+        val amount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.004409.toBigDecimal())
+        val testInput = "$prefix$goodAddress?amount=${amount.toStringWithoutSymbol()}"
+
+        whenever(sendDataManager.isValidBtcAddress(goodAddress)).thenReturn(true)
+
+        subject.parseAddress(testInput, TEST_LABEL)
+            .test()
+            .assertNoErrors()
+            .assertComplete()
+            .assertValue { v ->
+                v is BtcAddress &&
+                    v.address == goodAddress &&
+                    v.amount == amount &&
+                    v.label == TEST_LABEL
+            }
+    }
+
+    @Test
+    fun parseGoodAddressWithPrefixAndUnknownSuffix() {
+
+        val prefix = "bitcoin:"
+        val goodAddress = "17GBRdfBHtEaBs7MesvMgob6YUEn5fFN4C"
+        val amount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.004409.toBigDecimal())
+        val testInput = "$prefix$goodAddress?unknown=${amount.toStringWithoutSymbol()}"
+
+        whenever(sendDataManager.isValidBtcAddress(goodAddress)).thenReturn(true)
+
+        subject.parseAddress(testInput, TEST_LABEL)
+            .test()
+            .assertNoErrors()
+            .assertComplete()
+            .assertValue { v ->
+                v is BtcAddress &&
+                    v.address == goodAddress &&
+                    v.amount == null &&
+                    v.label == TEST_LABEL
+            }
+    }
+
+    @Test
+    fun parseGoodAddressWithPrefixAndAmountAndUnknownSuffix() {
+
+        val prefix = "bitcoin:"
+        val goodAddress = "17GBRdfBHtEaBs7MesvMgob6YUEn5fFN4C"
+        val amount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.004409.toBigDecimal())
+        val testInput = "$prefix$goodAddress?amount=${amount.toStringWithoutSymbol()}?unknown=whatever"
+
+        whenever(sendDataManager.isValidBtcAddress(goodAddress)).thenReturn(true)
+
+        subject.parseAddress(testInput, TEST_LABEL)
+            .test()
+            .assertNoErrors()
+            .assertComplete()
+            .assertValue { v ->
+                v is BtcAddress &&
+                    v.address == goodAddress &&
+                    v.amount == amount &&
+                    v.label == TEST_LABEL
+            }
+    }
+
+    @Test
+    fun parseBadAddress() {
+        val badAddress = "ThisIsNotABTCAddress"
+        whenever(sendDataManager.isValidBtcAddress(badAddress)).thenReturn(false)
+
+        subject.parseAddress(badAddress, TEST_LABEL)
+            .test()
+            .assertResult() // Should be empty
     }
 
     companion object {

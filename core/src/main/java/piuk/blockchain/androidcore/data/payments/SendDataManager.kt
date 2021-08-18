@@ -10,6 +10,7 @@ import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Utxo
 import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
+import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.bitcoinj.core.Transaction
@@ -256,4 +257,7 @@ class SendDataManager(
                 .onErrorComplete()
                 .andThen(Single.just(it))
         }
+
+    fun isValidBtcAddress(address: String): Boolean =
+        FormatsUtil.isValidBitcoinAddress(address)
 }

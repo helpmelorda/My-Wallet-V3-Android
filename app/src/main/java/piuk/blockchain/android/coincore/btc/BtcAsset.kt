@@ -136,19 +136,20 @@ internal class BtcAsset(
             val parts = normalisedAddress.split("?")
             val addressPart = parts.getOrNull(0)
             val amountPart = parts.find {
-                it.startsWith("amount=", true)
+                it.startsWith(BTC_ADDRESS_AMOUNT_PART, true)
             }?.let {
-                CryptoValue.fromMajor(CryptoCurrency.BTC, it.toBigDecimal())
+                val amountString = it.removePrefix(BTC_ADDRESS_AMOUNT_PART)
+                CryptoValue.fromMajor(CryptoCurrency.BTC, amountString.toBigDecimal())
             }
-            if (addressPart != null && isValidAddress(normalisedAddress)) {
-                BtcAddress(address = normalisedAddress, label = label ?: address, amount = amountPart)
+            if (addressPart != null && isValidAddress(addressPart)) {
+                BtcAddress(address = addressPart, label = label ?: address, amount = amountPart)
             } else {
                 null
             }
         }
 
     override fun isValidAddress(address: String): Boolean =
-        FormatsUtil.isValidBitcoinAddress(address)
+        sendDataManager.isValidBtcAddress(address)
 
     fun createAccount(label: String, secondPassword: String?): Single<BtcCryptoWalletAccount> =
         payloadManager.createNewAccount(label, secondPassword)
@@ -219,6 +220,7 @@ internal class BtcAsset(
 
     companion object {
         private const val OFFLINE_CACHE_ITEM_COUNT = 5
+        private const val BTC_ADDRESS_AMOUNT_PART = "amount="
     }
 }
 
@@ -226,7 +228,7 @@ internal class BtcAddress(
     override val address: String,
     override val label: String = address,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() },
-    private val amount: CryptoValue? = null
+    override val amount: CryptoValue? = null
 ) : CryptoAddress {
     override val asset: AssetInfo = CryptoCurrency.BTC
 
