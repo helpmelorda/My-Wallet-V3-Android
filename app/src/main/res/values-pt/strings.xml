@@ -1699,7 +1699,6 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="sb_checkout_pending_order_title">Ordem em progresso</string>
     <string name="sb_checkout_pending_order_blurb">Ups, parece que já tem uma ordem de compra em progresso, espere até estar completa antes de comprar novamente.</string>
     <string name="wallet_outage_message">Estamos a experienciar uma interrupção. Fique descansado que os seus fundos estão seguros. <annotation link="learn_more">Saiba mais</annotation></string>
-    <string name="wallet_issue_message">Há um alerta em nossa página de status. Todas as funcionalidades do portfólio podem não estar disponíveis. Fique descansado que os seus fundos estão seguros.<annotation link="learn_more"> Saiba mais →</annotation></string>
     <string name="increase_your_limits">Aumente os seus limites</string>
     <string name="increase_your_limits_body">Continue a sua verificação para se tornar o nível Gold e aumente os seus limites e métodos de pagamento.</string>
     <string name="continue_to_gold">Continue para Gold</string>
@@ -2099,4 +2098,19 @@ Nos últimos 5 anos, comprar Bitcoin todas as semanas teve um desempenho melhor 
     <string name="recurring_buy_first_time_success_title">Compra recorrente iniciada!</string>
     <string name="recurring_buy_first_time_info">Compre %1$s de %2$s todos os dias, semanas ou meses com uma Compra Recorrente. Não há necessidade de cronometrar o mercado.</string>
     <string name="recurring_buy_first_time_success_subtitle">Compraremos %1$s de %2$s %3$s ao preço de mercado desse momento. Cancele esta compra recorrente em qualquer altura.</string>
+    <string name="common_reset_password">Repor palavra-passe</string>
+    <string name="country_not_selected">Selecione o seu país de residência</string>
+    <string name="state_not_selected">Selecione o seu estado</string>
+    <string name="strength_label">Segurança da palavra-passe</string>
+    <string name="new_asset_card_title">%1$s (%2$s) está agora em negociação</string>
+    <string name="new_asset_card_body">Compre, venda, troque, envie, receba e armazene %1$s na sua Blockchain.com Wallet.</string>
+    <string name="new_asset_card_cta">Comprar %1$s</string>
+    <string name="rb_announcement_title">As compras recorrentes já estão disponíveis</string>
+    <string name="rb_announcement_description">É muito difícil cronometrar o mercado e é por isso que muitos investidores utilizam a média dos custos em dólares. Estabeleça uma compra recorrente para tirar partido da média do custo em dólares.</string>
+    <string name="rb_announcement_action">Saber mais</string>
+    <string name="wallet_issue_message">Há um aviso na nossa página de estado. A funcionalidade completa de carteira pode não estar disponível. Não se preocupe, os seus fundos estão seguros. <annotation link="learn_more">Saber mais →</annotation></string>
+    <string name="reset_password_optional_label">Gostaria de repor a sua palavra-passe? Pode sempre fazê-lo mais tarde em Definições.</string>
+    <string name="reset_password_hint">Nova palavra-passe</string>
+    <string name="reset_password_confirm_hint">Confirmar a nova palavra-passe</string>
+    <string name="recurring_buy_frequency_subtitle_last_day_selector">No último dia do mês</string>
 </resources>
