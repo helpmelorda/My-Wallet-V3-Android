@@ -698,7 +698,7 @@ class LiveCustodialWalletManager(
     override fun getRecurringBuysForAsset(assetTicker: String): Single<List<RecurringBuy>> =
         authenticator.authenticate { sessionToken ->
             nabuService.getRecurringBuysForAsset(sessionToken, assetTicker).map { list ->
-                list.mapNotNull {
+                list.map {
                     it.toRecurringBuy(assetCatalogue)
                 }
             }
