@@ -318,6 +318,7 @@ class LoginAuthActivity :
         private const val DIGITS = "1234567890"
         private const val SECOND_PASSWORD_LINK_ANNOTATION = "learn_more"
         private const val RESET_2FA_LINK_ANNOTATION = "reset_2fa"
+
         private val unEscapedCharactersMap = mapOf(
             "%2B" to "+",
             "%2F" to "/",

@@ -129,7 +129,7 @@ class SimpleBuyInteractor(
                     destinationCurrency = asset.ticker,
                     paymentMethod = paymentMethod.paymentMethodType.name,
                     period = recurringBuyFrequency.name,
-                    beneficiaryId = paymentMethod.id
+                    paymentMethodId = paymentMethod.takeUnless { it.isFunds() }?.id
                 )
             )
         } else {
