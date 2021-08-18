@@ -45,6 +45,8 @@ interface CryptoTarget : TransactionTarget {
 
 interface CryptoAddress : CryptoTarget, ReceiveAddress {
     fun toUrl(amount: CryptoValue = CryptoValue.zero(asset)) = address
+    val amount: CryptoValue?
+        get() = null
 }
 
 interface AddressFactory {

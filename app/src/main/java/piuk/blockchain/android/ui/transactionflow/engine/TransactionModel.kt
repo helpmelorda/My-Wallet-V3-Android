@@ -14,6 +14,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAccount
+import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.FiatAccount
 import piuk.blockchain.android.coincore.NeedsApprovalException
 import piuk.blockchain.android.coincore.NullAddress
@@ -143,6 +144,23 @@ data class TransactionState(
             is CryptoValue -> available
             else -> throw IllegalStateException("Unknown money type")
         }
+
+    // If the current amount is the amount that was specified in a CryptoAddress target, then return that amount.
+    // This is a hack to allow the enter amount screen to uypdate to the initial amount, if one is specified,
+    // without getting stuck in an update loop
+    fun initialAmountToSet(): CryptoValue? {
+        return if (selectedTarget is CryptoAddress) {
+            val amount = selectedTarget.amount
+
+            if (amount != null && amount.isPositive && amount == pendingTx?.amount) {
+                selectedTarget.amount
+            } else {
+                null
+            }
+        } else {
+            null
+        }
+    }
 }
 
 class TransactionModel(
@@ -194,7 +212,7 @@ class TransactionModel(
             is TransactionIntent.InitialiseWithSourceAndTargetAccount -> {
                 processTargetSelectionConfirmed(
                     sourceAccount = intent.fromAccount,
-                    amount = intent.fromAccount.getZeroAmountForAccount(),
+                    amount = getInitialAmountFromTarget(intent),
                     transactionTarget = intent.target,
                     action = intent.action
                 )
@@ -235,16 +253,28 @@ class TransactionModel(
                 interactor.reset()
                 null
             }
-            is TransactionIntent.StartLinkABank -> processLinkABank(previousState)
-            is TransactionIntent.LinkBankInfoSuccess -> null
-            is TransactionIntent.LinkBankFailed -> null
             is TransactionIntent.RefreshSourceAccounts -> processSourceAccountsListUpdate(
                 previousState.action, previousState.selectedTarget
             )
+            is TransactionIntent.NavigateBackFromEnterAmount ->
+                processTransactionInvalidation(previousState.action)
+            is TransactionIntent.StartLinkABank -> processLinkABank(previousState)
+            is TransactionIntent.LinkBankInfoSuccess -> null
+            is TransactionIntent.LinkBankFailed -> null
             is TransactionIntent.ClearBackStack -> null
-            is TransactionIntent.NavigateBackFromEnterAmount -> processTransactionInvalidation(previousState.action)
             is TransactionIntent.ApprovalRequired -> null
             is TransactionIntent.ClearSelectedTarget -> null
+        }
+    }
+
+    private fun getInitialAmountFromTarget(
+        intent: TransactionIntent.InitialiseWithSourceAndTargetAccount
+    ): Money {
+        val amountSource = intent.target as? CryptoAddress
+        return if (amountSource != null) {
+            amountSource.amount ?: intent.fromAccount.getZeroAmountForAccount()
+        } else {
+            intent.fromAccount.getZeroAmountForAccount()
         }
     }
 
@@ -392,8 +422,9 @@ class TransactionModel(
             .doOnFirst {
                 if (it.validationState == ValidationState.UNINITIALISED ||
                     it.validationState == ValidationState.CAN_EXECUTE
-                )
+                ) {
                     onFirstUpdate(amount)
+                }
             }
             .subscribeBy(
                 onNext = {
