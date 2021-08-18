@@ -44,7 +44,6 @@ import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setErrorState
 import piuk.blockchain.android.util.visible
 import timber.log.Timber
-import java.lang.Exception
 
 class LoginAuthActivity :
     MviActivity<LoginAuthModel, LoginAuthIntents, LoginAuthState, ActivityLoginAuthBinding>() {
@@ -350,6 +349,7 @@ class LoginAuthActivity :
         private const val VALID_DEEPLINK_HOST = "valid_deeplink_host"
         private const val VALID_DEEPLINK_PATH = "valid_deeplink_path"
         private const val INVALID_DEEPLINK_HOST = "invalid_deeplink_host"
+
         private val alphaNumericRegex = Regex("[a-zA-Z0-9]")
         private val unEscapedCharactersMap = mapOf(
             "%2B" to "+",
