@@ -37,7 +37,6 @@ class TransactionErrorMapper {
                         NabuErrorCodes.OrderDirectionDisabled -> TransactionError.OrderDirectionDisabled
                         NabuErrorCodes.InvalidOrExpiredQuote -> TransactionError.InvalidOrExpiredQuote
                         NabuErrorCodes.InvalidDestinationAmount -> TransactionError.InvalidDestinationAmount
-                        NabuErrorCodes.InvalidPostcode -> TransactionError.InvalidPostcode
                         else -> TransactionError.UnexpectedError
                     }
                 }

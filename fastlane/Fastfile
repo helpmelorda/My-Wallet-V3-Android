@@ -305,7 +305,7 @@ platform :android do
     lane :ci_credentials_cleanup do
 
       sh("echo \"--------------Deleting Credentials Repo--------------\"")
-      sh("rm -r ../../tmp/credentials")
+      sh("rm -rf ../../tmp/credentials")
     end
 
     desc "Upload to AppCenter."
