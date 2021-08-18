@@ -124,7 +124,8 @@ enum class NabuErrorCodes(val code: Int) {
     OrderDirectionDisabled(151),
     InvalidOrExpiredQuote(155),
     IneligibleForSwap(156),
-    InvalidDestinationAmount(157);
+    InvalidDestinationAmount(157),
+    InvalidPostcode(158);
 
     companion object {
 

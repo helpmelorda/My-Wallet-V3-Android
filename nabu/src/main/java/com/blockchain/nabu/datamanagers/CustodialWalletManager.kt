@@ -531,6 +531,7 @@ sealed class TransactionError : Throwable() {
     object InvalidOrExpiredQuote : TransactionError()
     object IneligibleForSwap : TransactionError()
     object InvalidDestinationAmount : TransactionError()
+    object InvalidPostcode : TransactionError()
     object ExecutionFailed : TransactionError()
 }
 

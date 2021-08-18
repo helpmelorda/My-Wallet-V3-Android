@@ -578,6 +578,9 @@ class TransactionFlowCustomiserImpl(
                 R.string.send_enter_amount_error_invalid_amount_1,
                 state.pendingTx?.minLimit?.formatOrSymbolForZero() ?: throw IllegalStateException("Missing limit")
             )
+            TransactionErrorState.INVALID_POSTCODE -> resources.getString(
+                R.string.kyc_postcode_error
+            )
             TransactionErrorState.INVALID_ADDRESS -> resources.getString(
                 R.string.send_error_not_valid_asset_address,
                 state.sendingAccount.uiCurrency()
@@ -818,6 +821,9 @@ class TransactionFlowCustomiserImpl(
                 TransactionError.IneligibleForSwap -> resources.getString(R.string.trading_ineligible_for_swap)
                 TransactionError.InvalidDestinationAmount -> resources.getString(
                     R.string.trading_invalid_destination_amount
+                )
+                TransactionError.InvalidPostcode -> resources.getString(
+                    R.string.kyc_postcode_error
                 )
                 is TransactionError.ExecutionFailed -> resources.getString(
                     R.string.executing_transaction_error, state.sendingAsset.ticker

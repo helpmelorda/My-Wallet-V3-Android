@@ -30,6 +30,8 @@ interface WalletStatus {
     var countrySelectedOnSignUp: String
     var stateSelectedOnSignUp: String
 
+    fun clearGeolocationPreferences()
+
     var email: String
 
     val hasSeenTradingSwapPromo: Boolean

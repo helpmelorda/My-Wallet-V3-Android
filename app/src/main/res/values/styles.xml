@@ -309,6 +309,10 @@
         <item name="android:textSize">12sp</item>
     </style>
 
+    <style name="ErrorText.Red" parent="ErrorText">
+        <item name="android:textColor">@color/red_600</item>
+    </style>
+
     <style name="CommonDataInputAppearance" parent="Widget.MaterialComponents.TextInputLayout.FilledBox.Dense">
         <item name="colorControlNormal">@color/grey_200</item>
         <item name="boxBackgroundColor">@color/grey_000</item>

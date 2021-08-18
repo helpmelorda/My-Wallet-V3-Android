@@ -294,6 +294,11 @@ class PrefsUtil(
         get() = getValue(STATE_SIGNED_UP, "")
         set(value) = setValue(STATE_SIGNED_UP, value)
 
+    override fun clearGeolocationPreferences() {
+        removeValue(COUNTRY_SIGN_UP)
+        removeValue(STATE_SIGNED_UP)
+    }
+
     // Notification prefs
     override var arePushNotificationsEnabled: Boolean
         get() = getValue(KEY_PUSH_NOTIFICATION_ENABLED, true)
@@ -457,7 +462,7 @@ class PrefsUtil(
         store.getString(name, null)
 
     override fun getValue(name: String, defaultValue: String): String =
-        store.getString(name, defaultValue) ?: ""
+        store.getString(name, defaultValue).orEmpty()
 
     override fun getValue(name: String, defaultValue: Int): Int =
         store.getInt(name, defaultValue)

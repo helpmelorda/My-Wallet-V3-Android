@@ -46,9 +46,11 @@ class KycEmailEntryFragment :
         }
         model.process(EmailVeriffIntent.StartEmailVerification)
 
-        binding.skip.gone()
-        binding.skip.setOnClickListener {
-            emailEntryHost.onEmailVerificationSkipped()
+        binding.skip.apply {
+            gone()
+            setOnClickListener {
+                emailEntryHost.onEmailVerificationSkipped()
+            }
         }
     }
 

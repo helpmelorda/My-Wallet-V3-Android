@@ -127,7 +127,7 @@ class ReentryDecisionTest {
     }
 
     @Test
-    fun `if user is tier 0, upgraded but no profile still go to profile`() {
+    fun `if user is tier 0, upgraded but no profile still and country is selected go to Profile`() {
         whereNext(
             createdNabuUser(tier = 0, next = 2).copy(
                 email = "abc@def.com",
@@ -142,6 +142,24 @@ class ReentryDecisionTest {
                 )
             )
         ) `should be` ReentryPoint.Profile
+    }
+
+    @Test
+    fun `if user is tier 0, upgraded but no profile still and no country is selected go to CountrySelection`() {
+        whereNext(
+            createdNabuUser(tier = 0, next = 2).copy(
+                email = "abc@def.com",
+                emailVerified = true,
+                address = Address(
+                    line1 = "",
+                    line2 = "",
+                    city = "",
+                    state = "",
+                    postCode = "",
+                    countryCode = ""
+                )
+            )
+        ) `should be` ReentryPoint.CountrySelection
     }
 
     @Test

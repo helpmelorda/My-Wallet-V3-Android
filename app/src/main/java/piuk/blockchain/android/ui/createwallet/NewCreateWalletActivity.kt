@@ -154,7 +154,7 @@ class NewCreateWalletActivity : BaseMvpActivity<NewCreateWalletView, NewCreateWa
             SearchPickerItemBottomSheet.newInstance(
                 US.values()
                     .map {
-                        StatePickerItem(it.ANSIAbbreviation, it.unabbreviated)
+                        StatePickerItem(it.iSOAbbreviation, it.unabbreviated)
                     }
             ).show(supportFragmentManager, KycEmailEntryFragment.BOTTOM_SHEET)
         }
@@ -258,7 +258,7 @@ class NewCreateWalletActivity : BaseMvpActivity<NewCreateWalletView, NewCreateWa
 
     private fun createStateItemFromIsoCode(isoCode: String): StatePickerItem {
         val stateItem = US.values().first { it.iSOAbbreviation == isoCode }
-        return StatePickerItem(stateItem.ANSIAbbreviation, stateItem.unabbreviated)
+        return StatePickerItem(stateItem.iSOAbbreviation, stateItem.unabbreviated)
     }
 
     override fun enforceFlagSecure() = true

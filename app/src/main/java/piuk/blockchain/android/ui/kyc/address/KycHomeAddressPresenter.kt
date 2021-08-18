@@ -7,6 +7,8 @@ import piuk.blockchain.android.campaign.CampaignType
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.models.responses.nabu.NabuApiException
+import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import com.blockchain.notifications.analytics.Analytics
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -141,6 +143,7 @@ class KycHomeAddressPresenter(
                     tryToVerifyUserForSdd(state, campaignType)
                 } else Single.just(state)
             }
+            .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { view.showProgressDialog() }
             .doOnEvent { _, _ -> view.dismissProgressDialog() }
@@ -155,7 +158,12 @@ class KycHomeAddressPresenter(
                         KycNextStepDecision.NextStep.SDDComplete -> view.onSddVerified()
                     }
                 },
-                onError = { view.showErrorToast(R.string.kyc_address_error_saving) }
+                onError = {
+                    when ((it as? NabuApiException?)?.getErrorCode()) {
+                        NabuErrorCodes.InvalidPostcode -> view.showInvalidPostcode()
+                        else -> view.showErrorToast(R.string.kyc_address_error_saving)
+                    }
+                }
             )
     }
 
