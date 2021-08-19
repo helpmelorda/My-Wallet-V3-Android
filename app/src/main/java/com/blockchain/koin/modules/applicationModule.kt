@@ -106,9 +106,6 @@ import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapp
 import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
 import piuk.blockchain.android.data.TradeDataManagerImpl
 import piuk.blockchain.android.data.Mapper
-import com.blockchain.data.activity.historicRate.HistoricRateFetcher
-import com.blockchain.data.activity.historicRate.HistoricRateLocalSource
-import com.blockchain.data.activity.historicRate.HistoricRateRemoteSource
 import piuk.blockchain.android.domain.repositories.TradeDataManager
 import piuk.blockchain.android.domain.usecases.GetNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
