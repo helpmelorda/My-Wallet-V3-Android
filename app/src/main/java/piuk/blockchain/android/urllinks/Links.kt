@@ -68,3 +68,6 @@ const val PAX_RENAMED_LEARN_MORE =
 // TODO James needs to provide link
 const val DOLLAR_COST_AVERAGING =
     "https://support.blockchain.com/hc/en-us/articles/4403064398484"
+
+const val TRADING_ACCOUNT_LOCKS =
+    "https://support.blockchain.com/hc/en-us/articles/360051018131-Trading-Account-Withdrawal-Holds"

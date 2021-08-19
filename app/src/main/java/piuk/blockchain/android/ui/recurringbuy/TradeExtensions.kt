@@ -18,7 +18,7 @@ fun PaymentMethodType.subtitleForLockedFunds(
     val intro = when (this) {
         PaymentMethodType.PAYMENT_CARD ->
             context.getString(
-                R.string.security_locked_card_funds_explanation,
+                R.string.security_locked_card_funds_explanation_1,
                 lockedFundDays.toString()
             )
         PaymentMethodType.BANK_TRANSFER ->
