@@ -44,7 +44,7 @@ fun TextView.bindAndConvertFiatBalance(
     selectedFiatCurrency: String,
     historicRateFetcher: HistoricRateFetcher
 ) {
-    disposables += tx.totalFiatWhenExecuted(selectedFiatCurrency, historicRateFetcher)
+    disposables += historicRateFetcher.fetch(tx.asset, selectedFiatCurrency, tx.timeStampMs, tx.value)
         .observeOn(AndroidSchedulers.mainThread())
         .subscribeBy(
             onSuccess = {

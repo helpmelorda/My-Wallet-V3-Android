@@ -1,16 +1,16 @@
 CREATE TABLE historicRate (
-    currency TEXT NOT NULL,
-    fiatCurrency TEXT NOT NULL,
+    sourceAsset TEXT NOT NULL,
+    targetAsset TEXT NOT NULL,
     price REAL NOT NULL,
     requestedTimestamp INTEGER NOT NULL,
-    PRIMARY KEY (fiatCurrency, currency, requestedTimestamp)
+    PRIMARY KEY (targetAsset, sourceAsset, requestedTimestamp)
 );
 
 selectByKeys:
-SELECT * FROM historicRate WHERE currency = ? AND fiatCurrency = ? AND requestedTimestamp = ?;
+SELECT * FROM historicRate WHERE sourceAsset = ? AND targetAsset = ? AND requestedTimestamp = ?;
 
 insert:
-INSERT INTO historicRate(currency, fiatCurrency, price, requestedTimestamp)
+INSERT INTO historicRate(sourceAsset, targetAsset, price, requestedTimestamp)
 VALUES (?, ?, ?, ?);
 
 clear:

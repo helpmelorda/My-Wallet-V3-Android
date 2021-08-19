@@ -424,7 +424,7 @@ class ActivityDetailsInteractor(
 
     fun loadFeeItems(
         item: NonCustodialActivitySummaryItem
-    ) = item.totalFiatWhenExecuted(currencyPrefs.selectedFiatCurrency, historicRateFetcher)
+    ) = historicRateFetcher.fetch(item.asset, currencyPrefs.selectedFiatCurrency, item.timeStampMs, item.value)
         .flatMap { fiatValue ->
             getTransactionsMapForFeeItems(item, fiatValue)
         }.onErrorResumeNext {
@@ -457,7 +457,7 @@ class ActivityDetailsInteractor(
 
     fun loadReceivedItems(
         item: NonCustodialActivitySummaryItem
-    ) = item.totalFiatWhenExecuted(currencyPrefs.selectedFiatCurrency, historicRateFetcher)
+    ) = historicRateFetcher.fetch(item.asset, currencyPrefs.selectedFiatCurrency, item.timeStampMs, item.value)
         .flatMap { fiatValue ->
             getTransactionsMapForReceivedItems(item, fiatValue)
         }.onErrorResumeNext {
@@ -490,7 +490,7 @@ class ActivityDetailsInteractor(
 
     fun loadTransferItems(
         item: NonCustodialActivitySummaryItem
-    ) = item.totalFiatWhenExecuted(currencyPrefs.selectedFiatCurrency, historicRateFetcher)
+    ) = historicRateFetcher.fetch(item.asset, currencyPrefs.selectedFiatCurrency, item.timeStampMs, item.value)
         .flatMap { fiatValue ->
             getTransactionsMapForTransferItems(item, fiatValue)
         }.onErrorResumeNext {
@@ -533,7 +533,7 @@ class ActivityDetailsInteractor(
         item: NonCustodialActivitySummaryItem,
         value: Money?,
         selectedFiatCurrency: String
-    ) = item.totalFiatWhenExecuted(selectedFiatCurrency, historicRateFetcher).flatMap { fiatValue ->
+    ) = historicRateFetcher.fetch(item.asset, selectedFiatCurrency, item.timeStampMs, item.value).flatMap { fiatValue ->
         getTransactionsMapForConfirmedSentItems(value, fiatValue, item)
     }.onErrorResumeNext {
         getTransactionsMapForConfirmedSentItems(value, null, item)

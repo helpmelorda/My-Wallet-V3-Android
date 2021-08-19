@@ -1,5 +1,6 @@
 package piuk.blockchain.android.domain.repositories
 
+import com.blockchain.data.activity.historicRate.HistoricRateFetcher
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.repositories.ExpiringRepository

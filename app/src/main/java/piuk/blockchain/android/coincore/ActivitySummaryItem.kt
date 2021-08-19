@@ -19,15 +19,12 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import com.blockchain.data.activity.historicRate.HistoricRateFetcher
 import piuk.blockchain.androidcore.utils.helperfunctions.JavaHashCode
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import kotlin.math.sign
 
 abstract class CryptoActivitySummaryItem : ActivitySummaryItem() {
     abstract val asset: AssetInfo
-    override fun totalFiatWhenExecuted(selectedFiat: String, historicRateFetcher: HistoricRateFetcher): Single<Money> =
-        historicRateFetcher.fetch(asset, selectedFiat, timeStampMs, value)
 }
 
 class FiatActivitySummaryItem(
@@ -40,9 +37,6 @@ class FiatActivitySummaryItem(
     val type: TransactionType,
     val state: TransactionState
 ) : ActivitySummaryItem() {
-    override fun totalFiatWhenExecuted(selectedFiat: String, historicRateFetcher: HistoricRateFetcher): Single<Money> =
-        Single.just(value)
-
     override fun toString(): String = "currency = $currency " +
         "transactionType  = $type " +
         "timeStamp  = $timeStampMs " +
@@ -60,8 +54,6 @@ abstract class ActivitySummaryItem : Comparable<ActivitySummaryItem> {
 
     fun fiatValue(selectedFiat: String): Money =
         value.toFiat(selectedFiat, exchangeRates)
-
-    abstract fun totalFiatWhenExecuted(selectedFiat: String, historicRateFetcher: HistoricRateFetcher): Single<Money>
 
     final override operator fun compareTo(
         other: ActivitySummaryItem
@@ -93,8 +85,6 @@ data class TradeActivitySummaryItem(
     override val value: Money
         get() = sendingValue
 
-    override fun totalFiatWhenExecuted(selectedFiat: String, historicRateFetcher: HistoricRateFetcher): Single<Money> =
-        Single.just(fiatValue)
 }
 
 data class RecurringBuyActivitySummaryItem(
@@ -112,10 +102,7 @@ data class RecurringBuyActivitySummaryItem(
     val paymentMethodType: PaymentMethodType,
     val type: OrderType,
     val recurringBuyId: String?
-) : CryptoActivitySummaryItem() {
-    override fun totalFiatWhenExecuted(selectedFiat: String, historicRateFetcher: HistoricRateFetcher): Single<Money> =
-        Single.just(value)
-}
+) : CryptoActivitySummaryItem()
 
 data class CustodialInterestActivitySummaryItem(
     override val exchangeRates: ExchangeRatesDataManager,
