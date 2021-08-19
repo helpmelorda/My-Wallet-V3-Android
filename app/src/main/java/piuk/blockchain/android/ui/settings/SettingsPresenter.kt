@@ -549,7 +549,8 @@ class SettingsPresenter(
                 // Force the prices cache to refresh for the new user fiat
                 exchangeRates.refetchCache()
                     .thenSingle { Single.just(settings) }
-            }.subscribeBy(
+            }.observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
                 onNext = { updateUi(it) },
                 onError = { view?.showError(R.string.update_failed) }
             )

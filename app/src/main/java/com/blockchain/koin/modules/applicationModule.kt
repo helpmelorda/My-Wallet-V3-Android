@@ -106,9 +106,9 @@ import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapp
 import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
 import piuk.blockchain.android.data.TradeDataManagerImpl
 import piuk.blockchain.android.data.Mapper
-import piuk.blockchain.android.data.historicRate.HistoricRateFetcher
-import piuk.blockchain.android.data.historicRate.HistoricRateLocalSource
-import piuk.blockchain.android.data.historicRate.HistoricRateRemoteSource
+import com.blockchain.data.activity.historicRate.HistoricRateFetcher
+import com.blockchain.data.activity.historicRate.HistoricRateLocalSource
+import com.blockchain.data.activity.historicRate.HistoricRateRemoteSource
 import piuk.blockchain.android.domain.repositories.TradeDataManager
 import piuk.blockchain.android.domain.usecases.GetNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
@@ -820,18 +820,6 @@ val applicationModule = module {
                 assetCatalogue = get()
             )
         }.bind(AccountsSorting::class)
-
-        scoped {
-            HistoricRateLocalSource(get())
-        }
-
-        scoped {
-            HistoricRateRemoteSource(get())
-        }
-
-        scoped {
-            HistoricRateFetcher(get(), get())
-        }
     }
 
     factory {

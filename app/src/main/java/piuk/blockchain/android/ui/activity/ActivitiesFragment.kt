@@ -24,7 +24,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAccount
-import piuk.blockchain.android.data.historicRate.HistoricRateFetcher
+import com.blockchain.data.activity.historicRate.HistoricRateFetcher
 import piuk.blockchain.android.databinding.FragmentActivitiesBinding
 import piuk.blockchain.android.ui.activity.adapter.ActivitiesDelegateAdapter
 import piuk.blockchain.android.ui.activity.detail.CryptoActivityDetailsBottomSheet
@@ -80,6 +80,7 @@ class ActivitiesFragment :
     }
 
     private var state: ActivitiesState? = null
+    private var selectedFiatCurrency: String? = null
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentActivitiesBinding =
         FragmentActivitiesBinding.inflate(inflater, container, false)
@@ -159,7 +160,7 @@ class ActivitiesFragment :
     }
 
     private fun renderAccountDetails(newState: ActivitiesState) {
-        if (newState.account == state?.account) {
+        if (newState.account == state?.account && selectedFiatCurrency == currencyPrefs.selectedFiatCurrency) {
             return
         }
 
@@ -190,6 +191,7 @@ class ActivitiesFragment :
 
             accountName.text = account.label
             fiatBalance.text = ""
+            selectedFiatCurrency = currencyPrefs.selectedFiatCurrency
 
             disposables += account.fiatBalance(currencyPrefs.selectedFiatCurrency, exchangeRates)
                 .observeOn(AndroidSchedulers.mainThread())

@@ -36,7 +36,7 @@ import piuk.blockchain.android.coincore.btc.BtcActivitySummaryItem
 import piuk.blockchain.android.coincore.erc20.Erc20ActivitySummaryItem
 import piuk.blockchain.android.coincore.eth.EthActivitySummaryItem
 import piuk.blockchain.android.coincore.xlm.XlmActivitySummaryItem
-import piuk.blockchain.android.data.historicRate.HistoricRateFetcher
+import com.blockchain.data.activity.historicRate.HistoricRateFetcher
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.ui.dashboard.assetdetails.selectFirstAccount
 import piuk.blockchain.android.util.StringUtils

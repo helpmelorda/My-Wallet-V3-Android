@@ -38,6 +38,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.Database
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.coincore.AssetAction
@@ -120,6 +121,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     private val qrProcessor: QrScanResultProcessor by scopedInject()
     private val mwaFF: FeatureFlag by inject(mwaFeatureFlag)
     private val txLauncher: TransactionLauncher by inject()
+    private val database: Database by inject()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -436,6 +438,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             .setPositiveButton(R.string.btn_logout) { _, _ ->
                 analytics.logEvent(AnalyticsEvents.Logout)
                 presenter.unPair()
+                database.historicRateQueries.clear()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()

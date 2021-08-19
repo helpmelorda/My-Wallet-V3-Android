@@ -1,4 +1,4 @@
-package piuk.blockchain.android.data.historicRate
+package com.blockchain.data.activity.historicRate
 
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money

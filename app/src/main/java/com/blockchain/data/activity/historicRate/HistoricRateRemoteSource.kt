@@ -1,4 +1,4 @@
-package piuk.blockchain.android.data.historicRate
+package com.blockchain.data.activity.historicRate
 
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
