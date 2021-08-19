@@ -16,10 +16,8 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
-import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
-import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
-import info.blockchain.balance.AssetInfo
 import com.blockchain.utils.secondsToDays
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.isCustodialOnly
 import piuk.blockchain.android.R
@@ -29,12 +27,15 @@ import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.base.setupToolbar
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
+import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
+import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
+import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.gone
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import piuk.blockchain.android.util.setOnClickListenerDebounced
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.time.ZonedDateTime
 
 class SimpleBuyCheckoutFragment :
@@ -118,10 +119,11 @@ class SimpleBuyCheckoutFragment :
         }
 
         binding.purchaseNote.apply {
-            if (note.isNullOrBlank())
+            if (note.isBlank())
                 gone()
             else {
                 visible()
+                movementMethod = LinkMovementMethod.getInstance()
                 text = note
             }
         }
@@ -197,8 +199,11 @@ class SimpleBuyCheckoutFragment :
 
     private fun showWithdrawalPeriod(newState: SimpleBuyState) =
         newState.withdrawalLockPeriod.secondsToDays().takeIf { it > 0 }?.let {
-            getString(R.string.security_locked_funds_bank_transfer_explanation, it.toString())
-        }
+            StringUtils.getResolvedStringWithAppendedMappedLearnMore(
+                getString(R.string.security_locked_funds_bank_transfer_explanation_1, it.toString()),
+                R.string.common_linked_learn_more, TRADING_ACCOUNT_LOCKS, requireActivity(), R.color.blue_600
+            )
+        } ?: getString(R.string.security_no_lock_bank_transfer_explanation)
 
     private fun showAmountForMethod(newState: SimpleBuyState) {
         binding.amount.text = newState.orderValue?.toStringWithSymbol()
