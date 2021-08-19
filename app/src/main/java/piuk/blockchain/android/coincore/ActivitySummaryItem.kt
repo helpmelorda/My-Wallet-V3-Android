@@ -84,7 +84,6 @@ data class TradeActivitySummaryItem(
 
     override val value: Money
         get() = sendingValue
-
 }
 
 data class RecurringBuyActivitySummaryItem(
