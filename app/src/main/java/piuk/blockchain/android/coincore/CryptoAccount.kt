@@ -24,7 +24,7 @@ data class AccountBalance(
 
     internal companion object {
         fun from(balance: TradingAccountBalance, rate: ExchangeRate): AccountBalance {
-            require(rate is ExchangeRate.CryptoToFiat)
+            require(rate is ExchangeRate.CryptoToFiat || rate is ExchangeRate.FiatToFiat)
 
             return AccountBalance(
                 total = balance.total,
