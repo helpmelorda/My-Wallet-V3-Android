@@ -56,10 +56,10 @@ class BillingAddressFragment : MviFragment<CardModel, CardIntent, CardState, Fra
 
     private fun addressIsValid(): Boolean =
         binding.fullName.text.isNullOrBlank().not() &&
-                binding.addressLine1.text.isNullOrBlank().not() &&
-                binding.city.text.isNullOrBlank().not() &&
-                (if (usSelected) binding.zipUsa.text.isNullOrBlank().not() && binding.state.text.isNullOrBlank().not()
-                else binding.postcode.text.isNullOrBlank().not())
+            binding.addressLine1.text.isNullOrBlank().not() &&
+            binding.city.text.isNullOrBlank().not() &&
+            (if (usSelected) binding.zipUsa.text.isNullOrBlank().not() && binding.state.text.isNullOrBlank().not()
+            else binding.postcode.text.isNullOrBlank().not())
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentBillingAddressBinding =
         FragmentBillingAddressBinding.inflate(inflater, container, false)
@@ -116,7 +116,6 @@ class BillingAddressFragment : MviFragment<CardModel, CardIntent, CardState, Fra
                 )
                 model.process(CardIntent.ReadyToAddNewCard)
 
-                navigator.navigateToCardVerification()
                 analytics.logEvent(SimpleBuyAnalytics.CARD_BILLING_ADDRESS_SET)
             }
         }
@@ -179,7 +178,9 @@ class BillingAddressFragment : MviFragment<CardModel, CardIntent, CardState, Fra
     override fun onBackPressed(): Boolean = true
 
     override fun render(newState: CardState) {
-        // do nothing
+        if (newState.addCard) {
+            navigator.navigateToCardVerification()
+        }
     }
 
     override fun onSheetClosed() {

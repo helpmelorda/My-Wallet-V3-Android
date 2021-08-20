@@ -1440,6 +1440,7 @@
     <string name="card_info_description">At this time, we don’t support buying crypto with virtual credit and debit cards. You must use a physical card’s number, date and security code.</string>
 
     <string name="invalid_cvv">Invalid CVV</string>
+    <string name="card_verification">Card Verification</string>
     <string name="invalid_date">Invalid Date</string>
     <string name="invalid_card_number">Invalid Card Number</string>
     <string name="full_name">Full Name</string>
