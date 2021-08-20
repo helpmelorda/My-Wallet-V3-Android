@@ -187,11 +187,10 @@ class DashboardInteractor(
             )
 
     fun refreshPrices(model: DashboardModel, crypto: AssetInfo): Disposable {
-
         return Single.zip(
             coincore[crypto].exchangeRate(),
-            coincore[crypto].exchangeRateYesterday()
-        ) { rate, day -> PriceUpdate(crypto, rate, day) }
+            coincore[crypto].getPricesWith24hDelta()
+        ) { rate, delta -> PriceUpdate(crypto, rate, delta) }
             .subscribeBy(
                 onSuccess = { model.process(it) },
                 onError = { Timber.e(it) }
@@ -211,9 +210,11 @@ class DashboardInteractor(
 
     fun checkForCustodialBalance(model: DashboardModel, crypto: AssetInfo): Disposable {
         return coincore[crypto].accountGroup(AssetFilter.Custodial)
-            .flatMapSingle { it.accountBalance }
+            .flatMapObservable { it.balance }
             .subscribeBy(
-                onSuccess = { model.process(UpdateHasCustodialBalanceIntent(crypto, !it.isZero)) },
+                onNext = {
+                    model.process(UpdateHasCustodialBalanceIntent(crypto, !it.total.isZero))
+                },
                 onError = { model.process(UpdateHasCustodialBalanceIntent(crypto, false)) }
             )
     }

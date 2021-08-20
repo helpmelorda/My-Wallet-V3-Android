@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.annotation.UiThread
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.koin.scopedInject
@@ -69,10 +70,10 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         } ?: throw IllegalArgumentException("No cryptoCurrency specified")
     }
 
-    private val assetSelect: Coincore by scopedInject()
+    private val coincore: Coincore by scopedInject()
 
     private val token: CryptoAsset by lazy {
-        assetSelect[asset]
+        coincore[asset]
     }
 
     private val listItems = mutableListOf<AssetDetailsItem>()
@@ -127,7 +128,9 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
             }
         }
 
-        updatePriceChange(binding.priceChange, newState.chartData)
+        state.prices24HrWithDelta?.let {
+            updatePriceChange(it, binding.priceChange, newState.chartData)
+        }
 
         state = newState
     }
@@ -309,10 +312,14 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
             AssetDetailsError.NO_ASSET_DETAILS ->
                 getString(R.string.asset_details_load_failed_toast)
             AssetDetailsError.NO_EXCHANGE_RATE ->
-                getString(R.string.asset_details_exchange_load_failed_toast)
-            else -> "" // this never triggers
+                getString(R.string.asset_details_exchange_load_failed_toast_1)
+            AssetDetailsError.NO_PRICE_DELTA -> getString(R.string.asset_details_exchange_load_failed_toast)
+            else -> ""
         }
-        ToastCustom.makeText(requireContext(), errorString, Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR)
+
+        if (errorString.isNotEmpty()) {
+            ToastCustom.makeText(requireContext(), errorString, Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR)
+        }
     }
 
     private fun chartToLoadingState() {
@@ -359,13 +366,23 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     }
 
     @SuppressLint("SetTextI18n")
-    private fun updatePriceChange(percentageView: AppCompatTextView, data: HistoricalRateList) {
+    private fun updatePriceChange(
+        prices24HrWithDelta: Prices24HrWithDelta,
+        percentageView: AppCompatTextView,
+        data: HistoricalRateList
+    ) {
         // We have filtered out nulls by here, so we can 'safely' default to zeros for the price
         val firstPrice: Double = data.firstOrNull()?.rate ?: 0.0
         val lastPrice: Double = data.lastOrNull()?.rate ?: 0.0
         val difference = lastPrice - firstPrice
 
-        val percentChange = (difference / firstPrice) * 100
+        val percentChange =
+            if (binding.chartPricePeriods.selectedTabPosition == HistoricalTimeSpan.DAY.ordinal) {
+                prices24HrWithDelta.delta24h
+            } else {
+                (difference / firstPrice) * 100
+            }
+
         val percentChangeTxt = if (percentChange.isNaN()) {
             "--"
         } else {

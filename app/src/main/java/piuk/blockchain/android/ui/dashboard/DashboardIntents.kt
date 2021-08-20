@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard
 
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.nabu.models.data.LinkBankTransfer
@@ -133,11 +134,11 @@ class RefreshPrices(
 class PriceUpdate(
     val asset: AssetInfo,
     private val latestPrice: ExchangeRate,
-    private val oldPrice: ExchangeRate
+    private val prices24HrWithDelta: Prices24HrWithDelta
 ) : DashboardIntent() {
     override fun reduce(oldState: DashboardState): DashboardState {
         val oldAsset = oldState.assets[asset]
-        val newAsset = updateAsset(oldAsset, latestPrice, oldPrice)
+        val newAsset = updateAsset(oldAsset, latestPrice, prices24HrWithDelta)
 
         return oldState.copy(assets = oldState.assets.copy(patchAsset = newAsset))
     }
@@ -145,11 +146,11 @@ class PriceUpdate(
     private fun updateAsset(
         old: CryptoAssetState,
         latestPrice: ExchangeRate,
-        oldPrice: ExchangeRate
+        prices24HrWithDelta: Prices24HrWithDelta
     ): CryptoAssetState {
         return old.copy(
             price = latestPrice,
-            price24h = oldPrice
+            prices24HrWithDelta = prices24HrWithDelta
         )
     }
 }

@@ -788,6 +788,8 @@
     <string name="asset_details_chart_load_failed_toast">Failed to load chart details, please try again</string>
     <string name="asset_details_load_failed_toast">Failed to load wallet details, please try again</string>
     <string name="asset_details_exchange_load_failed_toast">Failed to exchange rate information, please try again</string>
+    <string name="asset_details_exchange_load_failed_toast_1">Failed to load exchange rate information, please try again</string>
+    <string name="asset_details_delta_load_failed_toast">Failed to load price information, please try again</string>
     <string name="dashboard_asset_actions_tx_in_progress">There is already a transaction in progress, please wait until it completes</string>
 
     <string name="force_upgrade_message">The version of the app you are using is no longer
