@@ -1,6 +1,5 @@
 package piuk.blockchain.android.coincore
 
-import com.blockchain.core.price.percentageDelta
 import com.blockchain.logging.CrashLogger
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
@@ -215,10 +214,9 @@ class Coincore internal constructor(
 
     fun getExchangePriceWithDelta(asset: AssetInfo): Single<ExchangePriceWithDelta> =
         this[asset].exchangeRate().zipWith(
-            this[asset].exchangeRateYesterday()
-        ) { currentPrice, price24h ->
-            val price = currentPrice.percentageDelta(price24h)
-            ExchangePriceWithDelta(currentPrice.price(), price)
+            this[asset].getPricesWith24hDelta()
+        ) { currentPrice, priceDelta ->
+            ExchangePriceWithDelta(currentPrice.price(), priceDelta.delta24h)
         }
 
     @Suppress("SameParameterValue")

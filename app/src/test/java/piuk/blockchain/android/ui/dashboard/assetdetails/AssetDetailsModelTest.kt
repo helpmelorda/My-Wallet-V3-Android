@@ -1,8 +1,10 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
@@ -15,12 +17,12 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.coincore.AssetFilter
 import piuk.blockchain.android.coincore.CryptoAsset
 import piuk.blockchain.android.coincore.btc.BtcAsset
+import piuk.blockchain.android.ui.dashboard.FIAT_CURRENCY
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class AssetDetailsModelTest {
@@ -100,17 +102,24 @@ class AssetDetailsModelTest {
             on { asset }.thenReturn(CryptoCurrency.BTC)
         }
 
+        val expectedDeltaDetails = Prices24HrWithDelta(
+            previousRate = ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 400.toBigDecimal()),
+            currentRate = ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 400.toBigDecimal()),
+            delta24h = 0.0
+        )
+
         val timeSpan = HistoricalTimeSpan.DAY
 
         whenever(interactor.loadAssetDetails(asset)).thenReturn(Single.just(assetDisplayMap))
         whenever(interactor.loadExchangeRate(asset)).thenReturn(Single.just(price))
         whenever(interactor.loadHistoricPrices(asset, timeSpan)).thenReturn(Single.just(priceSeries))
         whenever(interactor.loadRecurringBuysForAsset(asset.asset.ticker)).thenReturn(Single.just(recurringBuys))
+        whenever(interactor.load24hPriceDelta(asset.asset)).thenReturn(Single.just(expectedDeltaDetails))
 
         subject.process(LoadAsset(asset))
 
         subject.state.test()
-            .awaitCount(7)
+            .awaitCount(8)
             .assertValueAt(0) {
                 it == defaultState
             }.assertValueAt(1) {
@@ -153,12 +162,23 @@ class AssetDetailsModelTest {
                     assetDisplayMap = assetDisplayMap,
                     recurringBuys = expectedRecurringBuyMap
                 )
+            }.assertValueAt(7) {
+                it == defaultState.copy(
+                    asset = asset,
+                    chartData = priceSeries,
+                    chartLoading = false,
+                    assetFiatPrice = price,
+                    assetDisplayMap = assetDisplayMap,
+                    recurringBuys = expectedRecurringBuyMap,
+                    prices24HrWithDelta = expectedDeltaDetails
+                )
             }
 
         verify(interactor).loadAssetDetails(asset)
         verify(interactor).loadExchangeRate(asset)
         verify(interactor).loadRecurringBuysForAsset(asset.asset.ticker)
         verify(interactor).loadHistoricPrices(asset, timeSpan)
+        verify(interactor).load24hPriceDelta(asset.asset)
 
         verifyNoMoreInteractions(interactor)
     }

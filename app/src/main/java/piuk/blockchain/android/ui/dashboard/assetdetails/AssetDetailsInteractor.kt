@@ -78,6 +78,9 @@ class AssetDetailsInteractor(
             }.defaultIfEmpty(false)
     }
 
+    fun load24hPriceDelta(asset: AssetInfo) =
+        coincore[asset].getPricesWith24hDelta()
+
     fun loadPaymentDetails(
         paymentMethodType: PaymentMethodType,
         paymentMethodId: String,

@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.logging.CrashLogger
@@ -37,7 +38,8 @@ data class AssetDetailsState(
     val navigateToInterestDashboard: Boolean = false,
     val selectedRecurringBuy: RecurringBuy? = null,
     val paymentId: String? = null,
-    val stepsBackStack: Stack<AssetDetailsStep> = Stack()
+    val stepsBackStack: Stack<AssetDetailsStep> = Stack(),
+    val prices24HrWithDelta: Prices24HrWithDelta? = null
 ) : MviState
 
 enum class AssetDetailsError {
@@ -47,7 +49,8 @@ enum class AssetDetailsError {
     NO_EXCHANGE_RATE,
     TX_IN_FLIGHT,
     NO_RECURRING_BUYS,
-    RECURRING_BUY_DELETE
+    RECURRING_BUY_DELETE,
+    NO_PRICE_DELTA
 }
 
 class AssetDetailsModel(
@@ -87,6 +90,7 @@ class AssetDetailsModel(
                 loadFiatExchangeRate(intent.asset)
                 loadAssetDetails(intent.asset)
                 loadRecurringBuysForAsset(intent.asset)
+                load24hPriceDelta(intent.asset)
             }
             is DeleteRecurringBuy -> {
                 previousState.selectedRecurringBuy?.let {
@@ -122,9 +126,22 @@ class AssetDetailsModel(
             is ClearSelectedRecurringBuy,
             is UpdateRecurringBuy,
             is UpdateRecurringBuyError,
-            is UpdatePaymentDetails -> null
+            is UpdatePaymentDetails,
+            is UpdatePriceDeltaDetails,
+            is UpdatePriceDeltaFailed -> null
         }
     }
+
+    private fun load24hPriceDelta(token: CryptoAsset) =
+        interactor.load24hPriceDelta(token.asset)
+            .subscribeBy(
+                onSuccess = {
+                    process(UpdatePriceDeltaDetails(it))
+                },
+                onError = {
+                    process(UpdatePriceDeltaFailed)
+                }
+            )
 
     private fun loadPaymentDetails(
         paymentMethodType: PaymentMethodType,

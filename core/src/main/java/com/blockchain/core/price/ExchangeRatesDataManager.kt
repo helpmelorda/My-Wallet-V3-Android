@@ -20,6 +20,12 @@ data class HistoricalRate(
 
 typealias HistoricalRateList = List<HistoricalRate>
 
+data class Prices24HrWithDelta(
+    val delta24h: Double,
+    val previousRate: ExchangeRate,
+    val currentRate: ExchangeRate
+)
+
 interface ExchangeRates {
     fun getLastCryptoToUserFiatRate(sourceCrypto: AssetInfo): ExchangeRate.CryptoToFiat
     fun getLastFiatToUserFiatRate(sourceFiat: String): ExchangeRate.FiatToFiat
@@ -41,6 +47,7 @@ interface ExchangeRatesDataManager : ExchangeRates {
     fun fiatToRateFiatRate(fromFiat: String, toFiat: String): Observable<ExchangeRate>
 
     fun getHistoricRate(fromAsset: AssetInfo, secSinceEpoch: Long): Single<ExchangeRate>
+    fun getPricesWith24hDelta(fromAsset: AssetInfo): Single<Prices24HrWithDelta>
 
     fun getHistoricPriceSeries(
         asset: AssetInfo,
