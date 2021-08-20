@@ -131,8 +131,8 @@ class NewCreateWalletPresenter(
             .doOnTerminate { view.dismissProgressDialog() }
             .subscribeBy(
                 onSuccess = {
-                    Timber.e("wallet onSuccess")
                     accessState.isNewlyCreated = true
+                    analytics.logEvent(WalletCreationEvent.WalletSignUp)
                     prefs.apply {
                         payloadDataManager.wallet?.let {
                             walletGuid = it.guid
@@ -148,7 +148,6 @@ class NewCreateWalletPresenter(
                     Logging.logSignUp(true)
                 },
                 onError = {
-                    Timber.e("wallet onError")
                     Timber.e(it)
                     view.showError(R.string.hd_error)
                     appUtil.clearCredentialsAndRestart(LauncherActivity::class.java)
