@@ -21,12 +21,15 @@ import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.DefaultLabels
 import com.google.gson.GsonBuilder
+import com.squareup.sqldelight.android.AndroidSqliteDriver
+import com.squareup.sqldelight.db.SqlDriver
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import okhttp3.OkHttpClient
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
+import piuk.blockchain.android.Database
 import piuk.blockchain.android.cards.CardModel
 import piuk.blockchain.android.cards.partners.EverypayCardActivator
 import piuk.blockchain.android.data.api.bitpay.BitPayDataManager
@@ -869,4 +872,10 @@ val applicationModule = module {
     }
 
     factory { FormatChecker() }
+
+    single<SqlDriver> { AndroidSqliteDriver(Database.Schema, get(), "cache.db") }
+
+    single {
+        Database(get())
+    }
 }

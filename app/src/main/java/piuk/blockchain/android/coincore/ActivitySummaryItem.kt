@@ -25,13 +25,6 @@ import kotlin.math.sign
 
 abstract class CryptoActivitySummaryItem : ActivitySummaryItem() {
     abstract val asset: AssetInfo
-    override fun totalFiatWhenExecuted(selectedFiat: String): Single<Money> =
-        exchangeRates.getHistoricRate(
-            fromAsset = asset,
-            secSinceEpoch = timeStampMs / 1000 // API uses seconds
-        ).map {
-            it.convert(value)
-        }
 }
 
 class FiatActivitySummaryItem(
@@ -44,9 +37,6 @@ class FiatActivitySummaryItem(
     val type: TransactionType,
     val state: TransactionState
 ) : ActivitySummaryItem() {
-    override fun totalFiatWhenExecuted(selectedFiat: String): Single<Money> =
-        Single.just(value)
-
     override fun toString(): String = "currency = $currency " +
         "transactionType  = $type " +
         "timeStamp  = $timeStampMs " +
@@ -64,8 +54,6 @@ abstract class ActivitySummaryItem : Comparable<ActivitySummaryItem> {
 
     fun fiatValue(selectedFiat: String): Money =
         value.toFiat(selectedFiat, exchangeRates)
-
-    abstract fun totalFiatWhenExecuted(selectedFiat: String): Single<Money>
 
     final override operator fun compareTo(
         other: ActivitySummaryItem
@@ -96,8 +84,6 @@ data class TradeActivitySummaryItem(
 
     override val value: Money
         get() = sendingValue
-
-    override fun totalFiatWhenExecuted(selectedFiat: String): Single<Money> = Single.just(fiatValue)
 }
 
 data class RecurringBuyActivitySummaryItem(
@@ -115,9 +101,7 @@ data class RecurringBuyActivitySummaryItem(
     val paymentMethodType: PaymentMethodType,
     val type: OrderType,
     val recurringBuyId: String?
-) : CryptoActivitySummaryItem() {
-    override fun totalFiatWhenExecuted(selectedFiat: String): Single<Money> = Single.just(value)
-}
+) : CryptoActivitySummaryItem()
 
 data class CustodialInterestActivitySummaryItem(
     override val exchangeRates: ExchangeRatesDataManager,
