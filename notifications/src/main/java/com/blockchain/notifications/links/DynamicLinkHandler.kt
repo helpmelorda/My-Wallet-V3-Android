@@ -5,6 +5,10 @@ import android.net.Uri
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import io.reactivex.rxjava3.core.Maybe
 
+interface PendingLink {
+    fun getPendingLinks(intent: Intent): Maybe<Uri>
+}
+
 internal class DynamicLinkHandler internal constructor(
     private val dynamicLinks: FirebaseDynamicLinks
 ) : PendingLink {

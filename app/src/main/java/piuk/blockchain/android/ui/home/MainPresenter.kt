@@ -71,10 +71,6 @@ import java.util.Calendar
 import java.util.Locale
 
 interface MainView : MvpView, HomeNavigator {
-
-    @Deprecated("Used for processing deep links. Find a way to get rid of this")
-    fun getStartIntent(): Intent
-
     fun refreshAnnouncements()
     fun kickToLauncherPage()
     fun showProgressDialog(@StringRes message: Int)
@@ -186,7 +182,6 @@ class MainPresenter internal constructor(
                 onComplete = {
                     checkKycStatus()
                     setDebugExchangeVisibility()
-                    checkForPendingLinks()
                 },
                 onError = { throwable ->
                     logException(throwable)
@@ -207,25 +202,13 @@ class MainPresenter internal constructor(
         }
     }
 
-    private fun checkForPendingLinks() {
-        compositeDisposable += deepLinkProcessor.getLink(view!!.getStartIntent())
+    fun checkForPendingLinks(intent: Intent) {
+        compositeDisposable += deepLinkProcessor.getLink(intent)
             .filter { view?.shouldIgnoreDeepLinking() == false }
             .subscribeBy(
                 onError = { Timber.e(it) },
                 onSuccess = { dispatchDeepLink(it) }
             )
-    }
-
-    fun handleDeepLink(uri: Uri) {
-        try {
-            compositeDisposable += deepLinkProcessor.getLink(uri.toString())
-                .subscribeBy(
-                    onError = { Timber.e(it) },
-                    onSuccess = { dispatchDeepLink(it) }
-                )
-        } catch (t: Throwable) {
-            Timber.d("Invalid link cannot be processed - ignoring")
-        }
     }
 
     private fun dispatchDeepLink(linkState: LinkState) {
