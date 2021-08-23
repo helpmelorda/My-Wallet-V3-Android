@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.dashboard
+package piuk.blockchain.android.ui.dashboard.model
 
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.testutils.bitcoin

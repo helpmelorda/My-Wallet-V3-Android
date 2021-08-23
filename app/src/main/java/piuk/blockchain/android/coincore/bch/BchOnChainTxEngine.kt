@@ -163,7 +163,7 @@ class BchOnChainTxEngine(
         feeManager.bchFeeOptions
             .map { feeOptions ->
                 feeToCrypto(feeOptions.regularFee)
-            }.singleOrError()
+            }.firstOrError()
 
     private fun feeToCrypto(feePerKb: Long): CryptoValue =
         CryptoValue.fromMinor(sourceAsset, (feePerKb * 1000).toBigInteger())

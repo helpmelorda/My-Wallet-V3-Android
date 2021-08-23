@@ -66,6 +66,7 @@ internal inline fun AssetAction.takeEnabledIf(
 
 interface Asset {
     fun init(): Completable
+    @Deprecated("Not needed for dynamic assets")
     val isEnabled: Boolean
 
     fun accountGroup(filter: AssetFilter = AssetFilter.All): Maybe<AccountGroup>

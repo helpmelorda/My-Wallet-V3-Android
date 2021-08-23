@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.dashboard
+package piuk.blockchain.android.ui.dashboard.model
 
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
@@ -76,7 +76,7 @@ private val fiatAccount: FiatAccount = mock()
 val fiatAssetState_1 = FiatAssetState()
 val fiatAssetState_2 = FiatAssetState(listOf(FiatBalanceInfo(testFiatBalance, testFiatBalance, fiatAccount)))
 
-val initialState = DashboardState(
+val initialState = PortfolioState(
     assets = mapOfAssets(
             CryptoCurrency.BTC to initialBtcState,
             CryptoCurrency.ETHER to initialEthState,

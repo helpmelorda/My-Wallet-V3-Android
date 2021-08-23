@@ -11,7 +11,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.MiniAnnouncementDelega
 import piuk.blockchain.android.ui.dashboard.announcements.StdAnnouncementDelegate
 import piuk.blockchain.android.ui.resources.AssetResources
 
-class DashboardDelegateAdapter(
+class PortfolioDelegateAdapter(
     prefs: CurrencyPrefs,
     onCardClicked: (AssetInfo) -> Unit,
     analytics: Analytics,

@@ -319,7 +319,7 @@ class BchDataManager(
             .doOnNext { balance ->
                 updateBalanceForAddress(xpubs.default.address, balance)
             }.doOnError(Timber::e)
-            .singleOrError()
+            .firstOrError()
             .onErrorReturn { BigInteger.ZERO }
 
     fun getAddressTransactions(

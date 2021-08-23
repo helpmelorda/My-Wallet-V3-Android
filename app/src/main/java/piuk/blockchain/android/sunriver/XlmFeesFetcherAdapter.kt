@@ -20,5 +20,5 @@ internal class XlmFeesFetcherAdapter(
                         FeeType.Priority -> it.priorityFee.toBigInteger()
                     }
                 )
-            }.singleOrError()
+            }.firstOrError()
 }

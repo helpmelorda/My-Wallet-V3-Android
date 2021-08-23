@@ -13,7 +13,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.LinkBankMethodChooserSheetLayoutBinding
 import piuk.blockchain.android.databinding.LinkBankMethodItemBinding
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
-import piuk.blockchain.android.ui.dashboard.LinkablePaymentMethodsForAction
+import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.linkbank.BankAuthAnalytics
 import piuk.blockchain.android.ui.settings.BankLinkingHost
 import piuk.blockchain.android.util.visibleIf

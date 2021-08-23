@@ -69,7 +69,7 @@ internal class Erc20DataManagerImpl(
 
     override fun getEthBalance(): Single<CryptoValue> =
         ethDataManager.fetchEthAddress()
-            .singleOrError()
+            .firstOrError()
             .map { CryptoValue(CryptoCurrency.ETHER, it.getTotalBalance()) }
             .map { it }
 

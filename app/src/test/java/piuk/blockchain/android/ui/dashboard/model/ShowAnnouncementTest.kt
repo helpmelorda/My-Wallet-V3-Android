@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.dashboard
+package piuk.blockchain.android.ui.dashboard.model
 
 import info.blockchain.balance.CryptoCurrency
 import org.junit.Test
@@ -11,7 +11,7 @@ class ShowAnnouncementTest {
     @Test
     fun `showing an announcement, sets announcement and leaves other fields unchanged`() {
 
-        val initialState = DashboardState(
+        val initialState = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
@@ -29,7 +29,7 @@ class ShowAnnouncementTest {
     @Test
     fun `replacing an announcement, sets announcement and leaves other fields unchanged`() {
 
-        val initialState = DashboardState(
+        val initialState = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,

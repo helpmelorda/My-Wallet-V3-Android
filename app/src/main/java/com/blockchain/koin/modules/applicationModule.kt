@@ -4,7 +4,6 @@ import android.content.Context
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
-import com.blockchain.koin.interestAccountFeatureFlag
 import com.blockchain.koin.moshiExplorerRetrofit
 import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
@@ -79,13 +78,6 @@ import piuk.blockchain.android.ui.createwallet.CreateWalletPresenter
 import piuk.blockchain.android.ui.createwallet.NewCreateWalletPresenter
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.customviews.dialogs.OverlayDetection
-import piuk.blockchain.android.ui.dashboard.BalanceAnalyticsReporter
-import piuk.blockchain.android.ui.dashboard.DashboardInteractor
-import piuk.blockchain.android.ui.dashboard.DashboardModel
-import piuk.blockchain.android.ui.dashboard.DashboardState
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsInteractor
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsModel
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsState
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.home.MainPresenter
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVeriffModel
@@ -117,8 +109,6 @@ import piuk.blockchain.android.ui.shortcuts.receive.ReceiveQrPresenter
 import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
 import piuk.blockchain.android.ui.thepit.PitPermissionsPresenter
 import piuk.blockchain.android.ui.thepit.PitVerifyEmailPresenter
-import piuk.blockchain.android.ui.transfer.AccountsSorting
-import piuk.blockchain.android.ui.transfer.DashboardAccountsSorting
 import piuk.blockchain.android.ui.transfer.receive.ReceiveIntentHelper
 import piuk.blockchain.android.ui.transfer.receive.ReceiveModel
 import piuk.blockchain.android.ui.transfer.receive.ReceiveState
@@ -450,49 +440,6 @@ val applicationModule = module {
         }
 
         factory {
-            DashboardModel(
-                initialState = DashboardState(),
-                mainScheduler = AndroidSchedulers.mainThread(),
-                interactor = get(),
-                environmentConfig = get(),
-                crashLogger = get()
-            )
-        }
-
-        factory {
-            DashboardInteractor(
-                coincore = get(),
-                payloadManager = get(),
-                exchangeRates = get(),
-                currencyPrefs = get(),
-                custodialWalletManager = get(),
-                simpleBuyPrefs = get(),
-                analytics = get(),
-                crashLogger = get(),
-                linkedBanksFactory = get()
-            )
-        }
-
-        scoped {
-            AssetDetailsModel(
-                initialState = AssetDetailsState(),
-                mainScheduler = AndroidSchedulers.mainThread(),
-                interactor = get(),
-                environmentConfig = get(),
-                crashLogger = get()
-            )
-        }
-
-        factory {
-            AssetDetailsInteractor(
-                interestFeatureFlag = get(interestAccountFeatureFlag),
-                dashboardPrefs = get(),
-                coincore = get(),
-                custodialWalletManager = get()
-            )
-        }
-
-        factory {
             SimpleBuyInteractor(
                 withdrawLocksRepository = get(),
                 tierService = get(),
@@ -608,13 +555,6 @@ val applicationModule = module {
             SimpleBuySyncFactory(
                 custodialWallet = get(),
                 serializer = get()
-            )
-        }
-
-        factory {
-            BalanceAnalyticsReporter(
-                analytics = get(),
-                coincore = get()
             )
         }
 
@@ -810,13 +750,6 @@ val applicationModule = module {
         factory {
             EmailVerifyInteractor(emailUpdater = get())
         }
-
-        factory {
-            DashboardAccountsSorting(
-                dashboardPrefs = get(),
-                assetCatalogue = get()
-            )
-        }.bind(AccountsSorting::class)
     }
 
     factory {

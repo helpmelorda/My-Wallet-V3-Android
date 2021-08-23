@@ -70,7 +70,7 @@ class EthDataManager(
         ethAccountApi.getEthAddress(listOf(account))
             .map(::CombinedEthModel)
             .map { it.getTotalBalance() }
-            .singleOrError()
+            .firstOrError()
             .doOnError(Timber::e)
             .onErrorReturn { BigInteger.ZERO }
             .subscribeOn(Schedulers.io())
@@ -135,7 +135,7 @@ class EthDataManager(
 
     fun isContractAddress(address: String): Single<Boolean> =
         ethAccountApi.getIfContract(address)
-            .applySchedulers().singleOrError()
+            .applySchedulers().firstOrError()
 
     private fun String.toLocalState() =
         when (this) {

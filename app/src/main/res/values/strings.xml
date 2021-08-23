@@ -295,6 +295,8 @@
 
     <string name="received_bitcoin_cash">Received Bitcoin Cash</string>
 
+    <string name="portfolio">Portfolio</string>
+    <string name="prices">Prices</string>
     <string name="send">Send</string>
     <string name="receive_share">Share Address</string>
     <string name="receive_copy">Copy Address</string>

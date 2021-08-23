@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.dashboard
+package piuk.blockchain.android.ui.dashboard.model
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.featureflags.InternalFeatureFlagApi
@@ -22,12 +22,12 @@ import piuk.blockchain.android.coincore.fiat.LinkedBankAccount
 import piuk.blockchain.android.coincore.fiat.LinkedBanksFactory
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 
-class DashboardInteractorTest {
+class PortfolioInteractorTest {
 
-    private lateinit var interactor: DashboardInteractor
+    private lateinit var interactor: PortfolioInteractor
     private val linkedBanksFactory: LinkedBanksFactory = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val model: DashboardModel = mock()
+    private val model: PortfolioModel = mock()
     private val targetFiatAccount: FiatAccount = mock {
         on { fiatCurrency }.thenReturn("USD")
     }
@@ -43,7 +43,7 @@ class DashboardInteractorTest {
 
     @Before
     fun setUp() {
-        interactor = DashboardInteractor(
+        interactor = PortfolioInteractor(
             coincore = mock(),
             payloadManager = mock(),
             exchangeRates = mock(),
@@ -52,7 +52,8 @@ class DashboardInteractorTest {
             linkedBanksFactory = linkedBanksFactory,
             crashLogger = mock(),
             analytics = mock(),
-            simpleBuyPrefs = mock()
+            simpleBuyPrefs = mock(),
+            gatedFeatures = mock()
         )
     }
 

@@ -1,67 +1,70 @@
-package piuk.blockchain.android.ui.dashboard
+package piuk.blockchain.android.ui.dashboard.model
 
+import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
 import org.junit.Test
+import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
-class HideAssetDetailsTest {
+class ShowAssetDetailsTest {
 
-    val subject = ClearBottomSheet
+    private val flow = AssetDetailsFlow(CryptoCurrency.ETHER, mock())
+    private val subject = UpdateLaunchDialogFlow(flow)
 
     @Test
-    fun `clearing empty asset sheet no effect`() {
-        val initialState = DashboardState(
+    fun `showing asset details, sets asset type and leaves other fields unchanged`() {
+
+        val initialState = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
                 CryptoCurrency.XLM to initialXlmState
             ),
-            dashboardNavigationAction = null,
+            activeFlow = null,
             announcement = testAnnouncementCard_1
         )
 
         val result = subject.reduce(initialState)
+
+        assertEquals(result.assets, initialState.assets)
+        assertEquals(result.activeFlow, flow)
+        assertEquals(result.announcement, testAnnouncementCard_1)
+    }
+
+    @Test
+    fun `replacing asset details type, sets asset and leaves other fields unchanged`() {
+
+        val initialState = PortfolioState(
+            assets = mapOfAssets(
+                CryptoCurrency.BTC to initialBtcState,
+                CryptoCurrency.ETHER to initialEthState,
+                CryptoCurrency.XLM to initialXlmState
+            ),
+            activeFlow = null,
+            announcement = testAnnouncementCard_1
+        )
+
+        val result = subject.reduce(initialState)
+
+        assertEquals(result.assets, initialState.assets)
+        assertEquals(result.activeFlow, flow)
+        assertEquals(result.announcement, testAnnouncementCard_1)
+    }
+
+    @Test
+    fun `replacing an asset details type with the same type has no effect`() {
+        val initialState = PortfolioState(
+            assets = mapOfAssets(
+                CryptoCurrency.BTC to initialBtcState,
+                CryptoCurrency.ETHER to initialEthState,
+                CryptoCurrency.XLM to initialXlmState
+            ),
+            activeFlow = flow,
+            announcement = testAnnouncementCard_1
+        )
+
+        val result = subject.reduce(initialState)
+
         assertEquals(result, initialState)
-    }
-
-    @Test
-    fun `clearing asset sheet, clears the asset and leaves other fields unchanged`() {
-
-        val initialState = DashboardState(
-            assets = mapOfAssets(
-                CryptoCurrency.BTC to initialBtcState,
-                CryptoCurrency.ETHER to initialEthState,
-                CryptoCurrency.XLM to initialXlmState
-            ),
-            dashboardNavigationAction = null,
-            announcement = testAnnouncementCard_1
-        )
-
-        val result = subject.reduce(initialState)
-
-        assertEquals(result.assets, initialState.assets)
-        assertNull(result.dashboardNavigationAction)
-        assertEquals(result.announcement, initialState.announcement)
-    }
-
-    @Test
-    fun `clearing promo sheet, clears the sheet and leaves other fields unchanged`() {
-
-        val initialState = DashboardState(
-            assets = mapOfAssets(
-                CryptoCurrency.BTC to initialBtcState,
-                CryptoCurrency.ETHER to initialEthState,
-                CryptoCurrency.XLM to initialXlmState
-            ),
-            dashboardNavigationAction = DashboardNavigationAction.StxAirdropComplete,
-            announcement = testAnnouncementCard_1
-        )
-
-        val result = subject.reduce(initialState)
-
-        assertEquals(result.assets, initialState.assets)
-        assertNull(result.dashboardNavigationAction)
-        assertEquals(result.announcement, initialState.announcement)
     }
 }

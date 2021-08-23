@@ -31,6 +31,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncements
 import piuk.blockchain.android.ui.kyc.koin.kycUiModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiNabuModule
 import piuk.blockchain.android.ui.auth.newlogin.secureChannelModule
+import piuk.blockchain.android.ui.dashboard.dashboardModule
 import piuk.blockchain.android.ui.login.loginUiModule
 import piuk.blockchain.android.ui.reset.resetAccountModule
 import piuk.blockchain.android.ui.start.startupUiModule
@@ -54,6 +55,7 @@ object KoinStarter {
                 apiModule,
                 blockchainApiModule,
                 applicationModule,
+                dashboardModule,
                 campaignModule,
                 coincoreModule,
                 transactionModule,

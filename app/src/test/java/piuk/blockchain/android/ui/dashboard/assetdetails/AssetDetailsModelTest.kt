@@ -22,7 +22,7 @@ import org.junit.Test
 import piuk.blockchain.android.coincore.AssetFilter
 import piuk.blockchain.android.coincore.CryptoAsset
 import piuk.blockchain.android.coincore.btc.BtcAsset
-import piuk.blockchain.android.ui.dashboard.FIAT_CURRENCY
+import piuk.blockchain.android.ui.dashboard.model.FIAT_CURRENCY
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 class AssetDetailsModelTest {

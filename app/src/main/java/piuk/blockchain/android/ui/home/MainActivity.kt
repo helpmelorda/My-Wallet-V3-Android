@@ -16,6 +16,8 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.NotificationsUtil
@@ -63,6 +65,7 @@ import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.dashboard.DashboardFragment
+import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.home.analytics.SideNavEvent
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -122,6 +125,9 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     private val mwaFF: FeatureFlag by inject(mwaFeatureFlag)
     private val txLauncher: TransactionLauncher by inject()
     private val database: Database by inject()
+
+    @Suppress("unused")
+    private val gatedFeatures: InternalFeatureFlagApi by inject()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -367,7 +373,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     private fun launchDashboardFlow(action: AssetAction, currency: String?) {
         currency?.let {
             launchDashboard()
-            val fragment = DashboardFragment.newInstance(action, it)
+            val fragment = createDashboardFragment(action, it)
             showFragment(fragment)
         }
     }
@@ -380,7 +386,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 true
             }
 
-            f is DashboardFragment -> f.onBackPressed()
+            f is DashboardFragment -> false
+            f is PortfolioFragment -> f.onBackPressed()
 
             else -> {
                 // Switch to dashboard fragment
@@ -453,7 +460,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         // Set selected appropriately.
         with(binding.bottomNavigation) {
             val currentItem = when (currentFragment) {
-                is DashboardFragment -> R.id.nav_home
+                is DashboardFragment,
+                is PortfolioFragment -> R.id.nav_home
                 is ActivitiesFragment -> R.id.nav_activity
                 is TransferFragment -> R.id.nav_transfer
                 is BuySellFragment -> R.id.nav_buy_and_sell
@@ -645,12 +653,22 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     private fun startDashboardFragment(reload: Boolean = true) {
         runOnUiThread {
-            val fragment = DashboardFragment.newInstance()
+            val fragment = createDashboardFragment()
             showFragment(fragment, reload)
             setCurrentTabItem(R.id.nav_home)
             toolbar.title = getString(R.string.dashboard_title)
         }
     }
+
+    private fun createDashboardFragment(
+        action: AssetAction? = null,
+        currency: String? = null
+    ): Fragment =
+        if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD)) {
+            DashboardFragment.newInstance(action, currency)
+        } else {
+            PortfolioFragment.newInstance(action, currency)
+        }
 
     private fun startBuyAndSellFragment(
         viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,

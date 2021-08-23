@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.dashboard
+package piuk.blockchain.android.ui.dashboard.model
 
 import info.blockchain.balance.CryptoCurrency
 import org.junit.Test
@@ -18,7 +18,7 @@ class ClearAnnouncementTest {
     @Test
     fun `clearing an announcement, clears the announcement and leaves other fields unchanged`() {
 
-        val initialState = DashboardState(
+        val initialState = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,

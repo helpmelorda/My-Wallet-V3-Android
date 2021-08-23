@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.dashboard
+package piuk.blockchain.android.ui.dashboard.model
 
 import com.blockchain.testutils.bitcoin
 import com.blockchain.testutils.bitcoinCash
@@ -14,7 +14,7 @@ class BalanceUpdateTest {
     @Test(expected = IllegalStateException::class)
     fun `Updating a mismatched currency throws an exception`() {
 
-        val initialState = DashboardState(
+        val initialState = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
@@ -33,7 +33,7 @@ class BalanceUpdateTest {
 
     @Test
     fun `update changes effects correct asset`() {
-        val initialState = DashboardState(
+        val initialState = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
@@ -59,7 +59,7 @@ class BalanceUpdateTest {
 
     @Test
     fun `receiving a valid balance update clears any balance errors`() {
-        val initialState = DashboardState(
+        val initialState = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState.copy(hasBalanceError = true),

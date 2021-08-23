@@ -76,7 +76,7 @@ internal class BchCryptoWalletAccount private constructor(
             val networkParams = BchMainNetParams.get()
             val address = LegacyAddress.fromBase58(networkParams, it)
             CashAddress.fromLegacyAddress(address)
-        }.singleOrError()
+        }.firstOrError()
             .map {
                 BchAddress(address_ = it, label = label)
             }

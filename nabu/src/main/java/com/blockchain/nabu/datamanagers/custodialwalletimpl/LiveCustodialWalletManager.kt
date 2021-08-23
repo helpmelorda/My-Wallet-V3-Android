@@ -579,7 +579,7 @@ class LiveCustodialWalletManager(
         authenticator.authenticate { authToken ->
             Single.zip(
                 tradingBalanceDataManager.getBalanceForFiat(fiatCurrency)
-                    .singleOrError()
+                    .firstOrError()
                     .map { balance -> balance.total as FiatValue }
                     .map { total -> CustodialFiatBalance(fiatCurrency, true, total) },
                 nabuService.getCards(authToken).onErrorReturn { emptyList() },

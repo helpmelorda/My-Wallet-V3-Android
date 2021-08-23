@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.dashboard
+package piuk.blockchain.android.ui.dashboard.model
 
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
@@ -6,11 +6,11 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-class DashboardStateTest {
+class PortfolioStateTest {
 
     @Test
     fun `if assets are zero, balance is zero`() {
-        val subject = DashboardState(
+        val subject = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to initialEthState,
@@ -24,7 +24,7 @@ class DashboardStateTest {
 
     @Test
     fun `if only one asset loaded, and is zero, then total is zero`() {
-        val subject = DashboardState(
+        val subject = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
                 CryptoCurrency.ETHER to CryptoAssetState(CryptoCurrency.ETHER),
@@ -38,7 +38,7 @@ class DashboardStateTest {
 
     @Test
     fun `if no assets are loaded, total balance is null`() {
-        val subject = DashboardState(
+        val subject = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to CryptoAssetState(CryptoCurrency.BTC),
                 CryptoCurrency.ETHER to CryptoAssetState(CryptoCurrency.ETHER),
@@ -52,7 +52,7 @@ class DashboardStateTest {
 
     @Test
     fun `if bitcoin asset is loaded then delta should be -25`() {
-        val subject = DashboardState(
+        val subject = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to testBtcState,
                 CryptoCurrency.ETHER to initialEthState,
@@ -69,7 +69,7 @@ class DashboardStateTest {
 
     @Test
     fun `if bitcoin asset is loaded with no fiat assets then delta should be -25`() {
-        val subject = DashboardState(
+        val subject = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to testBtcState,
                 CryptoCurrency.ETHER to initialEthState,
@@ -87,7 +87,7 @@ class DashboardStateTest {
 
     @Test
     fun `if bitcoin asset is loaded with fiat assets then delta should be -20`() {
-        val subject = DashboardState(
+        val subject = PortfolioState(
             assets = mapOfAssets(
                 CryptoCurrency.BTC to testBtcState,
                 CryptoCurrency.ETHER to initialEthState,

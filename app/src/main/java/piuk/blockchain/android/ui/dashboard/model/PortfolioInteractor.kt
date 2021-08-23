@@ -1,7 +1,9 @@
-package piuk.blockchain.android.ui.dashboard
+package piuk.blockchain.android.ui.dashboard.model
 
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.core.price.HistoricalRate
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -44,7 +46,7 @@ import java.util.concurrent.TimeUnit
 private class DashboardGroupLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
 private class DashboardBalanceLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
 
-class DashboardInteractor(
+class PortfolioInteractor(
     private val coincore: Coincore,
     private val payloadManager: PayloadDataManager,
     private val exchangeRates: ExchangeRates,
@@ -53,7 +55,9 @@ class DashboardInteractor(
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val analytics: Analytics,
     private val crashLogger: CrashLogger,
-    private val linkedBanksFactory: LinkedBanksFactory
+    private val linkedBanksFactory: LinkedBanksFactory,
+    @Suppress("unused")
+    private val gatedFeatures: InternalFeatureFlagApi
 ) {
 
     // We have a problem here, in that pax init depends on ETH init
@@ -62,7 +66,11 @@ class DashboardInteractor(
     // which is on the radar - then we can clean up the entire app init sequence.
     // But for now, we'll catch any pax init failure here, unless ETH has initialised OK. And when we
     // get a valid ETH balance, will try for a PX balance. Yeah, this is a nasty hack TODO: Fix this
-    fun refreshBalances(model: DashboardModel, balanceFilter: AssetFilter, state: DashboardState): Disposable {
+    fun refreshBalances(
+        model: PortfolioModel,
+        balanceFilter: AssetFilter,
+        state: PortfolioState
+    ): Disposable {
         val cd = CompositeDisposable()
 
         state.assetMapKeys
@@ -79,14 +87,16 @@ class DashboardInteractor(
         return cd
     }
 
-    fun getAvailableAssets(model: DashboardModel): Disposable =
+    fun getAvailableAssets(model: PortfolioModel): Disposable =
         Single.fromCallable {
-            coincore.cryptoAssets.map { enabledAssets ->
-                enabledAssets.asset
+            if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD)) {
+                coincore.fundedCryptoAssets()
+            } else {
+                coincore.availableCryptoAssets()
             }
         }.subscribeBy(
             onSuccess = { assets ->
-                model.process(UpdateDashboardCurrencies(assets))
+                model.process(UpdatePortfolioCurrencies(assets))
                 model.process(RefreshAllIntent)
             },
             onError = {
@@ -96,7 +106,7 @@ class DashboardInteractor(
 
     private fun refreshAssetBalance(
         asset: AssetInfo,
-        model: DashboardModel,
+        model: PortfolioModel,
         balanceFilter: AssetFilter
     ): Single<CryptoValue> =
         coincore[asset].accountGroup(balanceFilter)
@@ -123,10 +133,10 @@ class DashboardInteractor(
         }
 
     private fun Single<CryptoValue>.ifEthLoadedGetErc20Balance(
-        model: DashboardModel,
+        model: PortfolioModel,
         balanceFilter: AssetFilter,
         disposables: CompositeDisposable,
-        state: DashboardState
+        state: PortfolioState
     ) = this.doOnSuccess { value ->
         if (value.currency == CryptoCurrency.ETHER) {
             state.erc20Assets.forEach {
@@ -138,8 +148,8 @@ class DashboardInteractor(
 
     private fun Single<CryptoValue>.ifEthFailedThenErc20Failed(
         asset: AssetInfo,
-        model: DashboardModel,
-        state: DashboardState
+        model: PortfolioModel,
+        state: PortfolioState
     ) = this.doOnError {
         if (asset.ticker == CryptoCurrency.ETHER.ticker) {
             state.erc20Assets.forEach {
@@ -162,7 +172,7 @@ class DashboardInteractor(
             )
         }
 
-    private fun checkForFiatBalances(model: DashboardModel, fiatCurrency: String): Disposable =
+    private fun checkForFiatBalances(model: PortfolioModel, fiatCurrency: String): Disposable =
         coincore.fiatAssets.accountGroup()
             .flattenAsObservable { g -> g.accounts }
             .flatMapSingle { a ->
@@ -186,7 +196,7 @@ class DashboardInteractor(
                 }
             )
 
-    fun refreshPrices(model: DashboardModel, crypto: AssetInfo): Disposable {
+    fun refreshPrices(model: PortfolioModel, crypto: AssetInfo): Disposable {
         return Single.zip(
             coincore[crypto].exchangeRate(),
             coincore[crypto].getPricesWith24hDelta()
@@ -197,7 +207,7 @@ class DashboardInteractor(
             )
     }
 
-    fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable =
+    fun refreshPriceHistory(model: PortfolioModel, asset: AssetInfo): Disposable =
         if (asset.startDate != null) {
             coincore[asset].lastDayTrend()
         } else {
@@ -208,7 +218,7 @@ class DashboardInteractor(
                 onError = { Timber.e(it) }
             )
 
-    fun checkForCustodialBalance(model: DashboardModel, crypto: AssetInfo): Disposable {
+    fun checkForCustodialBalance(model: PortfolioModel, crypto: AssetInfo): Disposable {
         return coincore[crypto].accountGroup(AssetFilter.Custodial)
             .flatMapObservable { it.balance }
             .subscribeBy(
@@ -233,7 +243,7 @@ class DashboardInteractor(
     }
 
     fun getSendFlow(
-        model: DashboardModel,
+        model: PortfolioModel,
         fromAccount: SingleAccount,
         action: AssetAction
     ): Disposable? {
@@ -250,7 +260,7 @@ class DashboardInteractor(
         return null
     }
 
-    fun getAssetDetailsFlow(model: DashboardModel, asset: AssetInfo): Disposable? {
+    fun getAssetDetailsFlow(model: PortfolioModel, asset: AssetInfo): Disposable? {
         model.process(
             UpdateLaunchDialogFlow(
                 AssetDetailsFlow(
@@ -263,7 +273,7 @@ class DashboardInteractor(
     }
 
     fun getInterestDepositFlow(
-        model: DashboardModel,
+        model: PortfolioModel,
         targetAccount: InterestAccount
     ): Disposable? {
         require(targetAccount is CryptoAccount)
@@ -279,7 +289,7 @@ class DashboardInteractor(
     }
 
     fun getInterestWithdrawFlow(
-        model: DashboardModel,
+        model: PortfolioModel,
         sourceAccount: InterestAccount
     ): Disposable? {
         require(sourceAccount is CryptoAccount)
@@ -296,7 +306,7 @@ class DashboardInteractor(
     }
 
     fun getBankDepositFlow(
-        model: DashboardModel,
+        model: PortfolioModel,
         targetAccount: SingleAccount,
         action: AssetAction,
         shouldLaunchBankLinkTransfer: Boolean
@@ -308,7 +318,7 @@ class DashboardInteractor(
     private fun handleFiatDeposit(
         targetAccount: FiatAccount,
         shouldLaunchBankLinkTransfer: Boolean,
-        model: DashboardModel,
+        model: PortfolioModel,
         action: AssetAction
     ) = Singles.zip(
         linkedBanksFactory.eligibleBankPaymentMethods(targetAccount.fiatCurrency).map { paymentMethods ->
@@ -353,7 +363,7 @@ class DashboardInteractor(
 
     private fun handlePaymentMethodsUpdate(
         it: FiatTransactionRequestResult?,
-        model: DashboardModel,
+        model: PortfolioModel,
         fiatAccount: SingleAccount,
         action: AssetAction
     ) {
@@ -455,7 +465,7 @@ class DashboardInteractor(
         custodialWalletManager.linkToABank(currency)
 
     fun getBankWithdrawalFlow(
-        model: DashboardModel,
+        model: PortfolioModel,
         sourceAccount: SingleAccount,
         action: AssetAction,
         shouldLaunchBankLinkTransfer: Boolean

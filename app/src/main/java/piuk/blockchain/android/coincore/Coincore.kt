@@ -68,6 +68,7 @@ class Coincore internal constructor(
     val fiatAssets: Asset
         get() = fiatAsset
 
+    @Deprecated("Use funded- or available-CryptoAssets instead")
     val cryptoAssets: Iterable<CryptoAsset>
         get() = assetMap.values.filter { it.isEnabled }
 
@@ -230,8 +231,10 @@ class Coincore internal constructor(
             .toList()
             .map { it.isEmpty() }
 
-    // "Active" means funded, but this is not yet supported until erc20 scaling is complete TODO
-    fun activeCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets
+    // These two methods return the same set ATM. But, to support dynamic assets and the portfolio view, this
+    // will soon be changed
+    fun fundedCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets
+    fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets
 
     fun supportedFiatAssets(): List<String> = assetCatalogue.supportedFiatAssets
 }

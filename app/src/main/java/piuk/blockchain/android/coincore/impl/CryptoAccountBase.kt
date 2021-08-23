@@ -51,13 +51,13 @@ abstract class CryptoAccountBase : CryptoAccount {
         private set
 
     final override val accountBalance: Single<Money>
-        get() = balance.map { it.total }.singleOrError()
+        get() = balance.map { it.total }.firstOrError()
 
     final override val actionableBalance: Single<Money>
-        get() = balance.map { it.actionable }.singleOrError()
+        get() = balance.map { it.actionable }.firstOrError()
 
     final override val pendingBalance: Single<Money>
-        get() = balance.map { it.pending }.singleOrError()
+        get() = balance.map { it.pending }.firstOrError()
 
     final override fun fiatBalance(
         fiatCurrency: String,
@@ -381,13 +381,13 @@ class CryptoAccountNonCustodialGroup(
         }
 
     override val accountBalance: Single<Money>
-        get() = balance.map { it.total }.singleOrError()
+        get() = balance.map { it.total }.firstOrError()
 
     override val actionableBalance: Single<Money>
-        get() = balance.map { it.actionable }.singleOrError()
+        get() = balance.map { it.actionable }.firstOrError()
 
     override val pendingBalance: Single<Money>
-        get() = balance.map { it.pending }.singleOrError()
+        get() = balance.map { it.pending }.firstOrError()
 
     // All the activities for all the accounts
     override val activity: Single<ActivitySummaryList>

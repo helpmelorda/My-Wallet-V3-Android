@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.dashboard
+package piuk.blockchain.android.ui.dashboard.model
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.core.price.Prices24HrWithDelta
@@ -121,7 +121,7 @@ interface LinkBankNavigationAction {
     val assetAction: AssetAction
 }
 
-data class DashboardState(
+data class PortfolioState(
     val assets: AssetMap = AssetMap(emptyMap()),
     val dashboardNavigationAction: DashboardNavigationAction? = null,
     val activeFlow: DialogFlow? = null,
@@ -239,21 +239,21 @@ sealed class LinkablePaymentMethodsForAction(
     ) : LinkablePaymentMethodsForAction(linkablePaymentMethods)
 }
 
-class DashboardModel(
-    initialState: DashboardState,
+class PortfolioModel(
+    initialState: PortfolioState,
     mainScheduler: Scheduler,
-    private val interactor: DashboardInteractor,
+    private val interactor: PortfolioInteractor,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
-) : MviModel<DashboardState, DashboardIntent>(
+) : MviModel<PortfolioState, PortfolioIntent>(
     initialState,
     mainScheduler,
     environmentConfig,
     crashLogger
 ) {
     override fun performAction(
-        previousState: DashboardState,
-        intent: DashboardIntent
+        previousState: PortfolioState,
+        intent: PortfolioIntent
     ): Disposable? {
         Timber.d("***> performAction: ${intent.javaClass.simpleName}")
 
@@ -294,14 +294,14 @@ class DashboardModel(
             is ShowAnnouncement,
             is ShowFiatAssetDetails,
             is ShowBankLinkingSheet,
-            is ShowDashboardSheet,
+            is ShowPortfolioSheet,
             is UpdateLaunchDialogFlow,
             is ClearBottomSheet,
             is UpdateSelectedCryptoAccount,
             is ShowBackupSheet,
-            is UpdateDashboardCurrencies,
+            is UpdatePortfolioCurrencies,
             is LaunchBankLinkFlow,
-            is ResetDashboardNavigation,
+            is ResetPortfolioNavigation,
             is ShowLinkablePaymentMethodsSheet,
             is LongCallStarted,
             is LongCallEnded -> null
@@ -344,8 +344,8 @@ class DashboardModel(
             )
 
     override fun distinctIntentFilter(
-        previousIntent: DashboardIntent,
-        nextIntent: DashboardIntent
+        previousIntent: PortfolioIntent,
+        nextIntent: PortfolioIntent
     ): Boolean {
         return when (previousIntent) {
             is UpdateLaunchDialogFlow -> {

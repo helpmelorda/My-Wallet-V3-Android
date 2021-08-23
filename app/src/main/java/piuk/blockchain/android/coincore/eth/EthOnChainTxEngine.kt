@@ -115,7 +115,7 @@ open class EthOnChainTxEngine(
         }
 
     private fun feeOptions(): Single<FeeOptions> =
-        feeManager.ethFeeOptions.singleOrError()
+        feeManager.ethFeeOptions.firstOrError()
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {
         require(amount is CryptoValue)

@@ -84,7 +84,7 @@ import piuk.blockchain.android.ui.base.mvi.MviFragment.Companion.BOTTOM_SHEET
 import piuk.blockchain.android.ui.customviews.PasswordStrengthView
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
-import piuk.blockchain.android.ui.dashboard.LinkablePaymentMethodsForAction
+import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity

@@ -78,7 +78,7 @@ class Prerequisites(
 
     fun warmCaches(): Completable =
         exchangeRates.prefetchCache(
-            assetList = coincore.activeCryptoAssets(),
+            assetList = coincore.fundedCryptoAssets(),
             fiatList = coincore.supportedFiatAssets()
         ).logOnError(PRICE_CACHE_PREFETCH)
 

@@ -49,13 +49,13 @@ internal class FiatCustodialAccount(
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
     override val accountBalance: Single<Money>
-        get() = balance.map { it.total }.singleOrError()
+        get() = balance.map { it.total }.firstOrError()
 
     override val actionableBalance: Single<Money>
-        get() = balance.map { it.actionable }.singleOrError()
+        get() = balance.map { it.actionable }.firstOrError()
 
     override val pendingBalance: Single<Money>
-        get() = balance.map { it.total }.singleOrError()
+        get() = balance.map { it.total }.firstOrError()
 
     override var hasTransactions: Boolean = false
         private set
