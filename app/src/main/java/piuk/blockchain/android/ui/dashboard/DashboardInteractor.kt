@@ -209,11 +209,12 @@ class DashboardInteractor(
             )
 
     fun checkForCustodialBalance(model: DashboardModel, crypto: AssetInfo): Disposable {
+        // FIXME use the version on develop when merging this branch back
         return coincore[crypto].accountGroup(AssetFilter.Custodial)
-            .flatMapObservable { it.balance }
+            .flatMapSingle { it.accountBalance }
             .subscribeBy(
-                onNext = {
-                    model.process(UpdateHasCustodialBalanceIntent(crypto, !it.total.isZero))
+                onSuccess = {
+                    model.process(UpdateHasCustodialBalanceIntent(crypto, !it.isZero))
                 },
                 onError = { model.process(UpdateHasCustodialBalanceIntent(crypto, false)) }
             )
