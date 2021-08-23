@@ -23,8 +23,7 @@ internal class ExchangeRatesDataManagerImpl(
     private val priceStore: AssetPriceStore,
     private val sparklineCall: SparklineCallCache,
     private val assetPriceService: AssetPriceService,
-    private val currencyPrefs: CurrencyPrefs,
-    private val calendar: Calendar = Calendar.getInstance()
+    private val currencyPrefs: CurrencyPrefs
 ) : ExchangeRatesDataManager {
 
     // TEMP Methods, for compatibility while changing client code
@@ -41,7 +40,9 @@ internal class ExchangeRatesDataManagerImpl(
         return priceStore.populateCache(currencyPrefs.selectedFiatCurrency)
     }
 
-    override fun getLastCryptoToUserFiatRate(sourceCrypto: AssetInfo): ExchangeRate.CryptoToFiat {
+    override fun getLastCryptoToUserFiatRate(
+        sourceCrypto: AssetInfo
+    ): ExchangeRate.CryptoToFiat {
         checkAndTriggerPriceRefresh()
         val userFiat = currencyPrefs.selectedFiatCurrency
         val price = priceStore.getCachedPrice(sourceCrypto, userFiat)
@@ -215,12 +216,13 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun getHistoricPriceSeries(
         asset: AssetInfo,
-        span: HistoricalTimeSpan
+        span: HistoricalTimeSpan,
+        now: Calendar
     ): Single<HistoricalRateList> {
         require(asset.startDate != null)
 
         val scale = span.suggestTimescaleInterval()
-        val startTime = calendar.getStartTimeForTimeSpan(span, asset)
+        val startTime = now.getStartTimeForTimeSpan(span, asset)
 
         return assetPriceService.getHistoricPriceSince(
             crypto = asset.ticker,

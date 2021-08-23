@@ -3,6 +3,7 @@ package com.blockchain.core.price
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import java.util.Calendar
 
 enum class HistoricalTimeSpan {
     DAY,
@@ -49,7 +50,8 @@ interface ExchangeRatesDataManager : ExchangeRates {
 
     fun getHistoricPriceSeries(
         asset: AssetInfo,
-        span: HistoricalTimeSpan
+        span: HistoricalTimeSpan,
+        now: Calendar = Calendar.getInstance()
     ): Single<HistoricalRateList>
 
     // Specialised call to historic rates for sparkline caching
