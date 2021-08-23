@@ -7,7 +7,7 @@ object Versions {
     const val targetSdk = 30
     const val compileSdk = 30
 
-    const val versionCode = 15547
+    const val versionCode = 15641
     const val versionName = "8.12.0"
     const val buildTools = "29.0.2"
 
@@ -33,6 +33,7 @@ object Versions {
     const val constraintLayout = "2.0.4"
     const val multidex = "2.0.1"
     const val desugaring = "1.1.5"
+    const val installReferrer = "2.2"
     const val navigation = "2.1.0"
     const val lifecycle = "2.1.0"
     const val camera = "1.0.0-rc04"
@@ -156,7 +157,7 @@ object Libraries {
     const val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
     const val multidex = "androidx.multidex:multidex:${Versions.multidex}"
     const val desugaring = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
-
+    const val installReferrer = "com.android.installreferrer:installreferrer:${Versions.installReferrer}"
     const val navigationControllerCore = "androidx.navigation:navigation-ui:${Versions.navigation}"
     const val navigationControllerFragments = "androidx.navigation:navigation-fragment:${Versions.navigation}"
     const val navigationControllerSafeArgsPlugin =

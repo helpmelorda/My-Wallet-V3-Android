@@ -54,6 +54,7 @@ import com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl
 import com.blockchain.core.price.impl.SparklineCallCache
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
+import com.blockchain.preferences.AppInfoPrefs
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -345,6 +346,7 @@ val coreModule = module {
         .bind(WalletStatus::class)
         .bind(EncryptedPrefs::class)
         .bind(AuthPrefs::class)
+        .bind(AppInfoPrefs::class)
         .bind(BankLinkingPrefs::class)
         .bind(InternalFeatureFlagPrefs::class)
         .bind(SecureChannelPrefs::class)

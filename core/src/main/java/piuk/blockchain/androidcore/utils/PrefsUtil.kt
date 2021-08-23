@@ -8,6 +8,7 @@ import android.util.Base64
 import androidx.annotation.VisibleForTesting
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.logging.CrashLogger
+import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
@@ -188,6 +189,18 @@ class PrefsUtil(
     override fun setBankLinkingState(state: String) = setValue(KEY_BANK_LINKING, state)
 
     override fun getDynamicOneTimeTokenUrl(): String = getValue(KEY_ONE_TIME_TOKEN_PATH, "")
+
+    override var installationVersionName: String
+        get() = getValue(APP_INSTALLATION_VERSION_NAME, AppInfoPrefs.DEFAULT_APP_VERSION_NAME)
+        set(value) {
+            setValue(APP_INSTALLATION_VERSION_NAME, value)
+        }
+
+    override var currentStoredVersionCode: Int
+        get() = getValue(APP_CURRENT_VERSION_CODE, AppInfoPrefs.DEFAULT_APP_VERSION_CODE)
+        set(value) {
+            setValue(APP_CURRENT_VERSION_CODE, value)
+        }
 
     override fun setDynamicOneTimeTokenUrl(path: String) {
         val previousValue = getDynamicOneTimeTokenUrl()
@@ -500,7 +513,20 @@ class PrefsUtil(
     }
 
     override fun clear() {
+        val persistedBool = GatedFeature.values().map { it.name to store.getBoolean(it.name, false) }.toMap()
+
+        val versionCode = store.getInt(APP_CURRENT_VERSION_CODE, AppInfoPrefs.DEFAULT_APP_VERSION_CODE)
+        val installedVersion = store.getString(APP_INSTALLATION_VERSION_NAME, AppInfoPrefs.DEFAULT_APP_VERSION_NAME)
+                ?: AppInfoPrefs.DEFAULT_APP_VERSION_NAME
+
         store.edit().clear().apply()
+
+        persistedBool.forEach { (key, value) ->
+            setValue(key, value)
+        }
+        setValue(APP_CURRENT_VERSION_CODE, versionCode)
+        setValue(APP_INSTALLATION_VERSION_NAME, installedVersion)
+
         clearBackup()
     }
 
@@ -629,6 +655,8 @@ class PrefsUtil(
         private const val KEY_EMAIL = "KEY_EMAIL"
         private const val COUNTRY_SIGN_UP = "COUNTRY_SIGN_UP"
         private const val STATE_SIGNED_UP = "STATE_SIGNED_UP"
+        private const val APP_CURRENT_VERSION_CODE = "APP_CURRENT_VERSION_CODE"
+        private const val APP_INSTALLATION_VERSION_NAME = "APP_INSTALLATION_VERSION_NAME"
         private const val MAX_ALLOWED_RETRIES = 3
 
         // For QA:

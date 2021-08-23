@@ -308,6 +308,7 @@ dependencies {
 
     // Google core
     implementation Libraries.googlePlayCore
+    implementation Libraries.installReferrer
 
     implementation Libraries.appCompat
     implementation Libraries.navigationControllerCore

@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity.RESULT_CANCELED
 import androidx.appcompat.app.AppCompatActivity.RESULT_OK
 import androidx.appcompat.widget.AppCompatEditText
 import com.blockchain.koin.scopedInject
+import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -73,6 +74,7 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
 
     private val pinEntryPresenter: PinEntryPresenter by scopedInject()
     private val environmentConfig: EnvironmentConfig by inject()
+    private val prefs: AppInfoPrefs by inject()
     private val biometricsController: BiometricsController by scopedInject()
     private val appUtil: AppUtil by inject()
 
@@ -130,14 +132,14 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
         binding.keyboard.setPadClickedListener(
             object : PinEntryKeypad.OnPinEntryPadClickedListener {
 
-            override fun onNumberClicked(number: String) {
-                presenter.onPadClicked(number)
-            }
+                override fun onNumberClicked(number: String) {
+                    presenter.onPadClicked(number)
+                }
 
-            override fun onDeleteClicked() {
-                presenter.onDeleteClicked()
-            }
-        })
+                override fun onDeleteClicked() {
+                    presenter.onDeleteClicked()
+                }
+            })
 
         if (environmentConfig.isRunningInDebugMode()) {
             ToastCustom.makeText(
@@ -215,8 +217,8 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
         binding.layoutWarning.warningMessage.let {
             it.movementMethod = LinkMovementMethod.getInstance()
             it.text = getStringWithMappedAnnotations(
-                    requireActivity(), R.string.wallet_issue_message, learnMoreMap
-                )
+                requireActivity(), R.string.wallet_issue_message, learnMoreMap
+            )
         }
     }
 

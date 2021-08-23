@@ -90,6 +90,11 @@ fun apiError(host: String, path: String, body: String?, requestId: String?, erro
     }
 
 enum class AnalyticsNames(val eventName: String) {
+    // App Events
+    APP_INSTALLED("Application Installed"),
+    APP_UPDATED("Application Updated"),
+    APP_DEEP_LINK_OPENED("Deep Link Opened"),
+    APP_BACKGROUNDED("Application Backgrounded"),
     BUY_AMOUNT_ENTERED("Buy Amount Entered"),
     BUY_FREQUENCY_SELECTED("Buy Frequency Selected"),
     BUY_PAYMENT_METHOD_CHANGED("Buy Payment Method Selected"),
