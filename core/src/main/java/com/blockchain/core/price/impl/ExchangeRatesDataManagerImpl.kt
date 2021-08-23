@@ -183,10 +183,10 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun getPricesWith24hDelta(fromAsset: AssetInfo): Single<Prices24HrWithDelta> {
         val yesterday = (System.currentTimeMillis() / 1000) - SECONDS_PER_DAY
-        return Single.zip(
-            cryptoToUserFiatRate(fromAsset).firstOrError(),
-            getHistoricRate(fromAsset, yesterday)
-        ) { priceToday, priceYesterday ->
+
+        // FIXME use the version on develop when merging this branch back
+        return getHistoricRate(fromAsset, yesterday).map { priceYesterday ->
+            val priceToday = getLastCryptoToUserFiatRate(fromAsset)
             Prices24HrWithDelta(
                 delta24h = priceToday.priceDelta(priceYesterday),
                 previousRate = priceYesterday,
