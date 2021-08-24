@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.dashboard.model
 
-import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.core.price.ExchangeRate
+// todo Ideally we want to map this at the coincore layer to some new object, so that the dashboard doesn't have a dependency on core. Since there are a couple of others that are just passed through, though, this can be for later.
 import com.blockchain.core.price.HistoricalRateList
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Money
+import piuk.blockchain.android.coincore.AccountBalance
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.FiatAccount
 import piuk.blockchain.android.coincore.InterestAccount
@@ -15,7 +15,6 @@ import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import java.math.BigInteger
 
 sealed class PortfolioIntent : MviIntent<PortfolioState>
 
@@ -67,16 +66,16 @@ object RefreshAllIntent : PortfolioIntent() {
 
 class BalanceUpdate(
     val asset: AssetInfo,
-    private val newBalance: Money
+    private val newBalance: AccountBalance
 ) : PortfolioIntent() {
     override fun reduce(oldState: PortfolioState): PortfolioState {
-        val balance = newBalance as CryptoValue
+        val balance = newBalance.total as CryptoValue
         require(asset == balance.currency) {
             throw IllegalStateException("CryptoCurrency mismatch")
         }
 
         val oldAsset = oldState[asset]
-        val newAsset = oldAsset.copy(balance = newBalance, hasBalanceError = false)
+        val newAsset = oldAsset.copy(accountBalance = newBalance, hasBalanceError = false)
         val newAssets = oldState.assets.copy(patchAsset = newAsset)
 
         return oldState.copy(assets = newAssets)
@@ -89,7 +88,7 @@ class BalanceUpdateError(
     override fun reduce(oldState: PortfolioState): PortfolioState {
         val oldAsset = oldState[asset]
         val newAsset = oldAsset.copy(
-            balance = CryptoValue(asset, BigInteger.ZERO),
+            accountBalance = AccountBalance.zero(asset),
             hasBalanceError = true
         )
         val newAssets = oldState.assets.copy(patchAsset = newAsset)
@@ -133,23 +132,23 @@ class RefreshPrices(
 
 class PriceUpdate(
     val asset: AssetInfo,
-    private val latestPrice: ExchangeRate,
     private val prices24HrWithDelta: Prices24HrWithDelta
 ) : PortfolioIntent() {
     override fun reduce(oldState: PortfolioState): PortfolioState {
         val oldAsset = oldState.assets[asset]
-        val newAsset = updateAsset(oldAsset, latestPrice, prices24HrWithDelta)
+        val newAsset = updateAsset(oldAsset, prices24HrWithDelta)
 
         return oldState.copy(assets = oldState.assets.copy(patchAsset = newAsset))
     }
 
     private fun updateAsset(
         old: CryptoAssetState,
-        latestPrice: ExchangeRate,
         prices24HrWithDelta: Prices24HrWithDelta
     ): CryptoAssetState {
         return old.copy(
-            price = latestPrice,
+            accountBalance = old.accountBalance?.copy(
+                exchangeRate = prices24HrWithDelta.currentRate
+            ),
             prices24HrWithDelta = prices24HrWithDelta
         )
     }

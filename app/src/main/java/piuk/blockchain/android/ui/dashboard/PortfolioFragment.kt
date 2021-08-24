@@ -350,8 +350,8 @@ class PortfolioFragment :
         analyticsReporter.updateFiatTotal(newState.fiatBalance)
 
         newState.assets.forEach { (asset, state) ->
-            val newBalance = state.balance
-            if (newBalance != null && newBalance != oldState?.assets?.get(asset)?.balance) {
+            val newBalance = state.accountBalance?.total
+            if (newBalance != null && newBalance != oldState?.assets?.get(asset)?.accountBalance?.total) {
                 // If we have the full set, this will fire
                 analyticsReporter.gotAssetBalance(asset, newBalance)
             }

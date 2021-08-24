@@ -14,15 +14,16 @@ import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Money
 import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import piuk.blockchain.android.coincore.AccountBalance
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AssetFilter
@@ -111,22 +112,25 @@ class PortfolioInteractor(
     ): Single<CryptoValue> =
         coincore[asset].accountGroup(balanceFilter)
             .logGroupLoadError(asset, balanceFilter)
-            .flatMapSingle { group ->
-                group.accountBalance
+            .flatMapObservable { group ->
+                group.balance
                     .logBalanceLoadError(asset, balanceFilter)
             }
-            .map { balance -> balance as CryptoValue }
             .doOnError { e ->
                 Timber.e("Failed getting balance for ${asset.ticker}: $e")
                 model.process(BalanceUpdateError(asset))
             }
-            .doOnSuccess { v ->
+            .doOnNext { accountBalance ->
                 Timber.d("Got balance for ${asset.ticker}")
-                model.process(BalanceUpdate(asset, v))
-            }.defaultIfEmpty(CryptoValue.zero(asset))
+                model.process(BalanceUpdate(asset, accountBalance))
+            }
             .retryOnError()
+            .firstOrError()
+            .map {
+                it.total as CryptoValue
+            }
 
-    private fun <T> Single<T>.retryOnError() =
+    private fun <T> Observable<T>.retryOnError() =
         this.retryWhen { f ->
             f.take(RETRY_COUNT)
                 .delay(RETRY_INTERVAL_MS, TimeUnit.MILLISECONDS)
@@ -165,7 +169,7 @@ class PortfolioInteractor(
             )
         }
 
-    private fun Single<Money>.logBalanceLoadError(asset: AssetInfo, filter: AssetFilter) =
+    private fun Observable<AccountBalance>.logBalanceLoadError(asset: AssetInfo, filter: AssetFilter) =
         this.doOnError { e ->
             crashLogger.logException(
                 DashboardBalanceLoadFailure("Cannot load balance for ${asset.ticker} - $filter:", e)
@@ -196,16 +200,13 @@ class PortfolioInteractor(
                 }
             )
 
-    fun refreshPrices(model: PortfolioModel, crypto: AssetInfo): Disposable {
-        return Single.zip(
-            coincore[crypto].exchangeRate(),
-            coincore[crypto].getPricesWith24hDelta()
-        ) { rate, delta -> PriceUpdate(crypto, rate, delta) }
+    fun refreshPrices(model: PortfolioModel, crypto: AssetInfo): Disposable =
+        coincore[crypto].getPricesWith24hDelta()
+            .map { pricesWithDelta -> PriceUpdate(crypto, pricesWithDelta) }
             .subscribeBy(
                 onSuccess = { model.process(it) },
                 onError = { Timber.e(it) }
             )
-    }
 
     fun refreshPriceHistory(model: PortfolioModel, asset: AssetInfo): Disposable =
         if (asset.startDate != null) {

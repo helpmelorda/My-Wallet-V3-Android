@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.dashboard.model
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
@@ -16,6 +15,7 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.core.component.KoinComponent
+import piuk.blockchain.android.coincore.AccountBalance
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AssetFilter
 import piuk.blockchain.android.coincore.FiatAccount
@@ -45,11 +45,11 @@ class AssetMap(private val map: Map<AssetInfo, CryptoAssetState>) :
         return AssetMap(assets)
     }
 
-    fun copy(patchBalance: Money): AssetMap {
+    fun copy(patchBalance: AccountBalance): AssetMap {
         val assets = toMutableMap()
         // CURRENCY HERE
-        val balance = patchBalance as CryptoValue
-        val value = get(balance.currency).copy(balance = patchBalance)
+        val balance = patchBalance.total as CryptoValue
+        val value = get(balance.currency).copy(accountBalance = patchBalance)
         assets[balance.currency] = value
         return AssetMap(assets)
     }
@@ -196,20 +196,18 @@ data class PortfolioState(
 
 data class CryptoAssetState(
     val currency: AssetInfo,
-    // todo balance and price can come from new asset balance observable
-    val balance: Money? = null,
-    val price: ExchangeRate? = null,
+    val accountBalance: AccountBalance? = null,
     val prices24HrWithDelta: Prices24HrWithDelta? = null,
     val priceTrend: List<Float> = emptyList(),
     val hasBalanceError: Boolean = false,
     val hasCustodialBalance: Boolean = false
 ) : DashboardItem {
     val fiatBalance: Money? by unsafeLazy {
-        price?.let { p -> balance?.let { p.convert(it) } }
+        accountBalance?.exchangeRate?.let { p -> accountBalance.total.let { p.convert(it) } }
     }
 
     val fiatBalance24h: Money? by unsafeLazy {
-        prices24HrWithDelta?.previousRate?.let { p -> balance?.let { p.convert(it) } }
+        prices24HrWithDelta?.previousRate?.let { p -> accountBalance?.total?.let { p.convert(it) } }
     }
 
     val priceDelta: Double by unsafeLazy {
@@ -217,7 +215,7 @@ data class CryptoAssetState(
     }
 
     val isLoading: Boolean by unsafeLazy {
-        balance == null || price == null || prices24HrWithDelta == null
+        accountBalance == null || prices24HrWithDelta == null
     }
 
     fun reset(): CryptoAssetState = CryptoAssetState(currency)

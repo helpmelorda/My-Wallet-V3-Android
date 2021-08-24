@@ -14,12 +14,11 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -44,7 +43,7 @@ class BuyIntroFragment : ViewPagerFragment() {
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val compositeDisposable = CompositeDisposable()
-    private val coinCore: Coincore by scopedInject()
+    private val coincore: Coincore by scopedInject()
     private val simpleBuyPrefs: SimpleBuyPrefs by scopedInject()
     private val assetResources: AssetResources by inject()
 
@@ -69,19 +68,19 @@ class BuyIntroFragment : ViewPagerFragment() {
             )
                 .flatMap { pairs ->
                     val enabledPairs = pairs.pairs.filter {
-                        coinCore[it.cryptoCurrency].isEnabled
+                        coincore[it.cryptoCurrency].isEnabled
                     }
-                    // TODO clean current price as it comes from priceDelta now
-                    Single.zip(enabledPairs.map {
-                        coinCore[it.cryptoCurrency].exchangeRate().zipWith(
-                            coinCore[it.cryptoCurrency].getPricesWith24hDelta()
-                        ).map { (currentPrice, priceDelta) ->
-                            PriceHistory(
-                                currentExchangeRate = currentPrice as ExchangeRate.CryptoToFiat,
-                                priceDelta = priceDelta.delta24h
-                            )
+
+                    Single.zip(
+                        enabledPairs.map { pair ->
+                            coincore[pair.cryptoCurrency].getPricesWith24hDelta().map {
+                                PriceHistory(
+                                    currentExchangeRate = it.currentRate as ExchangeRate.CryptoToFiat,
+                                    priceDelta = it.delta24h
+                                )
+                            }
                         }
-                    }) { t: Array<Any> ->
+                    ) { t: Array<Any> ->
                         t.map {
                             it as PriceHistory
                         } to pairs.copy(pairs = enabledPairs)
