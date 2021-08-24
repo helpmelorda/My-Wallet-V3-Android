@@ -285,7 +285,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         handlingResult = false
 
         intent.data?.let {
-            presenter.handleDeepLink(it)
+            presenter.checkForPendingLinks(intent)
             intent.data = null
         }
     }
@@ -488,10 +488,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override fun hideProgressDialog() {
         super.dismissProgressDialog()
-    }
-
-    override fun getStartIntent(): Intent {
-        return intent
     }
 
     override fun clearAllDynamicShortcuts() {

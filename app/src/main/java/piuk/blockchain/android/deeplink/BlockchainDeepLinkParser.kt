@@ -62,18 +62,18 @@ class BlockchainDeepLinkParser {
     }
 
     companion object {
-        const val SWAP_URL = "/swap"
-        const val ACTIVITIES_URL = "/activities"
-        const val BUY_URL = "/buy"
-        const val SELL_URL = "/sell"
-        const val SIMPLE_BUY_URL = "/simplebuy"
-        const val KYC_URL = "/kyc"
-        const val TWO_FA_URL = "/twofa"
-        const val VERIFY_EMAIL_URL = "/verifyemail"
-        const val SETUP_FINGERPRINT_URL = "/setupfingerprint"
-        const val INTEREST_URL = "/interest"
-        const val RECEIVE_URL = "/receive"
-        const val SEND_URL = "/send"
+        const val SWAP_URL = "/open/swap"
+        const val ACTIVITIES_URL = "/open/activities"
+        const val BUY_URL = "/open/buy"
+        const val SELL_URL = "/open/sell"
+        const val SIMPLE_BUY_URL = "/open/simplebuy"
+        const val KYC_URL = "/open/kyc"
+        const val TWO_FA_URL = "/open/twofa"
+        const val VERIFY_EMAIL_URL = "/open/verifyemail"
+        const val SETUP_FINGERPRINT_URL = "/open/setupfingerprint"
+        const val INTEREST_URL = "/open/interest"
+        const val RECEIVE_URL = "/open/receive"
+        const val SEND_URL = "/open/send"
     }
 }
 
