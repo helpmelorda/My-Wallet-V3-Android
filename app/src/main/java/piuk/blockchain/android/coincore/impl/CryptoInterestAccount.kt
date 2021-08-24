@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl
 
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -30,6 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 internal class CryptoInterestAccount(
     override val asset: AssetInfo,
     override val label: String,
+    private val interestBalance: InterestBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     override val exchangeRates: ExchangeRatesDataManager,
     @Suppress("unused")
@@ -75,17 +77,18 @@ internal class CryptoInterestAccount(
         other is CryptoInterestAccount && other.asset == asset
 
     override val accountBalance: Single<Money>
-        get() = custodialWalletManager.getInterestAccountBalance(asset)
+        get() = interestBalance.getBalanceForAsset(asset)
+            .map { it.totalBalance }
             .doOnSuccess { hasFunds.set(it.isPositive) }
             .map { it }
 
     override val pendingBalance: Single<Money>
-        get() = custodialWalletManager.getPendingInterestAccountBalance(asset)
-            .map { it }
+        get() = interestBalance.getBalanceForAsset(asset)
+            .map { it.pendingDeposit }
 
     override val actionableBalance: Single<Money>
-        get() = custodialWalletManager.getActionableInterestAccountBalance(asset)
-            .map { it }
+        get() = interestBalance.getBalanceForAsset(asset)
+            .map { it.actionableBalance }
 
     override val activity: Single<ActivitySummaryList>
         get() = custodialWalletManager.getInterestActivity(asset)
@@ -145,8 +148,8 @@ internal class CryptoInterestAccount(
                 reason
             }
 
-    override val actions: Single<AvailableActions> =
-        actionableBalance.map { balance ->
+    override val actions: Single<AvailableActions>
+        get() = actionableBalance.map { balance ->
             setOfNotNull(
                 AssetAction.InterestWithdraw.takeIf { balance.isPositive },
                 AssetAction.ViewStatement,

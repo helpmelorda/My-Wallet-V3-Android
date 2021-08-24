@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
@@ -54,10 +55,14 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
     private lateinit var account: SingleAccount
     private lateinit var asset: AssetInfo
 
-    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogSheetInterestDetailsBinding =
+    override fun initBinding(
+        inflater: LayoutInflater,
+        container: ViewGroup?
+    ): DialogSheetInterestDetailsBinding =
         DialogSheetInterestDetailsBinding.inflate(inflater, container, false)
 
     private val disposables = CompositeDisposable()
+    private val interestBalance: InterestBalanceDataManager by scopedInject()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val exchangeRates: ExchangeRates by scopedInject()
     private val coincore: Coincore by scopedInject()
@@ -101,7 +106,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
         }
 
         disposables += Singles.zip(
-            custodialWalletManager.getInterestAccountDetails(asset),
+            interestBalance.getBalanceForAsset(asset),
             custodialWalletManager.getInterestLimits(asset).toSingle(),
             custodialWalletManager.getInterestAccountRates(asset)
         ).observeOn(AndroidSchedulers.mainThread())
@@ -111,7 +116,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                         CompositeInterestDetails(
                             totalInterest = details.totalInterest,
                             pendingInterest = details.pendingInterest,
-                            balance = (details.balance - details.lockedBalance) as CryptoValue,
+                            balance = (details.totalBalance - details.lockedBalance) as CryptoValue,
                             lockupDuration = limits.interestLockUpDuration.secondsToDays(),
                             interestRate = interestRate,
                             nextInterestPayment = limits.nextInterestPayment

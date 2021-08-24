@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore
 
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -83,7 +84,7 @@ interface CryptoAsset : Asset {
 
     // Fetch exchange rate to user's selected/display fiat
     fun exchangeRate(): Single<ExchangeRate>
-    fun exchangeRateYesterday(): Single<ExchangeRate>
+    fun getPricesWith24hDelta(): Single<Prices24HrWithDelta>
     fun historicRate(epochWhen: Long): Single<ExchangeRate>
 
     fun historicRateSeries(period: HistoricalTimeSpan): Single<HistoricalRateList>

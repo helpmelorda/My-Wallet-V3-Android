@@ -4,15 +4,6 @@ data class InterestRateResponse(
     val rate: Double
 )
 
-data class InterestAccountDetailsResponse(
-    val balance: String,
-    val pendingInterest: String,
-    val pendingDeposit: String,
-    val totalInterest: String,
-    val pendingWithdrawal: String,
-    val locked: String
-)
-
 data class InterestAddressResponse(
     val accountRef: String
 )

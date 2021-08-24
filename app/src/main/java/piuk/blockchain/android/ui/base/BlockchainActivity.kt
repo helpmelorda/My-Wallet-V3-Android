@@ -17,6 +17,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.util.ActivityIndicator
@@ -42,7 +43,9 @@ abstract class BlockchainActivity : ToolBarActivity() {
     private val compositeDisposable = CompositeDisposable()
 
     private val enableScreenshots: Boolean
-        get() = securityPrefs.isUnderTest || (securityPrefs.areScreenshotsEnabled && !alwaysDisableScreenshots)
+        get() = securityPrefs.isUnderTest ||
+            (securityPrefs.areScreenshotsEnabled && !alwaysDisableScreenshots) ||
+            BuildConfig.INTERNAL
 
     protected open val enableLogoutTimer: Boolean = true
 

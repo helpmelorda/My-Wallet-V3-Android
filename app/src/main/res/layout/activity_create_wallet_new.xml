@@ -21,6 +21,7 @@
             android:id="@+id/mainConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
             android:background="@color/white"
             android:paddingTop="@dimen/small_margin">
 
@@ -73,7 +74,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <piuk.blockchain.android.ui.customviews.PasswordStrengthView
-                android:id="@+id/entropy_container"
+                android:id="@+id/entropy_container_new"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -91,7 +92,7 @@
                 android:hint="@string/confirm_password"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/entropy_container"
+                app:layout_constraintTop_toBottomOf="@+id/entropy_container_new"
                 app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -178,6 +179,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/standard_margin"
                 android:layout_marginEnd="@dimen/standard_margin"
+                android:layout_marginBottom="@dimen/small_margin"
                 android:lineSpacingExtra="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/wallet_password_checkbox"

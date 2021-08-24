@@ -1,6 +1,7 @@
 package com.blockchain.api.services
 
 import com.blockchain.api.ApiException
+import com.blockchain.api.HttpStatus
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.addressmapping.data.AddressMapRequest
 import io.reactivex.rxjava3.core.Single
@@ -26,7 +27,7 @@ class AddressMappingService internal constructor(
             it.address
         }.onErrorResumeNext {
             when {
-                it is HttpException && it.code() == 404 -> Single.error(DomainAddressNotFound())
+                it is HttpException && it.code() == HttpStatus.NOT_FOUND -> Single.error(DomainAddressNotFound())
                 else -> Single.error(ApiException(it.message))
             }
         }

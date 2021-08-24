@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
-import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.UserIdentity
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -13,7 +14,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCa
 
 class SwapAnnouncement(
     private val queries: AnnouncementQueries,
-    private val eligibilityProvider: SimpleBuyEligibilityProvider,
+    private val identity: UserIdentity,
     dismissRecorder: DismissRecorder
 ) : AnnouncementRule(dismissRecorder) {
 
@@ -29,10 +30,11 @@ class SwapAnnouncement(
         queries.isTier1Or2Verified().flatMap {
             if (!it)
                 Single.just(AnnouncementType.PROMO)
-            else eligibilityProvider.isEligibleForSimpleBuy().map { eligible ->
-                if (eligible) AnnouncementType.ELIGIBLE
-                else AnnouncementType.NOT_ELIGIBLE
-            }
+            else identity.isEligibleFor(Feature.SimpleBuy)
+                .map { eligible ->
+                    if (eligible) AnnouncementType.ELIGIBLE
+                    else AnnouncementType.NOT_ELIGIBLE
+                }
         }.doOnSuccess {
             announcementType = it
         }.map {

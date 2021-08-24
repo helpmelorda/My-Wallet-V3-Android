@@ -275,6 +275,11 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         }
 
         handlingResult = false
+
+        intent.data?.let {
+            presenter.checkForPendingLinks(intent)
+            intent.data = null
+        }
     }
 
     override fun onDestroy() {
@@ -359,7 +364,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     private fun launchDashboardFlow(action: AssetAction, currency: String?) {
         currency?.let {
-            gotoDashboard()
+            launchDashboard()
             val fragment = DashboardFragment.newInstance(action, it)
             showFragment(fragment)
         }
@@ -424,43 +429,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         binding.progress.pauseAnimation()
     }
 
-    override fun launchThePitLinking(linkId: String) {
-        PitPermissionsActivity.start(this, linkId)
-    }
-
-    override fun launchThePit() {
-        PitLaunchBottomDialog.launch(this)
-    }
-
-    override fun launchBackupFunds(fragment: Fragment?, requestCode: Int) {
-        fragment?.let {
-            BackupWalletActivity.startForResult(it, requestCode)
-        } ?: BackupWalletActivity.start(this)
-    }
-
-    override fun launchSetup2Fa() {
-        SettingsActivity.startFor2Fa(this)
-    }
-
-    override fun launchVerifyEmail() {
-        Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_APP_EMAIL)
-            startActivity(Intent.createChooser(this, getString(R.string.security_centre_email_check)))
-        }
-    }
-
-    override fun launchSetupFingerprintLogin() {
-        OnboardingActivity.launchForFingerprints(this)
-    }
-
-    override fun launchReceive() {
-        startTransferFragment(TransferFragment.TransferViewType.TYPE_RECEIVE)
-    }
-
-    override fun launchSend() {
-        startTransferFragment(TransferFragment.TransferViewType.TYPE_SEND)
-    }
-
     private fun showLogoutDialog() {
         AlertDialog.Builder(this, R.style.AlertDialogStyle)
             .setTitle(R.string.logout_wallet)
@@ -509,21 +477,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override fun hideProgressDialog() {
         super.dismissProgressDialog()
-    }
-
-    override fun launchKyc(campaignType: CampaignType) {
-        KycNavHostActivity.startForResult(this, campaignType, KYC_STARTED)
-    }
-
-    override fun tryTolaunchSwap(
-        sourceAccount: CryptoAccount?,
-        targetAccount: CryptoAccount?
-    ) {
-        startSwapFlow(sourceAccount, targetAccount)
-    }
-
-    override fun getStartIntent(): Intent {
-        return intent
     }
 
     override fun clearAllDynamicShortcuts() {
@@ -623,7 +576,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         menu.findItem(R.id.nav_debug_swap).isVisible = true
     }
 
-    override fun goToTransfer() {
+    override fun launchTransfer() {
         startTransferFragment()
     }
 
@@ -683,10 +636,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         }
     }
 
-    override fun gotoDashboard() {
-        setCurrentTabItem(R.id.nav_home)
-    }
-
     private fun startDashboardFragment(reload: Boolean = true) {
         runOnUiThread {
             val fragment = DashboardFragment.newInstance()
@@ -698,43 +647,13 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     private fun startBuyAndSellFragment(
         viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,
-        asset: AssetInfo? = null,
+        ticker: String? = null,
         reload: Boolean = true
     ) {
         setCurrentTabItem(R.id.nav_buy_and_sell)
         toolbar.title = getString(R.string.buy_and_sell)
-        val buySellFragment = BuySellFragment.newInstance(asset, viewType)
+        val buySellFragment = BuySellFragment.newInstance(ticker, viewType)
         showFragment(buySellFragment, reload)
-    }
-
-    override fun resumeSimpleBuyKyc() {
-        startActivity(
-            SimpleBuyActivity.newInstance(
-                context = this,
-                launchKycResume = true
-            )
-        )
-    }
-
-    override fun startSimpleBuy(asset: AssetInfo) {
-        startActivity(
-            SimpleBuyActivity.newInstance(
-                context = this,
-                launchFromNavigationBar = true,
-                asset = asset
-            )
-        )
-    }
-
-    override fun startInterestDashboard() {
-        launchInterestDashboard()
-    }
-
-    private fun launchInterestDashboard() {
-        startActivityForResult(
-            InterestDashboardActivity.newInstance(this), INTEREST_DASHBOARD
-        )
-        analytics.logEvent(InterestAnalytics.InterestClicked)
     }
 
     private fun startActivitiesFragment(account: BlockchainAccount? = null, reload: Boolean = true) {
@@ -747,10 +666,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override fun refreshAnnouncements() {
         _refreshAnnouncements.onNext(Unit)
-    }
-
-    override fun launchPendingVerificationScreen(campaignType: CampaignType) {
-        KycStatusActivity.start(this, campaignType)
     }
 
     override fun shouldIgnoreDeepLinking() =
@@ -790,74 +705,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             selectedItemId = item
             setOnNavigationItemSelectedListener(tabSelectedListener)
         }
-    }
-
-    companion object {
-
-        val TAG: String = MainActivity::class.java.simpleName
-        const val START_BUY_SELL_INTRO_KEY = "START_BUY_SELL_INTRO_KEY"
-        const val SHOW_SWAP = "SHOW_SWAP"
-        const val LAUNCH_AUTH_FLOW = "LAUNCH_AUTH_FLOW"
-        const val ACCOUNT_EDIT = 2008
-        const val SETTINGS_EDIT = 2009
-        const val KYC_STARTED = 2011
-        const val INTEREST_DASHBOARD = 2012
-        const val BANK_DEEP_LINK_SIMPLE_BUY = 2013
-        const val BANK_DEEP_LINK_SETTINGS = 2014
-        const val BANK_DEEP_LINK_DEPOSIT = 2015
-        const val BANK_DEEP_LINK_WITHDRAW = 2021
-
-        fun start(context: Context, bundle: Bundle) {
-            Intent(context, MainActivity::class.java).apply {
-                putExtras(bundle)
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-
-                context.startActivity(this)
-            }
-        }
-    }
-
-    override fun launchSimpleBuySell(
-        viewType: BuySellFragment.BuySellViewType,
-        asset: AssetInfo?
-    ) {
-        startBuyAndSellFragment(viewType, asset)
-    }
-
-    override fun performAssetActionFor(action: AssetAction, account: BlockchainAccount) =
-        presenter.validateAccountAction(action, account)
-
-    override fun launchUpsellAssetAction(
-        upsell: KycUpgradePromptManager.Type,
-        action: AssetAction,
-        account: BlockchainAccount
-    ) = replaceBottomSheet(KycUpgradePromptManager.getUpsellSheet(upsell))
-
-    override fun launchAssetAction(
-        action: AssetAction,
-        account: BlockchainAccount
-    ) = when (action) {
-        AssetAction.Receive -> replaceBottomSheet(ReceiveSheet.newInstance(account as CryptoAccount))
-        AssetAction.Swap -> tryTolaunchSwap(sourceAccount = account as CryptoAccount)
-        AssetAction.ViewActivity -> startActivitiesFragment(account)
-        else -> {
-        }
-    }
-
-    override fun launchOpenBankingLinking(bankLinkingInfo: BankLinkingInfo) {
-        startActivityForResult(
-            BankAuthActivity.newInstance(bankLinkingInfo.linkingId, bankLinkingInfo.bankAuthSource, this),
-            when (bankLinkingInfo.bankAuthSource) {
-                BankAuthSource.SIMPLE_BUY -> BANK_DEEP_LINK_SIMPLE_BUY
-                BankAuthSource.SETTINGS -> BANK_DEEP_LINK_SETTINGS
-                BankAuthSource.DEPOSIT -> BANK_DEEP_LINK_DEPOSIT
-                BankAuthSource.WITHDRAW -> BANK_DEEP_LINK_WITHDRAW
-            }.exhaustive
-        )
-    }
-
-    override fun launchSimpleBuyFromDeepLinkApproval() {
-        startActivity(SimpleBuyActivity.newInstance(this, launchFromApprovalDeepLink = true))
     }
 
     override fun handlePaymentForCancelledOrder(state: SimpleBuyState) =
@@ -940,12 +787,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         )
     }
 
-    override fun launchFiatDeposit(currency: String) {
-        runOnUiThread {
-            launchDashboardFlow(AssetAction.FiatDeposit, currency)
-        }
-    }
-
     override fun onFlowFinished() {
         Timber.d("On finished")
     }
@@ -958,7 +799,162 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         launchKyc(CampaignType.None)
     }
 
+    // region HomeNavigator Interface
+    override fun launchDashboard() {
+        setCurrentTabItem(R.id.nav_home)
+    }
+
+    override fun launchSwap(
+        sourceAccount: CryptoAccount?,
+        targetAccount: CryptoAccount?
+    ) {
+        startSwapFlow(sourceAccount, targetAccount)
+    }
+
+    override fun launchKyc(campaignType: CampaignType) {
+        KycNavHostActivity.startForResult(this, campaignType, KYC_STARTED)
+    }
+
+    override fun launchThePitLinking(linkId: String) {
+        PitPermissionsActivity.start(this, linkId)
+    }
+
+    override fun launchThePit() {
+        PitLaunchBottomDialog.launch(this)
+    }
+
+    override fun launchBackupFunds(fragment: Fragment?, requestCode: Int) {
+        fragment?.let {
+            BackupWalletActivity.startForResult(it, requestCode)
+        } ?: BackupWalletActivity.start(this)
+    }
+
+    override fun launchSetup2Fa() {
+        SettingsActivity.startFor2Fa(this)
+    }
+
+    override fun launchVerifyEmail() {
+        Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_APP_EMAIL)
+            startActivity(Intent.createChooser(this, getString(R.string.security_centre_email_check)))
+        }
+    }
+
+    override fun launchSetupFingerprintLogin() {
+        OnboardingActivity.launchForFingerprints(this)
+    }
+
+    override fun launchReceive() {
+        startTransferFragment(TransferFragment.TransferViewType.TYPE_RECEIVE)
+    }
+
+    override fun launchSend() {
+        startTransferFragment(TransferFragment.TransferViewType.TYPE_SEND)
+    }
+
     override fun exitSimpleBuyFlow() {
-        launchSimpleBuySell()
+        launchBuySell()
+    }
+
+    override fun launchInterestDashboard() {
+        startActivityForResult(
+            InterestDashboardActivity.newInstance(this), INTEREST_DASHBOARD
+        )
+        analytics.logEvent(InterestAnalytics.InterestClicked)
+    }
+
+    override fun resumeSimpleBuyKyc() {
+        startActivity(
+            SimpleBuyActivity.newInstance(
+                context = this,
+                launchKycResume = true
+            )
+        )
+    }
+
+    override fun launchSimpleBuy(ticker: String) {
+        startActivity(
+            SimpleBuyActivity.newInstance(
+                context = this,
+                launchFromNavigationBar = true,
+                ticker = ticker
+            )
+        )
+    }
+
+    override fun launchFiatDeposit(currency: String) {
+        runOnUiThread {
+            launchDashboardFlow(AssetAction.FiatDeposit, currency)
+        }
+    }
+
+    override fun launchUpsellAssetAction(
+        upsell: KycUpgradePromptManager.Type,
+        action: AssetAction,
+        account: BlockchainAccount
+    ) = replaceBottomSheet(KycUpgradePromptManager.getUpsellSheet(upsell))
+
+    override fun launchAssetAction(
+        action: AssetAction,
+        account: BlockchainAccount?
+    ) = when (action) {
+        AssetAction.Receive -> replaceBottomSheet(ReceiveSheet.newInstance(account as CryptoAccount))
+        AssetAction.Swap -> launchSwap(sourceAccount = account as CryptoAccount)
+        AssetAction.ViewActivity -> startActivitiesFragment(account)
+        else -> {
+        }
+    }
+
+    override fun launchOpenBankingLinking(bankLinkingInfo: BankLinkingInfo) {
+        startActivityForResult(
+            BankAuthActivity.newInstance(bankLinkingInfo.linkingId, bankLinkingInfo.bankAuthSource, this),
+            when (bankLinkingInfo.bankAuthSource) {
+                BankAuthSource.SIMPLE_BUY -> BANK_DEEP_LINK_SIMPLE_BUY
+                BankAuthSource.SETTINGS -> BANK_DEEP_LINK_SETTINGS
+                BankAuthSource.DEPOSIT -> BANK_DEEP_LINK_DEPOSIT
+                BankAuthSource.WITHDRAW -> BANK_DEEP_LINK_WITHDRAW
+            }.exhaustive
+        )
+    }
+
+    override fun launchSimpleBuyFromDeepLinkApproval() {
+        startActivity(SimpleBuyActivity.newInstance(this, launchFromApprovalDeepLink = true))
+    }
+
+    override fun launchBuySell(viewType: BuySellFragment.BuySellViewType, ticker: String?) {
+        startBuyAndSellFragment(viewType, ticker)
+    }
+
+    override fun performAssetActionFor(action: AssetAction, account: BlockchainAccount) =
+        presenter.validateAccountAction(action, account)
+
+    override fun launchPendingVerificationScreen(campaignType: CampaignType) {
+        KycStatusActivity.start(this, campaignType)
+    }
+    // endregion
+
+    companion object {
+
+        val TAG: String = MainActivity::class.java.simpleName
+        const val START_BUY_SELL_INTRO_KEY = "START_BUY_SELL_INTRO_KEY"
+        const val SHOW_SWAP = "SHOW_SWAP"
+        const val LAUNCH_AUTH_FLOW = "LAUNCH_AUTH_FLOW"
+        const val ACCOUNT_EDIT = 2008
+        const val SETTINGS_EDIT = 2009
+        const val KYC_STARTED = 2011
+        const val INTEREST_DASHBOARD = 2012
+        const val BANK_DEEP_LINK_SIMPLE_BUY = 2013
+        const val BANK_DEEP_LINK_SETTINGS = 2014
+        const val BANK_DEEP_LINK_DEPOSIT = 2015
+        const val BANK_DEEP_LINK_WITHDRAW = 2021
+
+        fun start(context: Context, bundle: Bundle) {
+            Intent(context, MainActivity::class.java).apply {
+                putExtras(bundle)
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+
+                context.startActivity(this)
+            }
+        }
     }
 }

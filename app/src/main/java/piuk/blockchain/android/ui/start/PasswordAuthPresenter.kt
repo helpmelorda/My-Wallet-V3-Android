@@ -234,10 +234,12 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
     private fun attemptDecryptPayload(password: String, payload: String) {
         compositeDisposable += payloadDataManager.initializeFromPayload(payload, password)
             .doOnComplete {
-                prefs.sharedKey = payloadDataManager.wallet!!.sharedKey
-                prefs.walletGuid = payloadDataManager.wallet!!.guid
-                prefs.setValue(PersistentPrefs.KEY_EMAIL_VERIFIED, true)
-                prefs.pinId = ""
+                prefs.apply {
+                    sharedKey = payloadDataManager.wallet!!.sharedKey
+                    walletGuid = payloadDataManager.wallet!!.guid
+                    emailVerified = true
+                    pinId = ""
+                }
             }
             .subscribeBy(
                 onComplete = {

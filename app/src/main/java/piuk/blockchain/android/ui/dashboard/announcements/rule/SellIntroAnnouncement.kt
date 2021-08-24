@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.R
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.FiatAccount
@@ -18,7 +18,7 @@ import piuk.blockchain.android.ui.sell.SellAnalytics
 
 class SellIntroAnnouncement(
     dismissRecorder: DismissRecorder,
-    private val eligibilityProvider: SimpleBuyEligibilityProvider,
+    private val identity: UserIdentity,
     private val coincore: Coincore,
     private val analytics: Analytics
 ) : AnnouncementRule(dismissRecorder) {
@@ -30,8 +30,8 @@ class SellIntroAnnouncement(
             return Single.just(false)
         }
 
-        return Singles.zip(
-            eligibilityProvider.isEligibleForSimpleBuy(),
+        return Single.zip(
+            identity.isEligibleFor(Feature.SimpleBuy),
             coincore.allWallets().map { acg ->
                 acg.accounts.filterNot { it is InterestAccount || it is FiatAccount }
             }.map { list ->

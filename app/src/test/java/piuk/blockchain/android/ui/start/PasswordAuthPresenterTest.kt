@@ -107,7 +107,7 @@ class PasswordAuthPresenterTest {
         verify(view).goToPinPage()
         verify(prefsUtil).walletGuid = GUID
         verify(prefsUtil).sharedKey = any()
-        verify(prefsUtil).setValue(PersistentPrefs.KEY_EMAIL_VERIFIED, true)
+        verify(prefsUtil).emailVerified = true
     }
 
     /**

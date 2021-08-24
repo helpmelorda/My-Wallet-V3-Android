@@ -63,8 +63,8 @@ class LoginPresenterTest {
         verifyNoMoreInteractions(appUtil)
         verify(prefsUtil).sharedKey = sharedKey
         verify(prefsUtil).walletGuid = guid
-        verify(prefsUtil).setValue(PersistentPrefs.KEY_EMAIL_VERIFIED, true)
-        verify(prefsUtil).setValue(PersistentPrefs.KEY_ONBOARDING_COMPLETE, true)
+        verify(prefsUtil).emailVerified = true
+        verify(prefsUtil).isOnBoardingComplete = true
         verify(analytics).logEvent(AnalyticsEvents.WalletAutoPairing)
         verifyNoMoreInteractions(prefsUtil)
         verify(payloadDataManager).handleQrCode(qrCode)

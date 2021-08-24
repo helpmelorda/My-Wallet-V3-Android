@@ -1,5 +1,7 @@
 package com.blockchain.nabu.models.data
 
+import com.blockchain.nabu.datamanagers.PaymentLimits
+import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.responses.banktransfer.LinkBankAttrsResponse
 import com.blockchain.nabu.models.responses.banktransfer.YapilyMediaResponse
@@ -103,7 +105,7 @@ data class LinkedBank(
     val entity: String,
     val iconUrl: String,
     val callbackPath: String
-) : Serializable, RecurringBuyPaymentDetails {
+) : Serializable {
     val account: String
         get() = accountNumber
 
@@ -115,8 +117,16 @@ data class LinkedBank(
     fun isLinkingInFinishedState() =
         state == LinkedBankState.ACTIVE || state == LinkedBankState.BLOCKED
 
-    override val paymentDetails: PaymentMethodType
-        get() = PaymentMethodType.BANK_TRANSFER
+    fun toPaymentMethod() =
+        PaymentMethod.Bank(
+            bankId = id,
+            limits = PaymentLimits(0, 0, currency),
+            bankName = accountName,
+            accountEnding = accountNumber,
+            accountType = accountType,
+            isEligible = true,
+            iconUrl = iconUrl
+        )
 }
 
 enum class LinkedBankErrorState {

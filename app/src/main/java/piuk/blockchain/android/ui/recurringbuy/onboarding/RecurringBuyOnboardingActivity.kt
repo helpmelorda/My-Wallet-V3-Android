@@ -74,7 +74,7 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
         }
     }
 
-    fun setupViewPagerListener() {
+    private fun setupViewPagerListener() {
         binding.viewpager.registerOnPageChangeCallback(object : OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
@@ -99,7 +99,7 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
         startActivity(
             SimpleBuyActivity.newInstance(
                 context = this,
-                asset = asset
+                ticker = asset?.ticker
             )
         )
     }

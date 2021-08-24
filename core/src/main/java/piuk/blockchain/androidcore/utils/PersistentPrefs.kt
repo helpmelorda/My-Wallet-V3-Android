@@ -64,7 +64,6 @@ interface PersistentPrefs :
         const val KEY_ENCRYPTED_PASSWORD = "encrypted_password"
         const val KEY_PIN_FAILS = "pin_fails"
 
-        const val KEY_EMAIL = "email"
         const val KEY_EMAIL_VERIFIED = "code_verified"
         const val KEY_SCHEME_URL = "scheme_url"
         const val KEY_METADATA_URI = "metadata_uri"

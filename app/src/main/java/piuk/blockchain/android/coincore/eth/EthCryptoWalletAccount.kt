@@ -2,6 +2,7 @@ package piuk.blockchain.android.coincore.eth
 
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
@@ -16,7 +17,6 @@ import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.TxEngine
 import piuk.blockchain.android.coincore.TxSourceState
 import piuk.blockchain.android.coincore.impl.CryptoNonCustodialAccount
-import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager

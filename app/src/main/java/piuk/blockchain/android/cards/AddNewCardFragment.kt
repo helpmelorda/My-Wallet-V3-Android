@@ -36,6 +36,9 @@ class AddNewCardFragment :
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
 
+    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentAddNewCardBinding =
+        FragmentAddNewCardBinding.inflate(inflater, container, false)
+
     override val navigator: AddCardNavigator
         get() = (activity as? AddCardNavigator)
             ?: throw IllegalStateException("Parent must implement AddCardNavigator")
@@ -154,7 +157,4 @@ class AddNewCardFragment :
 
     private fun Int.asCalendarYear(): Int =
         if (this < 100) 2000 + this else this
-
-    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentAddNewCardBinding =
-        FragmentAddNewCardBinding.inflate(inflater, container, false)
 }

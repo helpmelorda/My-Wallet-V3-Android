@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.blockchain.koin.KoinStarter
 import com.blockchain.koin.apiRetrofit
+import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.logging.CrashLogger
 import com.blockchain.notifications.analytics.Logging
 import com.blockchain.notifications.analytics.appLaunchEvent
@@ -39,7 +40,6 @@ import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.CurrentContextAccess
 import piuk.blockchain.android.util.lifecycle.AppLifecycleListener
 import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
-import piuk.blockchain.android.util.lifecycle.LifecycleInterestedComponent
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.data.connectivity.ConnectionEvent

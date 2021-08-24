@@ -20,6 +20,7 @@ import kotlinx.serialization.json.Json
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
+import piuk.blockchain.androidcore.utils.PersistentPrefs.Companion.KEY_EMAIL_VERIFIED
 import java.util.Currency
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -79,7 +80,7 @@ class PrefsUtil(
         get() = getValue(KEY_PRE_IDV_FAILED, false)
         set(value) = setValue(KEY_PRE_IDV_FAILED, value)
 
-    override var isOnboardingComplete: Boolean
+    override var isOnBoardingComplete: Boolean
         get() = getValue(PersistentPrefs.KEY_ONBOARDING_COMPLETE, false)
         set(completed) = setValue(PersistentPrefs.KEY_ONBOARDING_COMPLETE, completed)
 
@@ -129,16 +130,16 @@ class PrefsUtil(
     override var selectedFiatCurrency: String
         get() = getValue(KEY_SELECTED_FIAT, "")
         set(fiat) {
-        // We are seeing some crashes when this is read and is invalid when creating a FiatValue object.
-        // So we'll try and catch them when it's written and find the root cause on a future iteration
-        // Check the currency is supported and throw a meaningful exception message if it's not
-        try {
-            Currency.getInstance(fiat)
-            setValue(KEY_SELECTED_FIAT, fiat)
-        } catch (e: IllegalArgumentException) {
-            crashLogger.logAndRethrowException(IllegalArgumentException("Unknown currency id: $fiat"))
+            // We are seeing some crashes when this is read and is invalid when creating a FiatValue object.
+            // So we'll try and catch them when it's written and find the root cause on a future iteration
+            // Check the currency is supported and throw a meaningful exception message if it's not
+            try {
+                Currency.getInstance(fiat)
+                setValue(KEY_SELECTED_FIAT, fiat)
+            } catch (e: IllegalArgumentException) {
+                crashLogger.logAndRethrowException(IllegalArgumentException("Unknown currency id: $fiat"))
+            }
         }
-    }
 
     override val defaultFiatCurrency: String
         get() = try {
@@ -281,6 +282,18 @@ class PrefsUtil(
         setValue(IS_NEW_USER, true)
     }
 
+    override var email: String
+        get() = getValue(KEY_EMAIL, "")
+        set(value) = setValue(KEY_EMAIL, value)
+
+    override var countrySelectedOnSignUp: String
+        get() = getValue(COUNTRY_SIGN_UP, "")
+        set(value) = setValue(COUNTRY_SIGN_UP, value)
+
+    override var stateSelectedOnSignUp: String
+        get() = getValue(STATE_SIGNED_UP, "")
+        set(value) = setValue(STATE_SIGNED_UP, value)
+
     // Notification prefs
     override var arePushNotificationsEnabled: Boolean
         get() = getValue(KEY_PUSH_NOTIFICATION_ENABLED, true)
@@ -291,31 +304,31 @@ class PrefsUtil(
         set(v) = setValue(KEY_FIREBASE_TOKEN, v)
 
     @SuppressLint("ApplySharedPref")
-        override fun backupCurrentPrefs(encryptionKey: String, aes: AESUtilWrapper) {
-            backupStore.edit()
-                .clear()
-                .putString(KEY_PIN_IDENTIFIER, getValue(KEY_PIN_IDENTIFIER, ""))
-                .putString(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, getValue(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, ""))
-                .putString(
-                    KEY_ENCRYPTED_GUID,
-                    aes.encrypt(
-                        getValue(KEY_WALLET_GUID, ""),
-                        encryptionKey,
-                        AESUtil.PIN_PBKDF2_ITERATIONS_GUID
-                    )
+    override fun backupCurrentPrefs(encryptionKey: String, aes: AESUtilWrapper) {
+        backupStore.edit()
+            .clear()
+            .putString(KEY_PIN_IDENTIFIER, getValue(KEY_PIN_IDENTIFIER, ""))
+            .putString(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, getValue(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, ""))
+            .putString(
+                KEY_ENCRYPTED_GUID,
+                aes.encrypt(
+                    getValue(KEY_WALLET_GUID, ""),
+                    encryptionKey,
+                    AESUtil.PIN_PBKDF2_ITERATIONS_GUID
                 )
-                .putString(
-                    KEY_ENCRYPTED_SHARED_KEY,
-                    aes.encrypt(
-                        getValue(KEY_SHARED_KEY, ""),
-                        encryptionKey,
-                        AESUtil.PIN_PBKDF2_ITERATIONS_SHAREDKEY
-                    )
+            )
+            .putString(
+                KEY_ENCRYPTED_SHARED_KEY,
+                aes.encrypt(
+                    getValue(KEY_SHARED_KEY, ""),
+                    encryptionKey,
+                    AESUtil.PIN_PBKDF2_ITERATIONS_SHAREDKEY
                 )
-                .commit()
+            )
+            .commit()
 
-            BackupManager.dataChanged(ctx.packageName)
-        }
+        BackupManager.dataChanged(ctx.packageName)
+    }
 
     override fun restoreFromBackup(decryptionKey: String, aes: AESUtilWrapper) {
         // Pull in the values from the backup, we don't have local state
@@ -407,9 +420,11 @@ class PrefsUtil(
         get() = getValue(SESSION_ID, "")
         set(value) = setValue(SESSION_ID, value)
 
-    override fun clearSessionId() {
-        removeValue(SESSION_ID)
-    }
+    override var emailVerified: Boolean
+        get() = getValue(KEY_EMAIL_VERIFIED, false)
+        set(value) = setValue(KEY_EMAIL_VERIFIED, value)
+
+    override fun clearSessionId() = removeValue(SESSION_ID)
 
     private fun encodeToBase64(data: String) =
         Base64.encodeToString(data.toByteArray(charset("UTF-8")), Base64.DEFAULT)
@@ -496,7 +511,7 @@ class PrefsUtil(
 
     private fun getBrowserIdentityMapping() =
         Json.decodeFromString<BrowserIdentityMapping>(
-                getValue(KEY_SECURE_CHANNEL_BROWSER_MAPPINGS, """{ "mapping": {} }""")
+            getValue(KEY_SECURE_CHANNEL_BROWSER_MAPPINGS, """{ "mapping": {} }""")
         )
 
     private fun setBrowserIdentityMapping(browserIdentity: BrowserIdentityMapping) =
@@ -606,6 +621,9 @@ class PrefsUtil(
         private const val SWAP_TRADING_PROMO = "SWAP_TRADING_PROMO"
         private const val TWO_FA_SMS_RETRIES = "TWO_FA_SMS_RETRIES"
         private const val IS_NEW_USER = "IS_NEW_USER"
+        private const val KEY_EMAIL = "KEY_EMAIL"
+        private const val COUNTRY_SIGN_UP = "COUNTRY_SIGN_UP"
+        private const val STATE_SIGNED_UP = "STATE_SIGNED_UP"
         private const val MAX_ALLOWED_RETRIES = 3
 
         // For QA:

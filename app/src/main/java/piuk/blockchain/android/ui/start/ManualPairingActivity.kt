@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.start
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -27,6 +28,10 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
 
     private val binding: ActivityManualPairingBinding by lazy {
         ActivityManualPairingBinding.inflate(layoutInflater)
+    }
+
+    private val prefilledGuid: String by lazy {
+        intent.getStringExtra(PREFILLED_GUID) ?: ""
     }
 
     override val view: ManualPairingView = this
@@ -60,7 +65,7 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
 
         with(binding) {
             commandNext.setOnClickListener { presenter.onContinueClicked(guid, password) }
-
+            binding.walletId.setText(prefilledGuid)
             walletPass.setOnEditorActionListener { _, i, _ ->
                 if (i == EditorInfo.IME_ACTION_GO) {
                     presenter.onContinueClicked(guid, password)
@@ -142,5 +147,14 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         dismissProgressDialog()
         presenter.cancelAuthTimer()
         super.onDestroy()
+    }
+
+    companion object {
+        private const val PREFILLED_GUID = "PREFILLED_GUID"
+        fun newInstance(activity: Activity, guid: String?): Intent {
+            val intent = Intent(activity, ManualPairingActivity::class.java)
+            intent.putExtra(PREFILLED_GUID, guid)
+            return intent
+        }
     }
 }

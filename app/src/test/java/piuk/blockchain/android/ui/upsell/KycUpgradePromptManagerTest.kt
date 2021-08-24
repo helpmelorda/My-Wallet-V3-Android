@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.upsell
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.nabu.UserIdentity
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.nhaarman.mockitokotlin2.any
@@ -10,7 +11,6 @@ import org.junit.Test
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.impl.CryptoNonCustodialAccount
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
-import piuk.blockchain.android.identity.UserIdentity
 
 class KycUpgradePromptManagerTest {
 

@@ -5,6 +5,7 @@ import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
@@ -13,6 +14,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.androidcore.utils.extensions.then
+import java.math.RoundingMode
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -21,8 +23,7 @@ internal class ExchangeRatesDataManagerImpl(
     private val priceStore: AssetPriceStore,
     private val sparklineCall: SparklineCallCache,
     private val assetPriceService: AssetPriceService,
-    private val currencyPrefs: CurrencyPrefs,
-    private val calendar: Calendar = Calendar.getInstance()
+    private val currencyPrefs: CurrencyPrefs
 ) : ExchangeRatesDataManager {
 
     // TEMP Methods, for compatibility while changing client code
@@ -39,7 +40,9 @@ internal class ExchangeRatesDataManagerImpl(
         return priceStore.populateCache(currencyPrefs.selectedFiatCurrency)
     }
 
-    override fun getLastCryptoToUserFiatRate(sourceCrypto: AssetInfo): ExchangeRate.CryptoToFiat {
+    override fun getLastCryptoToUserFiatRate(
+        sourceCrypto: AssetInfo
+    ): ExchangeRate.CryptoToFiat {
         checkAndTriggerPriceRefresh()
         val userFiat = currencyPrefs.selectedFiatCurrency
         val price = priceStore.getCachedPrice(sourceCrypto, userFiat)
@@ -116,6 +119,7 @@ internal class ExchangeRatesDataManagerImpl(
     }
 
     private var refresher = AtomicReference<Disposable?>()
+
     @Synchronized
     private fun checkAndTriggerPriceRefresh() {
         // This should be in the price store, but it's a temp hack and can live here for now for simplicity
@@ -138,27 +142,27 @@ internal class ExchangeRatesDataManagerImpl(
         }
     }
 
-//    override fun getCurrentRate(fromAsset: AssetInfo, toFiat: String): Single<ExchangeRate> {
-//        return assetPriceService.getCurrentAssetPrice(fromAsset.ticker, toFiat)
-//            .map { price ->
-//                ExchangeRate.CryptoToFiat(
-//                    from = fromAsset,
-//                    to = toFiat,
-//                    rate = price.price.toBigDecimal()
-//                )
-//            }
-//    }
-//
-//    override fun getCurrentRateFiat(fromFiat: String, toFiat: String): Single<ExchangeRate> {
-//        return assetPriceService.getCurrentAssetPrice(fromFiat, toFiat)
-//            .map { price ->
-//                ExchangeRate.FiatToFiat(
-//                    from = fromFiat,
-//                    to = toFiat,
-//                    rate = price.price.toBigDecimal()
-//                )
-//            }
-//    }
+    //    override fun getCurrentRate(fromAsset: AssetInfo, toFiat: String): Single<ExchangeRate> {
+    //        return assetPriceService.getCurrentAssetPrice(fromAsset.ticker, toFiat)
+    //            .map { price ->
+    //                ExchangeRate.CryptoToFiat(
+    //                    from = fromAsset,
+    //                    to = toFiat,
+    //                    rate = price.price.toBigDecimal()
+    //                )
+    //            }
+    //    }
+    //
+    //    override fun getCurrentRateFiat(fromFiat: String, toFiat: String): Single<ExchangeRate> {
+    //        return assetPriceService.getCurrentAssetPrice(fromFiat, toFiat)
+    //            .map { price ->
+    //                ExchangeRate.FiatToFiat(
+    //                    from = fromFiat,
+    //                    to = toFiat,
+    //                    rate = price.price.toBigDecimal()
+    //                )
+    //            }
+    //    }
 
     override fun getHistoricRate(
         fromAsset: AssetInfo,
@@ -178,14 +182,47 @@ internal class ExchangeRatesDataManagerImpl(
         }
     }
 
+    override fun getPricesWith24hDelta(fromAsset: AssetInfo): Single<Prices24HrWithDelta> {
+        val yesterday = (System.currentTimeMillis() / 1000) - SECONDS_PER_DAY
+
+        // FIXME use the version on develop when merging this branch back
+        return getHistoricRate(fromAsset, yesterday).map { priceYesterday ->
+            val priceToday = getLastCryptoToUserFiatRate(fromAsset)
+            Prices24HrWithDelta(
+                delta24h = priceToday.priceDelta(priceYesterday),
+                previousRate = priceYesterday,
+                currentRate = priceToday
+            )
+        }
+    }
+
+    private fun ExchangeRate.priceDelta(previous: ExchangeRate): Double {
+        return try {
+            if (previous.rate.signum() != 0) {
+                val current = rate
+                val prev = previous.rate
+
+                (current - prev)
+                    .divide(prev, 4, RoundingMode.HALF_EVEN)
+                    .movePointRight(2)
+                    .toDouble()
+            } else {
+                Double.NaN
+            }
+        } catch (t: ArithmeticException) {
+            Double.NaN
+        }
+    }
+
     override fun getHistoricPriceSeries(
         asset: AssetInfo,
-        span: HistoricalTimeSpan
+        span: HistoricalTimeSpan,
+        now: Calendar
     ): Single<HistoricalRateList> {
         require(asset.startDate != null)
 
         val scale = span.suggestTimescaleInterval()
-        val startTime = calendar.getStartTimeForTimeSpan(span, asset)
+        val startTime = now.getStartTimeForTimeSpan(span, asset)
 
         return assetPriceService.getHistoricPriceSince(
             crypto = asset.ticker,
@@ -202,4 +239,8 @@ internal class ExchangeRatesDataManagerImpl(
 
     override val fiatAvailableForRates: List<String>
         get() = priceStore.fiatQuoteTickers
+
+    companion object {
+        private const val SECONDS_PER_DAY = 24 * 60 * 60
+    }
 }

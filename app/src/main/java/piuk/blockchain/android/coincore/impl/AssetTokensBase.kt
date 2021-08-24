@@ -3,12 +3,15 @@ package piuk.blockchain.android.coincore.impl
 import androidx.annotation.VisibleForTesting
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
@@ -27,7 +30,6 @@ import piuk.blockchain.android.coincore.NonCustodialAccount
 import piuk.blockchain.android.coincore.SingleAccount
 import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.TradingAccount
-import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -44,7 +46,8 @@ internal abstract class CryptoAssetBase(
     protected val currencyPrefs: CurrencyPrefs,
     protected val labels: DefaultLabels,
     protected val custodialManager: CustodialWalletManager,
-    protected val tradingBalanceDataManager: TradingBalanceDataManager,
+    protected val interestBalance: InterestBalanceDataManager,
+    protected val tradingBalances: TradingBalanceDataManager,
     private val pitLinking: PitLinking,
     protected val crashLogger: CrashLogger,
     protected val identity: UserIdentity,
@@ -56,9 +59,10 @@ internal abstract class CryptoAssetBase(
     }
 
     protected val accounts: Single<SingleAccountList>
-        get() = activeAccounts.fetchAccountList(::loadAccounts).flatMap {
-            updateLabelsIfNeeded(it).toSingle { it }
-        }
+        get() = activeAccounts.fetchAccountList(::loadAccounts)
+            .flatMap {
+                updateLabelsIfNeeded(it).toSingle { it }
+            }
 
     private fun updateLabelsIfNeeded(list: SingleAccountList): Completable =
         Completable.concat(
@@ -124,11 +128,12 @@ internal abstract class CryptoAssetBase(
                 if (it) {
                     listOf(
                         CryptoInterestAccount(
-                            asset,
-                            labels.getDefaultInterestWalletLabel(),
-                            custodialManager,
-                            exchangeRates,
-                            features
+                            asset = asset,
+                            label = labels.getDefaultInterestWalletLabel(),
+                            interestBalance = interestBalance,
+                            custodialWalletManager = custodialManager,
+                            exchangeRates = exchangeRates,
+                            features = features
                         )
                     )
                 } else {
@@ -156,11 +161,8 @@ internal abstract class CryptoAssetBase(
     final override fun exchangeRate(): Single<ExchangeRate> =
         Single.fromCallable { exchangeRates.getLastCryptoToUserFiatRate(asset) }
 
-    final override fun exchangeRateYesterday(): Single<ExchangeRate> {
-        // TODO: Make this a distinct call on ExchangeRates, because we're going to want to cache it
-        val yesterday = (System.currentTimeMillis() / 1000) - SECONDS_PER_DAY
-        return exchangeRates.getHistoricRate(asset, yesterday)
-    }
+    final override fun getPricesWith24hDelta(): Single<Prices24HrWithDelta> =
+        exchangeRates.getPricesWith24hDelta(asset)
 
     final override fun historicRate(epochWhen: Long): Single<ExchangeRate> =
         exchangeRates.getHistoricRate(asset, epochWhen)
@@ -253,10 +255,6 @@ internal abstract class CryptoAssetBase(
             }
             else -> Single.just(emptyList())
         }
-    }
-
-    companion object {
-        private const val SECONDS_PER_DAY = 24 * 60 * 60
     }
 }
 

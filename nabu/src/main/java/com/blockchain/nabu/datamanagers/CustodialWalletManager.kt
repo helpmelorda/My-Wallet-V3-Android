@@ -198,14 +198,6 @@ interface CustodialWalletManager {
         isBankPartner: Boolean?
     ): Single<BuySellOrder>
 
-    fun getInterestAccountBalance(asset: AssetInfo): Single<CryptoValue>
-
-    fun getPendingInterestAccountBalance(asset: AssetInfo): Single<CryptoValue>
-
-    fun getActionableInterestAccountBalance(asset: AssetInfo): Single<CryptoValue>
-
-    fun getInterestAccountDetails(asset: AssetInfo): Single<InterestAccountDetails>
-
     fun getInterestAccountRates(asset: AssetInfo): Single<Double>
 
     fun getInterestAccountAddress(asset: AssetInfo): Single<String>
@@ -221,8 +213,6 @@ interface CustodialWalletManager {
     fun getInterestEligibilityForAsset(asset: AssetInfo): Single<Eligibility>
 
     fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String): Completable
-
-    fun invalidateInterestBalanceForAsset(asset: AssetInfo)
 
     fun getSupportedFundsFiats(fiatCurrency: String = defaultFiatCurrency): Single<List<String>>
 
@@ -610,7 +600,7 @@ sealed class PaymentMethod(
         val accountType: String,
         override val isEligible: Boolean,
         val iconUrl: String
-    ) : PaymentMethod(bankId, limits, BANK_PAYMENT_METHOD_ORDER, isEligible), Serializable {
+    ) : PaymentMethod(bankId, limits, BANK_PAYMENT_METHOD_ORDER, isEligible), Serializable, RecurringBuyPaymentDetails {
 
         override fun detailedLabel() =
             "$bankName $accountEnding"
@@ -622,6 +612,9 @@ sealed class PaymentMethod(
         @SuppressLint("DefaultLocale") // Yes, lint is broken
         val uiAccountType: String =
             accountType.toLowerCase(Locale.getDefault()).capitalize(Locale.getDefault())
+
+        override val paymentDetails: PaymentMethodType
+            get() = PaymentMethodType.BANK_TRANSFER
     }
 
     data class Card(

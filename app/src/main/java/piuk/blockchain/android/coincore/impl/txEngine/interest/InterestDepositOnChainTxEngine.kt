@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine.interest
 
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.Money
@@ -19,8 +20,9 @@ import piuk.blockchain.android.coincore.impl.txEngine.OnChainTxEngineBase
 import piuk.blockchain.android.coincore.toCrypto
 
 class InterestDepositOnChainTxEngine(
-    private val walletManager: CustodialWalletManager,
-    private val onChainEngine: OnChainTxEngineBase
+    private val interestBalances: InterestBalanceDataManager,
+    private val onChainEngine: OnChainTxEngineBase,
+    walletManager: CustodialWalletManager
 ) : InterestBaseEngine(walletManager) {
 
     override fun assertInputsValid() {
@@ -124,9 +126,10 @@ class InterestDepositOnChainTxEngine(
             }
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
-        onChainEngine.doExecute(pendingTx, secondPassword).doOnSuccess {
-            walletManager.invalidateInterestBalanceForAsset(sourceAsset)
-        }
+        onChainEngine.doExecute(pendingTx, secondPassword)
+            .doOnSuccess {
+                interestBalances.flushCaches(sourceAsset)
+            }
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable = txTarget.onTxCompleted(txResult)
 

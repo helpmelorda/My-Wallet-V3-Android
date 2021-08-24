@@ -398,7 +398,7 @@ class NonCustodialBitcoinServiceTest {
             10,
             50
         ).test()
-            .assertError { e -> e is HttpException }
+            .assertError { e -> e is ApiException && e.cause is HttpException }
     }
 
     @Test

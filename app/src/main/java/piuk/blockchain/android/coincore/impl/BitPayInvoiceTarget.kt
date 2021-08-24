@@ -19,7 +19,7 @@ import java.util.regex.Pattern
 class BitPayInvoiceTarget(
     override val asset: AssetInfo,
     override val address: String,
-    val amount: CryptoValue,
+    override val amount: CryptoValue,
     val invoiceId: String,
     val merchant: String,
     private val expires: String

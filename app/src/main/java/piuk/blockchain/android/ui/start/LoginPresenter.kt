@@ -26,8 +26,11 @@ class LoginPresenter(
     private val analytics: Analytics
 ) : MvpPresenter<LoginView>() {
 
-    override fun onViewAttached() { /* no-op */ }
-    override fun onViewDetached() { /* no-op */ }
+    override fun onViewAttached() { /* no-op */
+    }
+
+    override fun onViewDetached() { /* no-op */
+    }
 
     override val alwaysDisableScreenshots: Boolean = false
     override val enableLogoutTimer: Boolean = false
@@ -43,9 +46,11 @@ class LoginPresenter(
             .doOnComplete { prefs.sharedKey = dataManager.wallet!!.sharedKey }
             .doAfterTerminate { view?.dismissProgressDialog() }
             .subscribe({
-                prefs.walletGuid = dataManager.wallet!!.guid
-                prefs.setValue(PersistentPrefs.KEY_EMAIL_VERIFIED, true)
-                prefs.setValue(PersistentPrefs.KEY_ONBOARDING_COMPLETE, true)
+                prefs.apply {
+                    walletGuid = dataManager.wallet!!.guid
+                    emailVerified = true
+                    isOnBoardingComplete = true
+                }
                 view?.startPinEntryActivity()
 
                 analytics.logEvent(AnalyticsEvents.WalletAutoPairing)

@@ -78,6 +78,9 @@ class AssetDetailsInteractor(
             }.defaultIfEmpty(false)
     }
 
+    fun load24hPriceDelta(asset: AssetInfo) =
+        coincore[asset].getPricesWith24hDelta()
+
     fun loadPaymentDetails(
         paymentMethodType: PaymentMethodType,
         paymentMethodId: String,
@@ -85,13 +88,9 @@ class AssetDetailsInteractor(
     ): Single<RecurringBuyPaymentDetails> {
         return when (paymentMethodType) {
             PaymentMethodType.PAYMENT_CARD -> custodialWalletManager.getCardDetails(paymentMethodId)
-                .map {
-                    it
-                }
+                .map { it }
             PaymentMethodType.BANK_TRANSFER -> custodialWalletManager.getLinkedBank(paymentMethodId)
-                .map {
-                    it
-                }
+                .map { it.toPaymentMethod() }
             PaymentMethodType.FUNDS -> Single.just(FundsAccount(currency = originCurrency))
 
             else -> Single.just(object : RecurringBuyPaymentDetails {

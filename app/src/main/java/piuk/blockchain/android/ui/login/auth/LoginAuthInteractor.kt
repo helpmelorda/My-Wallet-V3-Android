@@ -34,11 +34,13 @@ class LoginAuthInteractor(
         return payloadDataManager.initializeFromPayload(payload, password)
             .doOnComplete {
                 payloadDataManager.wallet?.let { wallet ->
-                    prefs.sharedKey = wallet.sharedKey
-                    prefs.walletGuid = wallet.guid
+                    prefs.apply {
+                        sharedKey = wallet.sharedKey
+                        walletGuid = wallet.guid
+                        emailVerified = true
+                        pinId = ""
+                    }
                 }
-                prefs.setValue(PersistentPrefs.KEY_EMAIL_VERIFIED, true)
-                prefs.pinId = ""
             }
     }
 

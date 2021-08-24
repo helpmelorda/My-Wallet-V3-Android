@@ -1606,7 +1606,6 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué sur %
     <string name="sb_checkout_pending_order_title">Ordre en cours</string>
     <string name="sb_checkout_pending_order_blurb">Oups, il semble que vous ayez déjà un ordre d\'achat en cours, veuillez attendre qu\'il soit terminé avant d\'acheter à nouveau.</string>
     <string name="wallet_outage_message">Nous faisons face à une panne. Soyez assurés que vos fonds sont en sécurité. <annotation link="learn_more">En savoir plus</annotation></string>
-    <string name="wallet_issue_message">Il y a une alerte sur notre page d\'état. Toutes les fonctionnalités du portefeuille peuvent ne pas être disponibles. Soyez assurés que vos fonds sont en sécurité. <annotation link="learn_more">En savoir plus →</annotation></string>
     <string name="increase_your_limits">Augmentez vos plafonds</string>
     <string name="increase_your_limits_body">Continuez votre vérification pour accéder au niveau Gold et augmentez vos plafonds et modes de paiement</string>
     <string name="continue_to_gold">Continuez vers Gold</string>
@@ -1984,7 +1983,7 @@ Vous achèterez moins de crypto.</string>
 Au cours des cinq dernières années, l\'achat de bitcoins chaque semaine a donné de meilleurs résultats que les prévisions du marché.</string>
     <string name="recurring_buy_title_5_2">
 86 % du temps.</string>
-    <string name="recurring_buy_note">Le calcul est basé sur un achat de 30 dollars par semaine, indépendamment du jour d\'achat. \"L\'anticipation du marché\" se définit comme l\'achat de Bitcoin à chaque baisse de 6 %.
+    <string name="recurring_buy_note">Le calcul est basé sur un achat de 30 dollars par semaine, indépendamment du jour d\'achat. «L\'anticipation du marché » se définit comme l\'achat de Bitcoin à chaque baisse de 6%.
 <annotation link="learn_more">En savoir plus -></annotation></string>
     <string name="recurring_buy_daily_1">Tous les jours</string>
     <string name="recurring_buy_daily_selector">Par jour</string>
@@ -2007,4 +2006,19 @@ Au cours des cinq dernières années, l\'achat de bitcoins chaque semaine a donn
     <string name="recurring_buy_first_time_success_title">Achat récurrent initié !</string>
     <string name="recurring_buy_first_time_info">Achetez %1$s de %2$s chaque jour, semaine ou mois grâce à la fonction Achat récurrent. Il n\'est plus nécessaire d\'anticiper le marché.</string>
     <string name="recurring_buy_first_time_success_subtitle">Nous achèterons %1$s de %2$s %3$s au prix prévalant sur marché à ce moment. Vous pouvez annuler cet achat récurrent à tout moment.</string>
+    <string name="common_reset_password">Réinitialiser le mot de passe</string>
+    <string name="country_not_selected">Veuillez sélectionner votre Pays de résidence</string>
+    <string name="state_not_selected">Veuillez sélectionner votre État</string>
+    <string name="strength_label">Fiabilité du mot de passe</string>
+    <string name="new_asset_card_title">%1$s (%2$s) est en cours de trading</string>
+    <string name="new_asset_card_body">Achetez, vendez, échangez, envoyez, recevez et stockez des %1$s dans votre portefeuille Blockchain.com.</string>
+    <string name="new_asset_card_cta">Acheter %1$s</string>
+    <string name="rb_announcement_title">Les achats récurrents sont maintenant disponibles</string>
+    <string name="rb_announcement_description">Il est très difficile d\'anticiper le marché, c\'est pourquoi de nombreux investisseurs ont recours à l\'épargne à versements fixes en dollars. Configurez un achat récurrent pour tirer parti de l\'épargne à versements fixes en dollars.</string>
+    <string name="rb_announcement_action">En savoir plus</string>
+    <string name="wallet_issue_message">Il y a une notification sur notre page de statut. La fonctionnalité complète du portefeuille peut être indisponible. Soyez assuré que vos fonds sont en sécurité. <annotation link="learn_more">En savoir plus →</annotation></string>
+    <string name="reset_password_optional_label">Souhaitez-vous réinitialiser votre mot de passe ? Vous pourrez toujours le faire plus tard dans Paramètres.</string>
+    <string name="reset_password_hint">Nouveau mot de passe</string>
+    <string name="reset_password_confirm_hint">Confirmez le nouveau mot de passe</string>
+    <string name="recurring_buy_frequency_subtitle_last_day_selector">Le dernier jour du mois</string>
 </resources>

@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine.interest
 
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
@@ -38,11 +39,12 @@ import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
 
     private val walletManager: CustodialWalletManager = mock()
-
+    private val interestBalances: InterestBalanceDataManager = mock()
     private val onChainEngine: OnChainTxEngineBase = mock()
 
     private val subject = InterestDepositOnChainTxEngine(
         walletManager = walletManager,
+        interestBalances = interestBalances,
         onChainEngine = onChainEngine
     )
 

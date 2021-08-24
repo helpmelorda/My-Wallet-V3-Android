@@ -16,7 +16,6 @@ import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 import piuk.blockchain.android.R
-import piuk.blockchain.android.domain.usecases.GetUserGeolocationUseCase
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.androidcore.data.access.AccessState
@@ -38,7 +37,6 @@ class CreateWalletPresenterTest {
     private val walletPrefs: WalletStatus = mock()
     private val environmentConfig: EnvironmentConfig = mock()
     private val formatChecker: FormatChecker = mock()
-    private val getGeolocationUseCase = mock<GetUserGeolocationUseCase>()
 
     @Before
     fun setUp() {
@@ -51,8 +49,7 @@ class CreateWalletPresenterTest {
             analytics = analytics,
             walletPrefs = walletPrefs,
             environmentConfig = environmentConfig,
-            formatChecker = formatChecker,
-            getGeolocationUseCase = getGeolocationUseCase
+            formatChecker = formatChecker
         )
         subject.initView(view)
     }
@@ -91,9 +88,9 @@ class CreateWalletPresenterTest {
         observer.assertNoErrors()
 
         verify(view).showProgressDialog(any())
-        verify(prefsUtil).setValue(PersistentPrefs.KEY_EMAIL, email)
         verify(prefsUtil).walletGuid = guid
         verify(prefsUtil).sharedKey = sharedKey
+        verify(prefsUtil).email = email
         verify(accessState).isNewlyCreated = true
         verify(view).startPinEntryActivity()
         verify(view).dismissProgressDialog()
@@ -126,8 +123,8 @@ class CreateWalletPresenterTest {
         observer.assertNoErrors()
 
         verify(view).showProgressDialog(any())
-        verify(prefsUtil).setValue(PersistentPrefs.KEY_EMAIL, email)
-        verify(prefsUtil).setValue(PersistentPrefs.KEY_ONBOARDING_COMPLETE, true)
+        verify(prefsUtil).email = email
+        verify(prefsUtil).isOnBoardingComplete = true
         verify(prefsUtil).walletGuid = guid
         verify(prefsUtil).sharedKey = sharedKey
         verify(accessState).isNewlyCreated = true
@@ -212,32 +209,6 @@ class CreateWalletPresenterTest {
         val result = subject.validateCredentials("john@snow.com", pw1, pw1)
         // Assert
         assert(result)
-        verifyZeroInteractions(view)
-    }
-
-    @Test
-    fun `validateGeolocation country != US is selected`() {
-        val result = subject.validateGeoLocation("DE")
-
-        assert(result)
-        verifyZeroInteractions(view)
-    }
-
-    @Test
-    fun `validateGeolocation country not selected`() {
-        val result = subject.validateGeoLocation()
-
-        assert(!result)
-        verify(view).showError(R.string.country_not_selected)
-        verifyZeroInteractions(view)
-    }
-
-    @Test
-    fun `validateGeolocation country == US is selected and state is not selected`() {
-        val result = subject.validateGeoLocation("US")
-
-        assert(!result)
-        verify(view).showError(R.string.state_not_selected)
         verifyZeroInteractions(view)
     }
 }

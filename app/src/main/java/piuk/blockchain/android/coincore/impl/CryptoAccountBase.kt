@@ -2,6 +2,8 @@ package piuk.blockchain.android.coincore.impl
 
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
@@ -32,8 +34,6 @@ import piuk.blockchain.android.coincore.TxSourceState
 import piuk.blockchain.android.coincore.takeEnabledIf
 import piuk.blockchain.android.coincore.toFiat
 import piuk.blockchain.android.coincore.toUserFiat
-import piuk.blockchain.android.identity.Feature
-import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import java.math.BigInteger
 

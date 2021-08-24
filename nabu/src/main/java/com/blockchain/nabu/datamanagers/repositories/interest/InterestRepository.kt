@@ -2,15 +2,13 @@ package com.blockchain.nabu.datamanagers.repositories.interest
 
 import com.blockchain.rx.TimedCacheRequest
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 
 class InterestRepository(
     private val interestLimitsProvider: InterestLimitsProvider,
     private val interestAvailabilityProvider: InterestAvailabilityProvider,
-    private val interestEligibilityProvider: InterestEligibilityProvider,
-    private val interestAccountBalancesProvider: InterestBalancesProvider
+    private val interestEligibilityProvider: InterestEligibilityProvider
 ) {
     private val limitsCache = TimedCacheRequest(
         cacheLifetimeSeconds = SHORT_LIFETIME,
@@ -26,30 +24,6 @@ class InterestRepository(
         cacheLifetimeSeconds = LONG_LIFETIME,
         refreshFn = { interestEligibilityProvider.getEligibilityForCustodialAssets() }
     )
-
-    fun getInterestAccountBalance(asset: AssetInfo) =
-        interestAccountBalancesProvider.getBalanceForAsset(asset).map {
-            it.balance
-        }
-
-    fun getInterestPendingBalance(asset: AssetInfo) =
-        interestAccountBalancesProvider.getBalanceForAsset(asset).map {
-            it.pendingDeposit
-        }
-
-    fun getInterestActionableBalance(asset: AssetInfo) =
-        interestAccountBalancesProvider.getBalanceForAsset(asset).map {
-            (it.balance - it.lockedBalance) as CryptoValue
-        }
-
-    fun clearBalanceForAsset(asset: AssetInfo) =
-        interestAccountBalancesProvider.clearBalanceForAsset(asset)
-
-    fun getInterestAccountDetails(asset: AssetInfo) =
-        interestAccountBalancesProvider.getBalanceForAsset(asset)
-
-    fun clearBalanceForAsset(ticker: String) =
-        interestAccountBalancesProvider.clearBalanceForAsset(ticker)
 
     fun getLimitForAsset(ccy: AssetInfo): Maybe<InterestLimits> =
         limitsCache.getCachedSingle().flatMapMaybe { limitsList ->

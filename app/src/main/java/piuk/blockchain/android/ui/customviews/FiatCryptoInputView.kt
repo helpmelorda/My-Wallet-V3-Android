@@ -52,7 +52,7 @@ class FiatCryptoInputView(context: Context, attrs: AttributeSet) : ConstraintLay
         get() = inputToggleSubject
 
     val amount: Observable<Money>
-        get() = amountSubject
+        get() = amountSubject.distinctUntilChanged()
 
     private val exchangeRates: ExchangeRates by scopedInject()
 

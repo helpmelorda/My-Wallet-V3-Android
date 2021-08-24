@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl
 
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.service.TierService
@@ -38,6 +39,7 @@ class TxProcessorFactory(
     private val bitPayManager: BitPayDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
     private val walletManager: CustodialWalletManager,
+    private val interestBalances: InterestBalanceDataManager,
     private val walletPrefs: WalletStatus,
     private val quotesEngine: TransferQuotesEngine,
     private val analytics: Analytics,
@@ -70,7 +72,8 @@ class TxProcessorFactory(
                         sourceAccount = source,
                         txTarget = target,
                         engine = InterestWithdrawTradingTxEngine(
-                            walletManager = walletManager
+                            walletManager = walletManager,
+                            interestBalances = interestBalances
                         )
                     )
                 )
@@ -82,7 +85,8 @@ class TxProcessorFactory(
                         sourceAccount = source,
                         txTarget = target,
                         engine = InterestWithdrawOnChainTxEngine(
-                            walletManager = walletManager
+                            walletManager = walletManager,
+                            interestBalances = interestBalances
                         )
                     )
                 )
@@ -166,6 +170,7 @@ class TxProcessorFactory(
                             txTarget = it,
                             engine = InterestDepositOnChainTxEngine(
                                 walletManager = walletManager,
+                                interestBalances = interestBalances,
                                 onChainEngine = engine
                             )
                         )
@@ -243,7 +248,8 @@ class TxProcessorFactory(
                     sourceAccount = source,
                     txTarget = target,
                     engine = InterestDepositTradingEngine(
-                        walletManager = walletManager
+                        walletManager = walletManager,
+                        interestBalances = interestBalances
                     )
                 )
             )

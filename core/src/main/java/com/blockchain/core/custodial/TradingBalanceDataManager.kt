@@ -36,13 +36,13 @@ interface TradingBalanceDataManager {
 }
 
 internal class TradingBalanceDataManagerImpl(
-    private val tradingBalanceCallCache: TradingBalanceCallCache
+    private val balanceCallCache: TradingBalanceCallCache
 ) : TradingBalanceDataManager {
     override fun getBalanceForAsset(asset: AssetInfo): Maybe<Balance> =
-        tradingBalanceCallCache.getBalanceForAsset(asset)
+        balanceCallCache.getBalanceForAsset(asset)
 
     override fun getBalanceForFiat(fiat: String): Maybe<Balance> =
-        tradingBalanceCallCache.getBalanceForFiat(fiat)
+        balanceCallCache.getBalanceForFiat(fiat)
 
     override fun getTotalBalanceForAsset(asset: AssetInfo): Maybe<CryptoValue> =
         getBalanceForAsset(asset)

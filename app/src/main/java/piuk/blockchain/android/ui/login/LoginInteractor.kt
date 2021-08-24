@@ -20,10 +20,12 @@ class LoginInteractor(
         return payloadDataManager.handleQrCode(qrString)
             .doOnComplete {
                 payloadDataManager.wallet?.let { wallet ->
-                    prefs.sharedKey = wallet.sharedKey
-                    prefs.walletGuid = wallet.guid
-                    prefs.setValue(PersistentPrefs.KEY_EMAIL_VERIFIED, true)
-                    prefs.setValue(PersistentPrefs.KEY_ONBOARDING_COMPLETE, true)
+                    prefs.apply {
+                        sharedKey = wallet.sharedKey
+                        walletGuid = wallet.guid
+                        emailVerified = true
+                        isOnBoardingComplete = true
+                    }
                 }
             }
             .doOnError { appUtil.clearCredentials() }

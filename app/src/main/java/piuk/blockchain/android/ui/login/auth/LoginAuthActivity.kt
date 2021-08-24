@@ -24,7 +24,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
@@ -43,6 +42,7 @@ import piuk.blockchain.android.util.clearErrorState
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setErrorState
 import piuk.blockchain.android.util.visible
+import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import timber.log.Timber
 import java.lang.Exception
 
@@ -72,13 +72,17 @@ class LoginAuthActivity :
     override fun onStart() {
         super.onStart()
         compositeDisposable += ssoARFF.enabled.observeOn(AndroidSchedulers.mainThread())
+            .doFinally {
+                processIntentData()
+            }
             .subscribeBy(
                 onSuccess = { enabled ->
                     isAccountRecoveryEnabled = enabled
                 },
-                onError = { isAccountRecoveryEnabled = false }
+                onError = {
+                    isAccountRecoveryEnabled = false
+                }
             )
-        processIntentData()
     }
 
     override fun onStop() {
@@ -87,40 +91,48 @@ class LoginAuthActivity :
     }
 
     private fun processIntentData() {
-        intent.data?.let { uri ->
-            uri.fragment?.let { fragment ->
-                try {
-                    validateAndLogDeeplinkHost(uri.host)
-                    val json = decodeJson(fragment)
-                    val guid = json.getString(GUID)
-                    email = json.getString(EMAIL)
-
-                    binding.loginEmailText.setText(email)
-                    binding.loginWalletLabel.text = getString(R.string.login_wallet_id_text, guid)
-                    if (isAccountRecoveryEnabled &&
-                        internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY) &&
-                        json.has(RECOVERY_TOKEN)) {
-                        recoveryToken = json.getString(RECOVERY_TOKEN)
-                    }
-                    if (json.has(EMAIL_CODE)) {
-                        val authToken = json.getString(EMAIL_CODE)
-                        model.process(LoginAuthIntents.GetSessionId(guid, authToken))
-                    } else {
-                        model.process(LoginAuthIntents.GetSessionId(guid, ""))
-                    }
-                } catch (ex: Exception) {
-                    Timber.e(ex)
-                    crashLogger.logException(ex)
-                    // Fall back to legacy manual pairing
-                    model.process(LoginAuthIntents.ShowManualPairing)
-                }
-            } ?: kotlin.run {
-                Timber.v("The URI fragment from the Intent is empty!")
-                model.process(LoginAuthIntents.ShowAuthRequired)
-            }
-        } ?: kotlin.run {
-            Timber.v("The Intent data is empty!")
+        val fragment = intent.data?.fragment ?: kotlin.run {
             model.process(LoginAuthIntents.ShowAuthRequired)
+            return
+        }
+
+        // Two possible cases here, string is either a GUID or a base64 that we need to decode.
+        val data = fragment.substringAfterLast(LINK_DELIMITER)
+        if (data.isValidGuid()) {
+            model.process(LoginAuthIntents.ShowManualPairing(data))
+        } else {
+            decodeBase64Payload(data)
+        }
+    }
+
+    private fun decodeBase64Payload(data: String) {
+        val json = try {
+            decodeJson(data)
+        } catch (ex: Exception) {
+            Timber.e(ex)
+            crashLogger.logException(ex)
+            // Fall back to legacy manual pairing
+            model.process(LoginAuthIntents.ShowManualPairing(null))
+            return
+        }
+
+        val guid = json.getString(GUID)
+        email = json.getString(EMAIL)
+
+        binding.loginEmailText.setText(email)
+        binding.loginWalletLabel.text = getString(R.string.login_wallet_id_text, guid)
+
+        if (isAccountRecoveryEnabled &&
+            internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY) &&
+            json.has(RECOVERY_TOKEN)
+        ) {
+            recoveryToken = json.getString(RECOVERY_TOKEN)
+        }
+        if (json.has(EMAIL_CODE)) {
+            val authToken = json.getString(EMAIL_CODE)
+            model.process(LoginAuthIntents.GetSessionId(guid, authToken))
+        } else {
+            model.process(LoginAuthIntents.GetSessionId(guid, ""))
         }
     }
 
@@ -171,7 +183,10 @@ class LoginAuthActivity :
                 binding.progressBar.gone()
                 binding.codeTextLayout.setErrorState(getString(R.string.invalid_two_fa_code))
             }
-            AuthStatus.ShowManualPairing -> start<ManualPairingActivity>(this@LoginAuthActivity)
+            AuthStatus.ShowManualPairing -> {
+                startActivity(ManualPairingActivity.newInstance(this, newState.guid))
+                finish()
+            }
         }.exhaustive
         update2FALayout(newState.authMethod)
     }
@@ -267,10 +282,8 @@ class LoginAuthActivity :
         }
     }
 
-    private fun decodeJson(fragment: String): JSONObject {
-        val encodedData = fragment.substringAfterLast(LINK_DELIMITER)
-        logInvalidCharacters(encodedData)
-        val urlSafeEncodedData = encodedData.apply {
+    private fun decodeJson(payload: String): JSONObject {
+        val urlSafeEncodedData = payload.apply {
             unEscapedCharactersMap.map { entry ->
                 replace(entry.key, entry.value)
             }
@@ -296,45 +309,6 @@ class LoginAuthActivity :
         }
     }
 
-    private fun validateAndLogDeeplinkHost(host: String?) {
-        host?.let {
-            when (host) {
-                BuildConfig.LOGIN_HOST_LINK -> {
-                    crashLogger.logState(
-                        VALID_DEEPLINK_HOST,
-                        BuildConfig.LOGIN_HOST_LINK
-                    )
-                }
-                else -> {
-                    crashLogger.logState(
-                        INVALID_DEEPLINK_HOST,
-                        host
-                    )
-                }
-            }
-        } ?: kotlin.run {
-            crashLogger.logState(
-                INVALID_DEEPLINK_HOST,
-                "Host is null"
-            )
-        }
-    }
-
-    private fun logInvalidCharacters(encodedData: String) {
-        encodedData.mapIndexed { index, chr ->
-            if (!alphaNumericRegex.matches(chr.toString())) {
-                crashLogger.logState(
-                    INVALID_PAYLOAD_CHARACTER, "" +
-                        "$chr at index $index part ${
-                            encodedData.safeSubstring(
-                                startIndex = index, endIndex = index + 3
-                            )
-                        }"
-                )
-            }
-        }
-    }
-
     companion object {
         const val LINK_DELIMITER = "/login/"
         private const val GUID = "guid"
@@ -344,10 +318,6 @@ class LoginAuthActivity :
         private const val DIGITS = "1234567890"
         private const val SECOND_PASSWORD_LINK_ANNOTATION = "learn_more"
         private const val RESET_2FA_LINK_ANNOTATION = "reset_2fa"
-        private const val INVALID_PAYLOAD_CHARACTER = "invalid_payload_character"
-        private const val VALID_DEEPLINK_HOST = "valid_deeplink_host"
-        private const val INVALID_DEEPLINK_HOST = "invalid_deeplink_host"
-        private val alphaNumericRegex = Regex("[a-zA-Z0-9]")
         private val unEscapedCharactersMap = mapOf(
             "%2B" to "+",
             "%2F" to "/",

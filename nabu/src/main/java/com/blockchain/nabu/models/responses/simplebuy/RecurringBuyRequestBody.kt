@@ -7,5 +7,5 @@ data class RecurringBuyRequestBody(
     private val paymentMethod: String,
     private val period: String,
     private val nextPayment: String? = null,
-    private val beneficiaryId: String? = null
+    private val paymentMethodId: String? = null
 )

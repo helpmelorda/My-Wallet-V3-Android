@@ -84,7 +84,7 @@ data class ActivityDetailState(
     val isPendingExecution: Boolean = false,
     val isFeeTransaction: Boolean = false,
     val confirmations: Int = 0,
-    val totalConfirmations: Int = 0,
+    val totalConfirmations: Int? = null,
     val listOfItems: Set<ActivityDetailsType> = emptySet(),
     val isError: Boolean = false,
     val hasDeleteError: Boolean = false,

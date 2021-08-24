@@ -17,6 +17,8 @@ import piuk.blockchain.android.util.visible
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import com.blockchain.notifications.analytics.Analytics
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import piuk.blockchain.android.databinding.ItemAnnouncementMiniBinding
 import piuk.blockchain.android.databinding.ItemAnnouncementStandardBinding
 
@@ -32,12 +34,15 @@ class StdAnnouncementDelegate<in T>(private val analytics: Analytics) :
         val announcement = items[position] as StandardAnnouncementCard
 
         (holder as AnnouncementViewHolder).apply {
-
-            if (announcement.titleText != 0) {
-                title.setText(announcement.titleText)
-                title.visible()
-            } else {
-                title.gone()
+            when {
+                announcement.titleText != 0 -> {
+                    title.text = title.context.getString(
+                        announcement.titleText, *announcement.titleFormatParams
+                    )
+                }
+                else -> {
+                    title.gone()
+                }
             }
 
             if (announcement.background != 0) {
@@ -46,26 +51,47 @@ class StdAnnouncementDelegate<in T>(private val analytics: Analytics) :
                 container.setBackgroundColor(Color.WHITE)
             }
 
-            if (announcement.bodyText != 0) {
-                body.setText(announcement.bodyText)
-                body.visible()
-            } else {
-                body.gone()
+            when {
+                announcement.bodyText != 0 -> {
+                    body.text = body.context.getString(
+                        announcement.bodyText, *announcement.bodyFormatParams
+                    )
+                    body.visible()
+                }
+                else -> {
+                    body.gone()
+                }
             }
 
-            if (announcement.iconImage != 0) {
-                icon.setImageDrawable(ContextCompat.getDrawable(itemView.context, announcement.iconImage))
-                if (announcement.shouldWrapIconWidth) {
-                    // This is only used to display the vector_aave_yfi_dot_announcement icon in the correct size
-                    icon.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+            when {
+                announcement.iconImage != 0 -> {
+                    check(announcement.iconUrl.isEmpty()) { "Can't set both a drawable and a URL on an announcement" }
+
+                    icon.setImageDrawable(ContextCompat.getDrawable(itemView.context, announcement.iconImage))
+                    if (announcement.shouldWrapIconWidth) {
+                        // This is only used to display the vector_aave_yfi_dot_announcement icon in the correct size
+                        icon.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+                    }
+
+                    icon.visible()
                 }
-                icon.visible()
-            } else {
-                icon.gone()
+                announcement.iconUrl.isNotEmpty() -> {
+                    check(announcement.iconImage == 0) { "Can't set both a drawable and a URL on an announcement" }
+
+                    Glide.with(icon.context)
+                        .load(announcement.iconUrl)
+                        .apply(RequestOptions().placeholder(R.drawable.ic_default_asset_logo))
+                        .into(icon)
+
+                    icon.visible()
+                }
+                else -> {
+                    icon.gone()
+                }
             }
 
             if (announcement.ctaText != 0) {
-                ctaBtn.setText(announcement.ctaText)
+                ctaBtn.text = ctaBtn.context.getString(announcement.ctaText, *announcement.ctaFormatParams)
                 ctaBtn.setOnClickListener {
                     analytics.logEvent(AnnouncementAnalyticsEvent.CardActioned(announcement.name))
                     announcement.ctaClicked()

@@ -66,7 +66,6 @@ class PasswordStrengthView(context: Context, attrs: AttributeSet) : ConstraintLa
         with(binding) {
             passStrengthVerdict.setText(strengthVerdicts[level])
             passStrengthBar.progressDrawable = context.getResolvedDrawable(strengthProgressDrawables[level])
-            passStrengthVerdict.setText(strengthVerdicts[level])
             passStrengthVerdict.setTextColor(context.getResolvedColor(strengthColors[level]))
         }
     }

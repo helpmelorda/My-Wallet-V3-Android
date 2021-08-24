@@ -24,6 +24,6 @@ class AnnouncementConfigAdapterImpl(private val config: RemoteConfig) : Announce
         }
 
     companion object {
-        private const val ANNOUNCE_KEY = "announcements"
+        const val ANNOUNCE_KEY = "announcements"
     }
 }

@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.dashboard
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.core.price.percentageDelta
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
@@ -196,9 +196,10 @@ data class DashboardState(
 
 data class CryptoAssetState(
     val currency: AssetInfo,
+    // todo balance and price can come from new asset balance observable
     val balance: Money? = null,
     val price: ExchangeRate? = null,
-    val price24h: ExchangeRate? = null,
+    val prices24HrWithDelta: Prices24HrWithDelta? = null,
     val priceTrend: List<Float> = emptyList(),
     val hasBalanceError: Boolean = false,
     val hasCustodialBalance: Boolean = false
@@ -208,15 +209,15 @@ data class CryptoAssetState(
     }
 
     val fiatBalance24h: Money? by unsafeLazy {
-        price24h?.let { p -> balance?.let { p.convert(it) } }
+        prices24HrWithDelta?.previousRate?.let { p -> balance?.let { p.convert(it) } }
     }
 
     val priceDelta: Double by unsafeLazy {
-        price.percentageDelta(price24h)
+        prices24HrWithDelta?.delta24h ?: Double.NaN
     }
 
     val isLoading: Boolean by unsafeLazy {
-        balance == null || price == null || price24h == null
+        balance == null || price == null || prices24HrWithDelta == null
     }
 
     fun reset(): CryptoAssetState = CryptoAssetState(currency)

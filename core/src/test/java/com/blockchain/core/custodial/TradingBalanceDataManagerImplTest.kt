@@ -12,7 +12,9 @@ import org.junit.Test
 
 class TradingBalanceDataManagerImplTest {
     private val tradingBalanceCallCache: TradingBalanceCallCache = mock()
-    private val subject = TradingBalanceDataManagerImpl(tradingBalanceCallCache = tradingBalanceCallCache)
+    private val subject = TradingBalanceDataManagerImpl(
+        balanceCallCache = tradingBalanceCallCache
+    )
 
     @Test
     fun `will get total balance for a given asset`() {

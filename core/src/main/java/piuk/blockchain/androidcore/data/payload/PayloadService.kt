@@ -16,7 +16,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.bitcoinj.core.ECKey
-import piuk.blockchain.androidcore.utils.annotations.WebRequest
 import java.util.LinkedHashMap
 
 @BurnCandidate("Not useful")
@@ -42,7 +41,6 @@ internal class PayloadService(
      * @param password The user's password
      * @return A [Completable] object
      */
-    @WebRequest
     internal fun initializeFromPayload(
         payload: String,
         password: String
@@ -61,7 +59,6 @@ internal class PayloadService(
      * @param password The user's choice of password
      * @return An [Observable] wrapping the [Wallet] object
      */
-    @WebRequest
     internal fun restoreHdWallet(
         mnemonic: String,
         walletName: String,
@@ -85,7 +82,6 @@ internal class PayloadService(
      * @param email The user's email address, preferably not associated with another account
      * @return An [Observable] wrapping the [Wallet] object
      */
-    @WebRequest
     internal fun createHdWallet(
         password: String,
         walletName: String,
@@ -108,7 +104,6 @@ internal class PayloadService(
      * @param password The user's password
      * @return A [Completable] object
      */
-    @WebRequest
     internal fun initializeAndDecrypt(
         sharedKey: String,
         guid: String,
@@ -132,7 +127,6 @@ internal class PayloadService(
      * @param data A QR's URI for pairing
      * @return A [Completable] object
      */
-    @WebRequest
     internal fun handleQrCode(
         data: String
     ): Completable = Completable.fromCallable {
@@ -151,7 +145,6 @@ internal class PayloadService(
      *
      * @return A [Completable] object
      */
-    @WebRequest
     internal fun syncPayloadWithServer(): Completable = Completable.fromCallable {
         if (!payloadManager.save()) throw ApiException("Sync failed")
     }
@@ -164,7 +157,6 @@ internal class PayloadService(
      *
      * @return A [Completable] object
      */
-    @WebRequest
     internal fun syncPayloadAndPublicKeys(): Completable = Completable.fromCallable {
         if (!payloadManager.saveAndSyncPubKeys()) throw ApiException("Sync failed")
     }
@@ -180,7 +172,6 @@ internal class PayloadService(
      *
      * @return A [Completable] object
      */
-    @WebRequest
     internal fun updateAllTransactions(): Completable = Completable.fromCallable {
         payloadManager.getAllTransactions(50, 0)
     }
@@ -191,7 +182,6 @@ internal class PayloadService(
      *
      * @return A [Completable] object
      */
-    @WebRequest
     internal fun updateAllBalances(): Completable = Completable.fromCallable {
         payloadManager.updateAllBalances()
     }
@@ -203,7 +193,6 @@ internal class PayloadService(
      * @param notes Transaction notes
      * @return A [Completable] object
      */
-    @WebRequest
     internal fun updateTransactionNotes(transactionHash: String, notes: String): Completable {
         payloadManager.payload!!.txNotes[transactionHash] = notes
         return syncPayloadWithServer()
@@ -220,7 +209,6 @@ internal class PayloadService(
      * @param xpubs A List of Bitcoin Cash addresses as Strings
      * @return A [LinkedHashMap]
      */
-    @WebRequest
     internal fun getBalanceOfBchAccounts(xpubs: List<XPubs>): Observable<Map<String, Balance>> =
         Observable.fromCallable { payloadManager.getBalanceOfBchAccounts(xpubs) }
 
@@ -231,7 +219,6 @@ internal class PayloadService(
      * @param secondPassword An optional double encryption password
      * @return An [Observable] wrapping the newly created Account
      */
-    @WebRequest
     internal fun createNewAccount(
         accountLabel: String,
         secondPassword: String?
@@ -248,7 +235,6 @@ internal class PayloadService(
      * @param secondPassword An optional double encryption password
      * @return An [Observable] representing a successful save
      */
-    @WebRequest
     internal fun setKeyForImportedAddress(
         key: SigningKey,
         secondPassword: String?
@@ -262,7 +248,6 @@ internal class PayloadService(
      * @param importedAddress The new address
      * @return A [Completable] object representing a successful save
      */
-    @WebRequest
     internal fun addImportedAddress(importedAddress: ImportedAddress): Completable =
         Completable.fromCallable {
             payloadManager.addImportedAddress(importedAddress)
@@ -274,7 +259,6 @@ internal class PayloadService(
      * @param importedAddress The updated address
      * @return A [Completable] object representing a successful save
      */
-    @WebRequest
     internal fun updateImportedAddress(importedAddress: ImportedAddress): Completable =
         Completable.fromCallable {
             payloadManager.updateImportedAddress(importedAddress)

@@ -34,6 +34,7 @@ import piuk.blockchain.android.util.visible
 class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingView {
 
     override val presenter: LandingPresenter by scopedInject()
+
     private val ssoARFF: FeatureFlag by inject(ssoAccountRecoveryFeatureFlag)
     private val internalFlags: InternalFeatureFlagApi by inject()
     private val compositeDisposable = CompositeDisposable()

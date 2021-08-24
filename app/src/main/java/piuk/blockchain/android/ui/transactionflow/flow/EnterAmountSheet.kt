@@ -55,6 +55,8 @@ class EnterAmountSheet : TransactionFlowSheet<DialogTxFlowEnterAmountBinding>() 
         requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     }
 
+    private var initialValueSet: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(DialogFragment.STYLE_NORMAL, R.style.FloatingBottomSheet)
@@ -89,6 +91,13 @@ class EnterAmountSheet : TransactionFlowSheet<DialogTxFlowEnterAmountBinding>() 
 
                 if (state.setMax) {
                     amountSheetInput.updateValue(state.maxSpendable)
+                } else {
+                    if (!initialValueSet) {
+                        state.initialAmountToSet()?.let {
+                            amountSheetInput.updateValue(it)
+                            initialValueSet = true
+                        }
+                    }
                 }
 
                 amountSheetTitle.text = customiser.enterAmountTitle(newState)

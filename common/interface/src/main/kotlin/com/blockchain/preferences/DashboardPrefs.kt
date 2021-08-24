@@ -2,7 +2,7 @@ package com.blockchain.preferences
 
 interface DashboardPrefs {
     var swapIntroCompleted: Boolean
-    var isOnboardingComplete: Boolean
+    var isOnBoardingComplete: Boolean
     var isCustodialIntroSeen: Boolean
     var remainingSendsWithoutBackup: Int
 

@@ -1,21 +1,27 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
+import com.blockchain.nabu.Feature
 import com.blockchain.nabu.NabuToken
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.LimitsJson
 import com.blockchain.nabu.models.responses.nabu.TierResponse
 import com.blockchain.nabu.service.TierService
+import com.blockchain.remoteconfig.RemoteConfig
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
 import com.nhaarman.mockitokotlin2.mock
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.CryptoCurrency
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.identity.Feature
-import piuk.blockchain.android.identity.UserIdentity
+import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
+import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementQueries.Companion.NEW_ASSET_TICKER
 import piuk.blockchain.android.ui.tiers
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
@@ -26,6 +32,9 @@ class AnnouncementQueriesTest {
     private val nabu: NabuDataManager = mock()
     private val tierService: TierService = mock()
     private val userIdentity: UserIdentity = mock()
+    private val coincore: Coincore = mock()
+    private val assetCatalogue: AssetCatalogue = mock()
+    private val remoteConfig: RemoteConfig = mock()
 
     private val sbSync: SimpleBuySyncFactory = mock()
 
@@ -41,8 +50,44 @@ class AnnouncementQueriesTest {
             nabu = nabu,
             tierService = tierService,
             sbStateFactory = sbSync,
-            userIdentity = userIdentity
+            userIdentity = userIdentity,
+            coincore = coincore,
+            assetCatalogue = assetCatalogue,
+            remoteConfig = remoteConfig
         )
+    }
+
+    @Test
+    fun `asset ticker raw json is empty`() {
+        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(""))
+        whenever(assetCatalogue.fromNetworkTicker(any())).thenReturn(null)
+
+        subject.getAssetFromCatalogue().test().assertComplete()
+    }
+
+    @Test
+    fun `asset ticker raw json doesn't exist`() {
+        val testException = Throwable()
+        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.error(testException))
+
+        subject.getAssetFromCatalogue().test().assertError(testException)
+    }
+
+    @Test
+    fun `asset ticker raw json returns unknown ticker`() {
+        val moonToken = "TTM"
+        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(moonToken))
+        whenever(assetCatalogue.fromNetworkTicker(moonToken)).thenReturn(null)
+
+        subject.getAssetFromCatalogue().test().assertComplete()
+    }
+
+    @Test
+    fun `asset ticker raw json returns known ticker`() {
+        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(CryptoCurrency.BTC.ticker))
+        whenever(assetCatalogue.fromNetworkTicker(CryptoCurrency.BTC.ticker)).thenReturn(CryptoCurrency.BTC)
+
+        subject.getAssetFromCatalogue().test().assertValue(CryptoCurrency.BTC)
     }
 
     @Test

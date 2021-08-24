@@ -44,8 +44,7 @@ class ExchangeRatesDataManagerImplTest {
         priceStore = priceStore,
         sparklineCall = sparklineCall,
         assetPriceService = priceService,
-        currencyPrefs = currencyPrefs,
-        calendar = calendar
+        currencyPrefs = currencyPrefs
     )
 
     @get:Rule
@@ -72,8 +71,11 @@ class ExchangeRatesDataManagerImplTest {
 
     @Test
     fun getYearPrice() {
-        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.YEAR)
-            .test()
+        subject.getHistoricPriceSeries(
+            OLD_ASSET,
+            HistoricalTimeSpan.YEAR,
+            calendar
+        ).test()
             .assertComplete()
             .assertNoErrors()
 
@@ -89,8 +91,11 @@ class ExchangeRatesDataManagerImplTest {
     @Test
     fun getMonthPrice() {
 
-        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.MONTH)
-            .test()
+        subject.getHistoricPriceSeries(
+            OLD_ASSET,
+            HistoricalTimeSpan.MONTH,
+            calendar
+        ).test()
             .assertComplete()
             .assertNoErrors()
 
@@ -105,8 +110,11 @@ class ExchangeRatesDataManagerImplTest {
 
     @Test
     fun getWeekPrice() {
-        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.WEEK)
-            .test()
+        subject.getHistoricPriceSeries(
+            OLD_ASSET,
+            HistoricalTimeSpan.WEEK,
+            calendar
+        ).test()
             .assertComplete()
             .assertNoErrors()
 
@@ -121,8 +129,11 @@ class ExchangeRatesDataManagerImplTest {
 
     @Test
     fun getDayPrice() {
-        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.DAY)
-            .test()
+        subject.getHistoricPriceSeries(
+            OLD_ASSET,
+            HistoricalTimeSpan.DAY,
+        calendar
+        ).test()
             .assertComplete()
             .assertNoErrors()
 
@@ -137,8 +148,11 @@ class ExchangeRatesDataManagerImplTest {
 
     @Test
     fun `get year price on new asset`() {
-        subject.getHistoricPriceSeries(NEW_ASSET, HistoricalTimeSpan.WEEK)
-            .test()
+        subject.getHistoricPriceSeries(
+            NEW_ASSET,
+            HistoricalTimeSpan.WEEK,
+            calendar
+        ).test()
             .assertComplete()
             .assertNoErrors()
 

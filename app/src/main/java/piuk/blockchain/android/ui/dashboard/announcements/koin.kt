@@ -17,7 +17,9 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.InterestAvailable
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycIncompleteAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycMoreInfoAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycResubmissionAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.NewAssetAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.PaxRenamedAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.RecurringBuysAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RegisterBiometricsAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RegisteredForAirdropMiniAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SellIntroAnnouncement
@@ -56,7 +58,10 @@ val dashboardAnnouncementsModule = module {
                 nabu = get(),
                 tierService = get(),
                 sbStateFactory = get(),
-                userIdentity = get()
+                userIdentity = get(),
+                coincore = get(),
+                remoteConfig = get(),
+                assetCatalogue = get()
             )
         }
 
@@ -115,7 +120,7 @@ val dashboardAnnouncementsModule = module {
             SwapAnnouncement(
                 dismissRecorder = get(),
                 queries = get(),
-                eligibilityProvider = get()
+                identity = get()
             )
         }.bind(AnnouncementRule::class)
 
@@ -188,7 +193,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             SellIntroAnnouncement(
                 dismissRecorder = get(),
-                eligibilityProvider = get(),
+                identity = get(),
                 coincore = get(),
                 analytics = get()
             )
@@ -216,6 +221,21 @@ val dashboardAnnouncementsModule = module {
             SendToDomainAnnouncement(
                 dismissRecorder = get(),
                 coincore = get()
+            )
+        }.bind(AnnouncementRule::class)
+
+        factory {
+            RecurringBuysAnnouncement(
+                dismissRecorder = get(),
+                announcementQueries = get(),
+                currencyPrefs = get()
+            )
+        }.bind(AnnouncementRule::class)
+
+        factory {
+            NewAssetAnnouncement(
+                dismissRecorder = get(),
+                announcementQueries = get()
             )
         }.bind(AnnouncementRule::class)
     }

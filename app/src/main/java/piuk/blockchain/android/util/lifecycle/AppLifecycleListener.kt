@@ -3,6 +3,8 @@ package piuk.blockchain.android.util.lifecycle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import com.blockchain.lifecycle.AppState
+import com.blockchain.lifecycle.LifecycleInterestedComponent
 
 class AppLifecycleListener(
     private val lifecycleInterestedComponent: LifecycleInterestedComponent
@@ -17,8 +19,4 @@ class AppLifecycleListener(
     fun onMoveToBackground() {
         lifecycleInterestedComponent.appStateUpdated.onNext(AppState.BACKGROUNDED)
     }
-}
-
-enum class AppState {
-    FOREGROUNDED, BACKGROUNDED
 }

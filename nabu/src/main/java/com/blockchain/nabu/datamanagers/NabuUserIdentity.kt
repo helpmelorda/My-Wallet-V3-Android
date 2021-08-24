@@ -1,8 +1,9 @@
-package piuk.blockchain.android.identity
+package com.blockchain.nabu.datamanagers
 
 import com.blockchain.extensions.exhaustive
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService

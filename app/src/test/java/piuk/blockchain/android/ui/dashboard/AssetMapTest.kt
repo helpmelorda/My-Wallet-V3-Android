@@ -34,7 +34,7 @@ class AssetMapTest {
             currency = CryptoCurrency.BTC,
             balance = 20.bitcoin(),
             price = ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 300.toBigDecimal()),
-            price24h = ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 400.toBigDecimal()),
+            prices24HrWithDelta = mock(),
             priceTrend = emptyList()
         )
 

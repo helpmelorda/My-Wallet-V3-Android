@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine.interest
 
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -37,6 +38,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
     }
 
     private val custodialWalletManager: CustodialWalletManager = mock()
+    private val interestBalances: InterestBalanceDataManager = mock()
 
     private lateinit var subject: InterestWithdrawOnChainTxEngine
 
@@ -62,7 +64,10 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
                 )
             )
 
-        subject = InterestWithdrawOnChainTxEngine(custodialWalletManager)
+        subject = InterestWithdrawOnChainTxEngine(
+            walletManager = custodialWalletManager,
+            interestBalances = interestBalances
+        )
     }
 
     @Test(expected = IllegalStateException::class)

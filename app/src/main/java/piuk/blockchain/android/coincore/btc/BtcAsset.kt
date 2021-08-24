@@ -2,6 +2,7 @@ package piuk.blockchain.android.coincore.btc
 
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -30,7 +31,7 @@ import piuk.blockchain.android.coincore.impl.CryptoAssetBase
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
 import piuk.blockchain.android.coincore.impl.NotificationAddresses
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
-import piuk.blockchain.android.identity.UserIdentity
+import com.blockchain.nabu.UserIdentity
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -42,7 +43,8 @@ internal class BtcAsset(
     private val feeDataManager: FeeDataManager,
     private val coinsWebsocket: CoinsWebSocketStrategy,
     custodialManager: CustodialWalletManager,
-    tradingBalanceDataManager: TradingBalanceDataManager,
+    interestBalances: InterestBalanceDataManager,
+    tradingBalances: TradingBalanceDataManager,
     exchangeRates: ExchangeRatesDataManager,
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
@@ -58,7 +60,8 @@ internal class BtcAsset(
     currencyPrefs,
     labels,
     custodialManager,
-    tradingBalanceDataManager,
+    interestBalances,
+    tradingBalances,
     pitLinking,
     crashLogger,
     identity,
@@ -101,7 +104,7 @@ internal class BtcAsset(
                     label = labels.getDefaultCustodialWalletLabel(),
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
-                    tradingBalanceDataManager = tradingBalanceDataManager,
+                    tradingBalances = tradingBalances,
                     identity = identity,
                     features = features
                 )
@@ -133,19 +136,20 @@ internal class BtcAsset(
             val parts = normalisedAddress.split("?")
             val addressPart = parts.getOrNull(0)
             val amountPart = parts.find {
-                it.startsWith("amount=", true)
+                it.startsWith(BTC_ADDRESS_AMOUNT_PART, true)
             }?.let {
-                CryptoValue.fromMajor(CryptoCurrency.BTC, it.toBigDecimal())
+                val amountString = it.removePrefix(BTC_ADDRESS_AMOUNT_PART)
+                CryptoValue.fromMajor(CryptoCurrency.BTC, amountString.toBigDecimal())
             }
-            if (addressPart != null && isValidAddress(normalisedAddress)) {
-                BtcAddress(address = normalisedAddress, label = label ?: address, amount = amountPart)
+            if (addressPart != null && isValidAddress(addressPart)) {
+                BtcAddress(address = addressPart, label = label ?: address, amount = amountPart)
             } else {
                 null
             }
         }
 
     override fun isValidAddress(address: String): Boolean =
-        FormatsUtil.isValidBitcoinAddress(address)
+        sendDataManager.isValidBtcAddress(address)
 
     fun createAccount(label: String, secondPassword: String?): Single<BtcCryptoWalletAccount> =
         payloadManager.createNewAccount(label, secondPassword)
@@ -216,6 +220,7 @@ internal class BtcAsset(
 
     companion object {
         private const val OFFLINE_CACHE_ITEM_COUNT = 5
+        private const val BTC_ADDRESS_AMOUNT_PART = "amount="
     }
 }
 
@@ -223,7 +228,7 @@ internal class BtcAddress(
     override val address: String,
     override val label: String = address,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() },
-    private val amount: CryptoValue? = null
+    override val amount: CryptoValue? = null
 ) : CryptoAddress {
     override val asset: AssetInfo = CryptoCurrency.BTC
 

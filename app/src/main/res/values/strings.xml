@@ -67,7 +67,6 @@
     <string name="bitcoin_cash" translatable="false">Bitcoin Cash</string>
 
     <plurals name="transfer_label_plural">
-        <item quantity="one">1 imported address</item>
         <item quantity="other">%d imported addresses</item>
     </plurals>
     <string name="upgrade_wallet">Upgrade</string>
@@ -202,6 +201,7 @@
     <string name="strength_normal">Good</string>
     <string name="strength_strong">Strong</string>
     <string name="strength_hint">Use at least 8 characters, a mix of letters, numbers and symbols.</string>
+    <string name="strength_label">Password Strength</string>
 
     <string name="btn_continue">Continue</string>
     <string name="btn_forgot_password">Forgot Password?"</string>
@@ -788,6 +788,8 @@
     <string name="asset_details_chart_load_failed_toast">Failed to load chart details, please try again</string>
     <string name="asset_details_load_failed_toast">Failed to load wallet details, please try again</string>
     <string name="asset_details_exchange_load_failed_toast">Failed to exchange rate information, please try again</string>
+    <string name="asset_details_exchange_load_failed_toast_1">Failed to load exchange rate information, please try again</string>
+    <string name="asset_details_delta_load_failed_toast">Failed to load price information, please try again</string>
     <string name="dashboard_asset_actions_tx_in_progress">There is already a transaction in progress, please wait until it completes</string>
 
     <string name="force_upgrade_message">The version of the app you are using is no longer
@@ -868,6 +870,10 @@
     <string name="tour_card_cta">Take A Tour</string>
     <string name="tour_card_dismiss">Maybe Later</string>
 
+    <!-- New asset announcement -->
+    <string name="new_asset_card_title">%1$s (%2$s) is Now Trading</string>
+    <string name="new_asset_card_body">Buy, sell, swap, send, receive and store %1$s in your Blockchain.com Wallet.</string>
+    <string name="new_asset_card_cta">Buy %1$s</string>
     <!-- Verify email announcement -->
     <string name="verify_email_card_title">Verify Your Email Address</string>
     <string name="verify_email_card_body">In order to start using your Blockchain wallet, you need to confirm your email address.</string>
@@ -942,6 +948,11 @@
     <string name="domain_announcement_title">Introducing Send to Domains</string>
     <string name="domain_announcement_description">You can send money directly to registered Unstoppable and ENS domains. Send crypto to .crypto, .eth, .xyz extensions and many more!</string>
     <string name="domain_announcement_action">Get Started</string>
+
+    <!-- Recurring buys announcement -->
+    <string name="rb_announcement_title">Recurring buys are now available</string>
+    <string name="rb_announcement_description">It’s really hard to time the market, which is why many investors use dollar cost averaging. Set up a recurring buy to leverage dollar cost averaging.</string>
+    <string name="rb_announcement_action">Learn more</string>
 
     <!-- Airdrop Status bottom sheet -->
     <string name="airdrop_received_sheet_heading">Airdrop</string>
@@ -1430,6 +1441,7 @@
     <string name="card_info_description">At this time, we don’t support buying crypto with virtual credit and debit cards. You must use a physical card’s number, date and security code.</string>
 
     <string name="invalid_cvv">Invalid CVV</string>
+    <string name="card_verification">Card Verification</string>
     <string name="invalid_date">Invalid Date</string>
     <string name="invalid_card_number">Invalid Card Number</string>
     <string name="full_name">Full Name</string>
@@ -1830,8 +1842,11 @@
     <string name="qr_activity_hint_pairing_code">Scan a web pairing QR code</string>
     <string name="qr_activity_hint_new_web_login">Log in to web</string>
 
-    <string name="security_locked_card_funds_explanation">For your security, first time card purchases are subject to a %1$s day holding period before you can send or withdraw your purchased crypto. We will notify you when the hold is lifted.\n\nIn the meantime, you can sell into Cash, swap, and trade within Blockchain.com.</string>
-    <string name="security_locked_funds_bank_transfer_explanation">Your final amount might change due to market activity. An initial hold period of %s days will be applied to your funds. You can Buy, Sell, and Swap during this period.</string>
+    <string name="security_locked_card_funds_explanation">For your security, first time card purchases are subject to a %1$s day holding period before you can Send or Withdraw your purchased crypto. We will notify you when the hold is lifted.\n\nIn the meantime, you can sell into Cash, swap, and trade within Blockchain.com.</string>
+    <string name="security_locked_card_funds_explanation_1">For your security, first time card purchases are subject to a %1$s day holding period before you can Send or Withdraw your purchased crypto. We will notify you when the hold is lifted.\n\nIn the meantime, you can sell into Cash, or Swap and Trade within Blockchain.com.</string>
+    <string name="security_locked_funds_bank_transfer_explanation">Your final amount might change due to market activity. An initial hold period of %s days will be applied to your funds. You can Sell and Swap during this period.</string>
+    <string name="security_locked_funds_bank_transfer_explanation_1">Your final amount might change due to market activity. An initial hold period of %s days will be applied to your funds. You can Sell and Swap during this period. We will notify you once the funds are available to be withdrawn.</string>
+    <string name="security_no_lock_bank_transfer_explanation">Your final amount might change due to market activity. Your funds will be available to Sell, Swap or Withdraw instantly.</string>
     <string name="security_locked_funds_bank_transfer_payment_screen_explanation">These funds are available now to Sell &amp; Swap.\n\nNote: You will not be able to Send or Withdraw these funds from your Wallet for the next %1$s days.\n</string>
 
     <!-- content descriptor IDs -->
@@ -2125,7 +2140,6 @@
     <string name="reset_password_optional_label">Would you like to reset your password? You can always do this later in Settings.</string>
     <string name="reset_password_hint">New Password</string>
     <string name="reset_password_confirm_hint">Confirm New Password</string>
-    <string name="reset_password_optional_title">Reset Password?</string>
     <string name="restore_wallet_cta">Restore Wallet</string>
 
     <!-- Recurring buy screens -->
@@ -2141,7 +2155,7 @@
     <string name="recurring_buy_title_4_2">\nYou’ll buy less crypto.</string>
     <string name="recurring_buy_title_5_1">But does it work?\nOver the past 5 years, buying Bitcoin every week performed better than timing the market</string>
     <string name="recurring_buy_title_5_2">\n86% of the time.</string>
-    <string name="recurring_buy_note">Calculation is based on one $30 purchase a week on a random day. \"Timing the market\" is defined as buying Bitcoin on every 6% dip.\n<annotation link="learn_more">Learn more -></annotation></string>
+    <string name="recurring_buy_note">Calculation is based on one $30 purchase a week on a random day. \"Timing the market\" is defined as buying Bitcoin on every 6% dip.\n<annotation link="learn_more">Learn more →</annotation></string>
     <string name="recurring_buy_one_time_short">One time</string>
     <string name="recurring_buy_one_time">One time purchase</string>
     <string name="recurring_buy_daily_1">Everyday</string>

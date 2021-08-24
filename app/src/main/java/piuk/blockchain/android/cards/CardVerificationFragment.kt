@@ -11,6 +11,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentCardVerificationBinding
 import piuk.blockchain.android.ui.base.mvi.MviFragment
+import piuk.blockchain.android.ui.base.setupToolbar
 
 class CardVerificationFragment : MviFragment<CardModel, CardIntent, CardState, FragmentCardVerificationBinding>(),
     AddCardFlowFragment {
@@ -22,6 +23,10 @@ class CardVerificationFragment : MviFragment<CardModel, CardIntent, CardState, F
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().setupToolbar(
+            R.string.card_verification,
+            false
+        )
         binding.okBtn.setOnClickListener {
             navigator.exitWithError()
         }
@@ -101,6 +106,8 @@ class CardVerificationFragment : MviFragment<CardModel, CardIntent, CardState, F
             ?: throw IllegalStateException("Parent must implement CardDetailsPersistence")
 
     override fun onBackPressed(): Boolean = true
+
+    override fun backPressedHandled(): Boolean = true
 
     companion object {
         const val EVERYPAY_AUTH_REQUEST_CODE = 324

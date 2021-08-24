@@ -12,7 +12,6 @@ import com.blockchain.nabu.models.responses.banktransfer.UpdateProviderAccountBo
 import com.blockchain.nabu.models.responses.cards.BeneficiariesResponse
 import com.blockchain.nabu.models.responses.cards.CardResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
-import com.blockchain.nabu.models.responses.interest.InterestAccountDetailsResponse
 import com.blockchain.nabu.models.responses.interest.InterestActivityResponse
 import com.blockchain.nabu.models.responses.interest.InterestAddressResponse
 import com.blockchain.nabu.models.responses.interest.InterestEnabledResponse
@@ -423,12 +422,6 @@ internal interface Nabu {
         @Header("authorization") authorization: String,
         @Query("ccy") currency: String
     ): Single<Response<InterestRateResponse>>
-
-    @GET(NABU_INTEREST_ACCOUNT_BALANCE)
-    fun getInterestAccountDetails(
-        @Header("authorization") authorization: String,
-        @Query("ccy") cryptoSymbol: String
-    ): Single<Response<InterestAccountDetailsResponse>>
 
     @GET(NABU_INTEREST_ADDRESS)
     fun getInterestAddress(

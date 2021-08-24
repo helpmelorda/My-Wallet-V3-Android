@@ -52,6 +52,8 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
     private var lowerSlot: TxFlowWidget? = null
     private var upperSlot: TxFlowWidget? = null
 
+    private var initialValueSet: Boolean = false
+
     private val imm: InputMethodManager by lazy {
         requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     }
@@ -142,8 +144,15 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                     }
                 }
 
-                if (newState.setMax) {
-                    amountSheetInput.updateValue(newState.maxSpendable)
+                if (state.setMax) {
+                    amountSheetInput.updateValue(state.maxSpendable)
+                } else {
+                    if (!initialValueSet) {
+                        state.initialAmountToSet()?.let {
+                            amountSheetInput.updateValue(it)
+                            initialValueSet = true
+                        }
+                    }
                 }
 
                 initialiseLowerSlotIfNeeded(newState)

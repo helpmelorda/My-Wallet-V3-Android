@@ -24,12 +24,9 @@ class ResetPasswordModel(
 ) {
     override fun performAction(previousState: ResetPasswordState, intent: ResetPasswordIntents): Disposable? {
         return when (intent) {
-            is ResetPasswordIntents.RecoverWallet ->
-                recoverWallet(
-                    email = intent.email,
+            is ResetPasswordIntents.SetNewPassword ->
+                setNewPassword(
                     password = intent.password,
-                    recoveryPhrase = intent.recoveryPhrase,
-                    walletName = intent.walletName,
                     intent.shouldResetKyc
                 )
             is ResetPasswordIntents.CreateWalletForAccount ->
@@ -46,19 +43,11 @@ class ResetPasswordModel(
         }
     }
 
-    private fun recoverWallet(
-        email: String,
+    private fun setNewPassword(
         password: String,
-        recoveryPhrase: String,
-        walletName: String,
         shouldResetKyc: Boolean
     ): Disposable {
-        return interactor.restoreWallet(
-            email = email,
-            password = password,
-            recoveryPhrase = recoveryPhrase,
-            walletName = walletName
-        )
+        return interactor.setNewPassword(password = password)
             .subscribeBy(
                 onComplete = {
                     if (shouldResetKyc) {

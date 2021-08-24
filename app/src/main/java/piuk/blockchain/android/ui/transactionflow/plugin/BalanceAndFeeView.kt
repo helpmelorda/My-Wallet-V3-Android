@@ -142,6 +142,7 @@ class BalanceAndFeeView @JvmOverloads constructor(
         with(binding) {
             networkFeeLabel.visibleIf { state.amount.isPositive }
             networkFeeValue.visibleIf { state.amount.isPositive }
+            networkFeeArrow.visibleIf { state.amount.isPositive }
             with(useMax) {
                 visibleIf { !state.amount.isPositive && !customiser.shouldDisableInput(state.errorState) }
                 text = customiser.enterAmountMaxButton(state)
@@ -179,7 +180,7 @@ class BalanceAndFeeView @JvmOverloads constructor(
             }
         }
         // And flip the toggle indicator
-        binding.toggleIndicator.rotation += 180f
+        binding.networkFeeArrow.rotation += 180f
     }
 
     private fun findRootView(): ViewGroup? {

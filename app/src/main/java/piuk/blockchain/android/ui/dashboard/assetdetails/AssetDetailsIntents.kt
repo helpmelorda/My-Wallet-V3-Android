@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import info.blockchain.balance.AssetInfo
@@ -179,12 +180,26 @@ object GetPaymentDetails : AssetDetailsIntent() {
 }
 
 class UpdatePaymentDetails(
-    val recurringBuyPaymentDetails: RecurringBuyPaymentDetails
+    private val recurringBuyPaymentDetails: RecurringBuyPaymentDetails
 ) : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
         oldState.copy(
             selectedRecurringBuy = oldState.selectedRecurringBuy?.copy(paymentDetails = recurringBuyPaymentDetails)
         )
+}
+
+class UpdatePriceDeltaDetails(
+    private val prices24HrWithDelta: Prices24HrWithDelta
+) : AssetDetailsIntent() {
+    override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
+        oldState.copy(
+            prices24HrWithDelta = prices24HrWithDelta
+        )
+}
+
+object UpdatePriceDeltaFailed : AssetDetailsIntent() {
+    override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
+        oldState.copy(errorState = AssetDetailsError.NO_PRICE_DELTA)
 }
 
 object ShowInterestDashboard : AssetDetailsIntent() {

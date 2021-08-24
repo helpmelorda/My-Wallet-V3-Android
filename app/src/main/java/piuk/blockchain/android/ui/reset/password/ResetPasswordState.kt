@@ -6,7 +6,7 @@ enum class ResetPasswordStatus {
     INIT,
     CREATE_WALLET,
     RECOVER_ACCOUNT,
-    RESTORE_WALLET,
+    SET_PASSWORD,
     RESET_KYC,
     SHOW_ERROR,
     SHOW_SUCCESS

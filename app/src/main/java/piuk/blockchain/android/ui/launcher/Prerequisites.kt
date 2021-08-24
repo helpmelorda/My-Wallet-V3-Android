@@ -46,14 +46,15 @@ class Prerequisites(
                     .logAndCompleteOnError(SIMPLE_BUY_SYNC)
             }.then {
                 Completable.concat(
-                    flushables.map { it.flush().logAndCompleteOnError(it.tag) }
+                    flushables.distinct().map { it.flush().logAndCompleteOnError(it.tag) }
                 )
             }.then {
                 walletCredentialsUpdater.checkAndUpdate()
                     .logAndCompleteOnError(WALLET_CREDENTIALS)
             }.doOnComplete {
                 rxBus.emitEvent(MetadataEvent::class.java, MetadataEvent.SETUP_COMPLETE)
-            }.subscribeOn(Schedulers.io())
+            }
+            .subscribeOn(Schedulers.io())
 
     private fun Completable.logOnError(tag: String): Completable =
         this.doOnError {

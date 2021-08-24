@@ -10,8 +10,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.transition.TransitionManager
-import com.blockchain.api.nabu.data.GeolocationResponse
+import com.blockchain.api.services.Geolocation
 import com.blockchain.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
@@ -38,20 +37,22 @@ import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.US
 import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.getTextString
+import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.util.Locale
 
-class NewCreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPresenter>(),
-    CreateWalletView,
+class NewCreateWalletActivity : BaseMvpActivity<NewCreateWalletView, NewCreateWalletPresenter>(),
+    NewCreateWalletView,
     PickerItemListener,
     SlidingModalBottomDialog.Host,
     View.OnFocusChangeListener {
 
     private val defaultLabels: DefaultLabels by inject()
-    private val createWalletPresenter: CreateWalletPresenter by scopedInject()
+    private val createWalletPresenter: NewCreateWalletPresenter by scopedInject()
     private var progressDialog: MaterialProgressDialog? = null
     private var applyConstraintSet: ConstraintSet = ConstraintSet()
     private var countryPickerItem: CountryPickerItem? = null
@@ -90,12 +91,11 @@ class NewCreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPr
         with(binding) {
             passwordStrengthBinding.passStrengthBar.max = 100 * 10
 
-            walletPass.onFocusChangeListener = this@NewCreateWalletActivity
             walletPass.afterTextChangeEvents()
                 .doOnNext {
                     showEntropyContainer()
                     presenter.logEventPasswordOneClicked()
-                    binding.entropyContainer.updatePassword(it.editable.toString())
+                    binding.entropyContainerNew.updatePassword(it.editable.toString())
                     updateCreateButtonState(
                         it.editable.toString().length,
                         walletPassConfirm.getTextString().length,
@@ -117,7 +117,9 @@ class NewCreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPr
 
             walletPasswordCheckbox.setOnCheckedChangeListener { _, isChecked ->
                 updateCreateButtonState(
-                    walletPass.getTextString().length, walletPassConfirm.getTextString().length, isChecked
+                    walletPass.getTextString().length,
+                    walletPassConfirm.getTextString().length,
+                    isChecked
                 )
             }
 
@@ -193,17 +195,9 @@ class NewCreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPr
         return super.onOptionsItemSelected(item)
     }
 
-    private fun hideEntropyContainer() {
-        TransitionManager.beginDelayedTransition(binding.mainConstraintLayout)
-        applyConstraintSet.setVisibility(R.id.entropy_container, ConstraintSet.GONE)
-        applyConstraintSet.applyTo(binding.mainConstraintLayout)
-    }
+    private fun hideEntropyContainer() = binding.entropyContainerNew.gone()
 
-    private fun showEntropyContainer() {
-        TransitionManager.beginDelayedTransition(binding.mainConstraintLayout)
-        applyConstraintSet.setVisibility(R.id.entropy_container, ConstraintSet.VISIBLE)
-        applyConstraintSet.applyTo(binding.mainConstraintLayout)
-    }
+    private fun showEntropyContainer() = binding.entropyContainerNew.visible()
 
     override fun onFocusChange(v: View?, hasFocus: Boolean) = when {
         hasFocus -> showEntropyContainer()
@@ -249,7 +243,7 @@ class NewCreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPr
 
     override fun getDefaultAccountName(): String = defaultLabels.getDefaultNonCustodialWalletLabel()
 
-    override fun setGeolocationInCountrySpinner(geolocation: GeolocationResponse) {
+    override fun setGeolocationInCountrySpinner(geolocation: Geolocation) {
         if (countryPickerItem == null) {
             val countryGeo = CountryPickerItem(geolocation.countryCode)
             onItemPicked(countryGeo)
@@ -281,7 +275,9 @@ class NewCreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPr
                 presenter.validateCredentials(email, password1, password2) &&
                 presenter.validateGeoLocation(countryCode, stateCode)
             ) {
-                presenter.createOrRestoreWallet(email, password1, recoveryPhrase)
+                countryCode?.let {
+                    presenter.createOrRestoreWallet(email, password1, recoveryPhrase, it, stateCode)
+                }
             }
         }
     }
@@ -290,16 +286,12 @@ class NewCreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPr
         when (item) {
             is CountryPickerItem -> {
                 countryPickerItem = item
-                runOnUiThread {
-                    binding.country.setText(item.label)
-                    changeStatesSpinnerVisibility(item.code == CODE_US)
-                }
+                binding.country.setText(item.label)
+                changeStatesSpinnerVisibility(item.code == CODE_US)
             }
             is StatePickerItem -> {
                 statePickerItem = item
-                runOnUiThread {
-                    binding.state.setText(item.label)
-                }
+                binding.state.setText(item.label)
             }
         }
         ViewUtils.hideKeyboard(this)

@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import piuk.blockchain.android.util.throttledClicks
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -60,6 +61,7 @@ class KycResubmissionSplashFragment : Fragment() {
         disposable += binding.buttonKycResubmissionSplashNext
             .throttledClicks()
             .flatMapSingle { kycNavigator.findNextStep() }
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onNext = { navigate(it) },
                 onError = { Timber.e(it) }

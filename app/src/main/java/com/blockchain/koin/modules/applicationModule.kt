@@ -9,12 +9,15 @@ import com.blockchain.koin.moshiExplorerRetrofit
 import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.usd
+import com.blockchain.lifecycle.LifecycleObservable
+import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.logging.DigitalTrust
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentAccountMapper
 import com.blockchain.network.websocket.Options
 import com.blockchain.network.websocket.autoRetry
 import com.blockchain.network.websocket.debugLog
 import com.blockchain.network.websocket.newBlockchainWebSocket
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentAccountMapper
+import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.DefaultLabels
 import com.google.gson.GsonBuilder
@@ -34,12 +37,11 @@ import piuk.blockchain.android.data.biometrics.CryptographyManager
 import piuk.blockchain.android.data.biometrics.CryptographyManagerImpl
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
+import piuk.blockchain.android.deeplink.BlockchainDeepLinkParser
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.EmailVerificationDeepLinkHelper
 import piuk.blockchain.android.deeplink.OpenBankingDeepLinkParser
-import piuk.blockchain.android.identity.NabuUserIdentity
 import piuk.blockchain.android.identity.SiftDigitalTrust
-import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.scan.QrCodeDataManager
 import piuk.blockchain.android.scan.QrScanResultProcessor
@@ -62,10 +64,16 @@ import piuk.blockchain.android.ui.airdrops.AirdropCentrePresenter
 import piuk.blockchain.android.ui.auth.FirebaseMobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.PinEntryPresenter
+import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
+import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedPresenter
+import piuk.blockchain.android.ui.backup.start.BackupWalletStartingInteractor
+import piuk.blockchain.android.ui.backup.start.BackupWalletStartingModel
+import piuk.blockchain.android.ui.backup.start.BackupWalletStartingState
 import piuk.blockchain.android.ui.backup.verify.BackupVerifyPresenter
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListPresenter
 import piuk.blockchain.android.ui.createwallet.CreateWalletPresenter
+import piuk.blockchain.android.ui.createwallet.NewCreateWalletPresenter
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.customviews.dialogs.OverlayDetection
 import piuk.blockchain.android.ui.dashboard.BalanceAnalyticsReporter
@@ -86,11 +94,6 @@ import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.android.ui.linkbank.BankAuthModel
 import piuk.blockchain.android.ui.linkbank.BankAuthState
 import piuk.blockchain.android.ui.onboarding.OnboardingPresenter
-import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
-import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
-import piuk.blockchain.android.ui.backup.start.BackupWalletStartingInteractor
-import piuk.blockchain.android.ui.backup.start.BackupWalletStartingModel
-import piuk.blockchain.android.ui.backup.start.BackupWalletStartingState
 import piuk.blockchain.android.ui.pairingcode.PairingModel
 import piuk.blockchain.android.ui.pairingcode.PairingState
 import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
@@ -100,23 +103,20 @@ import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapp
 import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
 import piuk.blockchain.android.data.TradeDataManagerImpl
 import piuk.blockchain.android.data.Mapper
-import piuk.blockchain.android.data.NabuUserDataManagerImpl
-import piuk.blockchain.android.domain.repositories.NabuUserDataManager
 import piuk.blockchain.android.domain.repositories.TradeDataManager
 import piuk.blockchain.android.domain.usecases.GetNextPaymentDateUseCase
-import piuk.blockchain.android.domain.usecases.GetUserGeolocationUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
 import piuk.blockchain.android.ui.settings.SettingsPresenter
-import piuk.blockchain.android.ui.transfer.receive.ReceiveIntentHelper
 import piuk.blockchain.android.ui.shortcuts.receive.ReceiveQrPresenter
 import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
 import piuk.blockchain.android.ui.thepit.PitPermissionsPresenter
 import piuk.blockchain.android.ui.thepit.PitVerifyEmailPresenter
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.android.ui.transfer.DashboardAccountsSorting
+import piuk.blockchain.android.ui.transfer.receive.ReceiveIntentHelper
 import piuk.blockchain.android.ui.transfer.receive.ReceiveModel
 import piuk.blockchain.android.ui.transfer.receive.ReceiveState
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
@@ -129,7 +129,6 @@ import piuk.blockchain.android.util.PrngHelper
 import piuk.blockchain.android.util.ResourceDefaultLabels
 import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.lifecycle.LifecycleInterestedComponent
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.PrngFixer
@@ -163,6 +162,7 @@ val applicationModule = module {
     single { CurrentContextAccess() }
 
     single { LifecycleInterestedComponent() }
+        .bind(LifecycleObservable::class)
 
     single {
         SiftDigitalTrust(
@@ -284,15 +284,6 @@ val applicationModule = module {
         }
 
         factory {
-            NabuUserIdentity(
-                custodialWalletManager = get(),
-                tierService = get(),
-                simpleBuyEligibilityProvider = get(),
-                interestEligibilityProvider = get()
-            )
-        }.bind(UserIdentity::class)
-
-        factory {
             CreateWalletPresenter(
                 payloadDataManager = get(),
                 prefs = get(),
@@ -302,8 +293,22 @@ val applicationModule = module {
                 analytics = get(),
                 walletPrefs = get(),
                 environmentConfig = get(),
+                formatChecker = get()
+            )
+        }
+
+        factory {
+            NewCreateWalletPresenter(
+                payloadDataManager = get(),
+                prefs = get(),
+                appUtil = get(),
+                accessState = get(),
+                prngFixer = get(),
+                analytics = get(),
+                walletPrefs = get(),
+                environmentConfig = get(),
                 formatChecker = get(),
-                getGeolocationUseCase = get()
+                nabuUserDataManager = get()
             )
         }
 
@@ -391,6 +396,10 @@ val applicationModule = module {
             ThePitDeepLinkParser()
         }
 
+        factory {
+            BlockchainDeepLinkParser()
+        }
+
         factory { EmailVerificationDeepLinkHelper() }
 
         factory {
@@ -400,7 +409,8 @@ val applicationModule = module {
                 sunriverDeepLinkHelper = get(),
                 emailVerifiedLinkHelper = get(),
                 thePitDeepLinkParser = get(),
-                openBankingDeepLinkParser = get()
+                openBankingDeepLinkParser = get(),
+                blockchainDeepLinkParser = get()
             )
         }
 
@@ -524,12 +534,6 @@ val applicationModule = module {
         }
 
         factory {
-            GetUserGeolocationUseCase(
-                nabuUserDataManager = get()
-            )
-        }
-
-        factory {
             TradeDataManagerImpl(
                 tradeService = get(),
                 authenticator = get(),
@@ -545,12 +549,6 @@ val applicationModule = module {
         factory {
             GetNextPaymentDateListToFrequencyDateMapper()
         }.bind(Mapper::class)
-
-        factory {
-            NabuUserDataManagerImpl(
-                nabuUserService = get()
-            )
-        }.bind(NabuUserDataManager::class)
 
         factory {
             SimpleBuyPrefsSerializerImpl(
@@ -747,7 +745,9 @@ val applicationModule = module {
                 analytics = get(),
                 crashLogger = get(),
                 prerequisites = get(),
-                userIdentity = get()
+                userIdentity = get(),
+                walletPrefs = get(),
+                nabuUserDataManager = get()
             )
         }
 
@@ -760,7 +760,7 @@ val applicationModule = module {
                 crashLogger = get(),
                 simpleBuySync = get(),
                 rxBus = get(),
-                flushables = getAll(),
+                flushables = getAll(AppStartUpFlushable::class),
                 walletCredentialsUpdater = get()
             )
         }

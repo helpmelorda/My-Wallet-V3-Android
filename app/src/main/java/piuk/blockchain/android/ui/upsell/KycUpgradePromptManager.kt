@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.upsell
 
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
-import piuk.blockchain.android.identity.Feature
-import piuk.blockchain.android.identity.Tier
-import piuk.blockchain.android.identity.UserIdentity
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 
 class KycUpgradePromptManager(

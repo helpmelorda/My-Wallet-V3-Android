@@ -8,7 +8,6 @@ import androidx.annotation.StringRes
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityAccountRecoveryBinding
-import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
@@ -16,6 +15,7 @@ import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.reset.ResetAccountFragment
 import piuk.blockchain.android.ui.reset.password.ResetPasswordFragment
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.visibleIf
 
 class AccountRecoveryActivity :
@@ -45,13 +45,7 @@ class AccountRecoveryActivity :
             AccountRecoveryStatus.WORD_COUNT_ERROR ->
                 showSeedPhraseInputError(R.string.recovery_phrase_word_count_error)
             AccountRecoveryStatus.RECOVERY_SUCCESSFUL -> {
-                if (email.isNotEmpty()) {
-                    // Go to the reset password screen when we have an email
                     launchResetPasswordFlow(newState.seedPhrase)
-                } else {
-                    // Launch pin-entry otherwise
-                    start<PinEntryActivity>(this)
-                }
             }
             AccountRecoveryStatus.RECOVERY_FAILED ->
                 toast(R.string.restore_failed, ToastCustom.TYPE_ERROR)
@@ -97,6 +91,7 @@ class AccountRecoveryActivity :
             resetKycLabel.text = getString(R.string.reset_kyc_notice)
 
             verifyButton.setOnClickListener {
+                ViewUtils.hideKeyboard(this@AccountRecoveryActivity)
                 model.process(
                     AccountRecoveryIntents.VerifySeedPhrase(
                         seedPhrase = recoveryPhaseText.text?.toString() ?: ""
@@ -107,6 +102,7 @@ class AccountRecoveryActivity :
     }
 
     private fun launchResetAccountFlow() {
+        ViewUtils.hideKeyboard(this)
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(
@@ -127,7 +123,7 @@ class AccountRecoveryActivity :
             .replace(
                 binding.fragmentContainer.id,
                 ResetPasswordFragment.newInstance(
-                    isResetMandatory = false,
+                    shouldResetKyc = false,
                     email = email,
                     recoveryPhrase = recoveryPhrase
                 ),

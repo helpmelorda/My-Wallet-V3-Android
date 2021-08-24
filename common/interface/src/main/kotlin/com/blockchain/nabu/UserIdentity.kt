@@ -1,4 +1,4 @@
-package piuk.blockchain.android.identity
+package com.blockchain.nabu
 
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single

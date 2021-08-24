@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dashboard
 
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.Prices24HrWithDelta
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import com.nhaarman.mockitokotlin2.mock
@@ -18,11 +19,17 @@ val TEST_ASSETS = listOf(
     CryptoCurrency.XLM
 )
 
+private val pricesWith24HrBtc = Prices24HrWithDelta(
+    previousRate = ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 400.toBigDecimal()),
+    currentRate = ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 400.toBigDecimal()),
+    delta24h = 0.0
+)
+
 val initialBtcState = CryptoAssetState(
     currency = CryptoCurrency.BTC,
     balance = CryptoValue.zero(CryptoCurrency.BTC),
     price = ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 300.toBigDecimal()),
-    price24h = ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 400.toBigDecimal()),
+    prices24HrWithDelta = pricesWith24HrBtc,
     priceTrend = emptyList()
 )
 
@@ -30,7 +37,7 @@ val initialEthState = CryptoAssetState(
     currency = CryptoCurrency.ETHER,
     balance = CryptoValue.zero(CryptoCurrency.ETHER),
     price = ExchangeRate.CryptoToFiat(CryptoCurrency.ETHER, FIAT_CURRENCY, 200.toBigDecimal()),
-    price24h = ExchangeRate.CryptoToFiat(CryptoCurrency.ETHER, FIAT_CURRENCY, 100.toBigDecimal()),
+    prices24HrWithDelta = mock(),
     priceTrend = emptyList()
 )
 
@@ -38,7 +45,7 @@ val initialXlmState = CryptoAssetState(
     currency = CryptoCurrency.XLM,
     balance = CryptoValue.zero(CryptoCurrency.XLM),
     price = ExchangeRate.CryptoToFiat(CryptoCurrency.XLM, FIAT_CURRENCY, 100.toBigDecimal()),
-    price24h = ExchangeRate.CryptoToFiat(CryptoCurrency.XLM, FIAT_CURRENCY, 75.toBigDecimal()),
+    prices24HrWithDelta = mock(),
     priceTrend = emptyList()
 )
 
@@ -58,7 +65,7 @@ val testBtcState = CryptoAssetState(
     currency = CryptoCurrency.BTC,
     balance = CryptoValue.fromMajor(CryptoCurrency.BTC, 10.toBigDecimal()),
     price = ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 300.toBigDecimal()),
-    price24h = ExchangeRate.CryptoToFiat(CryptoCurrency.BTC, FIAT_CURRENCY, 400.toBigDecimal()),
+    prices24HrWithDelta = pricesWith24HrBtc,
     priceTrend = emptyList()
 )
 

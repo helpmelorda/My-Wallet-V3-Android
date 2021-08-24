@@ -3,6 +3,7 @@ package piuk.blockchain.android.coincore.btc
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -27,7 +28,9 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.coincore.impl.BackendNotificationUpdater
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
-import piuk.blockchain.android.identity.NabuUserIdentity
+import com.blockchain.nabu.datamanagers.NabuUserIdentity
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
 import piuk.blockchain.android.thepit.PitLinking
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -48,7 +51,8 @@ class BtcAssetTest {
     private val coinsWebsocket: CoinsWebSocketStrategy = mock()
     private val custodialManager: CustodialWalletManager = mock()
     private val exchangeRates: ExchangeRatesDataManager = mock()
-    private val tradingBalanceDataManager: TradingBalanceDataManager = mock()
+    private val tradingBalances: TradingBalanceDataManager = mock()
+    private val interestBalances: InterestBalanceDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val labels: DefaultLabels = mock()
     private val pitLinking: PitLinking = mock()
@@ -64,7 +68,8 @@ class BtcAssetTest {
         feeDataManager = feeDataManager,
         coinsWebsocket = coinsWebsocket,
         custodialManager = custodialManager,
-        tradingBalanceDataManager = tradingBalanceDataManager,
+        tradingBalances = tradingBalances,
+        interestBalances = interestBalances,
         exchangeRates = exchangeRates,
         currencyPrefs = currencyPrefs,
         labels = labels,
@@ -201,6 +206,119 @@ class BtcAssetTest {
             .assertError(BadPassphraseException::class.java)
 
         verifyNoMoreInteractions(coinsWebsocket)
+    }
+
+    @Test
+    fun parseGoodAddressWithNoPrefix() {
+        val goodAddress = "17GBRdfBHtEaBs7MesvMgob6YUEn5fFN4C"
+
+        whenever(sendDataManager.isValidBtcAddress(goodAddress)).thenReturn(true)
+
+        subject.parseAddress(goodAddress, TEST_LABEL)
+            .test()
+            .assertNoErrors()
+            .assertComplete()
+            .assertValue { v ->
+                v is BtcAddress &&
+                    v.address == goodAddress &&
+                    v.amount == null &&
+                    v.label == TEST_LABEL
+            }
+    }
+
+    @Test
+    fun parseGoodAddressWithPrefix() {
+        val prefix = "bitcoin:"
+        val goodAddress = "17GBRdfBHtEaBs7MesvMgob6YUEn5fFN4C"
+        val testInput = "$prefix$goodAddress"
+
+        whenever(sendDataManager.isValidBtcAddress(goodAddress)).thenReturn(true)
+
+        subject.parseAddress(testInput, TEST_LABEL)
+            .test()
+            .assertNoErrors()
+            .assertComplete()
+            .assertValue { v ->
+                v is BtcAddress &&
+                    v.address == goodAddress &&
+                    v.amount == null &&
+                    v.label == TEST_LABEL
+            }
+    }
+
+    @Test
+    fun parseGoodAddressWithPrefixAndAmount() {
+        val prefix = "bitcoin:"
+        val goodAddress = "17GBRdfBHtEaBs7MesvMgob6YUEn5fFN4C"
+        val amount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.004409.toBigDecimal())
+        val testInput = "$prefix$goodAddress?amount=${amount.toStringWithoutSymbol()}"
+
+        whenever(sendDataManager.isValidBtcAddress(goodAddress)).thenReturn(true)
+
+        subject.parseAddress(testInput, TEST_LABEL)
+            .test()
+            .assertNoErrors()
+            .assertComplete()
+            .assertValue { v ->
+                v is BtcAddress &&
+                    v.address == goodAddress &&
+                    v.amount == amount &&
+                    v.label == TEST_LABEL
+            }
+    }
+
+    @Test
+    fun parseGoodAddressWithPrefixAndUnknownSuffix() {
+
+        val prefix = "bitcoin:"
+        val goodAddress = "17GBRdfBHtEaBs7MesvMgob6YUEn5fFN4C"
+        val amount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.004409.toBigDecimal())
+        val testInput = "$prefix$goodAddress?unknown=${amount.toStringWithoutSymbol()}"
+
+        whenever(sendDataManager.isValidBtcAddress(goodAddress)).thenReturn(true)
+
+        subject.parseAddress(testInput, TEST_LABEL)
+            .test()
+            .assertNoErrors()
+            .assertComplete()
+            .assertValue { v ->
+                v is BtcAddress &&
+                    v.address == goodAddress &&
+                    v.amount == null &&
+                    v.label == TEST_LABEL
+            }
+    }
+
+    @Test
+    fun parseGoodAddressWithPrefixAndAmountAndUnknownSuffix() {
+
+        val prefix = "bitcoin:"
+        val goodAddress = "17GBRdfBHtEaBs7MesvMgob6YUEn5fFN4C"
+        val amount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.004409.toBigDecimal())
+        val testInput = "$prefix$goodAddress?amount=${amount.toStringWithoutSymbol()}?unknown=whatever"
+
+        whenever(sendDataManager.isValidBtcAddress(goodAddress)).thenReturn(true)
+
+        subject.parseAddress(testInput, TEST_LABEL)
+            .test()
+            .assertNoErrors()
+            .assertComplete()
+            .assertValue { v ->
+                v is BtcAddress &&
+                    v.address == goodAddress &&
+                    v.amount == amount &&
+                    v.label == TEST_LABEL
+            }
+    }
+
+    @Test
+    fun parseBadAddress() {
+        val badAddress = "ThisIsNotABTCAddress"
+        whenever(sendDataManager.isValidBtcAddress(badAddress)).thenReturn(false)
+
+        subject.parseAddress(badAddress, TEST_LABEL)
+            .test()
+            .assertResult() // Should be empty
     }
 
     companion object {

@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.core.price.percentageDelta
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.BuySellPairs
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -72,13 +71,14 @@ class BuyIntroFragment : ViewPagerFragment() {
                     val enabledPairs = pairs.pairs.filter {
                         coinCore[it.cryptoCurrency].isEnabled
                     }
+                    // TODO clean current price as it comes from priceDelta now
                     Single.zip(enabledPairs.map {
                         coinCore[it.cryptoCurrency].exchangeRate().zipWith(
-                            coinCore[it.cryptoCurrency].exchangeRateYesterday()
-                        ).map { (currentPrice, price24h) ->
+                            coinCore[it.cryptoCurrency].getPricesWith24hDelta()
+                        ).map { (currentPrice, priceDelta) ->
                             PriceHistory(
                                 currentExchangeRate = currentPrice as ExchangeRate.CryptoToFiat,
-                                exchangeRate24h = price24h as ExchangeRate.CryptoToFiat
+                                priceDelta = priceDelta.delta24h
                             )
                         }
                     }) { t: Array<Any> ->
@@ -142,7 +142,7 @@ class BuyIntroFragment : ViewPagerFragment() {
                         startActivity(
                             SimpleBuyActivity.newInstance(
                                 activity as Context,
-                                pair.cryptoCurrency,
+                                pair.cryptoCurrency.ticker,
                                 launchFromNavigationBar = true,
                                 launchKycResume = false
                             )
@@ -177,12 +177,13 @@ class BuyIntroFragment : ViewPagerFragment() {
 
 data class PriceHistory(
     val currentExchangeRate: ExchangeRate.CryptoToFiat,
-    val exchangeRate24h: ExchangeRate.CryptoToFiat
+    val priceDelta: Double
 ) {
     val cryptoCurrency: AssetInfo
         get() = currentExchangeRate.from
+
     val percentageDelta: Double
-        get() = currentExchangeRate.percentageDelta(exchangeRate24h)
+        get() = priceDelta
 }
 
 data class BuyCryptoItem(

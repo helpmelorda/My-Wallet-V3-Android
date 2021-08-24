@@ -21,7 +21,6 @@
         android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginTop="@dimen/standard_margin"
         android:src="@drawable/ic_tx_recurring_buy"
-        android:tint="@color/blue_600"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

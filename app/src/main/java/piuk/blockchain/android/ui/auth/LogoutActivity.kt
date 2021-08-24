@@ -40,7 +40,7 @@ class LogoutActivity : AppCompatActivity() {
             val intent = Intent(this, CoinsWebSocketService::class.java)
 
             // When user logs out, assume onboarding has been completed
-            prefs.setValue(PersistentPrefs.KEY_ONBOARDING_COMPLETE, true)
+            prefs.isOnBoardingComplete = true
 
             if (osUtil.isServiceRunning(CoinsWebSocketService::class.java)) {
                 stopService(intent)

@@ -1587,7 +1587,6 @@ Sus fondos estarán disponibles para ser retirados una vez que la transferencia 
     <string name="sb_checkout_pending_order_title">Pedido en curso</string>
     <string name="sb_checkout_pending_order_blurb">Vaya, parece que ya tiene un pedido de compra en curso. Espere hasta que se complete antes de volver a comprar.</string>
     <string name="wallet_outage_message">Hemos experimentado una interrupción. No se preocupe, sus fondos están seguros. <annotation link="learn_more"> Más información </annotation></string>
-    <string name="wallet_issue_message">Hay una alerta en nuestra página de estado. Puede que toda la funcionalidad de la cartera no esté disponible. No se preocupe, sus fondos están seguros. <annotation link="learn_more"> Más información →</annotation></string>
     <string name="increase_your_limits">Aumente sus límites</string>
     <string name="increase_your_limits_body">Continúe su verificación para alcanzar el nivel Gold y aumente sus límites y métodos de pago</string>
     <string name="continue_to_gold">Continuar a Gold</string>
@@ -1961,8 +1960,8 @@ Comprará menos criptomonedas.</string>
 En los últimos 5 años, ha sido más fructífero la compra de Bitcoin semanal que la predicción del mercado</string>
     <string name="recurring_buy_title_5_2">
 86 % del tiempo.</string>
-    <string name="recurring_buy_note">El cálculo se basa en una compra de 30 USD una semana un día al azar. \"Predecir el mercado\" se define como la compra de Bitcoin en cada caída del 6 %.
-<annotation link="learn_more">Más información -></annotation></string>
+    <string name="recurring_buy_note">El cálculo se basa en una compra de 30 USD una semana un día al azar. \"Predecir el mercado\" se define como la compra de Bitcoin en cada caída del 6%.
+<annotation link="learn_more">Más información →</annotation></string>
     <string name="recurring_buy_daily_1">Todos los días</string>
     <string name="recurring_buy_daily_selector">Diario</string>
     <string name="recurring_buy_weekly_1">Una vez a la semana</string>
@@ -1984,4 +1983,19 @@ En los últimos 5 años, ha sido más fructífero la compra de Bitcoin semanal q
     <string name="recurring_buy_first_time_success_title">¡Compra periódica iniciada!</string>
     <string name="recurring_buy_first_time_info">Compre %1$s de %2$s todos los días, semanas o meses con una compra periódica. Sin necesidad de predecir el mercado.</string>
     <string name="recurring_buy_first_time_success_subtitle">Compraremos %1$s de %2$s %3$s al precio del mercado en ese momento. Puede cancelar esta compra periódica siempre que lo desee.</string>
+    <string name="common_reset_password">Restablecer contraseña</string>
+    <string name="country_not_selected">Seleccione su país de residencia</string>
+    <string name="state_not_selected">Seleccione su estado</string>
+    <string name="strength_label">Seguridad de la contraseña</string>
+    <string name="new_asset_card_title">%1$s (%2$s) está comprando y vendiendo ahora</string>
+    <string name="new_asset_card_body">Compre, venda, intercambie, reciba y guarde %1$s en su Blockchain.com Wallet.</string>
+    <string name="new_asset_card_cta">Comprar %1$s</string>
+    <string name="rb_announcement_title">Las compras periódicas ya están disponibles</string>
+    <string name="rb_announcement_description">Es muy difícil predecir el mercado, motivo por el cual muchos inversores usan el dólar para calcular los costes medios. Cree una compra periódica para aprovecharse de la inversión constante.</string>
+    <string name="rb_announcement_action">Más información</string>
+    <string name="wallet_issue_message">Hay un aviso sobre el estado de nuestra página. Es posible que la función completa del monedero no esté disponible. Puede estar tranquilo/a, sus fondos están a salvo. <annotation link="learn_more">Más información→</annotation></string>
+    <string name="reset_password_optional_label">¿Quiere restablecer la contraseña? Puede hacerlo más tarde desde Ajustes.</string>
+    <string name="reset_password_hint">Nueva contraseña</string>
+    <string name="reset_password_confirm_hint">Confirmar la contraseña nueva</string>
+    <string name="recurring_buy_frequency_subtitle_last_day_selector">El último día del mes</string>
 </resources>

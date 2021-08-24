@@ -10,6 +10,9 @@ import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
+import com.blockchain.core.interest.InterestBalanceCallCache
+import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.InterestBalanceDataManagerImpl
 import com.blockchain.datamanagers.DataManagerPayloadDecrypt
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
@@ -49,6 +52,8 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.impl.AssetPriceStore
 import com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl
 import com.blockchain.core.price.impl.SparklineCallCache
+import com.blockchain.core.user.NabuUserDataManager
+import com.blockchain.core.user.NabuUserDataManagerImpl
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -102,7 +107,7 @@ val coreModule = module {
 
     scope(payloadScopeQualifier) {
 
-        scoped {
+        factory {
             TradingBalanceCallCache(
                 balanceService = get(),
                 authHeaderProvider = get()
@@ -111,9 +116,23 @@ val coreModule = module {
 
         scoped {
             TradingBalanceDataManagerImpl(
-                tradingBalanceCallCache = get()
+                balanceCallCache = get()
             )
         }.bind(TradingBalanceDataManager::class)
+
+        factory {
+            InterestBalanceCallCache(
+                balanceService = get(),
+                assetCatalogue = get(),
+                authHeaderProvider = get()
+            )
+        }
+
+        scoped {
+            InterestBalanceDataManagerImpl(
+                balanceCallCache = get()
+            )
+        }.bind(InterestBalanceDataManager::class)
 
         scoped {
             EthDataManager(
@@ -211,12 +230,14 @@ val coreModule = module {
 
         scoped { WalletOptionsState() }
 
-        scoped { SettingsDataManager(
-            settingsService = get(),
-            settingsDataStore = get(),
-            currencyPrefs = get(),
-            walletSettingsService = get()
-        ) }
+        scoped {
+            SettingsDataManager(
+                settingsService = get(),
+                settingsDataStore = get(),
+                currencyPrefs = get(),
+                walletSettingsService = get()
+            )
+        }
 
         scoped { SettingsService(get()) }
 
@@ -259,6 +280,13 @@ val coreModule = module {
         factory { SettingsPhoneNumberUpdater(get()) }.bind(PhoneNumberUpdater::class)
 
         factory { SettingsEmailAndSyncUpdater(get(), get()) }.bind(EmailSyncUpdater::class)
+
+        scoped {
+            NabuUserDataManagerImpl(
+                nabuUserService = get(),
+                authenticator = get()
+            )
+        }.bind(NabuUserDataManager::class)
     }
 
     factory {
