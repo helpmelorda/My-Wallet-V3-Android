@@ -10,6 +10,7 @@ import com.blockchain.utils.isLastDayOfTheMonth
 import info.blockchain.balance.FiatValue
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetRecurringBuyBinding
+import piuk.blockchain.android.simplebuy.BuyFrequencySelected
 import piuk.blockchain.android.simplebuy.SimpleBuyIntent
 import piuk.blockchain.android.simplebuy.SimpleBuyModel
 import piuk.blockchain.android.simplebuy.SimpleBuyState
@@ -81,6 +82,11 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
             recurringBuySelectionGroup.check(intervalToId(interval))
             recurringBuySelectionGroup.setOnCheckedChangeListener { _, checkedId ->
                 selectedFrequency = idToInterval(checkedId)
+                analytics.logEvent(
+                    BuyFrequencySelected(
+                        frequency = selectedFrequency.name
+                    )
+                )
             }
             recurringBuySelectCta.setOnClickListener {
                 host.onIntervalSelected(selectedFrequency)

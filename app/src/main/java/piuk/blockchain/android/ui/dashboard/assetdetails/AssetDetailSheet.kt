@@ -178,7 +178,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         clearList()
         analytics.logEvent(
             RecurringBuyAnalytics.RecurringBuyDetailsClicked(
-                LaunchOrigin.RECURRING_BUY_DETAILS,
+                LaunchOrigin.CURRENCY_PAGE,
                 recurringBuy.asset.ticker
             )
         )
