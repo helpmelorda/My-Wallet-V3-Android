@@ -5,7 +5,7 @@
 
     <application>
         <activity
-            android:name="piuk.blockchain.com.FeatureFlagsHandlingActivity"
+            android:name="piuk.blockchain.android.ui.FeatureFlagsHandlingActivity"
             tools:node="remove">
         </activity>
 

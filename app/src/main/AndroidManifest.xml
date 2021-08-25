@@ -77,7 +77,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="piuk.blockchain.com.FeatureFlagsHandlingActivity"
+            android:name=".ui.FeatureFlagsHandlingActivity"
             android:clearTaskOnLaunch="true"
             android:screenOrientation="portrait"
             android:taskAffinity="piuk.blockchain.com.FeatureFlagsHandlingActivity"

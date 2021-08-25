@@ -1,4 +1,4 @@
-package piuk.blockchain.com
+package piuk.blockchain.android.ui
 
 import android.app.LauncherActivity
 import android.os.Bundle

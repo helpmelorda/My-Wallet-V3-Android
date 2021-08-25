@@ -104,7 +104,7 @@ import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.com.FeatureFlagsHandlingActivity
+import piuk.blockchain.android.ui.FeatureFlagsHandlingActivity
 import timber.log.Timber
 import java.net.URLDecoder
 
