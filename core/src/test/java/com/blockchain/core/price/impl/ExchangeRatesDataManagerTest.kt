@@ -25,8 +25,7 @@ class ExchangeRatesDataManagerTest {
         priceStore = priceStore,
         sparklineCall = sparklineCall,
         assetPriceService = assetPriceService,
-        currencyPrefs = currencyPrefs,
-        calendar = calendar
+        currencyPrefs = currencyPrefs
     )
 
 //    @Test
