@@ -73,6 +73,10 @@ data class NabuUser(
     val isMarkedForResubmission: Boolean
         get() = resubmission != null
 
+    val isMarkedForRecoveryResubmission: Boolean
+        get() = resubmission?.reason == ResubmissionResponse.ACCOUNT_RECOVERED_REASON &&
+            tiers?.current != 2
+
     val isStxAirdropRegistered: Boolean
         get() = tags?.get("BLOCKSTACK") != null
 

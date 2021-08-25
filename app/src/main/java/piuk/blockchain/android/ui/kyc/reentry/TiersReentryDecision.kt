@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.nabu.models.responses.nabu.ResubmissionResponse
 
 class TiersReentryDecision : ReentryDecision {
 
@@ -28,8 +27,9 @@ class TiersReentryDecision : ReentryDecision {
     private fun tier0UnselectedCountry(): Boolean = isTierZero && nabuUser.address?.countryCode.isNullOrBlank()
 
     private fun tier0ProfileIncompleteOrResubmitAllowed(): Boolean {
-        return isTierZero && nabuUser.isProfileIncomplete() ||
-            nabuUser.resubmission?.reason == ResubmissionResponse.ACCOUNT_RECOVERED_REASON
+        return isTierZero &&
+            (nabuUser.isProfileIncomplete() ||
+                nabuUser.isMarkedForRecoveryResubmission)
     }
 
     private fun tier0AndCanAdvance() = isTierZero && nabuUser.tiers!!.next == 1

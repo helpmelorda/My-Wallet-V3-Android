@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -19,6 +20,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.KycMoreInfoAnnoun
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycResubmissionAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.NewAssetAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.PaxRenamedAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.KycRecoveryResubmissionAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RecurringBuysAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RegisterBiometricsAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RegisteredForAirdropMiniAnnouncement
@@ -73,14 +75,14 @@ val dashboardAnnouncementsModule = module {
 
         factory {
             KycResubmissionAnnouncement(
-                kycTiersQueries = get(),
+                userIdentity = get(),
                 dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)
 
         factory {
             KycIncompleteAnnouncement(
-                kycTiersQueries = get(),
+                userIdentity = get(),
                 sunriverCampaignRegistration = get(),
                 dismissRecorder = get(),
                 mainScheduler = AndroidSchedulers.mainThread()
@@ -236,6 +238,14 @@ val dashboardAnnouncementsModule = module {
             NewAssetAnnouncement(
                 dismissRecorder = get(),
                 announcementQueries = get()
+            )
+        }.bind(AnnouncementRule::class)
+
+        factory {
+            KycRecoveryResubmissionAnnouncement(
+                dismissRecorder = get(),
+                userIdentity = get(),
+                accountRecoveryFF = get(ssoAccountRecoveryFeatureFlag)
             )
         }.bind(AnnouncementRule::class)
     }

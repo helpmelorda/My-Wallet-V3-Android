@@ -958,6 +958,11 @@
     <string name="rb_announcement_description">It’s really hard to time the market, which is why many investors use dollar cost averaging. Set up a recurring buy to leverage dollar cost averaging.</string>
     <string name="rb_announcement_action">Learn more</string>
 
+    <!-- ReVerify user identity announcement -->
+    <string name="re_verify_identity_card_title">Verification Needed</string>
+    <string name="re_verify_identity_card_body">Please re-verify your identity to access our full products and services</string>
+    <string name="re_verify_identity_card_cta">Reverify Account</string>
+
     <!-- Airdrop Status bottom sheet -->
     <string name="airdrop_received_sheet_heading">Airdrop</string>
     <string name="airdrop_received_sheet_status_label">Status</string>

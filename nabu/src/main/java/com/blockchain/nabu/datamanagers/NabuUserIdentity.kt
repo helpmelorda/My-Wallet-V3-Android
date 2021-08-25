@@ -8,13 +8,15 @@ import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilit
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import java.lang.IllegalArgumentException
 
 class NabuUserIdentity(
     private val custodialWalletManager: CustodialWalletManager,
     private val interestEligibilityProvider: InterestEligibilityProvider,
     private val simpleBuyEligibilityProvider: SimpleBuyEligibilityProvider,
-    private val tierService: TierService
+    private val tierService: TierService,
+    private val nabuDataProvider: NabuDataUserProvider
 ) : UserIdentity {
     override fun isEligibleFor(feature: Feature): Single<Boolean> {
         return when (feature) {
@@ -40,6 +42,21 @@ class NabuUserIdentity(
             is Feature.Interest -> throw IllegalArgumentException("Cannot be verified for $feature")
         }.exhaustive
     }
+
+    override fun isKycInProgress(): Single<Boolean> =
+        nabuDataProvider
+            .getUser()
+            .map { it.tiers?.next ?: 0 }
+            .zipWith(tierService.tiers())
+            .map { (user, tiers) ->
+                tiers.isNotInitialisedFor(KycTierLevel.values()[user])
+            }
+
+    override fun isKycResubmissionRequired(): Single<Boolean> =
+        nabuDataProvider.getUser().map { it.isMarkedForResubmission }
+
+    override fun shouldResubmitAfterRecovery(): Single<Boolean> =
+        nabuDataProvider.getUser().map { it.isMarkedForRecoveryResubmission }
 
     private fun Tier.toKycTierLevel(): KycTierLevel =
         when (this) {

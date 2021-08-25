@@ -18,7 +18,7 @@ class SwapAnnouncement(
     dismissRecorder: DismissRecorder
 ) : AnnouncementRule(dismissRecorder) {
 
-    private lateinit var announcementType: AnnouncementType
+    private var announcementType: AnnouncementType = AnnouncementType.NOT_ELIGIBLE
 
     override val dismissKey: String
         get() = DISMISS_KEY.plus(announcementType.toString())

@@ -67,7 +67,6 @@ import com.blockchain.nabu.service.NabuTierService
 import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.service.TierService
 import com.blockchain.nabu.service.TierUpdater
-import com.blockchain.nabu.status.KycTiersQueries
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.operations.AppStartUpFlushable
@@ -140,7 +139,8 @@ val nabuModule = module {
                 custodialWalletManager = get(),
                 tierService = get(),
                 simpleBuyEligibilityProvider = get(),
-                interestEligibilityProvider = get()
+                interestEligibilityProvider = get(),
+                nabuDataProvider = get()
             )
         }.bind(UserIdentity::class)
 
@@ -234,8 +234,6 @@ val nabuModule = module {
         )
 
         factory { NabuUserSyncUpdateUserWalletInfoWithJWT(get(), get()) }.bind(NabuUserSync::class)
-
-        factory { KycTiersQueries(get(), get()) }
 
         scoped { KycFeatureEligibility(userRepository = get()) }.bind(FeatureEligibility::class)
 
