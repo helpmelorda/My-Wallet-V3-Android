@@ -6,6 +6,7 @@ import com.blockchain.testutils.gwei
 import com.blockchain.testutils.numberToBigDecimal
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -20,7 +21,6 @@ import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.coincore.BlockchainAccount
-import kotlin.test.assertEquals
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.FeeLevel
 import piuk.blockchain.android.coincore.FeeSelection
@@ -29,12 +29,12 @@ import piuk.blockchain.android.coincore.TransactionTarget
 import piuk.blockchain.android.coincore.ValidationState
 import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
+import kotlin.test.assertEquals
 
 @Suppress("UnnecessaryVariable")
 class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
-    private val erc20DataManager: Erc20DataManager = mock {
-    }
+    private val erc20DataManager: Erc20DataManager = mock()
 
     private val ethFeeOptions: FeeOptions = mock()
 
@@ -151,15 +151,15 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             .test()
             .assertValue {
                 it.amount == CryptoValue.zero(ASSET) &&
-                it.totalBalance == CryptoValue.zero(ASSET) &&
-                it.availableBalance == CryptoValue.zero(ASSET) &&
-                it.feeAmount == CryptoValue.zero(FEE_ASSET) &&
-                it.selectedFiat == TEST_USER_FIAT &&
-                it.confirmations.isEmpty() &&
-                it.minLimit == null &&
-                it.maxLimit == null &&
-                it.validationState == ValidationState.UNINITIALISED &&
-                it.engineState.isEmpty()
+                    it.totalBalance == CryptoValue.zero(ASSET) &&
+                    it.availableBalance == CryptoValue.zero(ASSET) &&
+                    it.feeAmount == CryptoValue.zero(FEE_ASSET) &&
+                    it.selectedFiat == TEST_USER_FIAT &&
+                    it.confirmations.isEmpty() &&
+                    it.minLimit == null &&
+                    it.maxLimit == null &&
+                    it.validationState == ValidationState.UNINITIALISED &&
+                    it.engineState.isEmpty()
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
             .assertNoErrors()
@@ -218,10 +218,10 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertValue {
                 it.amount == inputAmount &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == actionableBalance &&
-                it.feeForFullAvailable == expectedFullFee &&
-                it.feeAmount == expectedFee
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == actionableBalance &&
+                    it.feeForFullAvailable == expectedFullFee &&
+                    it.feeAmount == expectedFee
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
@@ -231,6 +231,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
         verify(feeManager).getErc20FeeOptions(CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions).regularFee
+        verify(ethFeeOptions, times(2)).priorityFee
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -280,9 +281,9 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertValue {
                 it.amount == inputAmount &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == actionableBalance &&
-                it.feeAmount == expectedFee
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == actionableBalance &&
+                    it.feeAmount == expectedFee
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
@@ -291,7 +292,8 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
         verify(sourceAccount).actionableBalance
         verify(feeManager).getErc20FeeOptions(CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
-        verify(ethFeeOptions).priorityFee
+        verify(ethFeeOptions).regularFee
+        verify(ethFeeOptions, times(2)).priorityFee
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -319,6 +321,12 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
+        val feeSelection = FeeSelection(
+            selectedLevel = FeeLevel.Regular,
+            availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
+            asset = CryptoCurrency.ETHER
+        )
+
         val pendingTx = PendingTx(
             amount = inputAmount,
             totalBalance = totalBalance,
@@ -326,15 +334,21 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             feeForFullAvailable = regularFee,
             feeAmount = regularFee,
             selectedFiat = TEST_USER_FIAT,
-            feeSelection = FeeSelection(
-                selectedLevel = FeeLevel.Regular,
-                availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
-                asset = CryptoCurrency.ETHER
-            )
+            feeSelection = feeSelection
         )
 
         val expectedFee = (GAS_LIMIT_CONTRACT * FEE_PRIORITY).gwei()
         val fullFee = expectedFee
+
+        val expectedFeeSelection = feeSelection.copy(
+            selectedLevel = FeeLevel.Priority,
+            feesForLevels = mapOf(
+                FeeLevel.None to CryptoValue.zero(CryptoCurrency.ETHER),
+                FeeLevel.Regular to regularFee,
+                FeeLevel.Priority to expectedFee,
+                FeeLevel.Custom to expectedFee
+            )
+        )
 
         // Act
         subject.doUpdateFeeLevel(
@@ -349,7 +363,8 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
                     it.totalBalance == totalBalance &&
                     it.availableBalance == availableBalance &&
                     it.feeForFullAvailable == fullFee &&
-                    it.feeAmount == expectedFee
+                    it.feeAmount == expectedFee &&
+                    it.feeSelection == expectedFeeSelection
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
@@ -358,7 +373,8 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
         verify(sourceAccount).actionableBalance
         verify(feeManager).getErc20FeeOptions(CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
-        verify(ethFeeOptions).priorityFee
+        verify(ethFeeOptions, times(2)).priorityFee
+        verify(ethFeeOptions).regularFee
         verify(walletPreferences).setFeeTypeForAsset(ASSET, FeeLevel.Priority.ordinal)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -503,9 +519,9 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
             .assertValue {
                 it.amount == inputAmount &&
-                it.totalBalance == totalBalance &&
-                it.availableBalance == availableBalance &&
-                it.feeAmount == regularFee
+                    it.totalBalance == totalBalance &&
+                    it.availableBalance == availableBalance &&
+                    it.feeAmount == regularFee
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 

@@ -18,6 +18,7 @@ interface HostedBottomSheet {
     interface Host {
         fun onSheetClosed()
     }
+
     val host: Host
 }
 

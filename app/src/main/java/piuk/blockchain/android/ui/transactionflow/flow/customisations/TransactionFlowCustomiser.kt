@@ -6,6 +6,8 @@ import android.net.Uri
 import android.widget.FrameLayout
 import android.widget.ImageView
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.nabu.datamanagers.TransactionError
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -31,6 +33,7 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
+import piuk.blockchain.android.ui.transactionflow.fullscreen.FullScreenBalanceAndFeeView
 import piuk.blockchain.android.ui.transactionflow.plugin.AccountLimitsView
 import piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView
 import piuk.blockchain.android.ui.transactionflow.plugin.ConfirmSheetWidget
@@ -61,7 +64,8 @@ interface TransactionFlowCustomiser :
 class TransactionFlowCustomiserImpl(
     private val resources: Resources,
     private val assetResources: AssetResources,
-    private val stringUtils: StringUtils
+    private val stringUtils: StringUtils,
+    private val featureFlags: InternalFeatureFlagApi
 ) : TransactionFlowCustomiser {
     override fun enterAmountActionIcon(state: TransactionState): Int {
         return when (state.action) {
@@ -512,7 +516,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_source_select_title)
             AssetAction.InterestDeposit -> resources.getString(R.string.select_deposit_source_title)
             else -> resources.getString(R.string.select_a_wallet)
-    }
+        }
 
     override fun selectSourceAccountSubtitle(state: TransactionState): String =
         when (state.action) {
@@ -665,7 +669,11 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestDeposit,
             AssetAction.InterestWithdraw,
             AssetAction.Sell,
-            AssetAction.Swap -> BalanceAndFeeView(ctx).also { frame.addView(it) }
+            AssetAction.Swap -> if (featureFlags.isFeatureEnabled(GatedFeature.FULL_SCREEN_TXS)) {
+                FullScreenBalanceAndFeeView(ctx)
+            } else {
+                BalanceAndFeeView(ctx)
+            }.also { frame.addView(it) }
             AssetAction.Receive -> SmallBalanceView(ctx).also { frame.addView(it) }
             AssetAction.Withdraw,
             AssetAction.FiatDeposit -> AccountInfoBank(ctx).also { frame.addView(it) }

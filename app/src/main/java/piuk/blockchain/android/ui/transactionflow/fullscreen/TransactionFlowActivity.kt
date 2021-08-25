@@ -16,12 +16,13 @@ import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.NullCryptoAccount
 import piuk.blockchain.android.coincore.TransactionTarget
 import piuk.blockchain.android.databinding.ActivityTransactionFlowBinding
+import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
+import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.transactionflow.TransactionFlowIntentMapper
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
-import piuk.blockchain.android.ui.transactionflow.closeTransactionScope
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
@@ -38,7 +39,8 @@ import piuk.blockchain.android.util.visible
 import timber.log.Timber
 
 class TransactionFlowActivity :
-    MviActivity<TransactionModel, TransactionIntent, TransactionState, ActivityTransactionFlowBinding>() {
+    MviActivity<TransactionModel, TransactionIntent, TransactionState, ActivityTransactionFlowBinding>(),
+    SlidingModalBottomDialog.Host {
 
     private val scope: Scope by lazy {
         openScope()
@@ -189,12 +191,7 @@ class TransactionFlowActivity :
             binding.txProgress.gone()
 
             val transaction = supportFragmentManager.beginTransaction()
-                .setCustomAnimations(
-                    R.anim.fragment_slide_left_enter,
-                    R.anim.fragment_slide_left_exit,
-                    R.anim.fragment_slide_right_enter,
-                    R.anim.fragment_slide_right_exit
-                )
+                .addAnimationTransaction()
                 .replace(R.id.tx_flow_content, it, it.toString())
 
             if (!supportFragmentManager.fragments.contains(it)) {
@@ -207,9 +204,12 @@ class TransactionFlowActivity :
 
     override fun onDestroy() {
         compositeDisposable.clear()
-        model.destroy()
-        closeTransactionScope()
+        scope.close()
         super.onDestroy()
+    }
+
+    override fun onSheetClosed() {
+        // do nothing
     }
 
     companion object {

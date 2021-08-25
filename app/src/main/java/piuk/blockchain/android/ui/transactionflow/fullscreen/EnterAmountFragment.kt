@@ -144,11 +144,11 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                     }
                 }
 
-                if (state.setMax) {
-                    amountSheetInput.updateValue(state.maxSpendable)
+                if (newState.setMax) {
+                    amountSheetInput.updateValue(newState.maxSpendable)
                 } else {
                     if (!initialValueSet) {
-                        state.initialAmountToSet()?.let {
+                        newState.initialAmountToSet()?.let {
                             amountSheetInput.updateValue(it)
                             initialValueSet = true
                         }
@@ -162,6 +162,18 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                 upperSlot?.update(newState)
 
                 showFlashMessageIfNeeded(newState)
+            }
+
+            newState.pendingTx?.let {
+                if (it.feeSelection.selectedLevel == FeeLevel.None) {
+                    frameLowerSlot.setOnClickListener(null)
+                } else {
+                    if (frameLowerSlot.getChildAt(0) is FullScreenBalanceAndFeeView) {
+                        root.setOnClickListener {
+                            FeeSelectionBottomSheet.newInstance().show(childFragmentManager, BOTTOM_SHEET)
+                        }
+                    }
+                }
             }
         }
 
@@ -307,6 +319,7 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
 
     companion object {
         private const val AMOUNT_DEBOUNCE_TIME_MS = 300L
+        private const val BOTTOM_SHEET = "BOTTOM_SHEET"
 
         fun newInstance(): EnterAmountFragment = EnterAmountFragment()
     }

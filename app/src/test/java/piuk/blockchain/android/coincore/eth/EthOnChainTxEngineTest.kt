@@ -2,11 +2,13 @@
 
 package piuk.blockchain.android.coincore.eth
 
+import com.blockchain.koin.priorityFee
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.ether
 import com.blockchain.testutils.gwei
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -219,6 +221,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
         verify(feeManager).ethFeeOptions
         verify(ethFeeOptions).gasLimit
         verify(ethFeeOptions).regularFee
+        verify(ethFeeOptions, times(2)).priorityFee
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -279,7 +282,8 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
         verify(sourceAccount).actionableBalance
         verify(feeManager).ethFeeOptions
         verify(ethFeeOptions).gasLimit
-        verify(ethFeeOptions).priorityFee
+        verify(ethFeeOptions).regularFee
+        verify(ethFeeOptions, times(2)).priorityFee
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -305,6 +309,12 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
+        val feeSelection = FeeSelection(
+            selectedLevel = FeeLevel.Regular,
+            availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
+            asset = CryptoCurrency.ETHER
+        )
+
         val pendingTx = PendingTx(
             amount = inputAmount,
             totalBalance = totalBalance,
@@ -312,16 +322,21 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             feeForFullAvailable = fullFee,
             feeAmount = regularFee,
             selectedFiat = TEST_USER_FIAT,
-            feeSelection = FeeSelection(
-                selectedLevel = FeeLevel.Regular,
-                availableLevels = EXPECTED_AVAILABLE_FEE_LEVELS,
-                asset = CryptoCurrency.ETHER
-            )
+            feeSelection = feeSelection
         )
 
         val expectedFee = (GAS_LIMIT * FEE_PRIORITY).gwei()
         val expectedAvailable = actionableBalance - expectedFee
         val expectedFullFee = expectedFee
+        val expectedFeeSelection = feeSelection.copy(
+            selectedLevel = FeeLevel.Priority,
+            feesForLevels = mapOf(
+                FeeLevel.None to CryptoValue.zero(CryptoCurrency.ETHER),
+                FeeLevel.Regular to regularFee,
+                FeeLevel.Priority to expectedFee,
+                FeeLevel.Custom to expectedFee
+            )
+        )
 
         // Act
         subject.doUpdateFeeLevel(
@@ -336,7 +351,8 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
                     it.totalBalance == totalBalance &&
                     it.availableBalance == expectedAvailable &&
                     it.feeForFullAvailable == expectedFullFee &&
-                    it.feeAmount == expectedFee
+                    it.feeAmount == expectedFee &&
+                    it.feeSelection == expectedFeeSelection
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
@@ -345,7 +361,8 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
         verify(sourceAccount).actionableBalance
         verify(feeManager).ethFeeOptions
         verify(ethFeeOptions).gasLimit
-        verify(ethFeeOptions).priorityFee
+        verify(ethFeeOptions).regularFee
+        verify(ethFeeOptions, times(2)).priorityFee
         verify(walletPreferences).setFeeTypeForAsset(ASSET, FeeLevel.Priority.ordinal)
 
         noMoreInteractions(sourceAccount, txTarget)

@@ -155,6 +155,9 @@ class BchOnChainTxEngine(
             availableBalance = available.maxSpendable,
             feeForFullAvailable = available.feeForMax,
             feeAmount = CryptoValue.fromMinor(sourceAsset, unspentOutputs.absoluteFee),
+            feeSelection = pendingTx.feeSelection.copy(
+                feesForLevels = mapOf(FeeLevel.Regular to feePerKb)
+            ),
             engineState = pendingTx.engineState.copyAndPut(STATE_UTXO, unspentOutputs)
         )
     }

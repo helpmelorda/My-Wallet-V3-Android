@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/standard_margin"
+    android:layout_marginBottom="@dimen/very_small_margin"
+    android:layout_marginEnd="@dimen/standard_margin"
+    android:background="@color/white">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/max_available_label"
+        style="@style/Text.Blue.12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/send_enter_amount_available"
+        app:layout_constraintBottom_toTopOf="@id/max_available_value"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/max_available_value" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/max_available_value"
+        style="@style/Text.Semibold.12"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/tiny_margin"
+        android:ellipsize="end"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="@id/max_available_label"
+        app:layout_constraintTop_toBottomOf="@id/max_available_label"
+        tools:text="Max: 1.00000 BTC" />
+
+    <Button
+        android:id="@+id/use_max"
+        style="@style/CtaButton.White.Slim"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/send_enter_amount_max"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/network_fee_label"
+        style="@style/Text.Blue.12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/send_enter_amount_network_fees"
+        app:layout_constraintEnd_toStartOf="@id/network_fee_arrow"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@id/total_available_label"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/network_fee_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tint="@color/blue_600"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintBottom_toBottomOf="@id/network_fee_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/network_fee_label"
+        app:layout_constraintTop_toTopOf="@id/network_fee_label"
+        app:srcCompat="@drawable/ic_arrow_down" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/network_fee_value"
+        style="@style/Text.Semibold.12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintTop_toBottomOf="@+id/network_fee_label"
+        tools:text="Total: 1.00000 BTC" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/total_available_label"
+        style="@style/Text.Light.12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/tiny_margin"
+        android:text="@string/send_enter_amount_total"
+        app:layout_constraintBottom_toTopOf="@+id/total_available_value"
+        app:layout_constraintEnd_toStartOf="@+id/fee_for_full_available_label"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/max_available_value"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/total_available_value"
+        style="@style/Text.Semibold.12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/tiny_margin"
+        android:ellipsize="end"
+        app:layout_constraintEnd_toStartOf="@+id/fee_for_full_available_value"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/total_available_label"
+        tools:text="Total: 1.00000 BTC" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/fee_for_full_available_label"
+        style="@style/Text.Light.12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/tiny_margin"
+        android:text="@string/send_enter_amount_max_fee"
+        app:layout_constraintBottom_toTopOf="@+id/fee_for_full_available_value"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/total_available_label"
+        app:layout_constraintTop_toBottomOf="@id/network_fee_value" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/fee_for_full_available_value"
+        style="@style/Text.Semibold.12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/total_available_value"
+        app:layout_constraintTop_toBottomOf="@+id/fee_for_full_available_label"
+        tools:text="Max: 0.10000 BTC" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

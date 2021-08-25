@@ -47,6 +47,7 @@ abstract class OnChainTxEngineBase(
         if (pTx.feeSelection.selectedLevel == FeeLevel.Custom) {
             when {
                 pTx.feeSelection.customAmount == -1L -> FeeState.ValidCustomFee
+                pTx.availableBalance < pTx.amount -> FeeState.FeeTooHigh
                 pTx.feeSelection.customAmount < MINIMUM_CUSTOM_FEE -> {
                     FeeState.FeeUnderMinLimit
                 }

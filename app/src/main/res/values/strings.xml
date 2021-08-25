@@ -78,7 +78,7 @@
     <string name="item_backup">Backup funds</string>
     <string name="item_the_exchange">Exchange</string>
     <string name="item_airdrops">Airdrops</string>
-    <string name="item_debug_homebrew" translatable="false">Debug Homebrew</string>
+    <string name="item_debug_menu" translatable="false">Debug Menu</string>
 
     <!-- toolbar -->
     <string name="toolbar_cmd_home">Home</string>
@@ -743,6 +743,7 @@
     <string name="fee_options_fee_too_low">Low fee not recommended</string>
     <string name="fee_options_fee_too_high">Unnecessarily high fee</string>
     <string name="fee_options_sat_byte_hint">sat/b</string>
+    <string name="fee_options_sat_byte_hint_1">Enter sat/b</string>
     <string name="fee_options_sat_byte_inline_hint">Regular: %1$s, Priority: %2$s</string>
     <string name="fee_options_sat_byte_min_error">Minimum 1 sat/byte required</string>
     <string name="fee_options_invalid_amount">Invalid fee</string>

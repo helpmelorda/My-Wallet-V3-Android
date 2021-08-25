@@ -13,12 +13,12 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.subjects.BehaviorSubject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import piuk.blockchain.android.ui.linkbank.BankPaymentApproval
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -67,7 +67,8 @@ data class FeeSelection(
     val availableLevels: Set<FeeLevel> = setOf(FeeLevel.None),
     val customLevelRates: FeeLevelRates? = null,
     val feeState: FeeState? = null,
-    val asset: AssetInfo? = null
+    val asset: AssetInfo? = null,
+    val feesForLevels: Map<FeeLevel, CryptoValue> = emptyMap()
 )
 
 data class PendingTx(

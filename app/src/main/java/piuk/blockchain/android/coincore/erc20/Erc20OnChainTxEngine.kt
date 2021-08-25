@@ -91,16 +91,25 @@ open class Erc20OnChainTxEngine(
             )
         )
 
-    private fun absoluteFee(feeLevel: FeeLevel): Single<CryptoValue> =
+    private fun absoluteFees(): Single<Map<FeeLevel, CryptoValue>> =
         feeOptions().map {
-            CryptoValue.fromMinor(
-                CryptoCurrency.ETHER,
-                Convert.toWei(
-                    BigDecimal.valueOf(it.gasLimitContract * it.mapFeeLevel(feeLevel)),
-                    Convert.Unit.GWEI
-                )
+            val gasLimitContract = it.gasLimitContract
+            mapOf(
+                FeeLevel.None to CryptoValue.zero(CryptoCurrency.ETHER),
+                FeeLevel.Regular to getValueForFeeLevel(gasLimitContract, it.regularFee),
+                FeeLevel.Priority to getValueForFeeLevel(gasLimitContract, it.priorityFee),
+                FeeLevel.Custom to getValueForFeeLevel(gasLimitContract, it.priorityFee)
             )
         }
+
+    private fun getValueForFeeLevel(gasLimitContract: Long, feeLevel: Long) =
+        CryptoValue.fromMinor(
+            CryptoCurrency.ETHER,
+            Convert.toWei(
+                BigDecimal.valueOf(gasLimitContract * feeLevel),
+                Convert.Unit.GWEI
+            )
+        )
 
     private fun FeeOptions.mapFeeLevel(feeLevel: FeeLevel) =
         when (feeLevel) {
@@ -120,14 +129,19 @@ open class Erc20OnChainTxEngine(
         return Single.zip(
             sourceAccount.accountBalance.map { it as CryptoValue },
             sourceAccount.actionableBalance.map { it as CryptoValue },
-            absoluteFee(pendingTx.feeSelection.selectedLevel)
-        ) { total, available, fee ->
+            absoluteFees()
+        ) { total, available, feesForLevels ->
+            val fee = feesForLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(CryptoCurrency.ETHER)
+
             pendingTx.copy(
                 amount = amount,
                 totalBalance = total,
                 availableBalance = available,
                 feeForFullAvailable = fee,
-                feeAmount = fee
+                feeAmount = fee,
+                feeSelection = pendingTx.feeSelection.copy(
+                    feesForLevels = feesForLevels
+                )
             )
         }
     }
@@ -184,8 +198,10 @@ open class Erc20OnChainTxEngine(
     private fun validateSufficientGas(pendingTx: PendingTx): Completable =
         Single.zip(
             erc20DataManager.getEthBalance(),
-            absoluteFee(pendingTx.feeSelection.selectedLevel)
-        ) { balance, fee ->
+            absoluteFees()
+        ) { balance, feeLevels ->
+            val fee = feeLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(CryptoCurrency.ETHER)
+
             if (fee > balance) {
                 throw TxValidationFailure(ValidationState.INSUFFICIENT_GAS)
             } else {

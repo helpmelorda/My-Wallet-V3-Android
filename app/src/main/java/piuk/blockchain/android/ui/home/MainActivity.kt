@@ -104,6 +104,7 @@ import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
+import piuk.blockchain.com.FeatureFlagsHandlingActivity
 import timber.log.Timber
 import java.net.URLDecoder
 
@@ -424,6 +425,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             R.id.nav_support -> onSupportClicked()
             R.id.nav_logout -> showLogoutDialog()
             R.id.nav_interest -> launchInterestDashboard()
+            R.id.nav_debug_menu -> startActivity(Intent(this, FeatureFlagsHandlingActivity::class.java))
         }
         binding.drawerLayout.closeDrawers()
     }
@@ -583,8 +585,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             )
     }
 
-    override fun showHomebrewDebugMenu() {
-        menu.findItem(R.id.nav_debug_swap).isVisible = true
+    override fun showDebugMenu() {
+        menu.findItem(R.id.nav_debug_menu).isVisible = true
     }
 
     override fun launchTransfer() {

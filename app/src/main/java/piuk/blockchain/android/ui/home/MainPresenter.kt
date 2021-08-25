@@ -76,7 +76,7 @@ interface MainView : MvpView, HomeNavigator {
     fun showProgressDialog(@StringRes message: Int)
     fun hideProgressDialog()
     fun clearAllDynamicShortcuts()
-    fun showHomebrewDebugMenu()
+    fun showDebugMenu()
     fun enableSwapButton(isEnabled: Boolean)
     fun shouldIgnoreDeepLinking(): Boolean
     fun displayDialog(@StringRes title: Int, @StringRes message: Int)
@@ -156,9 +156,10 @@ class MainPresenter internal constructor(
             )
     }
 
-    private fun setDebugExchangeVisibility() {
+    private fun setDebugMenuVisibility() {
         if (BuildConfig.DEBUG) {
-            view?.showHomebrewDebugMenu()
+            // reusing this as API 24 devices don't support launcher shortcuts
+            view?.showDebugMenu()
         }
     }
 
@@ -181,7 +182,7 @@ class MainPresenter internal constructor(
             .subscribeBy(
                 onComplete = {
                     checkKycStatus()
-                    setDebugExchangeVisibility()
+                    setDebugMenuVisibility()
                 },
                 onError = { throwable ->
                     logException(throwable)

@@ -113,7 +113,10 @@ class XlmOnChainTxEngine(
                 totalBalance = total,
                 availableBalance = Money.max(available - fees, CryptoValue.zero(CryptoCurrency.XLM)) as CryptoValue,
                 feeForFullAvailable = fees,
-                feeAmount = fees
+                feeAmount = fees,
+                feeSelection = pendingTx.feeSelection.copy(
+                    feesForLevels = mapOf(FeeLevel.Regular to fees)
+                )
             )
         }
     }

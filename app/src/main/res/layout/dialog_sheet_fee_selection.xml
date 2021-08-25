@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/standard_margin"
+    android:paddingEnd="@dimen/standard_margin"
+    android:paddingBottom="@dimen/standard_margin">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/drawer_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/tiny_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/vector_sheet_indicator" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/fee_sheet_title"
+        style="@style/Text.Semibold.20"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/medium_margin"
+        android:text="@string/deposit_fee"
+        android:textColor="@color/grey_800"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/drawer_indicator" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/regular_fee_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="fee_regular_crypto, fee_regular_fiat, fee_regular_radio, fee_regular_title, fee_regular_radio" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/fee_regular_title"
+        style="@style/Text.Light.12"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/medium_margin"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintEnd_toStartOf="@id/fee_regular_radio"
+        app:layout_constraintStart_toStartOf="@id/fee_sheet_title"
+        app:layout_constraintTop_toBottomOf="@id/fee_sheet_title"
+        tools:text="@string/fee_options_regular" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/fee_regular_fiat"
+        style="@style/Text.Semibold.14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/smallest_margin"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintStart_toStartOf="@id/fee_regular_title"
+        app:layout_constraintTop_toBottomOf="@id/fee_regular_title"
+        tools:text="£100" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/fee_regular_crypto"
+        style="@style/Text.Light.14"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/very_small_margin"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="@id/fee_regular_fiat"
+        app:layout_constraintEnd_toStartOf="@id/fee_regular_radio"
+        app:layout_constraintStart_toEndOf="@id/fee_regular_fiat"
+        app:layout_constraintTop_toTopOf="@id/fee_regular_fiat"
+        tools:text="(0.00001 BTC)" />
+
+    <RadioButton
+        android:id="@+id/fee_regular_radio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:button="@null"
+        android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
+        android:padding="@dimen/tiny_margin"
+        app:layout_constraintBottom_toBottomOf="@id/fee_regular_fiat"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/fee_regular_title" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/priority_fee_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="fee_priority_crypto, fee_priority_fiat, fee_priority_radio, fee_priority_title, fee_priority_radio" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/fee_priority_title"
+        style="@style/Text.Light.12"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/medium_margin"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintEnd_toStartOf="@id/fee_priority_radio"
+        app:layout_constraintStart_toStartOf="@id/fee_sheet_title"
+        app:layout_constraintTop_toBottomOf="@id/fee_regular_fiat"
+        tools:text="@string/fee_options_priority" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/fee_priority_fiat"
+        style="@style/Text.Semibold.14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/smallest_margin"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintStart_toStartOf="@id/fee_priority_title"
+        app:layout_constraintTop_toBottomOf="@id/fee_priority_title"
+        tools:text="£100" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/fee_priority_crypto"
+        style="@style/Text.Light.14"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/very_small_margin"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="@id/fee_priority_fiat"
+        app:layout_constraintEnd_toStartOf="@id/fee_priority_radio"
+        app:layout_constraintStart_toEndOf="@id/fee_priority_fiat"
+        app:layout_constraintTop_toTopOf="@id/fee_priority_fiat"
+        tools:text="(0.00001 BTC)" />
+
+    <RadioButton
+        android:id="@+id/fee_priority_radio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:button="@null"
+        android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
+        android:padding="@dimen/tiny_margin"
+        app:layout_constraintBottom_toBottomOf="@id/fee_priority_fiat"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/fee_priority_title" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/custom_fee_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="fee_custom_label, fee_custom_radio, fee_custom_title, fee_custom_radio"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/fee_custom_title"
+        style="@style/Text.Light.12"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/medium_margin"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="@string/fee_options_custom"
+        app:layout_constraintEnd_toStartOf="@id/fee_custom_radio"
+        app:layout_constraintStart_toStartOf="@id/fee_sheet_title"
+        app:layout_constraintTop_toBottomOf="@id/fee_priority_fiat"
+        tools:text="@string/fee_options_custom" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/fee_custom_label"
+        style="@style/Text.Semibold.14"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/smallest_margin"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="@string/fee_options_custom_warning"
+        app:layout_constraintEnd_toStartOf="@id/fee_custom_radio"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="@id/fee_custom_title"
+        app:layout_constraintTop_toBottomOf="@id/fee_custom_title"
+        tools:text="Advanced users only" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_fee_custom_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="fee_custom_bounds, fee_custom_il, fee_custom_error"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/fee_custom_error"
+        style="@style/Text.Red.Semibold.12"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/tiny_margin"
+        android:ellipsize="end"
+        android:padding="@dimen/smallest_margin"
+        app:layout_constraintEnd_toEndOf="@id/fee_custom_il"
+        app:layout_constraintStart_toStartOf="@id/fee_custom_il"
+        app:layout_constraintTop_toBottomOf="@id/fee_custom_label"
+        tools:text="this is an error" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/fee_custom_il"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bkgd_grey_100_rounded"
+        app:layout_constraintTop_toBottomOf="@id/fee_custom_error">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/fee_custom_input"
+            style="@style/Text.Semibold.14"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/fee_options_sat_byte_hint_1"
+            android:imeOptions="actionDone"
+            android:inputType="number"
+            android:maxLength="10"
+            android:textColorHint="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fee_switcher" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/fee_custom_bounds"
+        style="@style/Text.Light.12"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/minuscule_margin"
+        android:paddingStart="@dimen/very_small_margin"
+        android:paddingEnd="@dimen/very_small_margin"
+        app:layout_constraintEnd_toEndOf="@id/fee_custom_il"
+        app:layout_constraintStart_toStartOf="@id/fee_custom_il"
+        app:layout_constraintTop_toBottomOf="@id/fee_custom_il"
+        tools:text="Min fee, max fee" />
+
+    <RadioButton
+        android:id="@+id/fee_custom_radio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:button="@null"
+        android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
+        android:padding="@dimen/tiny_margin"
+        app:layout_constraintBottom_toBottomOf="@id/fee_custom_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/fee_custom_title" />
+
+    <Button
+        android:id="@+id/fee_custom_continue"
+        style="@style/CtaButton.NoMargin.Blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:text="@string/common_continue"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fee_custom_bounds" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

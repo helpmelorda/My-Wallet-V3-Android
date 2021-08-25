@@ -22,8 +22,8 @@
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/progress"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="@dimen/animated_loader_view"
+        android:layout_height="@dimen/animated_loader_view"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
