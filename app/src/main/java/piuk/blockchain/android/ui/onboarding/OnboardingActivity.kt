@@ -4,15 +4,18 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.biometrics.BiometricAuthError
+import com.blockchain.biometrics.BiometricAuthError.BiometricAuthLockout
+import com.blockchain.biometrics.BiometricAuthError.BiometricAuthLockoutPermanent
+import com.blockchain.biometrics.BiometricAuthError.BiometricAuthOther
+import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
+import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.data.biometrics.BiometricAuthError
-import piuk.blockchain.android.data.biometrics.BiometricAuthLockout
-import piuk.blockchain.android.data.biometrics.BiometricAuthLockoutPermanent
-import piuk.blockchain.android.data.biometrics.BiometricAuthOther
-import piuk.blockchain.android.data.biometrics.BiometricKeysInvalidated
-import piuk.blockchain.android.data.biometrics.BiometricsCallback
+import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
+import com.blockchain.biometrics.BiometricsType
+import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 
@@ -83,10 +86,9 @@ internal class OnboardingActivity : BaseMvpActivity<OnboardingView, OnboardingPr
 
     override fun showFingerprintDialog(pincode: String) {
         if (!isFinishing) {
-            biometricsController.init(
-                this, BiometricsController.BiometricsType.TYPE_REGISTER, object : BiometricsCallback {
-                    override fun onAuthSuccess(data: String) {
-                        presenter?.setFingerprintUnlockEnabled(true)
+            biometricsController.authenticate(
+                this, BiometricsType.TYPE_REGISTER, object : BiometricsCallback<WalletBiometricData> {
+                    override fun onAuthSuccess(unencryptedBiometricData: WalletBiometricData) {
                         if (showEmail) {
                             showEmailPrompt()
                         } else {
@@ -95,19 +97,19 @@ internal class OnboardingActivity : BaseMvpActivity<OnboardingView, OnboardingPr
                     }
 
                     override fun onAuthFailed(error: BiometricAuthError) {
-                        presenter?.setFingerprintUnlockEnabled(false)
+                        presenter?.setFingerprintUnlockDisabled()
                         when (error) {
-                            is BiometricAuthLockout -> BiometricsController.showAuthLockoutDialog(
+                            is BiometricAuthLockout -> BiometricPromptUtil.showAuthLockoutDialog(
                                 this@OnboardingActivity
                             )
-                            is BiometricAuthLockoutPermanent -> BiometricsController.showPermanentAuthLockoutDialog(
+                            is BiometricAuthLockoutPermanent -> BiometricPromptUtil.showPermanentAuthLockoutDialog(
                                 this@OnboardingActivity
                             )
-                            is BiometricKeysInvalidated -> BiometricsController.showInfoInvalidatedKeysDialog(
+                            is BiometricKeysInvalidated -> BiometricPromptUtil.showInfoInvalidatedKeysDialog(
                                 this@OnboardingActivity
                             )
                             is BiometricAuthOther ->
-                                BiometricsController.showBiometricsGenericError(this@OnboardingActivity, error.error)
+                                BiometricPromptUtil.showBiometricsGenericError(this@OnboardingActivity, error.error)
                             else -> {
                                 // do nothing - this is handled by the Biometric Prompt framework
                             }
@@ -115,11 +117,9 @@ internal class OnboardingActivity : BaseMvpActivity<OnboardingView, OnboardingPr
                     }
 
                     override fun onAuthCancelled() {
-                        presenter?.setFingerprintUnlockEnabled(false)
+                        presenter?.setFingerprintUnlockDisabled()
                     }
                 })
-
-            biometricsController.authenticateForRegistration()
         }
     }
 

@@ -243,15 +243,15 @@ class SettingsPresenter(
      * @return true if the user has previously enabled fingerprint login
      */
     val isFingerprintUnlockEnabled: Boolean
-        get() = biometricsController.isFingerprintUnlockEnabled
+        get() = biometricsController.isBiometricUnlockEnabled
 
     /**
      * Sets fingerprint unlock enabled and clears the encrypted PIN if {@param enabled} is false
      *
      * @param enabled Whether or not the fingerprint unlock feature is set up
      */
-    fun setFingerprintUnlockEnabled(enabled: Boolean) {
-        biometricsController.setFingerprintUnlockEnabled(enabled)
+    fun setFingerprintUnlockDisabled() {
+        biometricsController.setBiometricUnlockDisabled()
     }
 
     /**
@@ -261,7 +261,7 @@ class SettingsPresenter(
         if (isFingerprintUnlockEnabled) {
             // Show dialog "are you sure you want to disable fingerprint login?
             view?.showDisableFingerprintDialog()
-        } else if (!biometricsController.areFingerprintsEnrolled) {
+        } else if (!biometricsController.areBiometricsEnrolled) {
             // No fingerprints enrolled, prompt user to add some
             view?.showNoFingerprintsAddedDialog()
         } else {

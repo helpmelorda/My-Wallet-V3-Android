@@ -42,7 +42,7 @@ dependencies {
     api project(':sunriver')
     api project(':common:network')
     api project(':common:interface')
-    api project(':common-utils')
+    api project(':common-mp:utils')
     implementation project(':blockchainApi')
 
     // Networking

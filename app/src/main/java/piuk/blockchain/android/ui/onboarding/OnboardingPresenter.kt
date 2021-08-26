@@ -34,7 +34,7 @@ internal class OnboardingPresenter constructor(
      * or enroll one if the fingerprint sensor has never been set up.
      */
     internal fun onEnableFingerprintClicked() {
-        if (biometricsController.isFingerprintAvailable) {
+        if (biometricsController.isBiometricAuthEnabled) {
             val pin = accessState.pin
 
             if (pin.isNotEmpty()) {
@@ -55,8 +55,8 @@ internal class OnboardingPresenter constructor(
      *
      * @param enabled Whether or not the fingerprint unlock feature is set up
      */
-    internal fun setFingerprintUnlockEnabled(enabled: Boolean) {
-        biometricsController.setFingerprintUnlockEnabled(enabled)
+    internal fun setFingerprintUnlockDisabled() {
+        biometricsController.setBiometricUnlockDisabled()
     }
 
     private fun checkAppState() {

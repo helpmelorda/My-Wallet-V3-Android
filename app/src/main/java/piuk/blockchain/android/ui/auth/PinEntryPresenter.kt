@@ -9,6 +9,8 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
+import com.blockchain.notifications.analytics.Logging
+import com.blockchain.notifications.analytics.walletUpgradeEvent
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.wallet.api.data.UpdateType
 import info.blockchain.wallet.exceptions.AccountLockedException
@@ -17,17 +19,17 @@ import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import info.blockchain.wallet.exceptions.ServerConnectionException
 import info.blockchain.wallet.exceptions.UnsupportedVersionException
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.spongycastle.crypto.InvalidCipherTextException
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.ui.base.BasePresenter
+import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.util.AppUtil
@@ -37,8 +39,6 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrngFixer
-import com.blockchain.notifications.analytics.Logging
-import com.blockchain.notifications.analytics.walletUpgradeEvent
 import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 import java.net.SocketTimeoutException
@@ -80,7 +80,7 @@ class PinEntryPresenter(
 
     internal val ifShouldShowFingerprintLogin: Boolean
         get() = (!(isForValidatingPinForResult || isCreatingNewPin) &&
-            biometricsController.isFingerprintUnlockEnabled)
+            biometricsController.isBiometricUnlockEnabled)
 
     val isCreatingNewPin: Boolean
         get() = prefs.pinId.isEmpty()
@@ -309,7 +309,7 @@ class PinEntryPresenter(
     }
 
     private fun onUpdateFinished(isFromPinCreation: Boolean) {
-        if (isFromPinCreation && biometricsController.isFingerprintAvailable) {
+        if (isFromPinCreation && biometricsController.isBiometricAuthEnabled) {
             view.askToUseBiometrics()
         } else {
             view.restartAppWithVerifiedPin()
@@ -405,7 +405,7 @@ class PinEntryPresenter(
             .handleProgress(R.string.creating_pin)
             .subscribeBy(
                 onComplete = {
-                    biometricsController.setFingerprintUnlockEnabled(false)
+                    biometricsController.setBiometricUnlockDisabled()
                     prefs.pinFails = 0
                     updatePayload(tempPassword, true)
                 },

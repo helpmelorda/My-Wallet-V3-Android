@@ -18,8 +18,8 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common"))
-                api(project(":common:interface-mp"))
-                api(project(":common-utils"))
+                api(project(":common-mp:interface"))
+                api(project(":common-mp:utils"))
 
                 implementation(Libraries.timber)
             }
@@ -33,6 +33,12 @@ kotlin {
 
         val androidTest by getting {
             dependencies {
+                api(kotlin("test"))
+                api(kotlin("test-junit"))
+
+                api(Libraries.mockito)
+                api(Libraries.mockitoKotlin)
+                api(Libraries.robolectric)
 
             }
         }
@@ -41,7 +47,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib"))
 
-                implementation(Libraries.biometricsApi)
+                api(Libraries.biometricsApi)
             }
         }
     }

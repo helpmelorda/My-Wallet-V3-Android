@@ -1,6 +1,11 @@
 package com.blockchain.koin.modules
 
 import android.content.Context
+import androidx.biometric.BiometricManager
+import com.blockchain.biometrics.BiometricAuth
+import com.blockchain.biometrics.BiometricDataRepository
+import com.blockchain.biometrics.CryptographyManager
+import com.blockchain.biometrics.CryptographyManagerImpl
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
@@ -8,8 +13,8 @@ import com.blockchain.koin.moshiExplorerRetrofit
 import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.usd
-import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.lifecycle.LifecycleInterestedComponent
+import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentAccountMapper
 import com.blockchain.network.websocket.Options
@@ -26,23 +31,32 @@ import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import okhttp3.OkHttpClient
 import org.koin.dsl.bind
+import org.koin.dsl.binds
 import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.Database
 import piuk.blockchain.android.cards.CardModel
 import piuk.blockchain.android.cards.partners.EverypayCardActivator
+import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
+import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
+import piuk.blockchain.android.data.Mapper
+import piuk.blockchain.android.data.TradeDataManagerImpl
 import piuk.blockchain.android.data.api.bitpay.BitPayDataManager
 import piuk.blockchain.android.data.api.bitpay.BitPayService
-import piuk.blockchain.android.data.biometrics.BiometricAuth
 import piuk.blockchain.android.data.biometrics.BiometricsController
-import piuk.blockchain.android.data.biometrics.CryptographyManager
-import piuk.blockchain.android.data.biometrics.CryptographyManagerImpl
+import piuk.blockchain.android.data.biometrics.BiometricsControllerImpl
+import piuk.blockchain.android.data.biometrics.BiometricsDataRepositoryImpl
+import piuk.blockchain.android.data.biometrics.WalletBiometricData
+import piuk.blockchain.android.data.biometrics.WalletBiometricDataFactory
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
 import piuk.blockchain.android.deeplink.BlockchainDeepLinkParser
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.EmailVerificationDeepLinkHelper
 import piuk.blockchain.android.deeplink.OpenBankingDeepLinkParser
+import piuk.blockchain.android.domain.repositories.TradeDataManager
+import piuk.blockchain.android.domain.usecases.GetNextPaymentDateUseCase
+import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.scan.QrCodeDataManager
@@ -66,7 +80,6 @@ import piuk.blockchain.android.ui.airdrops.AirdropCentrePresenter
 import piuk.blockchain.android.ui.auth.FirebaseMobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.PinEntryPresenter
-import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedPresenter
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingInteractor
@@ -94,13 +107,7 @@ import piuk.blockchain.android.ui.pairingcode.PairingState
 import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
 import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
-import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
-import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
-import piuk.blockchain.android.data.TradeDataManagerImpl
-import piuk.blockchain.android.data.Mapper
-import piuk.blockchain.android.domain.repositories.TradeDataManager
-import piuk.blockchain.android.domain.usecases.GetNextPaymentDateUseCase
-import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
+import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
@@ -122,6 +129,7 @@ import piuk.blockchain.android.util.PrngHelper
 import piuk.blockchain.android.util.ResourceDefaultLabels
 import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.PrngFixer
@@ -724,15 +732,33 @@ val applicationModule = module {
             )
         }
 
+        factory<BiometricDataRepository> {
+            BiometricsDataRepositoryImpl(prefsUtil = get())
+        }
+
         factory {
-            BiometricsController(
+            WalletBiometricData(get<AccessState>().pin)
+        }.bind(WalletBiometricData::class)
+
+        scoped {
+            WalletBiometricDataFactory()
+        }.bind(WalletBiometricDataFactory::class)
+
+        factory {
+            BiometricManager.from(get())
+        }.bind(BiometricManager::class)
+
+        factory {
+            BiometricsControllerImpl(
                 applicationContext = get(),
-                prefs = get(),
-                accessState = get(),
+                biometricData = get(),
+                biometricDataFactory = get(),
+                biometricDataRepository = get(),
+                biometricManager = get(),
                 cryptographyManager = get(),
                 crashLogger = get()
             )
-        }.bind(BiometricAuth::class)
+        }.binds(arrayOf(BiometricAuth::class, BiometricsController::class))
 
         factory {
             CryptographyManagerImpl()

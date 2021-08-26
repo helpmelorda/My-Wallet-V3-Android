@@ -17,6 +17,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity.RESULT_CANCELED
 import androidx.appcompat.app.AppCompatActivity.RESULT_OK
 import androidx.appcompat.widget.AppCompatEditText
+import com.blockchain.biometrics.BiometricAuthError
+import com.blockchain.biometrics.BiometricAuthError.BiometricAuthLockout
+import com.blockchain.biometrics.BiometricAuthError.BiometricAuthLockoutPermanent
+import com.blockchain.biometrics.BiometricAuthError.BiometricAuthOther
+import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
+import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.ui.password.SecondPasswordHandler
@@ -36,13 +42,10 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
-import piuk.blockchain.android.data.biometrics.BiometricAuthError
-import piuk.blockchain.android.data.biometrics.BiometricAuthLockout
-import piuk.blockchain.android.data.biometrics.BiometricAuthLockoutPermanent
-import piuk.blockchain.android.data.biometrics.BiometricAuthOther
-import piuk.blockchain.android.data.biometrics.BiometricKeysInvalidated
-import piuk.blockchain.android.data.biometrics.BiometricsCallback
+import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
+import com.blockchain.biometrics.BiometricsType
+import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.FragmentPinEntryBinding
 import piuk.blockchain.android.ui.base.BaseFragment
@@ -163,28 +166,28 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
         binding.fingerprintLogo.setOnClickListener { presenter.checkFingerprintStatus() }
 
         if (presenter.canShowFingerprintDialog()) {
-            biometricsController.init(
-                this, BiometricsController.BiometricsType.TYPE_LOGIN,
-                object : BiometricsCallback {
-                    override fun onAuthSuccess(data: String) {
-                        presenter.loginWithDecryptedPin(data)
+            biometricsController.authenticate(
+                this, BiometricsType.TYPE_LOGIN,
+                object : BiometricsCallback<WalletBiometricData> {
+                    override fun onAuthSuccess(unencryptedBiometricData: WalletBiometricData) {
+                        presenter.loginWithDecryptedPin(unencryptedBiometricData.accessPin)
                     }
 
                     override fun onAuthFailed(error: BiometricAuthError) {
                         showKeyboard()
                         when (error) {
-                            is BiometricAuthLockout -> BiometricsController.showAuthLockoutDialog(requireContext())
+                            is BiometricAuthLockout -> BiometricPromptUtil.showAuthLockoutDialog(requireContext())
                             is BiometricAuthLockoutPermanent -> {
                                 hideBiometricsUi()
-                                BiometricsController.showPermanentAuthLockoutDialog(requireContext())
+                                BiometricPromptUtil.showPermanentAuthLockoutDialog(requireContext())
                             }
                             is BiometricKeysInvalidated -> {
                                 hideBiometricsUi()
-                                BiometricsController.showInfoInvalidatedKeysDialog(requireContext())
+                                BiometricPromptUtil.showInfoInvalidatedKeysDialog(requireContext())
                             }
                             is BiometricAuthOther -> {
                                 hideBiometricsUi()
-                                BiometricsController.showBiometricsGenericError(requireContext(), error.error)
+                                BiometricPromptUtil.showBiometricsGenericError(requireContext(), error.error)
                             }
                             else -> {
                                 // do nothing - this is handled by the Biometric Prompt framework
@@ -197,7 +200,6 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
                     }
                 })
 
-            biometricsController.authenticateForLogin()
             hideKeyboard()
         }
     }
@@ -223,28 +225,27 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
     }
 
     override fun enrollBiometrics() {
-        biometricsController.init(
-            this, BiometricsController.BiometricsType.TYPE_REGISTER,
-            object : BiometricsCallback {
-                override fun onAuthSuccess(data: String) {
+        biometricsController.authenticate(
+            this, BiometricsType.TYPE_REGISTER,
+            object : BiometricsCallback<WalletBiometricData> {
+                override fun onAuthSuccess(unencryptedBiometricData: WalletBiometricData) {
                     restartAppWithVerifiedPin()
-                    biometricsController.setFingerprintUnlockEnabled(true)
                 }
 
                 override fun onAuthFailed(error: BiometricAuthError) {
                     when (error) {
-                        is BiometricAuthLockout -> BiometricsController.showAuthLockoutDialog(requireContext())
+                        is BiometricAuthLockout -> BiometricPromptUtil.showAuthLockoutDialog(requireContext())
                         is BiometricAuthLockoutPermanent -> {
                             hideBiometricsUi()
-                            BiometricsController.showPermanentAuthLockoutDialog(requireContext())
+                            BiometricPromptUtil.showPermanentAuthLockoutDialog(requireContext())
                         }
                         is BiometricKeysInvalidated -> {
                             hideBiometricsUi()
-                            BiometricsController.showInfoInvalidatedKeysDialog(requireContext())
+                            BiometricPromptUtil.showInfoInvalidatedKeysDialog(requireContext())
                         }
                         is BiometricAuthOther -> {
                             hideBiometricsUi()
-                            BiometricsController.showBiometricsGenericError(requireContext(), error.error)
+                            BiometricPromptUtil.showBiometricsGenericError(requireContext(), error.error)
                         }
                         else -> {
                             // do nothing - this is handled by the Biometric Prompt framework
@@ -256,8 +257,6 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
                     // do nothing, the sheet is not dismissed when the user starts the flow
                 }
             })
-
-        biometricsController.authenticateForRegistration()
     }
 
     override fun cancel() {

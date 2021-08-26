@@ -142,7 +142,6 @@ class PinEntryPresenterTest {
         whenever(prefsUtil.pinFails).thenReturn(4)
         whenever(payloadManager.wallet).thenReturn(mock())
         whenever(prefsUtil.pinId).thenReturn("")
-        whenever(biometricsController.getDecodedData()).thenReturn("")
         whenever(remoteConfig.getFeatureCount(anyString())).thenReturn(Single.just(4L))
 
         // Act
@@ -159,7 +158,7 @@ class PinEntryPresenterTest {
         // Arrange
         subject.isForValidatingPinForResult = false
         whenever(prefsUtil.pinId).thenReturn("1234")
-        whenever(biometricsController.isFingerprintUnlockEnabled).thenReturn(true)
+        whenever(biometricsController.isBiometricUnlockEnabled).thenReturn(true)
 
         // Act
         subject.checkFingerprintStatus()
@@ -229,7 +228,6 @@ class PinEntryPresenterTest {
         subject.userEnteredPin = "000"
 
         whenever(prefsUtil.pinId).thenReturn("")
-        whenever(biometricsController.getDecodedData()).thenReturn("")
 
         // Act
         subject.onPadClicked("0")
@@ -494,7 +492,7 @@ class PinEntryPresenterTest {
         verify(activity).showProgressDialog(anyInt())
         verify(activity).dismissProgressDialog()
         verify(authDataManager).createPin(anyString(), anyString())
-        verify(biometricsController).setFingerprintUnlockEnabled(false)
+        verify(biometricsController).setBiometricUnlockDisabled()
     }
 
     @Test
@@ -1048,7 +1046,7 @@ class PinEntryPresenterTest {
             on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
-        whenever(biometricsController.isFingerprintAvailable).thenReturn(true)
+        whenever(biometricsController.isBiometricAuthEnabled).thenReturn(true)
 
         subject.handlePayloadUpdateComplete(true)
 
@@ -1061,7 +1059,7 @@ class PinEntryPresenterTest {
             on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
-        whenever(biometricsController.isFingerprintAvailable).thenReturn(false)
+        whenever(biometricsController.isBiometricAuthEnabled).thenReturn(false)
 
         subject.handlePayloadUpdateComplete(true)
 
@@ -1074,7 +1072,7 @@ class PinEntryPresenterTest {
             on { sharedKey }.thenReturn(SHARED_KEY)
         }
         whenever(payloadManager.wallet).thenReturn(mockWallet)
-        whenever(biometricsController.isFingerprintAvailable).thenReturn(true)
+        whenever(biometricsController.isBiometricAuthEnabled).thenReturn(true)
 
         subject.handlePayloadUpdateComplete(false)
 

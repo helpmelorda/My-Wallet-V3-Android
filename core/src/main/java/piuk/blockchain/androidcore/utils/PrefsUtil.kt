@@ -411,9 +411,6 @@ class PrefsUtil(
         get() = getValue(KEY_FINGERPRINT_ENABLED, false)
         set(value) = setValue(KEY_FINGERPRINT_ENABLED, value)
 
-    override val encodedKeyName: String
-        get() = KEY_ENCRYPTED_PIN_CODE
-
     override var sharedKey: String
         get() = getValue(KEY_SHARED_KEY, "")
         set(value) = setValue(KEY_SHARED_KEY, value)
@@ -680,6 +677,7 @@ class PrefsUtil(
         private const val PRE_RATING_ACTION_COMPLETED_TIMES = "pre_rating_action_completed_times"
 
         // Auth prefs
+        // NOTE: for historical purposes, should be used as the cryptography cipher key
         private const val KEY_ENCRYPTED_PIN_CODE = "encrypted_pin_code"
         private const val KEY_FINGERPRINT_ENABLED = "fingerprint_enabled"
 
