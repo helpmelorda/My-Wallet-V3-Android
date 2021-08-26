@@ -211,13 +211,11 @@ class SimpleBuyInteractor(
         )
     }
 
-    fun pollForLinkedBankState(id: String, partner: BankPartner?): Single<LinkedBank> = PollService(
+    fun pollForLinkedBankState(id: String): Single<PollResult<LinkedBank>> = PollService(
         custodialWalletManager.getLinkedBank(id)
     ) {
-        !it.isLinkingPending() || (it.partner == partner && it.isLinkingPending())
-    }.start(timerInSec = INTERVAL, retries = RETRIES_DEFAULT).map {
-        it.value
-    }
+        !it.isLinkingPending()
+    }.start(timerInSec = INTERVAL, retries = RETRIES_DEFAULT)
 
     fun pollForBankLinkingCompleted(id: String): Single<LinkedBank> = PollService(
         custodialWalletManager.getLinkedBank(id)

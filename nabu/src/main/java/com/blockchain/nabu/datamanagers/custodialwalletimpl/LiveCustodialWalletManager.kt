@@ -110,6 +110,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.flatMapIterable
 import io.reactivex.rxjava3.kotlin.zipWith
 import okhttp3.internal.toLongOrDefault
+import java.lang.IllegalArgumentException
 import java.math.BigInteger
 import java.util.Calendar
 import java.util.Date
@@ -583,9 +584,9 @@ class LiveCustodialWalletManager(
                     .map { balance -> balance.total as FiatValue }
                     .map { total -> CustodialFiatBalance(fiatCurrency, true, total) },
                 nabuService.getCards(authToken).onErrorReturn { emptyList() },
-                getBanks().map {
-                        banks -> banks.filter { it.paymentMethodType == PaymentMethodType.BANK_TRANSFER }
-                    }.onErrorReturn { emptyList() },
+                getBanks().map { banks ->
+                    banks.filter { it.paymentMethodType == PaymentMethodType.BANK_TRANSFER }
+                }.onErrorReturn { emptyList() },
                 getSupportedPaymentMethods(
                     sessionTokenResponse = authToken,
                     fiatCurrency = fiatCurrency,
@@ -1106,7 +1107,7 @@ class LiveCustodialWalletManager(
             bic = details?.bic.orEmpty(),
             entity = attributes?.entity.orEmpty(),
             iconUrl = attributes?.media?.find { it.source == ICON }?.source.orEmpty(),
-            callbackPath = attributes?.callbackPath.orEmpty()
+            callbackPath = attributes?.callbackPath ?: throw IllegalArgumentException("Missing callbackPath")
         )
     }
 
