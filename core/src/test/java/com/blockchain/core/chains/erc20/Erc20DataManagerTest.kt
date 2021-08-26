@@ -13,6 +13,7 @@ import io.reactivex.rxjava3.core.Single
 import com.blockchain.core.chains.erc20.model.Erc20Balance
 import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
@@ -104,13 +105,34 @@ class Erc20DataManagerTest {
     @Test
     fun `getErc20Balance delegates to balance cache`() {
         val mockBalance: Erc20Balance = mock()
-        whenever(balanceCallCache.fetch(ACCOUNT_HASH, ERC20_TOKEN)).thenReturn(Single.just(mockBalance))
+        val mockResult = mapOf(ERC20_TOKEN to mockBalance)
+        whenever(balanceCallCache.getBalances(ACCOUNT_HASH))
+            .thenReturn(Single.just(mockResult))
 
         subject.getErc20Balance(ERC20_TOKEN)
             .test()
             .assertValue(mockBalance)
 
-        verify(balanceCallCache).fetch(ACCOUNT_HASH, ERC20_TOKEN)
+        verify(balanceCallCache).getBalances(ACCOUNT_HASH)
+        verify(ethDataManager).accountAddress
+
+        verifyNoMoreInteractions(ethDataManager)
+        verifyNoMoreInteractions(balanceCallCache)
+        verifyNoMoreInteractions(historyCallCache)
+    }
+
+    @Test
+    fun `getErc20Balance returns zero if asset not found`() {
+        val mockBalance: Erc20Balance = mock()
+        val mockResult = mapOf(ERC20_TOKEN to mockBalance)
+        whenever(balanceCallCache.getBalances(ACCOUNT_HASH))
+            .thenReturn(Single.just(mockResult))
+
+        subject.getErc20Balance(UNKNOWN_ERC20_TOKEN)
+            .test()
+            .assertValue { it.balance.isZero }
+
+        verify(balanceCallCache).getBalances(ACCOUNT_HASH)
         verify(ethDataManager).accountAddress
 
         verifyNoMoreInteractions(ethDataManager)
@@ -364,9 +386,20 @@ class Erc20DataManagerTest {
 
         const val TX_HASH = "0xfd7d583fa54bf55f6cfbfec97c0c55cc6af8c121b71addb7d06a9e1e305ae8ff"
 
-        private val ERC20_TOKEN = object : CryptoCurrency(
+        private val ERC20_TOKEN: AssetInfo = object : CryptoCurrency(
             ticker = "DUMMY",
             name = "Dummies",
+            categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
+            precisionDp = 8,
+            l2chain = ETHER,
+            l2identifier = CONTRACT_ADDRESS,
+            requiredConfirmations = 5,
+            colour = "#123456"
+        ) { }
+
+        private val UNKNOWN_ERC20_TOKEN: AssetInfo = object : CryptoCurrency(
+            ticker = "WHATEVER",
+            name = "Whatevs",
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,
             l2chain = ETHER,

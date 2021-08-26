@@ -21,6 +21,7 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.CryptoAddress
+import piuk.blockchain.android.coincore.NonCustodialSupport
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.TxResult
@@ -65,7 +66,7 @@ internal class BchAsset(
     crashLogger,
     identity,
     features
-) {
+), NonCustodialSupport {
     override val asset: AssetInfo
         get() = CryptoCurrency.BCH
 

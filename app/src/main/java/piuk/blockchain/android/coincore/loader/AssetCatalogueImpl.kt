@@ -35,7 +35,19 @@ internal class AssetCatalogueImpl(
 
     // Brute force impl for now, but this will operate from a downloaded cache ultimately
     override fun fromNetworkTicker(symbol: String): AssetInfo? =
-        fullAssetLookup[symbol.toUpperCase(Locale.ROOT)]
+        fullAssetLookup[symbol.uppercase()]
+
+    override fun fromNetworkTickerWithL2Id(
+        symbol: String,
+        l2chain: AssetInfo,
+        l2Id: String
+    ): AssetInfo? =
+        fromNetworkTicker(symbol)?.let { found ->
+            found.takeIf {
+                it.l2chain == l2chain &&
+                it.l2identifier?.compareTo(l2Id, ignoreCase = true) == 0
+            }
+        }
 
     override fun isFiatTicker(symbol: String): Boolean =
         supportedFiatAssets.contains(symbol)

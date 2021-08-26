@@ -117,8 +117,8 @@ private class BalanceCardViewHolder(
     private fun populatePieChart(state: BalanceState) {
         with(binding) {
             val entries = ArrayList<PieEntry>().apply {
-                coincore.fundedCryptoAssets().forEach {
-                    val asset = state[it]
+                coincore.activeCryptoAssets().forEach {
+                    val asset = state[it.asset]
                     val point = asset.fiatBalance?.toFloat() ?: 0f
                     add(PieEntry(point))
                 }
@@ -130,8 +130,8 @@ private class BalanceCardViewHolder(
             if (entries.all { it.value == 0.0f }) {
                 populateEmptyPieChart()
             } else {
-                val sliceColours = coincore.fundedCryptoAssets().map {
-                    assetResources.assetColor(it)
+                val sliceColours = coincore.activeCryptoAssets().map {
+                    assetResources.assetColor(it.asset)
                 }.toMutableList()
 
                 // Add colour for Funds

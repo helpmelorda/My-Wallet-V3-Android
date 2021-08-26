@@ -148,7 +148,8 @@ val coreModule = module {
 
         factory {
             Erc20BalanceCallCache(
-                erc20Service = get()
+                erc20Service = get(),
+                assetCatalogue = get()
             )
         }
 

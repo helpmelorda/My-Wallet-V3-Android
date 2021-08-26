@@ -28,12 +28,12 @@ internal class TradingBalanceDataManagerImpl(
 ) : TradingBalanceDataManager {
     override fun getBalanceForAsset(asset: AssetInfo): Observable<TradingAccountBalance> =
         balanceCallCache.getTradingBalances()
-            .map { it.cryptoBalances[asset] ?: zeroBalance(asset) }
+            .map { it.cryptoBalances.getOrDefault(asset, zeroBalance(asset)) }
             .toObservable()
 
     override fun getBalanceForFiat(fiat: String): Observable<TradingAccountBalance> =
         balanceCallCache.getTradingBalances()
-            .map { it.fiatBalances[fiat] ?: zeroBalance(fiat) }
+            .map { it.fiatBalances.getOrDefault(fiat, zeroBalance(fiat)) }
             .toObservable()
 
     override fun getActiveAssets(): Single<Set<AssetInfo>> =

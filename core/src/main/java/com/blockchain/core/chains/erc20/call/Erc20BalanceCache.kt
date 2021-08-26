@@ -1,20 +1,23 @@
 package com.blockchain.core.chains.erc20.call
 
 import com.blockchain.api.services.Erc20TokenBalance
-import com.blockchain.api.services.Erc20TokenBalanceList
 import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.core.chains.erc20.model.Erc20Balance
 import com.blockchain.rx.TimedCacheRequest
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicReference
 
+internal typealias Erc20BalanceMap = Map<AssetInfo, Erc20Balance>
+
 internal class Erc20BalanceCallCache(
-    private val erc20Service: NonCustodialErc20Service
+    private val erc20Service: NonCustodialErc20Service,
+    private val assetCatalogue: AssetCatalogue
 ) {
-    private val cacheRequest: TimedCacheRequest<Erc20TokenBalanceList> by lazy {
+    private val cacheRequest: TimedCacheRequest<Erc20BalanceMap> by lazy {
         TimedCacheRequest(
             cacheLifetimeSeconds = BALANCE_CACHE_TTL_SECONDS,
             refreshFn = ::refreshCache
@@ -22,25 +25,28 @@ internal class Erc20BalanceCallCache(
     }
 
     private val account = AtomicReference<String>()
-    private fun refreshCache(): Single<Erc20TokenBalanceList> {
+
+    private fun refreshCache(): Single<Erc20BalanceMap> {
         return erc20Service.getTokenBalances(account.get())
+            .map { balanceList ->
+                balanceList.mapNotNull { balance ->
+                    assetCatalogue.fromNetworkTickerWithL2Id(
+                        balance.ticker,
+                        CryptoCurrency.ETHER,
+                        balance.contractAddress
+                    )?.let { info ->
+                        info to balance.mapBalance(info)
+                    }
+                }.toMap()
+            }
     }
 
-    fun fetch(accountHash: String, asset: AssetInfo): Single<Erc20Balance> {
-        require(asset.isErc20())
-        requireNotNull(asset.l2identifier)
-
+    fun getBalances(accountHash: String): Single<Erc20BalanceMap> {
         val oldAccountHash = account.getAndSet(accountHash)
         if (oldAccountHash != accountHash) {
             cacheRequest.invalidate()
         }
-
         return cacheRequest.getCachedSingle()
-            .map { list ->
-                list.firstOrNull {
-                    asset.l2identifier?.compareTo(it.contractAddress, ignoreCase = true) == 0
-                }.mapBalance(asset)
-            }
     }
 
     fun flush(asset: AssetInfo) {

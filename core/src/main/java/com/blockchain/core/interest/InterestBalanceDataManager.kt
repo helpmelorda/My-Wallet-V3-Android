@@ -19,7 +19,7 @@ data class InterestAccountBalance(
 interface InterestBalanceDataManager {
     fun getBalanceForAsset(asset: AssetInfo): Observable<InterestAccountBalance>
 
-    fun getAssetsWithBalance(): Single<Set<AssetInfo>>
+    fun getActiveAssets(): Single<Set<AssetInfo>>
     fun flushCaches(asset: AssetInfo)
 }
 
@@ -31,7 +31,7 @@ internal class InterestBalanceDataManagerImpl(
             it.getOrDefault(asset, zeroBalance(asset))
         }.toObservable()
 
-    override fun getAssetsWithBalance(): Single<Set<AssetInfo>> =
+    override fun getActiveAssets(): Single<Set<AssetInfo>> =
         balanceCallCache.getBalances().map { it.keys }
 
     override fun flushCaches(asset: AssetInfo) {

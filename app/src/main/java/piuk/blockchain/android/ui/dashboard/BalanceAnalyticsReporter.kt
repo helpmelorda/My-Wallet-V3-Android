@@ -14,7 +14,7 @@ class BalanceAnalyticsReporter(
 ) {
     private val collectedBalances = mutableMapOf<AssetInfo, Money>()
     private val assetCount by unsafeLazy {
-        coincore.fundedCryptoAssets().size
+        coincore.activeCryptoAssets().size
     }
 
     private var totalBalance: Money? = null

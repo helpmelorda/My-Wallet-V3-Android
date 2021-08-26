@@ -91,7 +91,7 @@ class PortfolioInteractor(
     fun getAvailableAssets(model: PortfolioModel): Disposable =
         Single.fromCallable {
             if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD)) {
-                coincore.fundedCryptoAssets()
+                coincore.activeCryptoAssets().map { it.asset }
             } else {
                 coincore.availableCryptoAssets()
             }

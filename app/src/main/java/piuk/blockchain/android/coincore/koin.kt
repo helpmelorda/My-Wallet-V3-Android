@@ -11,12 +11,14 @@ import piuk.blockchain.android.coincore.eth.EthAsset
 import piuk.blockchain.android.coincore.fiat.FiatAsset
 import piuk.blockchain.android.coincore.fiat.LinkedBanksFactory
 import piuk.blockchain.android.coincore.loader.AssetLoader
-import piuk.blockchain.android.coincore.loader.CryptoAssetLoader
 import piuk.blockchain.android.coincore.impl.BackendNotificationUpdater
 import piuk.blockchain.android.coincore.impl.TxProcessorFactory
 import piuk.blockchain.android.coincore.impl.txEngine.TransferQuotesEngine
 import piuk.blockchain.android.coincore.loader.AssetCatalogueImpl
+import piuk.blockchain.android.coincore.loader.AssetLoaderSwitcher
 import piuk.blockchain.android.coincore.loader.AssetRemoteFeatureLookup
+import piuk.blockchain.android.coincore.loader.DynamicAssetLoader
+import piuk.blockchain.android.coincore.loader.StaticAssetLoader
 import piuk.blockchain.android.coincore.xlm.XlmAsset
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 
@@ -118,9 +120,7 @@ val coincoreModule = module {
         }
 
         scoped {
-            val fixedAssets: List<CryptoAsset> = payloadScope.getAll()
             Coincore(
-                fixedAssets = fixedAssets,
                 assetCatalogue = get(),
                 payloadManager = get(),
                 fiatAsset = get<FiatAsset>(),
@@ -132,7 +132,18 @@ val coincoreModule = module {
         }
 
         scoped {
-            CryptoAssetLoader(
+            AssetLoaderSwitcher(
+                features = get(),
+                staticLoader = get(),
+                dynamicLoader = get()
+            )
+        }.bind(AssetLoader::class)
+
+        scoped {
+            val ncAssets: List<CryptoAsset> = payloadScope.getAll()
+            DynamicAssetLoader(
+                nonCustodialAssets = ncAssets,
+                assetCatalogue = get(),
                 featureConfig = get(),
                 payloadManager = get(),
                 erc20DataManager = get(),
@@ -149,7 +160,30 @@ val coincoreModule = module {
                 identity = get(),
                 features = get()
             )
-        }.bind(AssetLoader::class)
+        }
+
+        scoped {
+            val ncAssets: List<CryptoAsset> = payloadScope.getAll()
+            StaticAssetLoader(
+                nonCustodialAssets = ncAssets,
+                assetCatalogue = get(),
+                featureConfig = get(),
+                payloadManager = get(),
+                erc20DataManager = get(),
+                feeDataManager = get(),
+                exchangeRates = get(),
+                currencyPrefs = get(),
+                custodialManager = get(),
+                tradingBalances = get(),
+                interestBalances = get(),
+                crashLogger = get(),
+                labels = get(),
+                pitLinking = get(),
+                walletPreferences = get(),
+                identity = get(),
+                features = get()
+            )
+        }
 
         scoped {
             TxProcessorFactory(

@@ -14,7 +14,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AssetFilter
@@ -72,9 +71,9 @@ class AssetDetailsInteractor(
 
     fun shouldShowCustody(asset: AssetInfo): Single<Boolean> {
         return coincore[asset].accountGroup(AssetFilter.Custodial)
-            .flatMapSingle { it.accountBalance }
+            .flatMapSingle { it.balance.firstOrError() }
             .map {
-                !dashboardPrefs.isCustodialIntroSeen && !it.isZero
+                !dashboardPrefs.isCustodialIntroSeen && !it.total.isZero
             }.defaultIfEmpty(false)
     }
 
@@ -116,23 +115,22 @@ class AssetDetailsInteractor(
     private fun Maybe<AccountGroup>.mapDetails(): Single<Details> =
         this.flatMap { grp ->
             Single.zip(
-                grp.accountBalance,
-                grp.pendingBalance,
+                grp.balance.firstOrError(),
                 grp.isEnabled,
                 grp.actions
-            ) { accBalance, pendingBalance, enable, actions ->
+            ) { balance, enable, actions ->
                 Details.DetailsItem(
                     isEnabled = enable,
                     account = grp,
-                    balance = accBalance,
-                    pendingBalance = pendingBalance,
+                    balance = balance.total,
+                    pendingBalance = balance.pending,
                     actions = actions
                 ) as Details
             }.toMaybe()
         }.defaultIfEmpty(Details.NoDetails)
 
     private fun getAssetDisplayDetails(asset: CryptoAsset): Single<AssetDisplayMap> {
-        return Singles.zip(
+        return Single.zip(
             asset.exchangeRate(),
             asset.accountGroup(AssetFilter.NonCustodial).mapDetails(),
             asset.accountGroup(AssetFilter.Custodial).mapDetails(),

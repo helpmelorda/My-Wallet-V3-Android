@@ -65,41 +65,34 @@ class BuyIntroFragment : ViewPagerFragment() {
         compositeDisposable +=
             custodialWalletManager.getSupportedBuySellCryptoCurrencies(
                 currencyPrefs.selectedFiatCurrency
-            )
-                .flatMap { pairs ->
-                    val enabledPairs = pairs.pairs.filter {
-                        coincore[it.cryptoCurrency].isEnabled
-                    }
-
-                    Single.zip(
-                        enabledPairs.map { pair ->
-                            coincore[pair.cryptoCurrency].getPricesWith24hDelta().map {
+            ).flatMap { pairs ->
+                Single.zip(
+                    pairs.pairs.map {
+                        coincore[it.cryptoCurrency].getPricesWith24hDelta()
+                            .map { priceDelta ->
                                 PriceHistory(
-                                    currentExchangeRate = it.currentRate as ExchangeRate.CryptoToFiat,
-                                    priceDelta = it.delta24h
+                                    currentExchangeRate = priceDelta.currentRate as ExchangeRate.CryptoToFiat,
+                                    priceDelta = priceDelta.delta24h
                                 )
                             }
-                        }
-                    ) { t: Array<Any> ->
-                        t.map {
-                            it as PriceHistory
-                        } to pairs.copy(pairs = enabledPairs)
                     }
+                ) { t: Array<Any> ->
+                    t.map { it as PriceHistory } to pairs.copy(pairs = pairs.pairs)
                 }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe {
-                    binding.buyEmpty.gone()
+            }.subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe {
+                binding.buyEmpty.gone()
+            }
+            .trackProgress(activityIndicator)
+            .subscribeBy(
+                onSuccess = { (exchangeRates, buyPairs) ->
+                    renderBuyIntro(buyPairs, exchangeRates)
+                },
+                onError = {
+                    renderErrorState()
                 }
-                .trackProgress(activityIndicator)
-                .subscribeBy(
-                    onSuccess = { (exchangeRates, buyPairs) ->
-                        renderBuyIntro(buyPairs, exchangeRates)
-                    },
-                    onError = {
-                        renderErrorState()
-                    }
-                )
+            )
     }
 
     private fun renderBuyIntro(

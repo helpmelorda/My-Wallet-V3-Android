@@ -16,12 +16,11 @@ import piuk.blockchain.android.ui.transfer.AccountsSorter
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import timber.log.Timber
 
-private class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e)
+internal class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e)
 
 class Coincore internal constructor(
-    private val fixedAssets: List<CryptoAsset>,
-    private val assetCatalogue: AssetCatalogueImpl,
     private val assetLoader: AssetLoader,
+    private val assetCatalogue: AssetCatalogueImpl,
     // TODO: Build an interface on PayloadDataManager/PayloadManager for 'global' crypto calls; second password etc?
     private val payloadManager: PayloadDataManager,
     private val txProcessorFactory: TxProcessorFactory,
@@ -30,20 +29,11 @@ class Coincore internal constructor(
     private val crashLogger: CrashLogger
 ) {
 
-    private lateinit var assetMap: Map<AssetInfo, CryptoAsset>
-
-    operator fun get(ccy: AssetInfo): CryptoAsset =
-        assetMap[ccy] ?: throw IllegalArgumentException(
-            "Unknown CryptoCurrency ${ccy.ticker}"
-        )
+    operator fun get(asset: AssetInfo): CryptoAsset =
+        assetLoader[asset]
 
     fun init(): Completable =
-        assetCatalogue.initialise(fixedAssets.map { it.asset }.toSet())
-            .doOnSubscribe { crashLogger.logEvent("Coincore init start") }
-            .flatMap { assetLoader.loadDynamicAssets(it) }
-            .map { fixedAssets + it }
-            .doOnSuccess { assetList -> assetMap = assetList.associateBy { it.asset } }
-            .flatMapCompletable { assetList -> initAssets(assetList) }
+        assetLoader.initAndPreload()
             .doOnComplete {
                 crashLogger.logEvent("Coincore init complete")
             }
@@ -53,34 +43,15 @@ class Coincore internal constructor(
                 Timber.e(msg)
             }
 
-    private fun initAssets(assetList: List<CryptoAsset>): Completable =
-        Completable.concat(
-            assetList.map { asset ->
-                Completable.defer { asset.init() }
-                    .doOnError {
-                        crashLogger.logException(
-                            CoincoreInitFailure("Failed init: ${asset.asset.ticker}", it)
-                        )
-                    }
-            }.toList()
-        )
-
     val fiatAssets: Asset
         get() = fiatAsset
-
-    @Deprecated("Use funded- or available-CryptoAssets instead")
-    val cryptoAssets: Iterable<CryptoAsset>
-        get() = assetMap.values.filter { it.isEnabled }
-
-    val allAssets: Iterable<Asset>
-        get() = listOf(fiatAsset) + cryptoAssets
 
     fun validateSecondPassword(secondPassword: String) =
         payloadManager.validateSecondPassword(secondPassword)
 
     fun allWallets(includeArchived: Boolean = false): Single<AccountGroup> =
         Maybe.concat(
-            allAssets.map {
+            assetLoader.loadedAssets.map {
                 it.accountGroup().map { grp -> grp.accounts }
                     .map { list ->
                         list.filter { account ->
@@ -116,22 +87,26 @@ class Coincore internal constructor(
         val sameCurrencyTransactionTargets =
             get(sourceAccount.asset).transactionTargets(sourceAccount)
 
-        val fiatTargets = fiatAsset.accountGroup(AssetFilter.All).map {
-            it.accounts
-        }.defaultIfEmpty(emptyList())
+        val fiatTargets = fiatAsset.accountGroup(AssetFilter.All)
+            .map {
+                it.accounts
+            }.defaultIfEmpty(emptyList())
 
-        val sameCurrencyPlusFiat = sameCurrencyTransactionTargets.zipWith(fiatTargets) { crypto, fiat ->
-            crypto + fiat
-        }
+        val sameCurrencyPlusFiat = sameCurrencyTransactionTargets
+            .zipWith(fiatTargets) { crypto, fiat ->
+                crypto + fiat
+            }
 
-        return allWallets().map { it.accounts }.flatMap { allWallets ->
-            if (action != AssetAction.Swap) {
-                sameCurrencyPlusFiat
-            } else
-                Single.just(allWallets)
-        }.map {
-            it.filter(getActionFilter(action, sourceAccount))
-        }
+        return allWallets().map { it.accounts }
+            .flatMap { allWallets ->
+                if (action != AssetAction.Swap) {
+                    sameCurrencyPlusFiat
+                } else {
+                    Single.just(allWallets)
+                }
+            }.map {
+                it.filter(getActionFilter(action, sourceAccount))
+            }
     }
 
     private fun getActionFilter(
@@ -173,7 +148,10 @@ class Coincore internal constructor(
         asset: AssetInfo,
         address: String
     ): Maybe<SingleAccount> =
-        filterAccountsByAddress(assetMap.getValue(asset).accountGroup(AssetFilter.All), address)
+        filterAccountsByAddress(
+            this[asset].accountGroup(AssetFilter.All),
+            address
+        )
 
     private fun filterAccountsByAddress(
         accountGroup: Maybe<AccountGroup>,
@@ -231,9 +209,7 @@ class Coincore internal constructor(
             .toList()
             .map { it.isEmpty() }
 
-    // These two methods return the same set ATM. But, to support dynamic assets and the portfolio view, this
-    // will soon be changed
-    fun fundedCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets
+    fun activeCryptoAssets(): List<CryptoAsset> = assetLoader.loadedAssets.toList()
     fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets
 
     fun supportedFiatAssets(): List<String> = assetCatalogue.supportedFiatAssets

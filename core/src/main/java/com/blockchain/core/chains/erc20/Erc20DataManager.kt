@@ -9,6 +9,7 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Address
@@ -20,7 +21,6 @@ interface Erc20DataManager {
     val accountHash: String
     val requireSecondPassword: Boolean
 
-    fun getErc20Balance(asset: AssetInfo): Single<Erc20Balance>
     fun getEthBalance(): Single<CryptoValue>
 
     fun getErc20History(asset: AssetInfo): Single<Erc20HistoryList>
@@ -47,6 +47,10 @@ interface Erc20DataManager {
     fun latestBlockNumber(): Single<BigInteger>
     fun isContractAddress(address: String): Single<Boolean>
 
+    fun getErc20Balance(asset: AssetInfo): Observable<Erc20Balance>
+    fun getActiveAssets(): Single<Set<AssetInfo>>
+
+    // TODO: Get assets with balance
     fun flushCaches(asset: AssetInfo)
 }
 
@@ -62,16 +66,24 @@ internal class Erc20DataManagerImpl(
     override val requireSecondPassword: Boolean
         get() = ethDataManager.requireSecondPassword
 
-    override fun getErc20Balance(asset: AssetInfo): Single<Erc20Balance> {
-        require(asset.isErc20())
-        return balanceCallCache.fetch(accountHash, asset)
-    }
-
     override fun getEthBalance(): Single<CryptoValue> =
         ethDataManager.fetchEthAddress()
             .firstOrError()
             .map { CryptoValue(CryptoCurrency.ETHER, it.getTotalBalance()) }
             .map { it }
+
+    override fun getErc20Balance(asset: AssetInfo): Observable<Erc20Balance> {
+        require(asset.isErc20())
+        requireNotNull(asset.l2identifier)
+
+        return balanceCallCache.getBalances(accountHash)
+            .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
+            .toObservable()
+    }
+
+    override fun getActiveAssets(): Single<Set<AssetInfo>> =
+        balanceCallCache.getBalances(accountHash)
+            .map { it.keys }
 
     override fun getErc20History(asset: AssetInfo): Single<Erc20HistoryList> {
         require(asset.isErc20())

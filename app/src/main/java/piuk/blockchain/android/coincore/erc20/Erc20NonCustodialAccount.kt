@@ -51,9 +51,8 @@ class Erc20NonCustodialAccount(
 
     override fun getOnChainBalance(): Observable<Money> =
         erc20DataManager.getErc20Balance(asset)
-            .doOnSuccess { hasFunds.set(it.balance.isPositive) }
-            .map { it.balance as Money }
-            .toObservable()
+            .doOnNext { hasFunds.set(it.balance.isPositive) }
+            .map { it.balance }
 
     override val activity: Single<ActivitySummaryList>
         get() {

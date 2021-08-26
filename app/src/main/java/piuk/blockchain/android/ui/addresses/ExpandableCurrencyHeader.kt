@@ -68,7 +68,7 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
 
     init {
         // Inflate layout
-        coincore.cryptoAssets
+        coincore.activeCryptoAssets()
             .filter { it.multiWallet }
             .map { it.asset }
             .forEach { asset ->

@@ -42,6 +42,7 @@ interface AssetCatalogue {
     val supportedCustodialAssets: List<AssetInfo>
 
     fun fromNetworkTicker(symbol: String): AssetInfo?
+    fun fromNetworkTickerWithL2Id(symbol: String, l2chain: AssetInfo, l2Id: String): AssetInfo?
     fun supportedL2Assets(chain: AssetInfo): List<AssetInfo>
     fun isFiatTicker(symbol: String): Boolean
 }
