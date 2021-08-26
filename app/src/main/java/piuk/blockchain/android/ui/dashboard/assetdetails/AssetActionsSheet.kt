@@ -245,6 +245,7 @@ class AssetActionsSheet :
                 asset, action
             ) {
                 processAction(AssetAction.Buy)
+                dismiss()
             }
             AssetAction.Withdraw -> throw IllegalStateException("Cannot Withdraw a non-fiat currency")
             AssetAction.FiatDeposit -> throw IllegalStateException("Cannot Deposit a non-fiat currency to Fiat")

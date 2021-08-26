@@ -484,7 +484,8 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
     object ShowMoreAccounts : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
-                currentStep = TransactionStep.SELECT_TARGET_ACCOUNT
+                currentStep = TransactionStep.SELECT_TARGET_ACCOUNT,
+                selectedTarget = NullAddress
             ).updateBackstack(oldState)
     }
 

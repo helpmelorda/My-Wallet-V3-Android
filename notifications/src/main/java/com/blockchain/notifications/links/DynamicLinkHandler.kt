@@ -3,6 +3,7 @@ package com.blockchain.notifications.links
 import android.content.Intent
 import android.net.Uri
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
+import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Maybe
 
 interface PendingLink {
@@ -33,7 +34,7 @@ internal class DynamicLinkHandler internal constructor(
                     "$uri$OPEN_BANKING_CONSENT_QUERY${
                         originalIntent.data?.getQueryParameter(
                             OPEN_BANKING_CONSENT_VALUE
-                        ) ?: "BTC"
+                        )
                     }"
                 )
             }
@@ -41,7 +42,7 @@ internal class DynamicLinkHandler internal constructor(
                 "$uri$DEEPLINK_TICKER_QUERY${
                     originalIntent.data?.getQueryParameter(
                         TICKER_QUERY_PARAM
-                    ) ?: ""
+                    ) ?: CryptoCurrency.BTC.ticker
                 }"
             )
             uri.isCampaignTypeQueryParamSupportedUri() -> Uri.parse(
