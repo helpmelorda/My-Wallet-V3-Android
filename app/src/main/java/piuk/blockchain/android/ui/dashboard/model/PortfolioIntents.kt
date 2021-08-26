@@ -361,7 +361,9 @@ data class LaunchBankLinkFlow(
 ) : PortfolioIntent() {
     override fun reduce(oldState: PortfolioState): PortfolioState =
         oldState.copy(
-            dashboardNavigationAction = DashboardNavigationAction.LinkBankWithPartner(linkBankTransfer, assetAction),
+            dashboardNavigationAction = DashboardNavigationAction.LinkBankWithPartner(
+                linkBankTransfer, assetAction
+            ),
             activeFlow = null,
             backupSheetDetails = null
         )

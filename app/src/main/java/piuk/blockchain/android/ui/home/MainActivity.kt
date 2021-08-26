@@ -33,8 +33,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -205,6 +205,10 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             analytics.logEvent(NotificationAppOpened)
         }
 
+        if (savedInstanceState == null) {
+            presenter.checkForPendingLinks(intent)
+        }
+
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 // No-op
@@ -284,11 +288,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         }
 
         handlingResult = false
-
-        intent.data?.let {
-            presenter.checkForPendingLinks(intent)
-            intent.data = null
-        }
     }
 
     override fun onDestroy() {

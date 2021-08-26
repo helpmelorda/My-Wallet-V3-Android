@@ -192,6 +192,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun getPricesWith24hDelta(fromAsset: AssetInfo): Single<Prices24HrWithDelta> {
         val yesterday = (System.currentTimeMillis() / 1000) - SECONDS_PER_DAY
+
         return Single.zip(
             cryptoToUserFiatRate(fromAsset).firstOrError(),
             getHistoricRate(fromAsset, yesterday)
