@@ -10,6 +10,7 @@ dependencies {
     implementation Libraries.kotlinJson
     implementation Libraries.commonsLang
     implementation project(':balance')
+    api project(':common:interface-mp')
     api Libraries.rxKotlin
     api Libraries.koin
 

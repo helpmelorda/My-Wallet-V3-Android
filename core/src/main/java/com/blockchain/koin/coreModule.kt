@@ -54,6 +54,7 @@ import com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl
 import com.blockchain.core.price.impl.SparklineCallCache
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
+import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.preferences.AppInfoPrefs
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
@@ -315,8 +316,14 @@ val coreModule = module {
     }
 
     factory {
+        AndroidDeviceIdGenerator(
+            ctx = get()
+        )
+    }
+
+    factory {
         DeviceIdGeneratorImpl(
-            ctx = get(),
+            platformDeviceIdGenerator = get(),
             analytics = get()
         )
     }.bind(DeviceIdGenerator::class)
