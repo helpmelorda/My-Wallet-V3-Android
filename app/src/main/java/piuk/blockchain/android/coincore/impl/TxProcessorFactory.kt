@@ -34,6 +34,7 @@ import piuk.blockchain.android.coincore.impl.txEngine.sell.TradingSellTxEngine
 import piuk.blockchain.android.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import piuk.blockchain.android.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import piuk.blockchain.android.data.api.bitpay.BitPayDataManager
+import piuk.blockchain.android.simplebuy.BankPartnerCallbackProvider
 
 class TxProcessorFactory(
     private val bitPayManager: BitPayDataManager,
@@ -41,6 +42,7 @@ class TxProcessorFactory(
     private val walletManager: CustodialWalletManager,
     private val interestBalances: InterestBalanceDataManager,
     private val walletPrefs: WalletStatus,
+    private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val quotesEngine: TransferQuotesEngine,
     private val analytics: Analytics,
     private val kycTierService: TierService
@@ -107,7 +109,8 @@ class TxProcessorFactory(
                         sourceAccount = source,
                         txTarget = target,
                         engine = FiatDepositTxEngine(
-                            walletManager = walletManager
+                            walletManager = walletManager,
+                            bankPartnerCallbackProvider = bankPartnerCallbackProvider
                         )
                     )
                 )

@@ -27,7 +27,6 @@ kotlin {
 
         val commonTest by getting {
             dependencies {
-
             }
         }
 
@@ -39,7 +38,6 @@ kotlin {
                 api(Libraries.mockito)
                 api(Libraries.mockitoKotlin)
                 api(Libraries.robolectric)
-
             }
         }
 

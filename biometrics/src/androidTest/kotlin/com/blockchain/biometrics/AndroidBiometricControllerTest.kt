@@ -418,4 +418,3 @@ class BiometricsControllerTest {
         private const val DATA_1 = "data_1"
     }
 }
-

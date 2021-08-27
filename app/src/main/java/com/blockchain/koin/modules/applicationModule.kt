@@ -107,6 +107,8 @@ import piuk.blockchain.android.ui.pairingcode.PairingState
 import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
 import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
+import piuk.blockchain.android.simplebuy.BankPartnerCallbackProvider
+import piuk.blockchain.android.simplebuy.BankPartnerCallbackProviderImpl
 import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
@@ -186,6 +188,10 @@ val applicationModule = module {
                 tierService = get()
             )
         }
+
+        factory {
+            BankPartnerCallbackProviderImpl()
+        }.bind(BankPartnerCallbackProvider::class)
 
         scoped {
             CredentialsWiper(
@@ -456,7 +462,8 @@ val applicationModule = module {
                 coincore = get(),
                 eligibilityProvider = get(),
                 bankLinkingPrefs = get(),
-                analytics = get()
+                analytics = get(),
+                bankPartnerCallbackProvider = get()
             )
         }
 
@@ -475,7 +482,8 @@ val applicationModule = module {
                 crashLogger = get(),
                 isFirstTimeBuyerUseCase = get(),
                 getNextPaymentDateUseCase = get(),
-                featureFlagApi = get()
+                featureFlagApi = get(),
+                bankPartnerCallbackProvider = get()
             )
         }
 

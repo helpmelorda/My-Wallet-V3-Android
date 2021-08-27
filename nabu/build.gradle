@@ -33,11 +33,9 @@ android {
         release {
             consumerProguardFiles 'proguard-rules.pro'
             manifestPlaceholders = [PLACES_KEY: buildProperties.secrets['placesReleaseKey'].string]
-            buildConfigString "DEEP_LINK_HOST", buildProperties.secrets['prodDynamicLink']
         }
         debug {
             manifestPlaceholders = [PLACES_KEY: buildProperties.secrets['placesDebugKey'].string]
-            buildConfigString "DEEP_LINK_HOST", buildProperties.secrets['stagingDynamicLink']
         }
     }
 

@@ -20,7 +20,7 @@ interface BiometricDataRepository {
     /**
      * Get data previously encrypted by biometrics
      */
-    fun getBiometricEncryptedData() : String?
+    fun getBiometricEncryptedData(): String?
 
     /**
      * Clear data encrypted by biometrics

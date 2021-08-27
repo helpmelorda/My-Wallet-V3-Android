@@ -70,6 +70,10 @@ enum class BankAuthFlowState {
     NONE
 }
 
+enum class BankTransferAction {
+    LINK, PAY
+}
+
 enum class FiatTransactionState {
     SUCCESS,
     ERROR,

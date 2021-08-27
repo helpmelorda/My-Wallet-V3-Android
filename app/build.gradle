@@ -124,6 +124,7 @@ android {
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['prodSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
             buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['prodLoginLink']
+            buildConfigString "DEEPLINK_HOST", buildProperties.secrets['prodDynamicLink']
             buildConfigBoolean "INTERNAL", false
 
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
@@ -159,7 +160,7 @@ android {
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['prodSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
             buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['prodLoginLink']
-
+            buildConfigString "DEEPLINK_HOST", buildProperties.secrets['prodDynamicLink']
             applicationId "com.blockchain.wallet.internal"
 
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
@@ -196,6 +197,7 @@ android {
             buildConfigString "SIFT_BEACON_KEY", buildProperties.secrets['stagingSiftBeaconId']
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaStagingSiteKey']
             buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['stagingLoginLink']
+            buildConfigString "DEEPLINK_HOST", buildProperties.secrets['stagingDynamicLink']
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"

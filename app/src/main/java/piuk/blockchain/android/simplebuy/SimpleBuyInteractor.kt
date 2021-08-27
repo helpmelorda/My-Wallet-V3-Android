@@ -20,6 +20,7 @@ import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.nabu.models.responses.banktransfer.ProviderAccountAttrs
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
@@ -43,6 +44,7 @@ import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
+import piuk.blockchain.android.ui.linkbank.BankTransferAction
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.util.AppUtil
@@ -55,6 +57,7 @@ class SimpleBuyInteractor(
     private val withdrawLocksRepository: WithdrawLocksRepository,
     private val appUtil: AppUtil,
     private val analytics: Analytics,
+    private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val eligibilityProvider: SimpleBuyEligibilityProvider,
     private val coincore: Coincore,
     private val bankLinkingPrefs: BankLinkingPrefs
@@ -194,6 +197,7 @@ class SimpleBuyInteractor(
         providerAccountId: String = "",
         accountId: String,
         partner: BankPartner,
+        action: BankTransferAction,
         source: BankAuthSource
     ): Completable {
         bankLinkingPrefs.setBankLinkingState(
@@ -207,15 +211,33 @@ class SimpleBuyInteractor(
             linkingId = linkingId,
             providerAccountId = providerAccountId,
             accountId = accountId,
-            partner = partner
+            attributes = providerAttributes(
+                partner = partner,
+                action = action,
+                providerAccountId = providerAccountId,
+                accountId = accountId
+            )
         )
     }
 
-    fun pollForLinkedBankState(id: String): Single<PollResult<LinkedBank>> = PollService(
-        custodialWalletManager.getLinkedBank(id)
-    ) {
-        !it.isLinkingPending()
-    }.start(timerInSec = INTERVAL, retries = RETRIES_DEFAULT)
+    private fun providerAttributes(
+        partner: BankPartner,
+        providerAccountId: String,
+        accountId: String,
+        action: BankTransferAction
+    ): ProviderAccountAttrs =
+        when (partner) {
+            BankPartner.YODLEE ->
+                ProviderAccountAttrs(
+                    providerAccountId = providerAccountId,
+                    accountId = accountId
+                )
+            BankPartner.YAPILY ->
+                ProviderAccountAttrs(
+                    institutionId = accountId,
+                    callback = bankPartnerCallbackProvider.callback(BankPartner.YAPILY, action)
+                )
+        }
 
     fun pollForBankLinkingCompleted(id: String): Single<LinkedBank> = PollService(
         custodialWalletManager.getLinkedBank(id)
@@ -224,6 +246,12 @@ class SimpleBuyInteractor(
     }.start(timerInSec = INTERVAL, retries = RETRIES_DEFAULT).map {
         it.value
     }
+
+    fun pollForLinkedBankState(id: String): Single<PollResult<LinkedBank>> = PollService(
+        custodialWalletManager.getLinkedBank(id)
+    ) {
+        !it.isLinkingPending()
+    }.start(timerInSec = INTERVAL, retries = RETRIES_DEFAULT)
 
     fun checkTierLevel(): Single<SimpleBuyIntent.KycStateUpdated> {
 

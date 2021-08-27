@@ -85,6 +85,7 @@ class SimpleBuyModelTest {
         serializer = serializer,
         isFirstTimeBuyerUseCase = mock(),
         getNextPaymentDateUseCase = mock(),
+        bankPartnerCallbackProvider = mock(),
         featureFlagApi = mock()
     )
 

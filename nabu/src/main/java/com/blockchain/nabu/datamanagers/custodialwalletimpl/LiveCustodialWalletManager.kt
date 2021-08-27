@@ -500,23 +500,10 @@ class LiveCustodialWalletManager(
         linkingId: String,
         providerAccountId: String,
         accountId: String,
-        partner: BankPartner
+        attributes: ProviderAccountAttrs
     ): Completable = authenticator.authenticateCompletable {
         nabuService.updateAccountProviderId(
-            it, linkingId, UpdateProviderAccountBody(
-                when (partner) {
-                    BankPartner.YODLEE ->
-                        ProviderAccountAttrs(
-                            providerAccountId = providerAccountId,
-                            accountId = accountId
-                        )
-                    BankPartner.YAPILY ->
-                        ProviderAccountAttrs(
-                            institutionId = accountId,
-                            callback = BankPartner.YAPILY_DEEPLINK_BANK_LINK_URL
-                        )
-                }
-            )
+            it, linkingId, UpdateProviderAccountBody(attributes)
         )
     }
 

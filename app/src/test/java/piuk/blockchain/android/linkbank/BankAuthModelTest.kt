@@ -27,6 +27,7 @@ import piuk.blockchain.android.ui.linkbank.BankAuthModel
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankAuthState
 import piuk.blockchain.android.ui.linkbank.BankLinkingProcessState
+import piuk.blockchain.android.ui.linkbank.BankTransferAction
 
 class BankAuthModelTest {
 
@@ -98,8 +99,12 @@ class BankAuthModelTest {
 
         whenever(
             interactor.updateSelectedBankAccountId(
-                intent.linkingBankId, intent.accountProviderId, intent.accountId, intent.linkBankTransfer.partner,
-                source
+                linkingId = intent.linkingBankId,
+                providerAccountId = intent.accountProviderId,
+                accountId = intent.accountId,
+                partner = intent.linkBankTransfer.partner,
+                action = BankTransferAction.LINK,
+                source = source
             )
         ).thenReturn(Completable.complete())
 
@@ -126,8 +131,12 @@ class BankAuthModelTest {
 
         whenever(
             interactor.updateSelectedBankAccountId(
-                intent.linkingBankId, intent.accountProviderId, intent.accountId, intent.linkBankTransfer.partner,
-                source
+                linkingId = intent.linkingBankId,
+                providerAccountId = intent.accountProviderId,
+                accountId = intent.accountId,
+                partner = intent.linkBankTransfer.partner,
+                action = BankTransferAction.LINK,
+                source = source
             )
         ).thenReturn(Completable.error(Exception()))
 

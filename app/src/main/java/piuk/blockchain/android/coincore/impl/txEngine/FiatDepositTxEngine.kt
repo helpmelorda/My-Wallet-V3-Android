@@ -1,7 +1,7 @@
 package piuk.blockchain.android.coincore.impl.txEngine
 
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.models.data.BankPartner.Companion.YAPILY_DEEPLINK_PAYMENT_APPROVAL_URL
+import com.blockchain.nabu.models.data.BankPartner
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -21,11 +21,14 @@ import piuk.blockchain.android.coincore.ValidationState
 import piuk.blockchain.android.coincore.fiat.LinkedBankAccount
 import piuk.blockchain.android.coincore.updateTxValidity
 import piuk.blockchain.android.networking.PollService
+import piuk.blockchain.android.simplebuy.BankPartnerCallbackProvider
 import piuk.blockchain.android.ui.linkbank.BankPaymentApproval
+import piuk.blockchain.android.ui.linkbank.BankTransferAction
 import java.security.InvalidParameterException
 
 class FiatDepositTxEngine(
-    private val walletManager: CustodialWalletManager
+    private val walletManager: CustodialWalletManager,
+    private val bankPartnerCallbackProvider: BankPartnerCallbackProvider
 ) : TxEngine() {
 
     override fun assertInputsValid() {
@@ -122,7 +125,7 @@ class FiatDepositTxEngine(
         sourceAccount.receiveAddress.flatMap {
             walletManager.startBankTransfer(
                 it.address, pendingTx.amount, pendingTx.amount.currencyCode, if (pendingTx.isOpenBankingCurrency()) {
-                    YAPILY_DEEPLINK_PAYMENT_APPROVAL_URL
+                    bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY)
                 } else null
             )
         }.map {

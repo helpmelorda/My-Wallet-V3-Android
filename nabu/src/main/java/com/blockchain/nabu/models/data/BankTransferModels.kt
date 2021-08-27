@@ -6,7 +6,6 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.responses.banktransfer.LinkBankAttrsResponse
 import com.blockchain.nabu.models.responses.banktransfer.YapilyMediaResponse
 import info.blockchain.balance.FiatValue
-import om.blockchain.swap.nabu.BuildConfig
 import java.io.Serializable
 import java.math.BigInteger
 import java.net.MalformedURLException
@@ -60,12 +59,6 @@ enum class BankPartner {
 
     companion object {
         private const val ICON = "icon"
-
-        // we need to provide this when linking a bank so we can get a deep link back to the app
-        // provide the short URL from the firebase dynamic link so it can get mapped against the listing
-        const val YAPILY_DEEPLINK_BANK_LINK_URL = "https://${BuildConfig.DEEP_LINK_HOST}/oblinking"
-
-        const val YAPILY_DEEPLINK_PAYMENT_APPROVAL_URL = "https://${BuildConfig.DEEP_LINK_HOST}/obapproval"
     }
 }
 

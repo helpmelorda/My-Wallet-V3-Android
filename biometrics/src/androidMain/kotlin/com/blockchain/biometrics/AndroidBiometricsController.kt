@@ -43,7 +43,7 @@ interface AndroidBiometricsController<TBiometricData : BiometricData> : Biometri
 data class PromptInfo(
     val title: String,
     val description: String,
-    val negativeButtonText: String,
+    val negativeButtonText: String
 ) {
     fun asBiometricPromptInfo(): BiometricPrompt.PromptInfo =
         BiometricPrompt.PromptInfo.Builder()

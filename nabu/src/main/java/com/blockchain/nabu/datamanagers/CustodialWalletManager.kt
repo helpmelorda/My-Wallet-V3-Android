@@ -8,7 +8,6 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.BankTransferDetails
 import com.blockchain.nabu.models.data.CryptoWithdrawalFeeAndLimit
 import com.blockchain.nabu.models.data.FiatWithdrawalFeeAndLimit
@@ -17,6 +16,7 @@ import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.nabu.models.data.RecurringBuyState
+import com.blockchain.nabu.models.responses.banktransfer.ProviderAccountAttrs
 import com.blockchain.nabu.models.responses.interest.InterestActivityItemResponse
 import com.blockchain.nabu.models.responses.interest.InterestAttributes
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
@@ -163,7 +163,7 @@ interface CustodialWalletManager {
         linkingId: String,
         providerAccountId: String = "",
         accountId: String = "",
-        partner: BankPartner
+        attributes: ProviderAccountAttrs
     ): Completable
 
     fun fetchSuggestedPaymentMethod(

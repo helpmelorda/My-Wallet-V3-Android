@@ -60,7 +60,8 @@ class BankAuthModel(
             providerAccountId = intent.accountProviderId,
             accountId = intent.accountId,
             partner = intent.linkBankTransfer.partner,
-            source = intent.authSource
+            source = intent.authSource,
+            action = BankTransferAction.LINK
         ).subscribeBy(
             onComplete = {
                 process(BankAuthIntent.StartPollingForLinkStatus(intent.linkingBankId))

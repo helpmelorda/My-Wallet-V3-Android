@@ -9,7 +9,7 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.data.BankPartner.Companion.YAPILY_DEEPLINK_PAYMENT_APPROVAL_URL
+import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
@@ -31,6 +31,7 @@ import piuk.blockchain.android.domain.usecases.GetNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.networking.PollResult
 import piuk.blockchain.android.ui.base.mvi.MviModel
+import piuk.blockchain.android.ui.linkbank.BankTransferAction
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
@@ -46,6 +47,7 @@ class SimpleBuyModel(
     private val getNextPaymentDateUseCase: GetNextPaymentDateUseCase,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger,
+    private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val featureFlagApi: InternalFeatureFlagApi
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
     initialState = serializer.fetch() ?: initialState,
@@ -369,7 +371,9 @@ class SimpleBuyModel(
             previousState.id ?: throw IllegalStateException("Order Id not available"),
             previousState.selectedPaymentMethod?.takeIf { it.isBank() }?.concreteId(),
             if (isBankPayment == true) {
-                SimpleBuyConfirmationAttributes(callback = YAPILY_DEEPLINK_PAYMENT_APPROVAL_URL)
+                SimpleBuyConfirmationAttributes(
+                    callback = bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY)
+                )
             } else {
                 cardActivators.firstOrNull {
                     previousState.selectedPaymentMethod?.partner == it.partner
