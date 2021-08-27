@@ -18,7 +18,6 @@ import piuk.blockchain.android.coincore.CustodialTransferActivitySummaryItem
 import piuk.blockchain.android.coincore.FiatActivitySummaryItem
 import piuk.blockchain.android.coincore.InterestAccount
 import piuk.blockchain.android.coincore.TradeActivitySummaryItem
-import piuk.blockchain.android.coincore.TradingAccount
 import piuk.blockchain.android.coincore.impl.AllWalletsAccount
 import piuk.blockchain.android.coincore.impl.CryptoInterestAccount
 import timber.log.Timber
@@ -38,50 +37,48 @@ class AssetActivityRepository(
             cacheMaybe,
             requestNetwork(isRefreshRequested)
         ).toObservable()
-        .map { list ->
-            list.filter { item ->
-                when (account) {
-                    is AccountGroup -> {
-                        account.includes(item.account)
-                    }
-                    is CryptoInterestAccount -> {
-                        account.asset == (item as? CustodialInterestActivitySummaryItem)?.asset
-                    }
-                    else -> {
-                        account == item.account
+            .map { list ->
+                list.filter { item ->
+                    when (account) {
+                        is AccountGroup -> {
+                            account.includes(item.account)
+                        }
+                        is CryptoInterestAccount -> {
+                            account.asset == (item as? CustodialInterestActivitySummaryItem)?.asset
+                        }
+                        else -> {
+                            account == item.account
+                        }
                     }
                 }
+            }.map { filteredList ->
+                if (account is AllWalletsAccount) {
+                    reconcileTransfersAndBuys(filteredList)
+                } else {
+                    filteredList
+                }.sorted()
+            }.map { filteredList ->
+                if (account is AllWalletsAccount) {
+                    reconcileCustodialAndInterestTxs(filteredList)
+                } else {
+                    filteredList
+                }.sorted()
+            }.map { list ->
+                Timber.d("Activity list size: ${list.size}")
+                val pruned = list.distinct()
+                Timber.d("Activity list pruned size: ${pruned.size}")
+                pruned
             }
-        }.map { filteredList ->
-            if (account is AllWalletsAccount) {
-                reconcileTransfersAndBuys(filteredList)
-            } else {
-                filteredList
-            }.sorted()
-        }.map { filteredList ->
-            if (account is AllWalletsAccount) {
-                reconcileCustodialAndInterestTxs(filteredList)
-            } else {
-                filteredList
-            }.sorted()
-        }.map { list ->
-            Timber.d("Activity list size: ${list.size}")
-            val pruned = list.distinct()
-            Timber.d("Activity list pruned size: ${pruned.size}")
-            pruned
-        }
     }
 
     private fun reconcileTransfersAndBuys(list: ActivitySummaryList): List<ActivitySummaryItem> {
-        val custodialWalletActivity = list.filter {
-            it.account is TradingAccount && it is CustodialTradingActivitySummaryItem
-        }
+        val custodialWalletActivity = list.filterIsInstance<CustodialTradingActivitySummaryItem>()
         val activityList = list.toMutableList()
 
         custodialWalletActivity.forEach { custodialItem ->
-            val item = custodialItem as CustodialTradingActivitySummaryItem
+
             val matchingItem = activityList.find { a ->
-                a.txId.contains(item.depositPaymentId)
+                a.txId == custodialItem.depositPaymentId
             } as? FiatActivitySummaryItem
 
             if (matchingItem?.type == TransactionType.DEPOSIT) {
@@ -101,7 +98,7 @@ class AssetActivityRepository(
 
         interestWalletActivity.forEach { interestItem ->
             val matchingItem = activityList.find { a ->
-                a.txId.contains(interestItem.txId) && a is CustodialTransferActivitySummaryItem
+                a.txId == interestItem.txId && a is CustodialTransferActivitySummaryItem
             } as? CustodialTransferActivitySummaryItem
 
             if (matchingItem?.type == TransactionType.DEPOSIT || matchingItem?.type == TransactionType.WITHDRAWAL) {
