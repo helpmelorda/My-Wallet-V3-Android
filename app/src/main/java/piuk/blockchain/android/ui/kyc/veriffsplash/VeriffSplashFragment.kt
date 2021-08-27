@@ -43,6 +43,7 @@ import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import piuk.blockchain.android.ui.base.BaseFragment
+import piuk.blockchain.android.ui.base.FlowFragment
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.kyc.splash.UiState
 import piuk.blockchain.android.ui.kyc.splash.UiState.CONTENT
@@ -52,7 +53,7 @@ import piuk.blockchain.android.ui.kyc.splash.UiState.LOADING
 import timber.log.Timber
 
 class VeriffSplashFragment : BaseFragment<VeriffSplashView, VeriffSplashPresenter>(),
-    VeriffSplashView, DialogFlow.FlowHost {
+    VeriffSplashView, DialogFlow.FlowHost, FlowFragment {
 
     private var _binding: FragmentKycVeriffSplashBinding? = null
     private val binding: FragmentKycVeriffSplashBinding
@@ -256,6 +257,8 @@ class VeriffSplashFragment : BaseFragment<VeriffSplashView, VeriffSplashPresente
 
     override fun onFlowFinished() {
     }
+
+    override fun onBackPressed(): Boolean = true
 
     companion object {
         private const val REQUEST_CODE_VERIFF = 1440
