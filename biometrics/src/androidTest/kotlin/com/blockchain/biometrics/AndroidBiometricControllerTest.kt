@@ -26,7 +26,7 @@ import kotlin.test.assertEquals
 @Suppress("PrivatePropertyName")
 @Config(sdk = [24])
 @RunWith(RobolectricTestRunner::class)
-class BiometricsControllerTest {
+class AndroidBiometricControllerTest {
     private lateinit var subject: AndroidBiometricsControllerImpl<TestBiometricData>
 
     private val biometricDataRepository: BiometricDataRepository = mock()

@@ -54,7 +54,6 @@ data class PromptInfo(
                 negativeButtonText
             )
             .build()
-
 }
 
 class AndroidBiometricsControllerImpl<TBiometricData : BiometricData>(
@@ -117,7 +116,6 @@ class AndroidBiometricsControllerImpl<TBiometricData : BiometricData>(
     ) {
         val biometricPrompt = BiometricPrompt(activity, executor, getAuthenticationCallback(callback, type))
         authenticate(type, biometricPrompt, promptInfo.asBiometricPromptInfo(), callback)
-
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -295,4 +293,3 @@ class AndroidBiometricsControllerImpl<TBiometricData : BiometricData>(
         private const val KEY_CIPHER_INITIALIZER = "encrypted_pin_code"
     }
 }
-

@@ -173,6 +173,7 @@ platform :android do
        ci_test_testutils
        ci_test_testutils_android
        ci_test_wallet
+       ci_test_biometrics
 
     end
 
@@ -274,6 +275,15 @@ platform :android do
     lane :ci_test_wallet do
       gradle(
         task: "wallet:test",
+        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
+      )
+
+    end
+
+    desc "Tests to run on CI wallet"
+    lane :ci_test_biometrics do
+      gradle(
+        task: "biometrics:test",
         flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
       )
 
