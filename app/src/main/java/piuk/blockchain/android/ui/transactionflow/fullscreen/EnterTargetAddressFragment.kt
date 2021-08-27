@@ -183,7 +183,8 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             initialise(
                 source = Single.just(fragmentState.accounts.filterIsInstance<BlockchainAccount>()),
                 status = customiser.selectTargetStatusDecorator(state),
-                shouldShowSelectionStatus = true
+                shouldShowSelectionStatus = true,
+                assetAction = state.action
             )
 
             when (fragmentState) {

@@ -42,6 +42,7 @@ class AccountInfoBank @JvmOverloads constructor(
     fun updateAccount(
         shouldShowBadges: Boolean = true,
         account: LinkedBankAccount,
+        action: AssetAction? = null,
         onAccountClicked: (LinkedBankAccount) -> Unit
     ) {
         with(binding) {
@@ -67,26 +68,39 @@ class AccountInfoBank @JvmOverloads constructor(
                 return
             accountId = account.accountId
 
-            getFeeOrShowDefault(account)
+            getFeeOrShowDefault(account, action)
         }
     }
 
-    private fun getFeeOrShowDefault(account: LinkedBankAccount) {
-        compositeDisposable += account.getWithdrawalFeeAndMinLimit()
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe {
-                // total hack.In order to avoid flickering we need to reserve the space for the extra info in the pills
-                // the reason that binding.bankStatusMin is set to gone, is that bankStatusFee should be aligned left if
-                // bankStatusMin is missing
-                binding.bankStatusFee.invisible()
-                binding.bankStatusMin.gone()
+    private fun getFeeOrShowDefault(account: LinkedBankAccount, action: AssetAction?) {
+        if (action == AssetAction.Withdraw) {
+            getMinimumWithdrawalAndFee(account)
+        } else {
+            with(binding) {
+                bankStatusFee.gone()
+                bankStatusMin.gone()
             }
-            .subscribeBy(
-                onSuccess = {
-                    with(binding) {
+        }
+    }
+
+    private fun getMinimumWithdrawalAndFee(account: LinkedBankAccount) {
+        with(binding) {
+            compositeDisposable += account.getWithdrawalFeeAndMinLimit()
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe {
+                    // total hack.In order to avoid flickering we need to reserve the space for the extra info in the pills
+                    // the reason that binding.bankStatusMin is set to gone, is that bankStatusFee should be aligned left if
+                    // bankStatusMin is missing
+                    bankStatusFee.invisible()
+                    bankStatusMin.gone()
+                }
+                .subscribeBy(
+                    onSuccess = {
                         bankStatusFee.visible()
                         if (it.fee.isZero) {
-                            bankStatusFee.update(context.getString(R.string.common_free), StatusPill.StatusType.UPSELL)
+                            bankStatusFee.update(
+                                context.getString(R.string.common_free), StatusPill.StatusType.UPSELL
+                            )
                         } else {
                             bankStatusFee.update(
                                 context.getString(R.string.bank_wire_transfer_fee, it.fee.toStringWithSymbol()),
@@ -101,14 +115,14 @@ class AccountInfoBank @JvmOverloads constructor(
                                 ), StatusPill.StatusType.LABEL
                             )
                         }
+                    },
+                    onError = {
+                        Timber.e("Error getting account fee $it")
+                        bankStatusFee.gone()
+                        bankStatusMin.gone()
                     }
-                },
-                onError = {
-                    Timber.e("Error getting account fee $it")
-                    binding.bankStatusFee.gone()
-                    binding.bankStatusMin.gone()
-                }
-            )
+                )
+        }
     }
 
     override fun initControl(
@@ -130,7 +144,7 @@ class AccountInfoBank @JvmOverloads constructor(
             AssetAction.FiatDeposit ->
                 if (state.sendingAccount is LinkedBankAccount) {
                     // only try to update if we have a linked bank source
-                    updateAccount(false, state.sendingAccount) {
+                    updateAccount(false, state.sendingAccount, state.action) {
                         if (::model.isInitialized) {
                             model.process(TransactionIntent.InvalidateTransactionKeepingTarget)
                         }
@@ -138,7 +152,7 @@ class AccountInfoBank @JvmOverloads constructor(
                 }
             AssetAction.Withdraw ->
                 if (state.selectedTarget is LinkedBankAccount) {
-                    updateAccount(false, state.selectedTarget) {
+                    updateAccount(false, state.selectedTarget, state.action) {
                         if (::model.isInitialized) {
                             model.process(TransactionIntent.InvalidateTransaction)
                         }

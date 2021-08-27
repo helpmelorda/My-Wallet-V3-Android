@@ -31,7 +31,8 @@ class SelectTargetAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
         with(binding) {
             accountList.initialise(
                 source = Single.just(newState.availableTargets.map { it as SingleAccount }),
-                status = customiser.selectTargetStatusDecorator(newState)
+                status = customiser.selectTargetStatusDecorator(newState),
+                assetAction = newState.action
             )
             if (customiser.selectTargetShouldShowSubtitle(newState)) {
                 accountListSubtitle.text = customiser.selectTargetAccountDescription(newState)

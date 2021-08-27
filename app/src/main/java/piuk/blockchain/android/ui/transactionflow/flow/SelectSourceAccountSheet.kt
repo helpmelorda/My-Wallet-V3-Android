@@ -64,7 +64,8 @@ class SelectSourceAccountSheet : TransactionFlowSheet<DialogSheetAccountSelector
         with(binding) {
             accountList.initialise(
                 source = Single.just(newState.availableSources.map { it }),
-                status = customiser.sourceAccountSelectionStatusDecorator(newState)
+                status = customiser.sourceAccountSelectionStatusDecorator(newState),
+                assetAction = newState.action
             )
             accountListTitle.text = customiser.selectSourceAccountTitle(newState)
             accountListSubtitle.text = customiser.selectSourceAccountSubtitle(newState)
