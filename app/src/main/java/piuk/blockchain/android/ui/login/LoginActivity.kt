@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
-import android.text.TextWatcher
+import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.koin.scopedInject
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -25,6 +25,7 @@ import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.start.ManualPairingActivity
+import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
@@ -62,23 +63,21 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             loginEmailText.apply {
                 inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
 
-                addTextChangedListener(object : TextWatcher {
+                addTextChangedListener(object : AfterTextChangedWatcher() {
                     override fun afterTextChanged(s: Editable) {
                         model.process(LoginIntents.UpdateEmail(s.toString()))
                     }
-
-                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
                 })
+
+                setOnEditorActionListener { _, actionId, _ ->
+                    if (actionId == EditorInfo.IME_ACTION_GO && continueButton.isEnabled) {
+                        onContinueButtonClicked()
+                    }
+                    true
+                }
             }
             continueButton.setOnClickListener {
-                binding.loginEmailText.text?.let { emailInputText ->
-                    if (emailInputText.isNotBlank()) {
-                        ViewUtils.hideKeyboard(this@LoginActivity)
-                        verifyReCaptcha(emailInputText.toString())
-                    }
-                }
+                onContinueButtonClicked()
             }
             continueWithGoogleButton.setOnClickListener {
                 startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
@@ -97,6 +96,15 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                     isEnabled = true
                     visible()
                 }
+            }
+        }
+    }
+
+    private fun onContinueButtonClicked() {
+        binding.loginEmailText.text?.let { emailInputText ->
+            if (emailInputText.isNotBlank()) {
+                ViewUtils.hideKeyboard(this@LoginActivity)
+                verifyReCaptcha(emailInputText.toString())
             }
         }
     }
