@@ -125,6 +125,8 @@ android {
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
             buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['prodLoginLink']
             buildConfigString "DEEPLINK_HOST", buildProperties.secrets['prodDynamicLink']
+            buildConfigString "ZENDESK_API_KEY", buildProperties.secrets['zendeskAccountKey']
+            buildConfigString "ZENDESK_CHAT_KEY", buildProperties.secrets['zendeskChatChannelKey']
             buildConfigBoolean "INTERNAL", false
 
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
@@ -161,6 +163,8 @@ android {
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaProdSiteKey']
             buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['prodLoginLink']
             buildConfigString "DEEPLINK_HOST", buildProperties.secrets['prodDynamicLink']
+            buildConfigString "ZENDESK_API_KEY", buildProperties.secrets['zendeskAccountKey']
+            buildConfigString "ZENDESK_CHAT_KEY", buildProperties.secrets['zendeskChatChannelKey']
             applicationId "com.blockchain.wallet.internal"
 
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
@@ -198,6 +202,8 @@ android {
             buildConfigString "RECAPTCHA_SITE_KEY", buildProperties.secrets['captchaStagingSiteKey']
             buildConfigString "LOGIN_HOST_LINK", buildProperties.secrets['stagingLoginLink']
             buildConfigString "DEEPLINK_HOST", buildProperties.secrets['stagingDynamicLink']
+            buildConfigString "ZENDESK_API_KEY", buildProperties.secrets['zendeskAccountKey']
+            buildConfigString "ZENDESK_CHAT_KEY", buildProperties.secrets['zendeskChatChannelKey']
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"
@@ -374,6 +380,10 @@ dependencies {
 
     // Custom Views
     implementation Libraries.materialDatePicker
+
+    // Zendesk
+    implementation Libraries.zendeskChat
+    implementation Libraries.zendeskMessaging
 
     // UI/Instrumentation Tests
     androidTestImplementation(Libraries.espresso) {

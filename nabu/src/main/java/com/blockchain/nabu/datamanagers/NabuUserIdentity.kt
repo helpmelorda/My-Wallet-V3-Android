@@ -2,14 +2,15 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
+import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.service.TierService
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
-import java.lang.IllegalArgumentException
 
 class NabuUserIdentity(
     private val custodialWalletManager: CustodialWalletManager,
@@ -51,6 +52,18 @@ class NabuUserIdentity(
             .map { (user, tiers) ->
                 tiers.isNotInitialisedFor(KycTierLevel.values()[user])
             }
+
+    override fun getBasicProfileInformation(): Single<BasicProfileInfo> =
+        nabuDataProvider.getUser().map {
+            it.toBasicProfileInfo()
+        }
+
+    private fun NabuUser.toBasicProfileInfo() =
+        BasicProfileInfo(
+            firstName = firstName ?: email,
+            lastName = lastName ?: email,
+            email = email
+        )
 
     override fun isKycResubmissionRequired(): Single<Boolean> =
         nabuDataProvider.getUser().map { it.isMarkedForResubmission }

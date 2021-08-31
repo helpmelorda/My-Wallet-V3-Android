@@ -2223,4 +2223,11 @@
     <string name="recurring_buy_first_time_success_title">Recurring Buy Started!</string>
     <string name="recurring_buy_first_time_info">Buy %1$s of %2$s every day, week or month with a Recurring Buy. No need to ever time the market.</string>
     <string name="recurring_buy_first_time_success_subtitle">We will buy %1$s of %2$s %3$s at that moment’s market price. Cancel this recurring buy at anytime.</string>
+
+    <string name="zendesk_window_title">Blockchain.com Live Support</string>
+    <string name="zendesk_subject_title">What topic do you need help with?</string>
+    <string name="zendesk_subject_option1">Identity Verification</string>
+    <string name="zendesk_subject_option2">Wallet</string>
+    <string name="zendesk_subject_option3">Security Concern</string>
+    <string name="zendesk_subject_option4">My Wallet Recovery Failed</string>
 </resources>

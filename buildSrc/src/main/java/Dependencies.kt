@@ -110,6 +110,8 @@ object Versions {
     const val cardForm = "4.2.0"
     const val xlmSunriver = "0.21.1"
     const val lottieVersion = "3.5.0"
+    const val zendeskChatVersion = "3.3.0"
+    const val zendeskMessagingVersion = "5.2.0"
 
     // Logging
     const val timber = "4.7.1"
@@ -259,6 +261,8 @@ object Libraries {
     const val cardForm = "com.braintreepayments:card-form:${Versions.cardForm}"
     const val sunriver = "com.github.stellar:java-stellar-sdk:${Versions.xlmSunriver}"
     const val lottie = "com.airbnb.android:lottie:${Versions.lottieVersion}"
+    const val zendeskChat = "com.zendesk:chat:${Versions.zendeskChatVersion}"
+    const val zendeskMessaging = "com.zendesk:messaging:${Versions.zendeskMessagingVersion}"
 
     // Logging
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"

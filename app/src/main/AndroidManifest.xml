@@ -207,6 +207,7 @@
         <activity
             android:name=".ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity android:name=".ui.home.ZendeskSubjectActivity" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

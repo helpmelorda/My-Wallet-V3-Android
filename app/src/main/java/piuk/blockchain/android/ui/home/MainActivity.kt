@@ -20,6 +20,8 @@ import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -36,6 +38,8 @@ import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
@@ -55,6 +59,7 @@ import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SmallSimpleBuyNavigator
+import piuk.blockchain.android.ui.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.activity.ActivitiesFragment
 import piuk.blockchain.android.ui.addresses.AccountActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
@@ -104,7 +109,6 @@ import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.ui.FeatureFlagsHandlingActivity
 import timber.log.Timber
 import java.net.URLDecoder
 
@@ -123,6 +127,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override val presenter: MainPresenter by scopedInject()
     private val qrProcessor: QrScanResultProcessor by scopedInject()
+    private val userIdentity: NabuUserIdentity by scopedInject()
     private val mwaFF: FeatureFlag by inject(mwaFeatureFlag)
     private val txLauncher: TransactionLauncher by inject()
     private val database: Database by inject()
@@ -454,7 +459,24 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     private fun onSupportClicked() {
         analytics.logEvent(AnalyticsEvents.Support)
-        calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)
+
+        compositeDisposable += Singles.zip(
+            userIdentity.isEligibleFor(Feature.SimpleBuy),
+            userIdentity.getBasicProfileInformation()
+        )
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onSuccess = { (isSimpleBuyEligible, userInformation) ->
+                    if (isSimpleBuyEligible) {
+                        startActivity(ZendeskSubjectActivity.newInstance(this, userInformation))
+                    } else {
+                        calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)
+                    }
+                }, onError = {
+                    calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)
+                }
+            )
     }
 
     private fun resetUi() {
