@@ -79,35 +79,11 @@ class AndroidBiometricControllerTest {
     }
 
     @Test
-    fun getDataAndIV_success() {
-        val encodedValue = "ZGF0YQ==\n"
-        val data = "$encodedValue-_-$encodedValue"
-        val result = subject.getDataAndIV(data)
-        Assert.assertEquals(result.first, encodedValue)
-        Assert.assertEquals(result.second, encodedValue)
-    }
-
-    @Test(expected = IllegalStateException::class)
-    fun getDataAndIV_noSeparator() {
-        val encodedValue = "ZGF0YQ==\n"
-        val data = "$encodedValue$encodedValue"
-        subject.getDataAndIV(data)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun getDataAndIV_noIV() {
-        val encodedValue = "ZGF0YQ==\n"
-        val data = "$encodedValue-_-"
-        subject.getDataAndIV(data)
-    }
-
-    @Test
     fun authCallbackSuccess_register() {
-        val encryptedData = EncryptedData(byteArrayOf(), byteArrayOf())
         val result = mock<BiometricPrompt.AuthenticationResult>()
 
         whenever(result.cryptoObject).thenReturn(cryptoObject)
-        whenever(cryptographyManager.encryptData(any(), any())).thenReturn(encryptedData)
+        whenever(cryptographyManager.encryptAndEncodeData(any<Cipher>(), any(), any())).thenReturn("")
 
         val callback = mock<BiometricsCallback<TestBiometricData>>()
         val auth = subject.getAuthenticationCallback(callback, BiometricsType.TYPE_REGISTER)
@@ -124,7 +100,7 @@ class AndroidBiometricControllerTest {
         whenever(biometricDataRepository.getBiometricEncryptedData()).thenReturn(data)
 
         whenever(result.cryptoObject).thenReturn(cryptoObject)
-        whenever(cryptographyManager.decryptData(any(), any())).thenReturn(
+        whenever(cryptographyManager.decodeAndDecryptData(any<Cipher>(), any(), any())).thenReturn(
             DATA_1.toByteArray(Charset.forName("UTF-8"))
         )
 
@@ -195,13 +171,6 @@ class AndroidBiometricControllerTest {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun processDecryption_noData() {
-        whenever(biometricDataRepository.getBiometricEncryptedData()).thenReturn("")
-
-        subject.processDecryption(cryptoObject)
-    }
-
-    @Test(expected = IllegalStateException::class)
     fun processDecryption_noCipher() {
         val data = "1234-_-1234" // "MTIzNC1fLTEyMzQ="
         whenever(biometricDataRepository.getBiometricEncryptedData()).thenReturn(data)
@@ -216,20 +185,12 @@ class AndroidBiometricControllerTest {
         whenever(biometricDataRepository.getBiometricEncryptedData()).thenReturn(data)
 
         val pin = "1234"
-        whenever(cryptographyManager.decryptData(any(), any())).thenReturn(pin.toByteArray(Charset.forName("UTF-8")))
+        whenever(cryptographyManager.decodeAndDecryptData(any<Cipher>(), any(), any())).thenReturn(
+            pin.toByteArray(Charset.forName("UTF-8"))
+        )
 
         val decryptedData = String(subject.processDecryption(cryptoObject), Charset.forName("UTF-8"))
         Assert.assertEquals(pin, decryptedData)
-    }
-
-    @Test
-    fun generateCompositeKey() {
-        val byteArrayData = "data".toByteArray()
-        val base64EncodedData = "ZGF0YQ==\n"
-        val expectedValue = "$base64EncodedData-_-$base64EncodedData"
-
-        val result = subject.generateCompositeKey(byteArrayData, byteArrayData)
-        Assert.assertEquals(result, expectedValue)
     }
 
     @Test
@@ -244,7 +205,7 @@ class AndroidBiometricControllerTest {
 
         val cipherSuccess = CipherState.CipherSuccess(mock())
         whenever(
-            cryptographyManager.getInitializedCipherForEncryption(any())
+            cryptographyManager.getInitializedCipherForEncryption(any(), any())
         ).thenReturn(
             cipherSuccess
         )
@@ -268,7 +229,7 @@ class AndroidBiometricControllerTest {
 
         val cipherInvalidated = CipherState.CipherInvalidatedError(KeyPermanentlyInvalidatedException())
         whenever(
-            cryptographyManager.getInitializedCipherForEncryption(any())
+            cryptographyManager.getInitializedCipherForEncryption(any(), any())
         ).thenReturn(
             cipherInvalidated
         )
@@ -293,7 +254,7 @@ class AndroidBiometricControllerTest {
 
         val cipherError = CipherState.CipherOtherError(Exception())
         whenever(
-            cryptographyManager.getInitializedCipherForEncryption(any())
+            cryptographyManager.getInitializedCipherForEncryption(any(), any())
         ).thenReturn(
             cipherError
         )
@@ -316,7 +277,9 @@ class AndroidBiometricControllerTest {
         whenever(biometricDataRepository.getBiometricEncryptedData()).thenReturn(data)
 
         val cipherSuccess = CipherState.CipherSuccess(mock())
-        whenever(cryptographyManager.getInitializedCipherForDecryption(any(), any())).thenReturn(cipherSuccess)
+        whenever(cryptographyManager.getInitializedCipherForDecryption(any(), any(), any(), any())).thenReturn(
+            cipherSuccess
+        )
 
         subject.authenticate(
             BiometricsType.TYPE_LOGIN, biometricPrompt, promptInfo, callback
@@ -336,7 +299,9 @@ class AndroidBiometricControllerTest {
         whenever(biometricDataRepository.getBiometricEncryptedData()).thenReturn(data)
 
         val cipherInvalidation = CipherState.CipherInvalidatedError(KeyPermanentlyInvalidatedException())
-        whenever(cryptographyManager.getInitializedCipherForDecryption(any(), any())).thenReturn(cipherInvalidation)
+        whenever(cryptographyManager.getInitializedCipherForDecryption(any(), any(), any(), any())).thenReturn(
+            cipherInvalidation
+        )
 
         subject.authenticate(
             BiometricsType.TYPE_LOGIN, biometricPrompt, promptInfo, callback
@@ -357,7 +322,9 @@ class AndroidBiometricControllerTest {
         whenever(biometricDataRepository.getBiometricEncryptedData()).thenReturn(data)
 
         val cipherError = CipherState.CipherOtherError(Exception())
-        whenever(cryptographyManager.getInitializedCipherForDecryption(any(), any())).thenReturn(cipherError)
+        whenever(cryptographyManager.getInitializedCipherForDecryption(any(), any(), any(), any())).thenReturn(
+            cipherError
+        )
 
         subject.authenticate(
             BiometricsType.TYPE_LOGIN, biometricPrompt, promptInfo, callback

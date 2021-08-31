@@ -1,7 +1,6 @@
 package com.blockchain.biometrics
 
 import android.os.Build
-import android.util.Base64
 import androidx.annotation.VisibleForTesting
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -184,17 +183,23 @@ class AndroidBiometricsControllerImpl<TBiometricData : BiometricData>(
             when (type) {
                 BiometricsType.TYPE_REGISTER -> {
                     handleCipherStates(
-                        cryptographyManager.getInitializedCipherForEncryption(KEY_CIPHER_INITIALIZER),
-                        biometricPrompt, promptInfo, callback
+                        cryptographyManager.getInitializedCipherForEncryption(KEY_CIPHER_INITIALIZER, true),
+                        biometricPrompt,
+                        promptInfo,
+                        callback
                     )
                 }
                 BiometricsType.TYPE_LOGIN -> {
-                    // All data should have IV, so use any
-                    val dataAndIV = getDataAndIV(getEncodedData())
-                    val ivSpec = decodeFromBase64ToArray(dataAndIV.second)
                     handleCipherStates(
-                        cryptographyManager.getInitializedCipherForDecryption(KEY_CIPHER_INITIALIZER, ivSpec),
-                        biometricPrompt, promptInfo, callback
+                        cryptographyManager.getInitializedCipherForDecryption(
+                            KEY_CIPHER_INITIALIZER,
+                            SEPARATOR,
+                            getEncodedData(),
+                            true
+                        ),
+                        biometricPrompt,
+                        promptInfo,
+                        callback
                     )
                 }
             }
@@ -231,65 +236,36 @@ class AndroidBiometricsControllerImpl<TBiometricData : BiometricData>(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun processEncryption(cryptoObject: BiometricPrompt.CryptoObject, unencryptedData: ByteArray): String {
         cryptoObject.cipher?.let {
-            val encryptedData = cryptographyManager.encryptData(unencryptedData, it)
-            return generateCompositeKey(encryptedData.ciphertext, encryptedData.initializationVector)
+            return cryptographyManager.encryptAndEncodeData(it, SEPARATOR, unencryptedData)
         } ?: throw IllegalStateException("There is no cipher with which to encrypt")
     }
-
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    fun generateCompositeKey(encryptedText: ByteArray, initializationVector: ByteArray) =
-        encodeToBase64(encryptedText) + separator + encodeToBase64(initializationVector)
 
     /**
      * We must keep the current separator and ordering of data to maintain compatibility with the old fingerprinting library
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun processDecryption(cryptoObject: BiometricPrompt.CryptoObject): ByteArray {
-        val dataAndIV = getDataAndIV(getEncodedData())
-        val encryptedData = decodeFromBase64ToArray(dataAndIV.first)
-
         cryptoObject.cipher?.let { cipher ->
-            return cryptographyManager.decryptData(encryptedData, cipher)
+            return cryptographyManager.decodeAndDecryptData(cipher, SEPARATOR, getEncodedData())
         } ?: throw IllegalStateException("There is no cipher with which to decrypt")
     }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    fun getDataAndIV(data: String): Pair<String, String> {
-        if (!data.contains(separator)) {
-            throw IllegalStateException("Passed data does not contain expected separator")
-        }
-
-        val split = data.split(separator.toRegex())
-        if (split.size != 2 || (split.size == 2 && split[1].isEmpty())) {
-            throw IllegalArgumentException("Passed data is incorrect. There was no IV specified with it.")
-        }
-        return Pair(split[0], split[1])
-    }
-
     /**
-     * Allows you to store the encrypted result of biometric authentication. The data is converted
-     * into a Base64 string and written to shared prefs with a key. Please note that this doesn't
-     * encrypt the data in any way, just obfuscates it.
+     * Stores encoded and encrypted data to the repository
      */
     fun storeEncodedData(value: String) {
         biometricDataRepository.storeBiometricEncryptedData(value)
     }
 
     /**
-     * Retrieve previously saved encoded & encrypted data from shared preferences
+     * Retrieve previously saved encoded & encrypted data from the biometric repository.
      * @return A [String] wrapping the saved String, or empty string if not found
      */
     private fun getEncodedData(): String =
         biometricDataRepository.getBiometricEncryptedData() ?: ""
 
-    private fun encodeToBase64(data: ByteArray) =
-        Base64.encodeToString(data, Base64.DEFAULT)
-
-    private fun decodeFromBase64ToArray(data: String): ByteArray =
-        Base64.decode(data, Base64.DEFAULT)
-
     companion object {
-        private const val separator = "-_-"
+        private const val SEPARATOR = "-_-"
         private const val KEY_CIPHER_INITIALIZER = "encrypted_pin_code"
     }
 }
