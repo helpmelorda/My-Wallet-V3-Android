@@ -9,6 +9,7 @@ import piuk.blockchain.android.databinding.FragmentAccountResetBinding
 import piuk.blockchain.android.ui.base.addAnimationTransaction
 import piuk.blockchain.android.ui.base.mvi.MviFragment
 import piuk.blockchain.android.ui.reset.password.ResetPasswordFragment
+import piuk.blockchain.android.util.visible
 
 class ResetAccountFragment :
     MviFragment<ResetAccountModel, ResetAccountIntents, ResetAccountState, FragmentAccountResetBinding>() {
@@ -34,6 +35,7 @@ class ResetAccountFragment :
                 }
             }
         }
+        binding.contentLayout.visible()
 
         if (isInitialLoop) {
             isInitialLoop = false
