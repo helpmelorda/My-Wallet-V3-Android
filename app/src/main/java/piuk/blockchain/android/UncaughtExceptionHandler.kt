@@ -1,7 +1,7 @@
 package piuk.blockchain.android
 
 import piuk.blockchain.android.ui.launcher.LauncherActivity
-import piuk.blockchain.androidcore.BuildConfig
+import piuk.blockchain.core.BuildConfig
 import piuk.blockchain.android.util.AppUtil
 import timber.log.Timber
 
@@ -23,7 +23,7 @@ class UncaughtExceptionHandler private constructor(val appUtil: AppUtil) : Threa
 
         // Re-throw the exception so that the system can fail as it normally would, and so that
         // Firebase can log the exception automatically
-        rootHandler.uncaughtException(thread, throwable)
+        rootHandler?.uncaughtException(thread, throwable)
     }
 
     companion object {

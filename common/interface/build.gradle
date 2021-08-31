@@ -6,13 +6,14 @@ sourceCompatibility = Versions.javaCompatibilityVersion
 targetCompatibility = Versions.javaCompatibilityVersion
 
 dependencies {
+    implementation project(':balance')
+    api project(':common-mp:interface')
+
     implementation Libraries.kotlin
     implementation Libraries.kotlinJson
     implementation Libraries.commonsLang
-    implementation project(':balance')
-    api project(':common-mp:interface')
-    api Libraries.rxKotlin
-    api Libraries.koin
+    implementation Libraries.rxKotlin
+    implementation Libraries.koin
 
     // Testing
     testImplementation project(':testutils')

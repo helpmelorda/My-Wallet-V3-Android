@@ -167,7 +167,6 @@ platform :android do
        ci_test_common
        ci_test_blockchainApi
        ci_test_core
-       ci_test_nabu
        ci_test_notifications
        ci_test_sunriver
        ci_test_testutils
@@ -221,15 +220,6 @@ platform :android do
     lane :ci_test_core do
       gradle(
         task: "core:test",
-        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-      )
-
-    end
-
-    desc "Tests to run on CI nabu"
-    lane :ci_test_nabu do
-      gradle(
-        task: "nabu:test",
         flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
       )
 

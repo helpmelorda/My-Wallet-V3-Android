@@ -2,7 +2,7 @@ package com.blockchain.remoteconfig
 
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.BuildConfig
+import piuk.blockchain.core.BuildConfig
 import timber.log.Timber
 
 interface ABTestExperiment {

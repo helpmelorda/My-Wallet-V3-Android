@@ -292,13 +292,15 @@ kapt {
 
 dependencies {
     implementation project(':notifications')
-    implementation project(':nabu')
     implementation project(':sunriver')
     implementation project(':core')
     implementation project(':notifications')
     implementation project(':veriff')
     implementation project(':blockchainApi')
     implementation project(':biometrics')
+    implementation project(':wallet')
+    implementation project(':common:interface')
+    implementation project(':common:network')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring
@@ -349,6 +351,7 @@ dependencies {
     implementation Libraries.gson
     implementation Libraries.kotlinJson
     implementation Libraries.json
+    implementation Libraries.moshi
 
     // Utils
     implementation Libraries.libPhoneNumber
@@ -380,6 +383,9 @@ dependencies {
 
     // Custom Views
     implementation Libraries.materialDatePicker
+
+    // Logging
+    implementation Libraries.timber
 
     // Zendesk
     implementation Libraries.zendeskChat

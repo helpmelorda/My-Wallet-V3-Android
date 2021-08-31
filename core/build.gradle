@@ -1,7 +1,14 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlinx-serialization'
+apply plugin: 'com.novoda.build-properties'
 apply from: '../quality/ktlint.gradle'
+
+buildProperties {
+    secrets {
+        using(file('../app/secrets.properties')) | file('../app/secretsDefaults.properties')
+    }
+}
 
 android {
     compileSdkVersion Versions.compileSdk
@@ -12,9 +19,12 @@ android {
         versionCode Versions.versionCode
         versionName Versions.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        buildConfigBoolean "USE_MOCK_SIMPLE_BUY_BACKEND", false
     }
 
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -34,42 +44,54 @@ android {
         warningsAsErrors true
         abortOnError true
     }
+
+    buildTypes {
+        release {
+            consumerProguardFiles 'proguard-rules.pro'
+            manifestPlaceholders = [PLACES_KEY: buildProperties.secrets['placesReleaseKey'].string]
+        }
+        debug {
+            manifestPlaceholders = [PLACES_KEY: buildProperties.secrets['placesDebugKey'].string]
+        }
+    }
 }
 
 dependencies {
-    api project(':wallet')
-    api project(':balance')
-    api project(':sunriver')
-    api project(':common:network')
-    api project(':common:interface')
-    api project(':common-mp:utils')
+    implementation project(':wallet')
+    implementation project(':sunriver')
+    implementation project(':common:network')
+    implementation project(':common:interface')
+    implementation project(':common-mp:utils')
+    implementation project(':veriff')
     implementation project(':blockchainApi')
 
-    // Networking
-    api(Libraries.retrofit) { exclude module: 'okhttp' }
-    api Libraries.retrofitJacksonConverter
-    api Libraries.retrofitRxMoshiConverter
-    api Libraries.retrofitRxJavaAdapter
-    api Libraries.okHttpInterceptor
-    api Libraries.koin
+    api project(':balance')
 
+    // Networking
+//    implementation(Libraries.retrofit) { exclude module: 'okhttp' }
+    implementation Libraries.retrofitJacksonConverter
+    implementation Libraries.retrofitRxMoshiConverter
+    implementation Libraries.retrofitRxJavaAdapter
+    implementation Libraries.okHttpInterceptor
     implementation Libraries.kotlinJson
 
-    // RxJava
-    api Libraries.rxJava
-    api Libraries.rxKotlin
-    api Libraries.rxAndroid
+    implementation Libraries.koin
+    implementation Libraries.cardForm
+
     // Logging
-    api Libraries.timber
+    implementation Libraries.timber
 
     // Firebase
     implementation (Libraries.firebaseConfig) {
         exclude group:'com.google.protobuf', module: 'protobuf-lite'
     }
 
+    coreLibraryDesugaring Libraries.desugaring
+
     // Unit Test dependencies
     testImplementation Libraries.junit
     testImplementation Libraries.mockito
+    testImplementation Libraries.koinTest
     testImplementation Libraries.hamcrestJunit
     testImplementation Libraries.kotlinJunit
     testImplementation Libraries.kluent
@@ -79,5 +101,4 @@ dependencies {
     }
     testImplementation project(':testutils')
     testImplementation project(':testutils-android')
-
 }

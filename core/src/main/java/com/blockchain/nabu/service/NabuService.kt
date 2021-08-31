@@ -3,7 +3,7 @@ package com.blockchain.nabu.service
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.extensions.wrapErrorMessage
+import com.blockchain.extensions.wrapErrorMessage
 import com.blockchain.nabu.models.responses.banktransfer.BankTransferPaymentBody
 import com.blockchain.nabu.models.responses.banktransfer.CreateLinkBankRequestBody
 import com.blockchain.nabu.models.responses.banktransfer.OpenBankingTokenBody

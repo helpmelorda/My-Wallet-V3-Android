@@ -19,3 +19,16 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+#-keep class com.onfido.android.sdk.** {
+#  public protected private *;
+#}
+#-keep class com.onfido.api.client.** {
+#  public protected private *;
+#}
+
+## This isn't necessary as of AGP 3.2-beta01
+## https://issuetracker.google.com/issues/79874119
+## TODO: Remove this once upgraded to 3.2, which is necessary for the KYC release AND-1237
+-keep class com.blockchain.kycui.** extends androidx.fragment.app.Fragment{}
+-keep public class com.blockchain.nabu.models.** { *; }
