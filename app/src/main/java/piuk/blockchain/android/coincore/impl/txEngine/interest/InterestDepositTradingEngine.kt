@@ -7,7 +7,6 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.FeeLevel
@@ -39,20 +38,22 @@ class InterestDepositTradingEngine(
         get() = sourceAccount.accountBalance
 
     override fun doInitialiseTx(): Single<PendingTx> {
-        return getLimits().zipWith(availableBalance)
-            .map { (limits, balance) ->
-                val cryptoAsset = limits.cryptoCurrency
-                PendingTx(
-                    amount = CryptoValue.zero(sourceAsset),
-                    minLimit = limits.minDepositFiatValue.toCrypto(exchangeRates, cryptoAsset),
-                    feeSelection = FeeSelection(),
-                    selectedFiat = userFiat,
-                    availableBalance = balance,
-                    totalBalance = balance,
-                    feeAmount = CryptoValue.zero(sourceAsset),
-                    feeForFullAvailable = CryptoValue.zero(sourceAsset)
-                )
-            }
+        return Single.zip(
+            getLimits(),
+            availableBalance
+        ) { limits, balance ->
+            val cryptoAsset = limits.cryptoCurrency
+            PendingTx(
+                amount = CryptoValue.zero(sourceAsset),
+                minLimit = limits.minDepositFiatValue.toCrypto(exchangeRates, cryptoAsset),
+                feeSelection = FeeSelection(),
+                selectedFiat = userFiat,
+                availableBalance = balance,
+                totalBalance = balance,
+                feeAmount = CryptoValue.zero(sourceAsset),
+                feeForFullAvailable = CryptoValue.zero(sourceAsset)
+            )
+        }
     }
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> =

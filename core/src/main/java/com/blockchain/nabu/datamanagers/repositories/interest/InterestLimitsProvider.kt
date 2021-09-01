@@ -7,6 +7,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 
@@ -24,33 +25,36 @@ class InterestLimitsProviderImpl(
         authenticator.authenticate {
             nabuService.getInterestLimits(it, currencyPrefs.selectedFiatCurrency)
                 .map { responseBody ->
-                    InterestLimitsList(responseBody.limits.assetMap.entries.map { entry ->
-                        val crypto = assetCatalogue.fromNetworkTicker(entry.key)!!
+                    InterestLimitsList(
+                        responseBody.limits.assetMap.entries.mapNotNull { entry ->
+                            assetCatalogue.fromNetworkTicker(entry.key)?.let { crypto ->
 
-                        val minDepositFiatValue = FiatValue.fromMinor(
-                            currencyPrefs.selectedFiatCurrency,
-                            entry.value.minDepositAmount.toLong()
-                        )
-                        val maxWithdrawalFiatValue = FiatValue.fromMinor(
-                            currencyPrefs.selectedFiatCurrency,
-                            entry.value.maxWithdrawalAmount.toLong()
-                        )
+                                val minDepositFiatValue = FiatValue.fromMinor(
+                                    currencyPrefs.selectedFiatCurrency,
+                                    entry.value.minDepositAmount.toLong()
+                                )
+                                val maxWithdrawalFiatValue = FiatValue.fromMinor(
+                                    currencyPrefs.selectedFiatCurrency,
+                                    entry.value.maxWithdrawalAmount.toLong()
+                                )
 
-                        val calendar = Calendar.getInstance()
-                        calendar.set(Calendar.DAY_OF_MONTH, 1)
-                        calendar.add(Calendar.MONTH, 1)
+                                val calendar = Calendar.getInstance()
+                                calendar.set(Calendar.DAY_OF_MONTH, 1)
+                                calendar.add(Calendar.MONTH, 1)
 
-                        InterestLimits(
-                            interestLockUpDuration = entry.value.lockUpDuration,
-                            minDepositFiatValue = minDepositFiatValue,
-                            cryptoCurrency = crypto,
-                            currency = entry.value.currency,
-                            nextInterestPayment = calendar.time,
-                            maxWithdrawalFiatValue = maxWithdrawalFiatValue
-                        )
-                    })
+                                InterestLimits(
+                                    interestLockUpDuration = entry.value.lockUpDuration,
+                                    minDepositFiatValue = minDepositFiatValue,
+                                    cryptoCurrency = crypto,
+                                    currency = entry.value.currency,
+                                    nextInterestPayment = calendar.time,
+                                    maxWithdrawalFiatValue = maxWithdrawalFiatValue
+                                )
+                            }
+                        }
+                    )
                 }
-        }
+        }.doOnError { Timber.e("Limits call failed $it") }
 }
 
 data class InterestLimits(

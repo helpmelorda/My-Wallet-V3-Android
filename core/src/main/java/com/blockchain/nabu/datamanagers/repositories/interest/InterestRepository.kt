@@ -2,7 +2,6 @@ package com.blockchain.nabu.datamanagers.repositories.interest
 
 import com.blockchain.rx.TimedCacheRequest
 import info.blockchain.balance.AssetInfo
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 
 class InterestRepository(
@@ -25,13 +24,11 @@ class InterestRepository(
         refreshFn = { interestEligibilityProvider.getEligibilityForCustodialAssets() }
     )
 
-    fun getLimitForAsset(ccy: AssetInfo): Maybe<InterestLimits> =
-        limitsCache.getCachedSingle().flatMapMaybe { limitsList ->
-            val limitsForAsset = limitsList.list.find { it.cryptoCurrency == ccy }
-            limitsForAsset?.let {
-                Maybe.just(it)
-            } ?: Maybe.empty()
-        }.onErrorResumeNext { Maybe.empty() }
+    fun getLimitForAsset(asset: AssetInfo): Single<InterestLimits> =
+        limitsCache.getCachedSingle().map { limitsList ->
+            limitsList.list.find { it.cryptoCurrency == asset }
+                ?: throw NoSuchElementException("Unable to get limits for ${asset.ticker}")
+        }
 
     fun getAvailabilityForAsset(ccy: AssetInfo): Single<Boolean> =
         availabilityCache.getCachedSingle().flatMap { enabledList ->

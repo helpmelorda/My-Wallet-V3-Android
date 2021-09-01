@@ -32,7 +32,7 @@ abstract class InterestBaseEngine(private val walletManager: CustodialWalletMana
             )
 
     protected fun getLimits(): Single<InterestLimits> =
-        walletManager.getInterestLimits(sourceAsset).toSingle()
+        walletManager.getInterestLimits(sourceAsset)
 
     protected fun areOptionsValid(pendingTx: PendingTx): Boolean {
         val terms = getTermsOptionValue(pendingTx)

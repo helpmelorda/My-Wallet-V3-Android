@@ -204,7 +204,7 @@ interface CustodialWalletManager {
 
     fun getInterestActivity(asset: AssetInfo): Single<List<InterestActivityItem>>
 
-    fun getInterestLimits(asset: AssetInfo): Maybe<InterestLimits>
+    fun getInterestLimits(asset: AssetInfo): Single<InterestLimits>
 
     fun getInterestAvailabilityForAsset(asset: AssetInfo): Single<Boolean>
 

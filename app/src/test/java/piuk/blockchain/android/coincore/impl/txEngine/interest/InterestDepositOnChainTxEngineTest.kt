@@ -17,7 +17,6 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.shouldEqual
 import org.junit.Before
@@ -204,7 +203,7 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
             on { cryptoCurrency }.thenReturn(ASSET)
         }
 
-        whenever(walletManager.getInterestLimits(ASSET)).thenReturn(Maybe.just(limits))
+        whenever(walletManager.getInterestLimits(ASSET)).thenReturn(Single.just(limits))
 
         // Act
         subject.doInitialiseTx()
@@ -236,7 +235,7 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
     }
 
     @Test
-    fun `when initialising, if getInterestLimits() returns empty, then initialisation fails`() {
+    fun `when initialising, if getInterestLimits() returns error, then initialisation fails`() {
         // Arrange
         val sourceAccount = mockSourceAccount()
         val txTarget = mockTransactionTarget()
@@ -262,7 +261,8 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
         )
 
         whenever(onChainEngine.doInitialiseTx()).thenReturn(Single.just(pendingTx))
-        whenever(walletManager.getInterestLimits(ASSET)).thenReturn(Maybe.empty())
+        whenever(walletManager.getInterestLimits(ASSET))
+            .thenReturn(Single.error(NoSuchElementException()))
 
         // Act
         subject.doInitialiseTx()

@@ -15,7 +15,6 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.shouldEqual
 import org.junit.Before
@@ -131,7 +130,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
             on { fee }.thenReturn(BigInteger.ZERO)
         }
 
-        whenever(custodialWalletManager.getInterestLimits(ASSET)).thenReturn(Maybe.just(limits))
+        whenever(custodialWalletManager.getInterestLimits(ASSET)).thenReturn(Single.just(limits))
         whenever(custodialWalletManager.fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)).thenReturn(
             Single.just(fees)
         )
@@ -166,7 +165,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
     }
 
     @Test
-    fun `when initialising, if getInterestLimits() returns empty, then initialisation fails`() {
+    fun `when initialising, if getInterestLimits() returns error, then initialisation fails`() {
         // Arrange
         val sourceAccount = mockSourceAccount()
         val txTarget = mockTransactionTarget()
@@ -177,7 +176,8 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
-        whenever(custodialWalletManager.getInterestLimits(ASSET)).thenReturn(Maybe.empty())
+        whenever(custodialWalletManager.getInterestLimits(ASSET))
+            .thenReturn(Single.error(NoSuchElementException()))
         whenever(custodialWalletManager.fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)).thenReturn(
             Single.just(mock())
         )
@@ -208,7 +208,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
-        whenever(custodialWalletManager.getInterestLimits(ASSET)).thenReturn(Maybe.just(mock()))
+        whenever(custodialWalletManager.getInterestLimits(ASSET)).thenReturn(Single.just(mock()))
         whenever(custodialWalletManager.fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)).thenReturn(
             Single.error(Exception())
         )

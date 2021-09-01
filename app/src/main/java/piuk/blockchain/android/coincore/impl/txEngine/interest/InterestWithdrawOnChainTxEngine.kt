@@ -42,7 +42,7 @@ class InterestWithdrawOnChainTxEngine(
     override fun doInitialiseTx(): Single<PendingTx> =
         Single.zip(
             walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAsset, Product.SAVINGS),
-            walletManager.getInterestLimits(sourceAsset).toSingle(),
+            walletManager.getInterestLimits(sourceAsset),
             availableBalance,
             { minLimits, maxLimits, balance ->
                 PendingTx(
