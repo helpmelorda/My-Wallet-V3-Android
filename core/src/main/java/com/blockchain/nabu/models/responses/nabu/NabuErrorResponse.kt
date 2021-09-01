@@ -37,6 +37,9 @@ class NabuApiException private constructor(message: String) : Throwable(message)
      */
     fun getErrorDescription(): String = _errorDescription
 
+    // TODO: Replace prefix checking with a proper error code -> needs backend changes
+    fun isUserWalletLinkError(): Boolean = getErrorDescription().startsWith(USER_WALLET_LINK_ERROR_PREFIX)
+
     companion object {
         @SuppressLint("SyntheticAccessor")
         fun fromResponseBody(exception: Throwable?): NabuApiException {
@@ -72,5 +75,7 @@ class NabuApiException private constructor(message: String) : Throwable(message)
                     _errorCode = errorCode
                 }
         }
+
+        const val USER_WALLET_LINK_ERROR_PREFIX = "User linked to another wallet"
     }
 }

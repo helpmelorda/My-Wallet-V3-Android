@@ -109,6 +109,7 @@ import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
+import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
 import timber.log.Timber
 import java.net.URLDecoder
 
@@ -119,6 +120,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     SlidingModalBottomDialog.Host,
     UpsellHost,
     AuthNewLoginSheet.Host,
+    AccountWalletLinkAlertSheet.Host,
     SmallSimpleBuyNavigator {
 
     private val binding: ActivityMainBinding by lazy {
@@ -275,6 +277,14 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 isMWAEnabled = false
             }
         ))
+        compositeDisposable += userIdentity.checkForUserWalletLinkErrors()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onComplete = {
+                    // Nothing to do here
+                },
+                onError = { throwable -> presenter.checkForAccountWalletLinkErrors(throwable) }
+            )
     }
 
     override fun onResume() {
@@ -637,6 +647,12 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         showBottomSheet(bottomSheet)
     }
 
+    override fun logout() {
+        analytics.logEvent(AnalyticsEvents.Logout)
+        presenter.unPair()
+        database.historicRateQueries.clear()
+    }
+
     private fun startTransferFragment(
         viewToShow: TransferFragment.TransferViewType = TransferFragment.TransferViewType.TYPE_SEND,
         reload: Boolean = true
@@ -714,6 +730,10 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override fun shouldIgnoreDeepLinking() =
         (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
+
+    override fun showAccountWalletLinkBottomSheet(walletId: String) {
+        showBottomSheet(AccountWalletLinkAlertSheet.newInstance(walletId))
+    }
 
     private fun showFragment(fragment: Fragment, reloadFragment: Boolean = true) {
         val transaction = supportFragmentManager.beginTransaction()

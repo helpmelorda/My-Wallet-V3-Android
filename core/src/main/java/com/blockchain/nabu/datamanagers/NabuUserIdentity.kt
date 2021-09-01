@@ -9,6 +9,7 @@ import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilit
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.service.TierService
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 
@@ -70,6 +71,9 @@ class NabuUserIdentity(
 
     override fun shouldResubmitAfterRecovery(): Single<Boolean> =
         nabuDataProvider.getUser().map { it.isMarkedForRecoveryResubmission }
+
+    override fun checkForUserWalletLinkErrors(): Completable =
+        nabuDataProvider.getUser().flatMapCompletable { Completable.complete() }
 
     private fun Tier.toKycTierLevel(): KycTierLevel =
         when (this) {

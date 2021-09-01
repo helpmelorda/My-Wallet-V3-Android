@@ -2150,6 +2150,10 @@
     <string name="reset_password_hint">New Password</string>
     <string name="reset_password_confirm_hint">Confirm New Password</string>
     <string name="restore_wallet_cta">Restore Wallet</string>
+    <string name="account_wallet_mismatch_title">Your Trading Account Is Linked To Another Wallet</string>
+    <string name="account_wallet_mismatch_notice">Your Blockchain.com trading account is associated with another wallet. Please log into your wallet referenced below for account access.</string>
+    <string name="account_wallet_mismatch_label">Wallet ID: %s</string>
+    <string name="account_wallet_mismatch_wallet_id_not_found">Wallet ID not received</string>
 
     <!-- Recurring buy screens -->
     <string name="recurring_buy_toolbar">Recurring Buys</string>

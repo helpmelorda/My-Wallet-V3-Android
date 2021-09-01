@@ -347,8 +347,12 @@ internal class NabuDataManagerImpl(
     private fun unauthenticated(throwable: Throwable) =
         (throwable as? NabuApiException?)?.getErrorStatusCode() == NabuErrorStatusCodes.TokenExpired
 
-    private fun userRestored(throwable: Throwable) =
-        (throwable as? NabuApiException?)?.getErrorStatusCode() == NabuErrorStatusCodes.Conflict
+    // TODO: Replace prefix checking with a proper error code -> needs backend changes
+    private fun userRestored(throwable: Throwable): Boolean =
+        (throwable as? NabuApiException?)?.let { nabuApiException ->
+            nabuApiException.getErrorStatusCode() == NabuErrorStatusCodes.Conflict &&
+                !nabuApiException.isUserWalletLinkError()
+        } ?: false
 
     // TODO: Refactor this logic into a reusable, thoroughly tested class - see AND-1335
     override fun <T> authenticate(
