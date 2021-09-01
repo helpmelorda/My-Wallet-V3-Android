@@ -1435,7 +1435,8 @@
     <string name="linking_card_title">Securely Linking Your Card</string>
     <string name="linking_card_subtitle">This could take up to 1 minute.</string>
     <string name="linking_card_error_title">Oops! Something Went Wrong.</string>
-    <string name="order_error_subtitle">Don’t worry. Your money is safe. Please try again or contact our Suppport Team for help.</string>
+    <string name="order_error_subtitle">Don’t worry. Your money is safe. Please try again or contact our Support Team for help.</string>
+    <string name="order_error_subtitle_rb">Don’t worry. Your money is safe. Your %1$s recurring buy of %2$s failed to save. Please try again or contact our Support Team for help.</string>
     <string name="card_expiry_date">Exp: %1s</string>
     <string name="card_buying">Buying %1s</string>
     <string name="card_in_progress">%1s Buy In Progress</string>
@@ -1443,12 +1444,13 @@
     <string name="bank_transfer_in_progress_title">%1$s Buy Started</string>
     <string name="bank_transfer_in_progress_blurb">We are completing your purchase now. Expect the funds to be withdrawn from your bank by %1$s. Check the status of your order at anytime in Activity.</string>
     <string name="bank_transfer_in_progress_ob_blurb">Your order is being processed, we will let you know when its done. You can safely close this screen while we update the order in the background.</string>
+    <string name="completing_card_buy_1">The initial %1$s order of %2$s is being processed, we will let you know when its done.</string>
+    <string name="completing_card_buy_rb">Your %1$s buy of %2$s of %3$s has been set up.</string>
     <string name="completing_card_buy">We’re completing your purchase now.</string>
     <string name="card_purchased">%1s Purchased</string>
     <string name="card_purchased_available_now">Your %1s is now available in your Wallet.</string>
     <string name="card_info_title">Virtual Cards Not Accepted</string>
     <string name="card_info_description">At this time, we don’t support buying crypto with virtual credit and debit cards. You must use a physical card’s number, date and security code.</string>
-
     <string name="invalid_cvv">Invalid CVV</string>
     <string name="card_verification">Card Verification</string>
     <string name="invalid_date">Invalid Date</string>

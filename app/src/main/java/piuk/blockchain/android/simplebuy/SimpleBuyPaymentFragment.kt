@@ -11,11 +11,13 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkedBank
+import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.utils.secondsToDays
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManagerFactory
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -235,7 +237,14 @@ class SimpleBuyPaymentFragment :
             newState.isLoading && newState.orderValue != null -> {
                 binding.transactionProgressView.showTxInProgress(
                     getString(R.string.card_buying, newState.orderValue.formatOrSymbolForZero()),
-                    getString(R.string.completing_card_buy)
+                    getString(
+                        R.string.completing_card_buy_1,
+                        newState.order.amount?.toStringWithSymbol(),
+                        newState.selectedCryptoAsset?.ticker
+                    ) + appendRecurringBuyInfo(
+                        order = newState.order,
+                        selectedCryptoAsset = newState.selectedCryptoAsset,
+                        recurringBuyFrequency = newState.recurringBuyFrequency)
                 )
             }
             newState.paymentPending && newState.orderValue != null -> {
@@ -257,7 +266,14 @@ class SimpleBuyPaymentFragment :
                                         )
                                     }
                                 }
-                            } ?: getString(R.string.completing_card_buy)
+                            } ?: getString(
+                                R.string.completing_card_buy_1,
+                                newState.order.amount?.toStringWithSymbol(),
+                                newState.selectedCryptoAsset?.ticker
+                            ) + appendRecurringBuyInfo(
+                                order = newState.order,
+                                selectedCryptoAsset = newState.selectedCryptoAsset,
+                                recurringBuyFrequency = newState.recurringBuyFrequency)
                         )
                     }
                     else -> {
@@ -272,10 +288,33 @@ class SimpleBuyPaymentFragment :
             newState.errorState != null -> {
                 binding.transactionProgressView.showTxError(
                     getString(R.string.common_oops),
-                    getString(R.string.order_error_subtitle)
+                    if (newState.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
+                        getString(
+                            R.string.order_error_subtitle_rb,
+                            newState.order.amount?.formatOrSymbolForZero(),
+                            newState.selectedCryptoAsset?.ticker
+                        )
+                    } else {
+                        getString(R.string.order_error_subtitle)
+                    }
                 )
             }
         }
+    }
+
+    private fun appendRecurringBuyInfo(
+        order: SimpleBuyOrder,
+        selectedCryptoAsset: AssetInfo?,
+        recurringBuyFrequency: RecurringBuyFrequency
+    ): String {
+        return if (recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
+            "\n" + getString(
+                R.string.completing_card_buy_rb,
+                order.amount?.toStringWithSymbol(),
+                selectedCryptoAsset?.ticker,
+                recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext())
+            )
+        } else ""
     }
 
     private fun checkForUnlockHigherLimits(shouldShowUnlockMoreFunds: Boolean) {
