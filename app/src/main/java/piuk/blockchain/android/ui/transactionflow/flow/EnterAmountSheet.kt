@@ -208,9 +208,14 @@ class EnterAmountSheet : TransactionFlowSheet<DialogTxFlowEnterAmountBinding>() 
                                 convertFiatToCrypto(amount, rate as ExchangeRate.CryptoToFiat, state).also {
                                     binding.amountSheetInput.fixExchange(it)
                                 }
-                            } else {
+                            } else if (
+                                amount is FiatValue &&
+                                state.amount is FiatValue &&
+                                amount.currencyCode != state.amount.currencyCode
+                            ) {
+                                rate.inverse().convert(amount)
+                            } else
                                 amount
-                            }
                         )
                     )
                 }

@@ -544,7 +544,7 @@ class LiveCustodialWalletManager(
         }
     }
 
-    override fun getBankTransferLimits(fiatCurrency: String, onlyEligible: Boolean) =
+    override fun getBankTransferLimits(fiatCurrency: String, onlyEligible: Boolean): Single<PaymentLimits> =
         authenticator.authenticate {
             nabuService.paymentMethods(it, fiatCurrency, onlyEligible, null).map { methods ->
                 methods.filter { method -> method.eligible || !onlyEligible }

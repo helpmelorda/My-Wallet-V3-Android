@@ -39,9 +39,9 @@ class FiatDepositTxEngine(
     override fun doInitialiseTx(): Single<PendingTx> {
         check(sourceAccount is BankAccount)
         check(txTarget is FiatAccount)
-
-        return walletManager.getBankTransferLimits(userFiat, true).map { limits ->
-            val zeroFiat = FiatValue.zero((sourceAccount as LinkedBankAccount).fiatCurrency)
+        val sourceAccountCurrency = (sourceAccount as LinkedBankAccount).fiatCurrency
+        return walletManager.getBankTransferLimits(sourceAccountCurrency, true).map { limits ->
+            val zeroFiat = FiatValue.zero(sourceAccountCurrency)
             PendingTx(
                 amount = zeroFiat,
                 totalBalance = zeroFiat,
