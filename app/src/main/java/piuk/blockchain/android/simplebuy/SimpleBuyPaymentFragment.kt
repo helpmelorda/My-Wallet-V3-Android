@@ -107,9 +107,7 @@ class SimpleBuyPaymentFragment :
 
         require(newState.selectedPaymentMethod != null)
 
-        renderTitleAndSubtitle(
-            newState
-        )
+        renderTitleAndSubtitle(newState)
 
         binding.transactionProgressView.onCtaClick {
             when {

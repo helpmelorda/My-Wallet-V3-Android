@@ -93,7 +93,8 @@ class SimpleBuyInteractor(
         amount: FiatValue,
         paymentMethodId: String? = null,
         paymentMethod: PaymentMethodType,
-        isPending: Boolean
+        isPending: Boolean,
+        recurringBuyFrequency: RecurringBuyFrequency?
     ): Single<SimpleBuyIntent.OrderCreated> =
         custodialWalletManager.createOrder(
             custodialWalletOrder = CustodialWalletOrder(
@@ -106,7 +107,8 @@ class SimpleBuyInteractor(
                     cryptoAsset.ticker, null
                 ),
                 paymentMethodId = paymentMethodId,
-                paymentType = paymentMethod.name
+                paymentType = paymentMethod.name,
+                period = recurringBuyFrequency?.name
             ),
             stateAction = if (isPending) "pending" else null
         ).map {
@@ -114,25 +116,25 @@ class SimpleBuyInteractor(
         }
 
     fun createRecurringBuyOrder(
-        state: SimpleBuyState,
+        asset: AssetInfo?,
+        order: SimpleBuyOrder,
+        selectedPaymentMethod: SelectedPaymentMethod?,
         recurringBuyFrequency: RecurringBuyFrequency
     ): Single<RecurringBuyOrder> {
         return if (recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
-            val asset = state.selectedCryptoAsset
             require(asset != null) { "createRecurringBuyOrder selected crypto is null" }
-            require(state.order.amount != null) { "createRecurringBuyOrder amount is null" }
-            require(state.selectedPaymentMethod != null) { "createRecurringBuyOrder selected payment method is null" }
+            require(order.amount != null) { "createRecurringBuyOrder amount is null" }
+            require(selectedPaymentMethod != null) { "createRecurringBuyOrder selected payment method is null" }
 
-            val amount = state.order.amount
-            val paymentMethod = state.selectedPaymentMethod
+            val amount = order.amount
             custodialWalletManager.createRecurringBuyOrder(
                 RecurringBuyRequestBody(
-                    inputValue = amount?.toBigInteger().toString(),
-                    inputCurrency = amount?.currencyCode.toString(),
+                    inputValue = amount.toBigInteger().toString(),
+                    inputCurrency = amount.currencyCode,
                     destinationCurrency = asset.ticker,
-                    paymentMethod = paymentMethod.paymentMethodType.name,
+                    paymentMethod = selectedPaymentMethod.paymentMethodType.name,
                     period = recurringBuyFrequency.name,
-                    paymentMethodId = paymentMethod.takeUnless { it.isFunds() }?.id
+                    paymentMethodId = selectedPaymentMethod.takeUnless { it.isFunds() }?.id
                 )
             )
         } else {
@@ -327,7 +329,12 @@ class SimpleBuyInteractor(
         paymentMethodId: String?,
         attributes: SimpleBuyConfirmationAttributes?,
         isBankPartner: Boolean?
-    ): Single<BuySellOrder> = custodialWalletManager.confirmOrder(orderId, attributes, paymentMethodId, isBankPartner)
+    ): Single<BuySellOrder> = custodialWalletManager.confirmOrder(
+        orderId,
+        attributes,
+        paymentMethodId,
+        isBankPartner
+    )
 
     fun pollForOrderStatus(orderId: String): Single<BuySellOrder> =
         custodialWalletManager.getBuyOrder(orderId)

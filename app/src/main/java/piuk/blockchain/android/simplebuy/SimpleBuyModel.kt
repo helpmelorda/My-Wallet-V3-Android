@@ -18,6 +18,7 @@ import com.blockchain.nabu.models.responses.simplebuy.EverypayPaymentAttrs
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyConfirmationAttributes
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Scheduler
@@ -89,14 +90,11 @@ class SimpleBuyModel(
             is SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne -> (previousState.id?.let {
                 interactor.cancelOrder(it)
             } ?: Completable.complete()).thenSingle {
-                interactor.createOrder(
-                    previousState.selectedCryptoAsset
-                        ?: throw IllegalStateException("Missing Cryptocurrency "),
-                    previousState.order.amount ?: throw IllegalStateException("Missing amount"),
-                    previousState.selectedPaymentMethod?.concreteId(),
-                    previousState.selectedPaymentMethod?.paymentMethodType
-                        ?: throw IllegalStateException("Missing Payment Method"),
-                    true
+                processCreateOrder(
+                    previousState.selectedCryptoAsset,
+                    previousState.selectedPaymentMethod,
+                    previousState.order,
+                    previousState.recurringBuyFrequency
                 )
             }.subscribeBy(
                 onSuccess = {
@@ -224,7 +222,10 @@ class SimpleBuyModel(
                     process(SimpleBuyIntent.ErrorIntent())
                 }
             )
-            is SimpleBuyIntent.ConfirmOrder -> processConfirmOrder(previousState)
+            is SimpleBuyIntent.ConfirmOrder -> processConfirmOrder(
+                previousState.id,
+                previousState.selectedPaymentMethod
+            )
             is SimpleBuyIntent.FinishedFirstBuy -> null
             is SimpleBuyIntent.CheckOrderStatus -> interactor.pollForOrderStatus(
                 previousState.id ?: throw IllegalStateException("Order Id not available")
@@ -263,7 +264,12 @@ class SimpleBuyModel(
             }
 
             is SimpleBuyIntent.RecurringBuySelectedFirstTimeFlow ->
-                createRecurringBuy(previousState, intent.recurringBuyFrequency).subscribeBy(
+                createRecurringBuy(
+                    previousState.selectedCryptoAsset,
+                    previousState.order,
+                    previousState.selectedPaymentMethod,
+                    intent.recurringBuyFrequency
+                ).subscribeBy(
                     onSuccess = {
                         process(SimpleBuyIntent.RecurringBuyCreatedFirstTimeFlow)
                     },
@@ -334,8 +340,32 @@ class SimpleBuyModel(
     private fun FiatValue.isOpenBankingCurrency() =
         this.currencyCode == "EUR" || this.currencyCode == "GBP"
 
-    private fun isFirstTimeBuyer(previousState: SimpleBuyState): Single<Boolean> {
-        return if (prefs.isFirstTimeBuyer && previousState.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME) {
+    private fun processCreateOrder(
+        selectedCryptoAsset: AssetInfo?,
+        selectedPaymentMethod: SelectedPaymentMethod?,
+        order: SimpleBuyOrder,
+        recurringBuyFrequency: RecurringBuyFrequency
+    ): Single<SimpleBuyIntent.OrderCreated> {
+        return isFirstTimeBuyer(recurringBuyFrequency)
+            .flatMap { isFirstTimeBuyer ->
+                createOrder(
+                    selectedCryptoAsset,
+                    selectedPaymentMethod,
+                    order,
+                    recurringBuyFrequency.takeIf { it != RecurringBuyFrequency.ONE_TIME }
+                )
+                    .map { isFirstTimeBuyer to it }
+            }.map { (isFirstTimeBuyer, buySellOrder) ->
+                if (isFirstTimeBuyer && recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME) {
+                    prefs.isFirstTimeBuyer = false
+                    process(SimpleBuyIntent.FinishedFirstBuy)
+                }
+                buySellOrder
+            }
+    }
+
+    private fun isFirstTimeBuyer(recurringBuyFrequency: RecurringBuyFrequency): Single<Boolean> {
+        return if (prefs.isFirstTimeBuyer && recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME) {
             isFirstTimeBuyerUseCase(Unit)
                 .onErrorReturn { false }
         } else {
@@ -344,31 +374,59 @@ class SimpleBuyModel(
     }
 
     private fun createRecurringBuy(
-        previousState: SimpleBuyState,
-        recurringBuyFrequency: RecurringBuyFrequency,
-        buySellOrder: BuySellOrder? = null
-    ): Single<Pair<BuySellOrder?, RecurringBuyOrder>> =
-        interactor.createRecurringBuyOrder(previousState, recurringBuyFrequency)
-            .map { buySellOrder to it }
+        selectedCryptoAsset: AssetInfo?,
+        order: SimpleBuyOrder,
+        selectedPaymentMethod: SelectedPaymentMethod?,
+        recurringBuyFrequency: RecurringBuyFrequency
+    ): Single<RecurringBuyOrder> =
+        interactor.createRecurringBuyOrder(
+            selectedCryptoAsset,
+            order,
+            selectedPaymentMethod,
+            recurringBuyFrequency
+        )
             .onErrorReturn {
-                buySellOrder to RecurringBuyOrder(RecurringBuyState.INACTIVE)
+                RecurringBuyOrder(RecurringBuyState.INACTIVE)
             }
 
-    private fun confirmOrder(previousState: SimpleBuyState): Single<BuySellOrder> {
-        val isBankPayment = previousState.selectedPaymentMethod?.isBank()
+    private fun createOrder(
+        selectedCryptoAsset: AssetInfo?,
+        selectedPaymentMethod: SelectedPaymentMethod?,
+        order: SimpleBuyOrder,
+        recurringBuyFrequency: RecurringBuyFrequency?
+    ): Single<SimpleBuyIntent.OrderCreated> {
+        require(selectedCryptoAsset != null) { "Missing Cryptocurrency" }
+        require(order.amount != null) { "Missing amount" }
+        require(selectedPaymentMethod != null) { "Missing selectedPaymentMethod" }
+        return interactor.createOrder(
+            cryptoAsset = selectedCryptoAsset,
+            amount = order.amount,
+            paymentMethodId = selectedPaymentMethod.concreteId(),
+            paymentMethod = selectedPaymentMethod.paymentMethodType,
+            isPending = true,
+            recurringBuyFrequency = recurringBuyFrequency
+        )
+    }
+
+    private fun confirmOrder(
+        id: String?,
+        selectedPaymentMethod: SelectedPaymentMethod?
+    ): Single<BuySellOrder> {
+        require(id != null) { "Order Id not available" }
+        require(selectedPaymentMethod != null) { "selectedPaymentMethod missing" }
         return interactor.confirmOrder(
-            previousState.id ?: throw IllegalStateException("Order Id not available"),
-            previousState.selectedPaymentMethod?.takeIf { it.isBank() }?.concreteId(),
-            if (isBankPayment == true) {
+            orderId = id,
+            paymentMethodId = selectedPaymentMethod.takeIf { it.isBank() }?.concreteId(),
+            attributes = if (selectedPaymentMethod.isBank()) {
                 SimpleBuyConfirmationAttributes(
                     callback = bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY)
                 )
             } else {
                 cardActivators.firstOrNull {
-                    previousState.selectedPaymentMethod?.partner == it.partner
+                    selectedPaymentMethod?.partner == it.partner
                 }?.paymentAttributes()
             },
-            isBankPayment
+            isBankPartner = selectedPaymentMethod.isBank()
         )
     }
 
@@ -380,34 +438,20 @@ class SimpleBuyModel(
         return eligibility.contains(buySellOrder.paymentMethodType)
     }
 
-    private fun processConfirmOrder(previousState: SimpleBuyState): Disposable {
-        return isFirstTimeBuyer(previousState)
-            .flatMap { isFirstTimeBuyer ->
-                confirmOrder(previousState)
-                    .map { isFirstTimeBuyer to it }
-            }.flatMap { (isFirstTimeBuyer, buySellOrder) ->
-                if (isFirstTimeBuyer &&
-                    previousState.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME &&
-                    isPaymentMethodSelectedAllowingRecurringBuys(
-                        eligibleList = previousState.eligibleAndNextPaymentRecurringBuy,
-                        buySellOrder = buySellOrder
-                    )
-                ) {
-                    prefs.isFirstTimeBuyer = false
-                    process(SimpleBuyIntent.FinishedFirstBuy)
-                    Single.just(buySellOrder to RecurringBuyOrder(RecurringBuyState.UNINITIALISED))
-                } else {
-                    createRecurringBuy(previousState, previousState.recurringBuyFrequency, buySellOrder)
-                }
-            }.subscribeBy(
-                onSuccess = { (buySellOrder, recurringBuy) ->
+    private fun processConfirmOrder(
+        id: String?,
+        selectedPaymentMethod: SelectedPaymentMethod?
+    ): Disposable {
+        return confirmOrder(id, selectedPaymentMethod).map { it }
+            .subscribeBy(
+                onSuccess = { buySellOrder ->
                     val orderCreatedSuccessfully = buySellOrder!!.state == OrderState.FINISHED
                     if (orderCreatedSuccessfully) {
                         updatePersistingCountersForCompletedOrders()
                     }
                     process(
                         SimpleBuyIntent.OrderCreated(
-                            buySellOrder, shouldShowAppRating(orderCreatedSuccessfully), recurringBuy.state
+                            buySellOrder, shouldShowAppRating(orderCreatedSuccessfully)
                         )
                     )
                 },

@@ -79,16 +79,18 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
         state.selectedRecurringBuy?.let {
             val paymentMethodType = it.paymentDetails?.paymentDetails
                 ?: throw IllegalStateException("Missing Payment Method on RecurringBuy")
-            analytics.logEvent(
-                RecurringBuyAnalytics
-                    .RecurringBuyCancelClicked(
-                        LaunchOrigin.RECURRING_BUY_DETAILS,
-                        it.recurringBuyFrequency,
-                        it.amount,
-                        it.asset,
-                        paymentMethodType
-                    )
-            )
+            it.asset?.let { assetInfo ->
+                analytics.logEvent(
+                    RecurringBuyAnalytics
+                        .RecurringBuyCancelClicked(
+                            LaunchOrigin.RECURRING_BUY_DETAILS,
+                            it.recurringBuyFrequency,
+                            it.amount,
+                            assetInfo,
+                            paymentMethodType
+                        )
+                )
+            }
         }
     }
 
@@ -118,9 +120,11 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
                     with(binding) {
                         rbSheetTitle.text = getString(R.string.recurring_buy_sheet_title_1)
                         rbSheetHeader.setDetails(
-                            getString(R.string.recurring_buy_header,
+                            getString(
+                                R.string.recurring_buy_header,
                                 it.amount.toStringWithSymbol(),
-                                it.asset.ticker),
+                                it.asset?.ticker
+                            ),
                             ""
                         )
                         it.renderListItems()
@@ -161,8 +165,10 @@ class RecurringBuyDetailsSheet : MviBottomSheet<AssetDetailsModel,
             SimpleBuyCheckoutItem.ComplexCheckoutItem(
                 getString(R.string.recurring_buy_frequency_label_1),
                 recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext()),
-                recurringBuyFrequency.toHumanReadableRecurringDate(requireContext(),
-                    ZonedDateTime.ofInstant(nextPaymentDate.toInstant(), ZoneId.systemDefault()))
+                recurringBuyFrequency.toHumanReadableRecurringDate(
+                    requireContext(),
+                    ZonedDateTime.ofInstant(nextPaymentDate.toInstant(), ZoneId.systemDefault())
+                )
             ),
             SimpleBuyCheckoutItem.SimpleCheckoutItem(
                 getString(R.string.recurring_buy_info_purchase_label_1),

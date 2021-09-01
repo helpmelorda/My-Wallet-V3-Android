@@ -175,7 +175,8 @@ class SimpleBuyModelTest {
                 amount = anyOrNull(),
                 paymentMethodId = anyOrNull(),
                 paymentMethod = any(),
-                isPending = any()
+                isPending = any(),
+                recurringBuyFrequency = anyOrNull()
             )
         ).thenReturn(
             Single.just(

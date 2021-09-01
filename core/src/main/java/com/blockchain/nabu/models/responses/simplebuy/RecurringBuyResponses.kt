@@ -8,7 +8,6 @@ import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
 import java.util.Date
 
@@ -36,7 +35,8 @@ data class RecurringBuyResponse(
     }
 }
 
-fun RecurringBuyResponse.toRecurringBuy(assetCatalogue: AssetCatalogue): RecurringBuy {
+fun RecurringBuyResponse.toRecurringBuy(assetCatalogue: AssetCatalogue): RecurringBuy? {
+    val asset = assetCatalogue.fromNetworkTicker(destinationCurrency) ?: return null
     return RecurringBuy(
         id = id,
         state = state.toRecurringBuyState(),
@@ -44,7 +44,7 @@ fun RecurringBuyResponse.toRecurringBuy(assetCatalogue: AssetCatalogue): Recurri
         nextPaymentDate = nextPayment.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
         paymentMethodType = paymentMethod.toPaymentMethodType(),
         amount = FiatValue.fromMinor(inputCurrency, inputValue.toLong()),
-        asset = assetCatalogue.fromNetworkTicker(destinationCurrency) ?: CryptoCurrency.BTC,
+        asset = asset,
         createDate = insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
         paymentMethodId = paymentMethodId
     )

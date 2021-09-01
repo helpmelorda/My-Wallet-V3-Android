@@ -684,7 +684,7 @@ class LiveCustodialWalletManager(
     override fun getRecurringBuysForAsset(assetTicker: String): Single<List<RecurringBuy>> =
         authenticator.authenticate { sessionToken ->
             nabuService.getRecurringBuysForAsset(sessionToken, assetTicker).map { list ->
-                list.map {
+                list.mapNotNull {
                     it.toRecurringBuy(assetCatalogue)
                 }
             }
@@ -694,7 +694,9 @@ class LiveCustodialWalletManager(
         return authenticator.authenticate { sessionToken ->
             nabuService.getRecurringBuyForId(sessionToken, recurringBuyId)
                 .map {
-                    it.first().toRecurringBuy(assetCatalogue)
+                    it.first().toRecurringBuy(assetCatalogue) ?: throw IllegalStateException(
+                        "No recurring buy"
+                    )
                 }
         }
     }
@@ -1505,10 +1507,10 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
         price = price?.let {
             FiatValue.fromMinor(fiatCurrency, it.toLong())
         },
-        orderValue = if (type() == OrderType.BUY)
-            CryptoValue.fromMinor(cryptoCurrency, cryptoAmount)
+        orderValue = if (type() == OrderType.SELL)
+            FiatValue.fromMinor(outputCurrency, outputQuantity.toLongOrDefault(0))
         else
-            FiatValue.fromMinor(outputCurrency, outputQuantity.toLongOrDefault(0)),
+            CryptoValue.fromMinor(cryptoCurrency, cryptoAmount),
         attributes = attributes,
         type = type(),
         depositPaymentId = depositPaymentId.orEmpty(),

@@ -69,7 +69,8 @@ data class CustodialWalletOrder(
     private val input: OrderInput,
     private val output: OrderOutput,
     private val paymentMethodId: String? = null,
-    private val paymentType: String? = null
+    private val paymentType: String? = null,
+    private val period: String?
 )
 
 data class BuySellOrderResponse(

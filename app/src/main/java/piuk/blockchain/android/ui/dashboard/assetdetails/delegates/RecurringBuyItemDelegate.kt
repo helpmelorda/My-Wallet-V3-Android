@@ -46,7 +46,9 @@ private class RecurringBuyViewHolder(
         with(binding) {
             rbHeaderGroup.visibleIf { isFirstItemOfCategory }
 
-            rbIcon.setAssetIconColoursWithTint(item.recurringBuy.asset)
+            item.recurringBuy.asset?.let {
+                rbIcon.setAssetIconColoursWithTint(it)
+            }
 
             rbTitle.text = context.getString(
                 R.string.dashboard_recurring_buy_item_title_1,

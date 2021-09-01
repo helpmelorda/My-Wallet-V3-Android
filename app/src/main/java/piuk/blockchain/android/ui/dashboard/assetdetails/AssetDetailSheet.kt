@@ -176,12 +176,15 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
 
     private fun onRecurringBuyClicked(recurringBuy: RecurringBuy) {
         clearList()
-        analytics.logEvent(
-            RecurringBuyAnalytics.RecurringBuyDetailsClicked(
-                LaunchOrigin.CURRENCY_PAGE,
-                recurringBuy.asset.ticker
+
+        recurringBuy.asset?.let {
+            analytics.logEvent(
+                RecurringBuyAnalytics.RecurringBuyDetailsClicked(
+                    LaunchOrigin.CURRENCY_PAGE,
+                    it.ticker
+                )
             )
-        )
+        }
         model.process(ShowRecurringBuySheet(recurringBuy))
     }
 

@@ -278,7 +278,10 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     object ConfirmOrder : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(confirmationActionRequested = true, isLoading = true)
+            oldState.copy(
+                confirmationActionRequested = true,
+                isLoading = true
+            )
     }
 
     object FetchWithdrawLockTime : SimpleBuyIntent()
@@ -352,8 +355,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     class OrderCreated(
         private val buyOrder: BuySellOrder,
-        private val showInAppRating: Boolean = false,
-        private val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED
+        private val showInAppRating: Boolean = false
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
@@ -366,7 +368,11 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                 paymentSucceeded = buyOrder.state == OrderState.FINISHED,
                 isLoading = false,
                 showRating = showInAppRating,
-                recurringBuyState = recurringBuyState
+                recurringBuyState = if (buyOrder.recurringBuyId.isNullOrBlank()) {
+                    RecurringBuyState.UNINITIALISED
+                } else {
+                    RecurringBuyState.ACTIVE
+                }
             )
     }
 
@@ -405,7 +411,9 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     object CancelOrderIfAnyAndCreatePendingOne : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(isLoading = true)
+            oldState.copy(
+                isLoading = true
+            )
 
         override fun isValidFor(oldState: SimpleBuyState): Boolean {
             return oldState.selectedCryptoAsset != null &&
