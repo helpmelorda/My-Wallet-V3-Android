@@ -247,8 +247,9 @@ class ActivityDetailsModel(
         interactor.getRecurringBuyTransactionCacheDetails(
             txHash = intent.txHash
         )?.let { cacheTransaction ->
+            check(cacheTransaction.recurringBuyId != null) { "No recurring buy id for transaction" }
             process(LoadRecurringBuyDetailsHeaderDataIntent(cacheTransaction))
-            interactor.loadRecurringBuysById(intent.txHash)
+            interactor.loadRecurringBuysById(cacheTransaction.recurringBuyId)
                 .map { cacheTransaction to it }
                 .flatMap { (cacheTransaction, recurringBuy) ->
                     interactor.loadRecurringBuyItems(cacheTransaction, recurringBuy)
