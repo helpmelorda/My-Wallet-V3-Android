@@ -82,6 +82,7 @@ internal class CryptoInterestAccount(
                 interestBalance.getBalanceForAsset(asset),
                 exchangeRates.cryptoToUserFiatRate(asset)
             ) { balance, rate ->
+                setHasTransactions(balance.hasTransactions)
                 AccountBalance.from(balance, rate)
             }.doOnNext { hasFunds.set(it.total.isPositive) }
 
@@ -144,11 +145,11 @@ internal class CryptoInterestAccount(
             }
 
     override val actions: Single<AvailableActions>
-        get() = actionableBalance.map { balance ->
+        get() = balance.singleOrError().map { balance ->
             setOfNotNull(
-                AssetAction.InterestWithdraw.takeIf { balance.isPositive },
-                AssetAction.ViewStatement,
-                AssetAction.ViewActivity
+                AssetAction.InterestWithdraw.takeIf { balance.actionable.isPositive },
+                AssetAction.ViewStatement.takeIf { hasTransactions },
+                AssetAction.ViewActivity.takeIf { hasTransactions }
             )
         }
 

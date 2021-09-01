@@ -127,7 +127,6 @@ class PortfolioFragment :
             onCardClicked = { onAssetClicked(it) },
             analytics = get(),
             onFundsItemClicked = { onFundsClicked(it) },
-            coincore = coincore,
             assetResources = assetResources
         )
     }

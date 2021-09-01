@@ -274,7 +274,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         val balance = TradingAccountBalance(
             total = accountBalance,
             actionable = actionableBalance,
-            pending = pendingBalance
+            pending = pendingBalance,
+            hasTransactions = true
         )
         whenever(tradingBalances.getBalanceForAsset(TEST_ASSET))
             .thenReturn(Observable.just(balance))

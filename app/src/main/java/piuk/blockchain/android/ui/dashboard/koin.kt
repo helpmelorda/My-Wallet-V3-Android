@@ -58,15 +58,8 @@ val dashboardModule = module {
 
         factory {
             PricesInteractor(
-//                coincore = get(),
-//                payloadManager = get(),
-//                exchangeRates = get(),
-//                currencyPrefs = get(),
-//                custodialWalletManager = get(),
-//                simpleBuyPrefs = get(),
-//                analytics = get(),
-//                crashLogger = get(),
-//                linkedBanksFactory = get()
+                coincore = get(),
+                exchangeRates = get()
             )
         }
 

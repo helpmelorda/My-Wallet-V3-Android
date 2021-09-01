@@ -10,7 +10,6 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import piuk.blockchain.android.R
-import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.databinding.ItemDashboardBalanceCardBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.model.BalanceState
@@ -22,7 +21,6 @@ import piuk.blockchain.android.util.getResolvedColor
 
 class BalanceCardDelegate<in T>(
     private val selectedFiat: String,
-    private val coincore: Coincore,
     private val assetResources: AssetResources
 ) : AdapterDelegate<T> {
 
@@ -33,7 +31,6 @@ class BalanceCardDelegate<in T>(
         BalanceCardViewHolder(
             ItemDashboardBalanceCardBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             selectedFiat,
-            coincore,
             assetResources
         )
 
@@ -47,7 +44,6 @@ class BalanceCardDelegate<in T>(
 private class BalanceCardViewHolder(
     private val binding: ItemDashboardBalanceCardBinding,
     private val selectedFiat: String,
-    private val coincore: Coincore,
     private val assetResources: AssetResources
 ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -116,10 +112,11 @@ private class BalanceCardViewHolder(
 
     private fun populatePieChart(state: BalanceState) {
         with(binding) {
+            val assets = state.assetList
+
             val entries = ArrayList<PieEntry>().apply {
-                coincore.activeCryptoAssets().forEach {
-                    val asset = state[it.asset]
-                    val point = asset.fiatBalance?.toFloat() ?: 0f
+                assets.forEach { assetState ->
+                    val point = assetState.fiatBalance?.toFloat() ?: 0f
                     add(PieEntry(point))
                 }
 
@@ -130,8 +127,8 @@ private class BalanceCardViewHolder(
             if (entries.all { it.value == 0.0f }) {
                 populateEmptyPieChart()
             } else {
-                val sliceColours = coincore.activeCryptoAssets().map {
-                    assetResources.assetColor(it.asset)
+                val sliceColours = assets.map {
+                    assetResources.assetColor(it.currency)
                 }.toMutableList()
 
                 // Add colour for Funds

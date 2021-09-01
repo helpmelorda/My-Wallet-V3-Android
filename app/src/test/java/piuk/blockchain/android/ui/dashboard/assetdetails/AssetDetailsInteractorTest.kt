@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.dashboard.assetdetails
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.whenever
@@ -57,29 +58,34 @@ class AssetDetailsInteractorTest {
 
     @Test
     fun `cryptoBalance,fiatBalance & interestBalance return the right values`() {
+        val currentRate = ExchangeRate.CryptoToFiat(TEST_ASSET, TEST_FIAT, 30.toBigDecimal())
 
-        val price = ExchangeRate.CryptoToFiat(TEST_ASSET, TEST_FIAT, 56478.99.toBigDecimal())
+        val prices = Prices24HrWithDelta(
+            currentRate = currentRate,
+            previousRate = ExchangeRate.CryptoToFiat(TEST_ASSET, TEST_FIAT, 15.toBigDecimal()),
+            delta24h = 100.0
+        )
 
         val walletBalance = AccountBalance(
-            total = CryptoValue(TEST_ASSET, 548621.toBigInteger()),
-            actionable = CryptoValue(TEST_ASSET, 548621.toBigInteger()),
+            total = CryptoValue(TEST_ASSET, 2500.toBigInteger()),
+            actionable = CryptoValue(TEST_ASSET, 2500.toBigInteger()),
             pending = CryptoValue.zero(TEST_ASSET),
-            exchangeRate = price
+            exchangeRate = currentRate
         )
         val custodialBalance = AccountBalance(
             total = CryptoValue.zero(TEST_ASSET),
             actionable = CryptoValue.zero(TEST_ASSET),
             pending = CryptoValue.zero(TEST_ASSET),
-            exchangeRate = price
+            exchangeRate = currentRate
         )
         val interestBalance = AccountBalance(
             total = CryptoValue.zero(TEST_ASSET),
             actionable = CryptoValue.zero(TEST_ASSET),
             pending = CryptoValue.zero(TEST_ASSET),
-            exchangeRate = price
+            exchangeRate = currentRate
         )
 
-        val walletFiat = FiatValue.fromMinor(TEST_FIAT, 30985)
+        val walletFiat = FiatValue.fromMinor(TEST_FIAT, 2500 * 30)
         val custodialFiat = FiatValue.fromMinor(TEST_FIAT, 0)
         val interestFiat = FiatValue.fromMinor(TEST_FIAT, 0)
 
@@ -108,7 +114,7 @@ class AssetDetailsInteractorTest {
             )
         )
 
-        whenever(asset.exchangeRate()).thenReturn(Single.just(price))
+        whenever(asset.getPricesWith24hDelta()).thenReturn(Single.just(prices))
 
         whenever(nonCustodialGroup.balance).thenReturn(Observable.just(walletBalance))
         whenever(nonCustodialGroup.isEnabled).thenReturn(Single.just(true))
@@ -142,7 +148,7 @@ class AssetDetailsInteractorTest {
 
     @Test
     fun `cryptoBalance, fiatBalance & interestBalance are never returned if exchange rate fails`() {
-        whenever(asset.exchangeRate()).thenReturn(Single.error(Throwable()))
+        whenever(asset.getPricesWith24hDelta()).thenReturn(Single.error(Throwable()))
 
         val walletCrypto = CryptoValue(TEST_ASSET, 548621.toBigInteger())
         val custodialCrypto = CryptoValue.zero(TEST_ASSET)
@@ -163,9 +169,13 @@ class AssetDetailsInteractorTest {
         val walletCrypto = CryptoValue(TEST_ASSET, 548621.toBigInteger())
         val custodialCrypto = CryptoValue.zero(TEST_ASSET)
 
-        val price = ExchangeRate.CryptoToFiat(TEST_ASSET, TEST_FIAT, 5647899.toBigDecimal())
+        val prices = Prices24HrWithDelta(
+            currentRate = ExchangeRate.CryptoToFiat(TEST_ASSET, TEST_FIAT, 5647899.toBigDecimal()),
+            previousRate = ExchangeRate.CryptoToFiat(TEST_ASSET, TEST_FIAT, 564789.toBigDecimal()),
+            delta24h = 1000.0
+        )
 
-        whenever(asset.exchangeRate()).thenReturn(Single.just(price))
+        whenever(asset.getPricesWith24hDelta()).thenReturn(Single.just(prices))
         whenever(asset.accountGroup(AssetFilter.Interest)).thenReturn(Maybe.error(Throwable()))
 
         whenever(nonCustodialGroup.accountBalance).thenReturn(Single.just(walletCrypto))
@@ -175,16 +185,6 @@ class AssetDetailsInteractorTest {
         subject.loadAssetDetails(asset)
             .test()
             .assertNoValues()
-    }
-
-    @Test
-    fun `exchange rate is the right one`() {
-        val price = ExchangeRate.CryptoToFiat(TEST_ASSET, TEST_FIAT, 56478.99.toBigDecimal())
-
-        whenever(asset.exchangeRate()).thenReturn(Single.just(price))
-
-        val testObserver = subject.loadExchangeRate(asset).test()
-        testObserver.assertValue("$56,478.99").assertValueCount(1)
     }
 
     @Test
@@ -224,7 +224,7 @@ class AssetDetailsInteractorTest {
             ticker = "NOPE",
             name = "Not a real thing",
             categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
-            precisionDp = 8,
+            precisionDp = 2,
             requiredConfirmations = 3,
             colour = "000000"
         ) {}

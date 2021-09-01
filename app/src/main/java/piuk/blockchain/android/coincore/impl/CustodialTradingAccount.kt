@@ -93,6 +93,7 @@ class CustodialTradingAccount(
             tradingBalances.getBalanceForAsset(asset),
             exchangeRates.cryptoToUserFiatRate(asset)
         ) { balance, rate ->
+            setHasTransactions(balance.hasTransactions)
             AccountBalance.from(balance, rate)
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
@@ -137,7 +138,7 @@ class CustodialTradingAccount(
             ) { hasFunds, hasActionableBalance, isEligibleForSimpleBuy, isEligibleForInterest, fiatAccounts ->
                 val isActiveFunded = !isArchived && hasFunds
 
-                val activity = AssetAction.ViewActivity.takeEnabledIf(baseActions)
+                val activity = AssetAction.ViewActivity.takeEnabledIf(baseActions) { hasTransactions }
                 val receive = AssetAction.Receive.takeEnabledIf(baseActions)
                 val buy = AssetAction.Buy.takeEnabledIf(baseActions)
 

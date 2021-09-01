@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
@@ -35,9 +35,12 @@ import timber.log.Timber
 
 data class PricesItem(
     val asset: AssetInfo,
-    val price: ExchangeRate // Maybe? TODO: How's this sheet going to work?
+    val priceWithDelta: Prices24HrWithDelta? = null
     // Etc
-)
+) {
+    val assetTicker = asset.ticker
+    val assetName = asset.name
+}
 
 internal class PricesFragment :
     HomeScreenMviFragment<PricesModel, PricesIntent, PricesState, FragmentPricesBinding>(),
@@ -52,6 +55,7 @@ internal class PricesFragment :
     private val theAdapter: PricesDelegateAdapter by lazy {
         PricesDelegateAdapter(
             prefs = currencyPrefs,
+            onPriceRequest = { onGetAssetPrice(it) },
             onCardClicked = { onAssetClicked(it) },
             assetResources = assetResources
         )
@@ -81,6 +85,8 @@ internal class PricesFragment :
     private fun doRender(newState: PricesState) {
         binding.swipe.isRefreshing = false
 
+        updateDisplayList(newState)
+
         // Update/show dialog flow
         if (state?.activeFlow != newState.activeFlow) {
             state?.activeFlow?.let {
@@ -103,6 +109,21 @@ internal class PricesFragment :
             }
         }
         this.state = newState
+    }
+
+    private fun updateDisplayList(newState: PricesState) {
+        val newList = newState.availablePrices.values.map {
+            PricesItem(
+                asset = it.assetInfo,
+                priceWithDelta = it.prices
+            )
+        }
+
+        with(displayList) {
+            clear()
+            addAll(newList.sortedBy { it.assetName })
+        }
+        theAdapter.notifyDataSetChanged()
     }
 
     override fun onBackPressed(): Boolean = false
@@ -129,7 +150,7 @@ internal class PricesFragment :
 
     private fun setupSwipeRefresh() {
         with(binding) {
-            swipe.setOnRefreshListener { model.process(PricesIntent.RefreshAllPrices) }
+            swipe.setOnRefreshListener { model.process(PricesIntent.GetAvailableAssets) }
 
             // Configure the refreshing colors
             swipe.setColorSchemeResources(
@@ -148,19 +169,17 @@ internal class PricesFragment :
         initOrUpdateAssets()
     }
 
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        if (!hidden) {
-            model.process(PricesIntent.RefreshAllPrices)
-        }
-    }
-
     private fun initOrUpdateAssets() {
+        model.process(PricesIntent.GetAvailableAssets)
     }
 
     override fun onPause() {
         compositeDisposable.clear()
         super.onPause()
+    }
+
+    private fun onGetAssetPrice(asset: AssetInfo) {
+        model.process(PricesIntent.GetAssetPrice(asset))
     }
 
     private fun onAssetClicked(asset: AssetInfo) {

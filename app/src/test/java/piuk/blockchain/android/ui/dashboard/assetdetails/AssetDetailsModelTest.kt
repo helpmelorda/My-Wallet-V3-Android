@@ -96,7 +96,7 @@ class AssetDetailsModelTest {
         val expectedRecurringBuyMap = mapOf(
             "123" to recurringBuy
         )
-        val price = "1000 BTC"
+
         val priceSeries = listOf<HistoricalRate>(mock())
         val asset: CryptoAsset = mock {
             on { asset }.thenReturn(CryptoCurrency.BTC)
@@ -111,7 +111,6 @@ class AssetDetailsModelTest {
         val timeSpan = HistoricalTimeSpan.DAY
 
         whenever(interactor.loadAssetDetails(asset)).thenReturn(Single.just(assetDisplayMap))
-        whenever(interactor.loadExchangeRate(asset)).thenReturn(Single.just(price))
         whenever(interactor.loadHistoricPrices(asset, timeSpan)).thenReturn(Single.just(priceSeries))
         whenever(interactor.loadRecurringBuysForAsset(asset.asset.ticker)).thenReturn(Single.just(recurringBuys))
         whenever(interactor.load24hPriceDelta(asset.asset)).thenReturn(Single.just(expectedDeltaDetails))
@@ -119,7 +118,7 @@ class AssetDetailsModelTest {
         subject.process(LoadAsset(asset))
 
         subject.state.test()
-            .awaitCount(8)
+            .awaitCount(7)
             .assertValueAt(0) {
                 it == defaultState
             }.assertValueAt(1) {
@@ -143,39 +142,30 @@ class AssetDetailsModelTest {
                     assetDisplayMap = mapOf(),
                     chartData = priceSeries,
                     chartLoading = false,
-                    assetFiatPrice = price
+                    prices24HrWithDelta = expectedDeltaDetails
                 )
             }.assertValueAt(5) {
-                it == defaultState.copy(
+                val expected = defaultState.copy(
                     asset = asset,
                     chartData = priceSeries,
                     chartLoading = false,
-                    assetFiatPrice = price,
-                    assetDisplayMap = assetDisplayMap
-                )
-            }.assertValueAt(6) {
-                it == defaultState.copy(
-                    asset = asset,
-                    chartData = priceSeries,
-                    chartLoading = false,
-                    assetFiatPrice = price,
                     assetDisplayMap = assetDisplayMap,
-                    recurringBuys = expectedRecurringBuyMap
+                    prices24HrWithDelta = expectedDeltaDetails
                 )
-            }.assertValueAt(7) {
-                it == defaultState.copy(
+                it == expected
+            }.assertValueAt(6) {
+                val expected = defaultState.copy(
                     asset = asset,
                     chartData = priceSeries,
                     chartLoading = false,
-                    assetFiatPrice = price,
                     assetDisplayMap = assetDisplayMap,
                     recurringBuys = expectedRecurringBuyMap,
                     prices24HrWithDelta = expectedDeltaDetails
                 )
+                it == expected
             }
 
         verify(interactor).loadAssetDetails(asset)
-        verify(interactor).loadExchangeRate(asset)
         verify(interactor).loadRecurringBuysForAsset(asset.asset.ticker)
         verify(interactor).loadHistoricPrices(asset, timeSpan)
         verify(interactor).load24hPriceDelta(asset.asset)

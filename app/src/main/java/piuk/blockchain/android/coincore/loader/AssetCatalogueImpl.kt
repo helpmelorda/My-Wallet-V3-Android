@@ -45,7 +45,7 @@ internal class AssetCatalogueImpl(
         fromNetworkTicker(symbol)?.let { found ->
             found.takeIf {
                 it.l2chain == l2chain &&
-                it.l2identifier?.compareTo(l2Id, ignoreCase = true) == 0
+                it.l2identifier?.equals(l2Id, ignoreCase = true) == true
             }
         }
 

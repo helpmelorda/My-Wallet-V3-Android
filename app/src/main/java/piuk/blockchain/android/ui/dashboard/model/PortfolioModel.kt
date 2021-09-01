@@ -77,6 +77,7 @@ interface BalanceState : DashboardItem {
     val fiatBalance: Money?
     val delta: Pair<Money, Double>?
     operator fun get(currency: AssetInfo): CryptoAssetState
+    val assetList: List<CryptoAssetState>
     fun getFundsFiat(fiat: String): Money
 }
 
@@ -109,8 +110,10 @@ sealed class DashboardNavigationAction {
     object FiatFundsNoKyc : DashboardNavigationAction()
     object InterestSummary : DashboardNavigationAction()
     object PaymentMethods : DashboardNavigationAction()
-    class LinkBankWithPartner(override val linkBankTransfer: LinkBankTransfer, override val assetAction: AssetAction) :
-        DashboardNavigationAction(), LinkBankNavigationAction
+    class LinkBankWithPartner(
+        override val linkBankTransfer: LinkBankTransfer,
+        override val assetAction: AssetAction
+    ) : DashboardNavigationAction(), LinkBankNavigationAction
 
     fun isBottomSheet() =
         this !is LinkBankNavigationAction
@@ -182,6 +185,8 @@ data class PortfolioState(
             null
         }
     }
+
+    override val assetList: List<CryptoAssetState> = assets.values.toList()
 
     override operator fun get(currency: AssetInfo): CryptoAssetState =
         assets[currency]

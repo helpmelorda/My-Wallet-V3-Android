@@ -8,16 +8,21 @@ import piuk.blockchain.android.ui.resources.AssetResources
 
 class PricesDelegateAdapter(
     prefs: CurrencyPrefs,
+    onPriceRequest: (AssetInfo) -> Unit,
     onCardClicked: (AssetInfo) -> Unit,
-//    analytics: Analytics,
-//    coincore: Coincore,
     assetResources: AssetResources
 ) : DelegationAdapter<Any>(AdapterDelegatesManager(), emptyList()) {
 
     init {
-        // Add all necessary AdapterDelegate objects here
         with(delegatesManager) {
-//            addAdapterDelegate(...)
+            addAdapterDelegate(
+                PriceCardDelegate(
+                    prefs,
+                    assetResources,
+                    onPriceRequest,
+                    onCardClicked
+                )
+            )
         }
     }
 }

@@ -78,6 +78,7 @@ interface CryptoAsset : Asset {
     fun interestRate(): Single<Double>
 
     // Fetch exchange rate to user's selected/display fiat
+    @Deprecated("Use getPricesWith24hDelta() instead")
     fun exchangeRate(): Single<ExchangeRate>
     fun getPricesWith24hDelta(): Single<Prices24HrWithDelta>
     fun historicRate(epochWhen: Long): Single<ExchangeRate>

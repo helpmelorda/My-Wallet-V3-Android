@@ -49,9 +49,11 @@ class Coincore internal constructor(
     fun validateSecondPassword(secondPassword: String) =
         payloadManager.validateSecondPassword(secondPassword)
 
+    private fun allLoadedAssets() = assetLoader.loadedAssets + fiatAsset
+
     fun allWallets(includeArchived: Boolean = false): Single<AccountGroup> =
         Maybe.concat(
-            assetLoader.loadedAssets.map {
+            allLoadedAssets().map {
                 it.accountGroup().map { grp -> grp.accounts }
                     .map { list ->
                         list.filter { account ->

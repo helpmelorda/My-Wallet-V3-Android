@@ -52,5 +52,6 @@ private fun InterestBalanceDetails.toInterestBalance(asset: AssetInfo) =
         pendingInterest = CryptoValue.fromMinor(asset, pendingInterest),
         pendingDeposit = CryptoValue.fromMinor(asset, pendingDeposit),
         totalInterest = CryptoValue.fromMinor(asset, totalInterest),
-        lockedBalance = CryptoValue.fromMinor(asset, lockedBalance)
+        lockedBalance = CryptoValue.fromMinor(asset, lockedBalance),
+        hasTransactions = true
     )

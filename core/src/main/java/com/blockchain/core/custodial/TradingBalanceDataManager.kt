@@ -10,7 +10,8 @@ import io.reactivex.rxjava3.core.Single
 data class TradingAccountBalance(
     val total: Money,
     val actionable: Money,
-    val pending: Money
+    val pending: Money,
+    val hasTransactions: Boolean = false
 )
 
 interface TradingBalanceDataManager {

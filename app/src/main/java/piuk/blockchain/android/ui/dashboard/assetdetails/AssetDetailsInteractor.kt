@@ -21,6 +21,7 @@ import piuk.blockchain.android.coincore.AvailableActions
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAsset
+import timber.log.Timber
 
 typealias AssetDisplayMap = Map<AssetFilter, AssetDisplayInfo>
 
@@ -59,11 +60,6 @@ class AssetDetailsInteractor(
 
     fun loadAssetDetails(asset: CryptoAsset) =
         getAssetDisplayDetails(asset)
-
-    fun loadExchangeRate(asset: CryptoAsset): Single<String> =
-        asset.exchangeRate().map {
-            it.price().toStringWithSymbol()
-        }
 
     fun loadHistoricPrices(asset: CryptoAsset, timeSpan: HistoricalTimeSpan): Single<HistoricalRateList> =
         asset.historicRateSeries(timeSpan)
@@ -131,16 +127,18 @@ class AssetDetailsInteractor(
 
     private fun getAssetDisplayDetails(asset: CryptoAsset): Single<AssetDisplayMap> {
         return Single.zip(
-            asset.exchangeRate(),
+            asset.getPricesWith24hDelta(),
             asset.accountGroup(AssetFilter.NonCustodial).mapDetails(),
             asset.accountGroup(AssetFilter.Custodial).mapDetails(),
             asset.accountGroup(AssetFilter.Interest).mapDetails(),
             asset.interestRate(),
             interestFeatureFlag.enabled
-        ) { fiatRate, nonCustodial, custodial, interest, interestRate, interestEnabled ->
+        ) { prices, nonCustodial, custodial, interest, interestRate, interestEnabled ->
             makeAssetDisplayMap(
-                fiatRate, nonCustodial, custodial, interest, interestRate, interestEnabled
+                prices.currentRate, nonCustodial, custodial, interest, interestRate, interestEnabled
             )
+        }.doOnError {
+            Timber.e("Unable to load asset details. Why? $it")
         }
     }
 

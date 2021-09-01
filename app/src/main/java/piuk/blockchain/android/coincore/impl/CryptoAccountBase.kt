@@ -47,7 +47,7 @@ abstract class CryptoAccountBase : CryptoAccount {
     protected abstract val exchangeRates: ExchangeRatesDataManager
     protected abstract val baseActions: Set<AssetAction>
 
-    final override var hasTransactions: Boolean = false
+    final override var hasTransactions: Boolean = true
         private set
 
     final override val accountBalance: Single<Money>
@@ -219,7 +219,7 @@ abstract class CryptoNonCustodialAccount(
 
             val isActiveFunded = !isArchived && isFunded
 
-            val activity = AssetAction.ViewActivity
+            val activity = AssetAction.ViewActivity.takeIf { hasTransactions }
             val receive = AssetAction.Receive.takeEnabledIf(baseActions) {
                 !isArchived
             }

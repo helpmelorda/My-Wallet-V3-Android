@@ -42,13 +42,14 @@ internal class ExchangeRatesDataManagerImpl(
     }
 
     override fun cryptoToUserFiatRate(fromAsset: AssetInfo): Observable<ExchangeRate> =
-        Observable.just(getLastCryptoToUserFiatRate(fromAsset))
+        Observable.fromCallable { getLastCryptoToUserFiatRate(fromAsset) as ExchangeRate }
+            .onErrorReturn { getStubbedUnknownAssetRate(fromAsset) }
 
     override fun fiatToUserFiatRate(fromFiat: String): Observable<ExchangeRate> =
-        Observable.just(getLastFiatToUserFiatRate(fromFiat))
+        Observable.fromCallable { getLastFiatToUserFiatRate(fromFiat) }
 
     override fun fiatToRateFiatRate(fromFiat: String, toFiat: String): Observable<ExchangeRate> =
-        Observable.just(getLastFiatToFiatRate(fromFiat, toFiat))
+        Observable.fromCallable { getLastFiatToFiatRate(fromFiat, toFiat) }
 
     override fun getLastCryptoToUserFiatRate(sourceCrypto: AssetInfo): ExchangeRate.CryptoToFiat {
         checkAndTriggerPriceRefresh()
@@ -67,8 +68,8 @@ internal class ExchangeRatesDataManagerImpl(
     ): ExchangeRate.CryptoToFiat {
         checkAndTriggerPriceRefresh()
         val userFiat = currencyPrefs.selectedFiatCurrency
-        return when {
-            targetFiat == userFiat -> getLastCryptoToUserFiatRate(sourceCrypto)
+        return when (targetFiat) {
+            userFiat -> getLastCryptoToUserFiatRate(sourceCrypto)
             else -> getCryptoToFiatRate(sourceCrypto, targetFiat)
         }
     }
@@ -133,7 +134,7 @@ internal class ExchangeRatesDataManagerImpl(
         // This should be in the price store, but it's a temp hack and can live here for now for simplicity
         // Ideally, we'd auto-refresh every minute, but we have no hook to know if the app
         // is BG or FG at this level, so we check on access and trigger a background refresh based on that.
-        // once we have 'active prices' support upstack, hhich we'll need for full-dynamic,this can be removed.
+        // once we have 'active prices' support upstack, which we'll need for full-dynamic,this can be removed.
         // And the checks themselves can trigger as required.
         // In this case we may have the occasional glitch, if requests to this cache are made across refreshes.
         // we know, however, that prices access tend to batch, so we can mitigate a little
@@ -202,6 +203,17 @@ internal class ExchangeRatesDataManagerImpl(
                 previousRate = priceYesterday,
                 currentRate = priceToday
             )
+        }.onErrorReturn {
+            // TODO: Add fetch on demand for 'unknown' assets
+            Prices24HrWithDelta(
+                delta24h = 20.0,
+                previousRate = ExchangeRate.CryptoToFiat(
+                    from = fromAsset,
+                    to = currencyPrefs.selectedFiatCurrency,
+                    8.00.toBigDecimal()
+                ),
+                currentRate = getStubbedUnknownAssetRate(fromAsset)
+            )
         }
     }
 
@@ -248,6 +260,14 @@ internal class ExchangeRatesDataManagerImpl(
 
     override val fiatAvailableForRates: List<String>
         get() = priceStore.fiatQuoteTickers
+
+    // STUB results, will be updated with the next prices caching PR
+    private fun getStubbedUnknownAssetRate(asset: AssetInfo): ExchangeRate =
+        ExchangeRate.CryptoToFiat(
+            from = asset,
+            to = currencyPrefs.selectedFiatCurrency,
+            10.00.toBigDecimal()
+        )
 
     companion object {
         private const val SECONDS_PER_DAY = 24 * 60 * 60

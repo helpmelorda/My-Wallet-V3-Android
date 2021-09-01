@@ -61,12 +61,14 @@ private fun TradingBalance.toCryptoTradingAccountBalance(assetInfo: AssetInfo) =
     TradingAccountBalance(
         total = CryptoValue.fromMinor(assetInfo, total),
         actionable = CryptoValue.fromMinor(assetInfo, actionable),
-        pending = CryptoValue.fromMinor(assetInfo, pending)
+        pending = CryptoValue.fromMinor(assetInfo, pending),
+        hasTransactions = true
     )
 
 private fun TradingBalance.toFiatTradingAccountBalance(fiatSymbol: String) =
     TradingAccountBalance(
         total = FiatValue.fromMinor(fiatSymbol, total.toLong()),
         actionable = FiatValue.fromMinor(fiatSymbol, actionable.toLong()),
-        pending = FiatValue.fromMinor(fiatSymbol, pending.toLong())
+        pending = FiatValue.fromMinor(fiatSymbol, pending.toLong()),
+        hasTransactions = true
     )
