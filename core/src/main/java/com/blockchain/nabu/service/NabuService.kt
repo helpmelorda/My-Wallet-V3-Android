@@ -681,12 +681,6 @@ class NabuService internal constructor (
         body = body
     ).wrapErrorMessage()
 
-    fun getRecurringBuyEligibility(
-        sessionToken: NabuSessionTokenResponse
-    ) = nabu.getRecurringBuyEligibility(
-        authorization = sessionToken.authHeader
-    ).wrapErrorMessage()
-
     fun getRecurringBuysForAsset(
         sessionToken: NabuSessionTokenResponse,
         assetTicker: String

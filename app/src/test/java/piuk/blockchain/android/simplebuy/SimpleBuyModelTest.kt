@@ -10,6 +10,7 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.responses.simplebuy.EverypayPaymentAttrs
 import com.blockchain.nabu.models.responses.simplebuy.PaymentAttributes
 import com.blockchain.preferences.RatingPrefs
@@ -31,6 +32,7 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.cards.EverypayAuthOptions
 import piuk.blockchain.android.cards.partners.EverypayCardActivator
+import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import java.util.Date
 
@@ -56,6 +58,8 @@ class SimpleBuyModelTest {
     )
 
     private val interactor: SimpleBuyInteractor = mock()
+    private val getEligibilityAndNextPaymentDateUseCase: GetEligibilityAndNextPaymentDateUseCase = mock()
+
     private val prefs: SimpleBuyPrefs = mock {
         on { simpleBuyState() }.thenReturn(Gson().toJson(defaultState))
     }
@@ -84,9 +88,8 @@ class SimpleBuyModelTest {
         crashLogger = mock(),
         serializer = serializer,
         isFirstTimeBuyerUseCase = mock(),
-        getNextPaymentDateUseCase = mock(),
-        bankPartnerCallbackProvider = mock(),
-        featureFlagApi = mock()
+        getEligibilityAndNextPaymentDateUseCase = mock(),
+        bankPartnerCallbackProvider = mock()
     )
 
     @Ignore("Fails on CI, works locally. Re-enable ASAP")
@@ -374,12 +377,13 @@ class SimpleBuyModelTest {
     @Test
     fun `WHEN eligiblePaymentMethods and getRecurringBuyEligibility success THEN observe state`() {
         val paymentMethodsUpdated: SimpleBuyIntent.PaymentMethodsUpdated = mock()
+        val eligibleAndNextPaymentDate: EligibleAndNextPaymentRecurringBuy = mock()
         whenever(interactor.eligiblePaymentMethods("USD", "123-321"))
             .thenReturn(Single.just(paymentMethodsUpdated))
 
         val paymentMethodType: PaymentMethodType = mock()
-        whenever(interactor.getRecurringBuyEligibility())
-            .thenReturn(Single.just(listOf(paymentMethodType)))
+        whenever(getEligibilityAndNextPaymentDateUseCase(Unit))
+            .thenReturn(Single.just(listOf(eligibleAndNextPaymentDate)))
 
         verifyNoMoreInteractions(interactor)
 
@@ -437,7 +441,7 @@ class SimpleBuyModelTest {
         whenever(interactor.eligiblePaymentMethods("USD", "123-321"))
             .thenReturn(Single.just(mock()))
 
-        whenever(interactor.getRecurringBuyEligibility())
+        whenever(getEligibilityAndNextPaymentDateUseCase(Unit))
             .thenReturn(Single.error(Throwable()))
 
         verifyNoMoreInteractions(interactor)

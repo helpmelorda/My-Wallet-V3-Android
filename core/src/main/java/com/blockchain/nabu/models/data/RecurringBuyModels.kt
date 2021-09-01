@@ -20,6 +20,12 @@ enum class RecurringBuyFrequency {
     UNKNOWN
 }
 
+data class EligibleAndNextPaymentRecurringBuy(
+    val period: RecurringBuyFrequency,
+    val nextPaymentDate: String,
+    val eligibleMethods: List<PaymentMethodType>
+)
+
 interface RecurringBuyPaymentDetails {
     val paymentDetails: PaymentMethodType
 }

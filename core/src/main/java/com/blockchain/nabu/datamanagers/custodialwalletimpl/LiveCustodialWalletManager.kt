@@ -40,7 +40,6 @@ import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.featureflags.BankLinkingEnabledProvider
 import com.blockchain.nabu.datamanagers.featureflags.Feature
 import com.blockchain.nabu.datamanagers.featureflags.FeatureEligibility
-import com.blockchain.nabu.datamanagers.repositories.RecurringBuyRepository
 import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestRepository
@@ -130,8 +129,7 @@ class LiveCustodialWalletManager(
     private val achDepositWithdrawFeatureFlag: FeatureFlag,
     private val sddFeatureFlag: FeatureFlag,
     private val bankLinkingEnabledProvider: BankLinkingEnabledProvider,
-    private val transactionErrorMapper: TransactionErrorMapper,
-    private val recurringBuysRepository: RecurringBuyRepository
+    private val transactionErrorMapper: TransactionErrorMapper
 ) : CustodialWalletManager {
 
     override val defaultFiatCurrency: String
@@ -682,8 +680,6 @@ class LiveCustodialWalletManager(
                 availablePaymentMethods.sortedBy { paymentMethod -> paymentMethod.order }.toList()
             }
         }
-
-    override fun getRecurringBuyEligibility() = recurringBuysRepository.getRecurringBuyEligibleMethods()
 
     override fun getRecurringBuysForAsset(assetTicker: String): Single<List<RecurringBuy>> =
         authenticator.authenticate { sessionToken ->

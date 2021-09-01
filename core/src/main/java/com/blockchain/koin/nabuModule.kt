@@ -37,9 +37,6 @@ import com.blockchain.nabu.datamanagers.featureflags.FeatureEligibility
 import com.blockchain.nabu.datamanagers.featureflags.KycFeatureEligibility
 import com.blockchain.nabu.datamanagers.repositories.NabuUserRepository
 import com.blockchain.nabu.datamanagers.repositories.QuotesProvider
-import com.blockchain.nabu.datamanagers.repositories.RecurringBuyEligibilityProvider
-import com.blockchain.nabu.datamanagers.repositories.RecurringBuyEligibilityProviderImpl
-import com.blockchain.nabu.datamanagers.repositories.RecurringBuyRepository
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestAvailabilityProvider
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestAvailabilityProviderImpl
@@ -119,8 +116,7 @@ val nabuModule = module {
                 custodialRepository = get(),
                 bankLinkingEnabledProvider = get(),
                 transactionErrorMapper = get(),
-                currencyPrefs = get(),
-                recurringBuysRepository = get()
+                currencyPrefs = get()
             )
         }.bind(CustodialWalletManager::class)
 
@@ -193,13 +189,6 @@ val nabuModule = module {
             )
         }.bind(SwapActivityProvider::class)
 
-        factory {
-            RecurringBuyEligibilityProviderImpl(
-                nabuService = get(),
-                authenticator = get()
-            )
-        }.bind(RecurringBuyEligibilityProvider::class)
-
         factory(uniqueUserAnalytics) {
             UniqueAnalyticsNabuUserReporter(
                 nabuUserReporter = get(userAnalytics),
@@ -260,10 +249,6 @@ val nabuModule = module {
 
         scoped {
             WithdrawLocksRepository(custodialWalletManager = get())
-        }
-
-        scoped {
-            RecurringBuyRepository(recurringBuyEligibilityProvider = get())
         }
 
         factory {

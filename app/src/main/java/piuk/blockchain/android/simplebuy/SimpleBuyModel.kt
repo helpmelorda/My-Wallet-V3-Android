@@ -1,7 +1,6 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BuySellOrder
@@ -10,6 +9,7 @@ import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.BankPartner
+import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.nabu.models.responses.nabu.NabuApiException
@@ -27,7 +27,7 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.EverypayCardActivator
-import piuk.blockchain.android.domain.usecases.GetNextPaymentDateUseCase
+import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.networking.PollResult
 import piuk.blockchain.android.ui.base.mvi.MviModel
@@ -44,11 +44,10 @@ class SimpleBuyModel(
     private val cardActivators: List<CardActivator>,
     private val interactor: SimpleBuyInteractor,
     private val isFirstTimeBuyerUseCase: IsFirstTimeBuyerUseCase,
-    private val getNextPaymentDateUseCase: GetNextPaymentDateUseCase,
+    private val getEligibilityAndNextPaymentDateUseCase: GetEligibilityAndNextPaymentDateUseCase,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger,
-    private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
-    private val featureFlagApi: InternalFeatureFlagApi
+    private val bankPartnerCallbackProvider: BankPartnerCallbackProvider
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
     initialState = serializer.fetch() ?: initialState,
     uiScheduler = uiScheduler,
@@ -226,7 +225,6 @@ class SimpleBuyModel(
                 }
             )
             is SimpleBuyIntent.ConfirmOrder -> processConfirmOrder(previousState)
-            is SimpleBuyIntent.LoadNextPaymentDates -> getNextPaymentDates()
             is SimpleBuyIntent.FinishedFirstBuy -> null
             is SimpleBuyIntent.CheckOrderStatus -> interactor.pollForOrderStatus(
                 previousState.id ?: throw IllegalStateException("Order Id not available")
@@ -305,12 +303,13 @@ class SimpleBuyModel(
             fiatCurrency,
             selectedPaymentMethodId
         ).flatMap { intent ->
-            interactor.getRecurringBuyEligibility()
+            getEligibilityAndNextPaymentDateUseCase(Unit)
                 .map { intent to it }
                 .onErrorReturn { intent to emptyList() }
         }.subscribeBy(
-            onSuccess = { (intent, eligibility) ->
-                process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibility))
+            onSuccess = { (intent, eligibilityNextPaymentList) ->
+                val eligibility = eligibilityNextPaymentList.flatMap { it.eligibleMethods }.distinct()
+                process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibility, eligibilityNextPaymentList))
                 process(intent)
             },
             onError = {
@@ -334,16 +333,6 @@ class SimpleBuyModel(
 
     private fun FiatValue.isOpenBankingCurrency() =
         this.currencyCode == "EUR" || this.currencyCode == "GBP"
-
-    private fun getNextPaymentDates(): Disposable =
-        getNextPaymentDateUseCase(Unit).subscribeBy(
-            onSuccess = { nextPaymentMap ->
-                process(SimpleBuyIntent.NextPaymentDatesLoaded(nextPaymentMap))
-            },
-            onError = {
-                process(SimpleBuyIntent.LoadNextPaymentDatesFailed)
-            }
-        )
 
     private fun isFirstTimeBuyer(previousState: SimpleBuyState): Single<Boolean> {
         return if (prefs.isFirstTimeBuyer && previousState.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME) {
@@ -383,13 +372,27 @@ class SimpleBuyModel(
         )
     }
 
+    private fun isPaymentMethodSelectedAllowingRecurringBuys(
+        eligibleList: List<EligibleAndNextPaymentRecurringBuy>,
+        buySellOrder: BuySellOrder
+    ): Boolean {
+        val eligibility = eligibleList.flatMap { it.eligibleMethods }.distinct()
+        return eligibility.contains(buySellOrder.paymentMethodType)
+    }
+
     private fun processConfirmOrder(previousState: SimpleBuyState): Disposable {
         return isFirstTimeBuyer(previousState)
             .flatMap { isFirstTimeBuyer ->
                 confirmOrder(previousState)
                     .map { isFirstTimeBuyer to it }
             }.flatMap { (isFirstTimeBuyer, buySellOrder) ->
-                if (isFirstTimeBuyer && previousState.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME) {
+                if (isFirstTimeBuyer &&
+                    previousState.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME &&
+                    isPaymentMethodSelectedAllowingRecurringBuys(
+                        eligibleList = previousState.eligibleAndNextPaymentRecurringBuy,
+                        buySellOrder = buySellOrder
+                    )
+                ) {
                     prefs.isFirstTimeBuyer = false
                     process(SimpleBuyIntent.FinishedFirstBuy)
                     Single.just(buySellOrder to RecurringBuyOrder(RecurringBuyState.UNINITIALISED))

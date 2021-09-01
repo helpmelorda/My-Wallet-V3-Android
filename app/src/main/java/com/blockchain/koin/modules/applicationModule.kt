@@ -37,10 +37,6 @@ import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.Database
 import piuk.blockchain.android.cards.CardModel
 import piuk.blockchain.android.cards.partners.EverypayCardActivator
-import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
-import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
-import piuk.blockchain.android.data.Mapper
-import piuk.blockchain.android.data.TradeDataManagerImpl
 import piuk.blockchain.android.data.api.bitpay.BitPayDataManager
 import piuk.blockchain.android.data.api.bitpay.BitPayService
 import piuk.blockchain.android.data.biometrics.BiometricsController
@@ -54,9 +50,6 @@ import piuk.blockchain.android.deeplink.BlockchainDeepLinkParser
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.EmailVerificationDeepLinkHelper
 import piuk.blockchain.android.deeplink.OpenBankingDeepLinkParser
-import piuk.blockchain.android.domain.repositories.TradeDataManager
-import piuk.blockchain.android.domain.usecases.GetNextPaymentDateUseCase
-import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.scan.QrCodeDataManager
@@ -107,9 +100,16 @@ import piuk.blockchain.android.ui.pairingcode.PairingState
 import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
 import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
+import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
+import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
+import piuk.blockchain.android.data.TradeDataManagerImpl
+import piuk.blockchain.android.data.Mapper
+import piuk.blockchain.android.domain.repositories.TradeDataManager
+import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.simplebuy.BankPartnerCallbackProvider
 import piuk.blockchain.android.simplebuy.BankPartnerCallbackProviderImpl
 import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
+import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
@@ -481,8 +481,7 @@ val applicationModule = module {
                 environmentConfig = get(),
                 crashLogger = get(),
                 isFirstTimeBuyerUseCase = get(),
-                getNextPaymentDateUseCase = get(),
-                featureFlagApi = get(),
+                getEligibilityAndNextPaymentDateUseCase = get(),
                 bankPartnerCallbackProvider = get()
             )
         }
@@ -494,7 +493,7 @@ val applicationModule = module {
         }
 
         factory {
-            GetNextPaymentDateUseCase(
+            GetEligibilityAndNextPaymentDateUseCase(
                 tradeDataManager = get()
             )
         }
@@ -504,7 +503,7 @@ val applicationModule = module {
                 tradeService = get(),
                 authenticator = get(),
                 accumulatedInPeriodMapper = get(),
-                nextPaymentDateMapper = get()
+                nextPaymentRecurringBuyMapper = get()
             )
         }.bind(TradeDataManager::class)
 

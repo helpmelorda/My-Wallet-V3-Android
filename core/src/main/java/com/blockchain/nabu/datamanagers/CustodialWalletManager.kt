@@ -276,8 +276,6 @@ interface CustodialWalletManager {
 
     val defaultFiatCurrency: String
 
-    fun getRecurringBuyEligibility(): Single<List<PaymentMethodType>>
-
     fun getRecurringBuysForAsset(assetTicker: String): Single<List<RecurringBuy>>
 
     fun getRecurringBuyForId(assetTicker: String): Single<RecurringBuy>

@@ -9,6 +9,7 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
 import info.blockchain.balance.AssetInfo
@@ -20,7 +21,6 @@ import piuk.blockchain.android.cards.EverypayAuthOptions
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 import piuk.blockchain.android.ui.sell.ExchangePriceWithDelta
 import java.math.BigInteger
-import java.time.ZonedDateTime
 
 sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
@@ -299,7 +299,11 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     class ErrorIntent(private val error: ErrorState = ErrorState.GenericError) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(errorState = error, isLoading = false, confirmationActionRequested = false)
+            oldState.copy(
+                errorState = error,
+                isLoading = false,
+                confirmationActionRequested = false
+            )
 
         override fun isValidFor(oldState: SimpleBuyState): Boolean {
             return true
@@ -363,31 +367,6 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                 isLoading = false,
                 showRating = showInAppRating,
                 recurringBuyState = recurringBuyState
-            )
-    }
-
-    object LoadNextPaymentDates : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(
-                isLoading = true,
-                nextPaymentDates = emptyMap())
-    }
-
-    class NextPaymentDatesLoaded(
-        private val nextPaymentMap:
-        Map<RecurringBuyFrequency, ZonedDateTime>
-    ) : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(
-                isLoading = false,
-                nextPaymentDates = nextPaymentMap)
-    }
-
-    object LoadNextPaymentDatesFailed : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(
-                isLoading = false,
-                nextPaymentDates = emptyMap()
             )
     }
 
@@ -497,8 +476,14 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(recurringBuyState = RecurringBuyState.ACTIVE)
     }
 
-    class RecurringBuyEligibilityUpdated(private val eligibleMethods: List<PaymentMethodType>) : SimpleBuyIntent() {
+    class RecurringBuyEligibilityUpdated(
+        private val eligibleMethods: List<PaymentMethodType>,
+        private val eligibilityNextPaymentList: List<EligibleAndNextPaymentRecurringBuy>
+    ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(recurringBuyEligiblePaymentMethods = eligibleMethods)
+            oldState.copy(
+                recurringBuyEligiblePaymentMethods = eligibleMethods,
+                eligibleAndNextPaymentRecurringBuy = eligibilityNextPaymentList
+            )
     }
 }

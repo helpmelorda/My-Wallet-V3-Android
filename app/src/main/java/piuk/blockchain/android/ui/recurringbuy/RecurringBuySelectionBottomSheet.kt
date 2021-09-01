@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth
@@ -16,7 +18,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyModel
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.ui.base.HostedBottomSheet
 import piuk.blockchain.android.ui.base.mvi.MviBottomSheet
-import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.visible
 import piuk.blockchain.android.util.visibleIf
 import java.time.ZonedDateTime
 
@@ -27,19 +29,13 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
         fun onIntervalSelected(interval: RecurringBuyFrequency)
     }
 
-    private val interval: RecurringBuyFrequency by lazy {
-        arguments?.getSerializable(PREVIOUS_SELECTED_STATE) as RecurringBuyFrequency
-    }
-
     private val firstTimeAmountSpent: FiatValue? by lazy {
         arguments?.getSerializable(FIAT_AMOUNT_SPENT) as? FiatValue
     }
 
-    private val cryptoCode: String? by lazy {
-        arguments?.getString(CRYPTO_CODE)
-    }
+    private val cryptoCode: String? by lazy { arguments?.getString(CRYPTO_CODE) }
 
-    private var selectedFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME
+    private lateinit var selectedFrequency: RecurringBuyFrequency
 
     override val model: SimpleBuyModel by scopedInject()
 
@@ -53,33 +49,60 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
     }
 
     override fun render(newState: SimpleBuyState) {
-        binding.nextDatesLoading.visibleIf { newState.isLoading }
-        fillFrequencySelectorWithDates(newState.nextPaymentDates)
+        val paymentMethodType = newState.selectedPaymentMethod?.paymentMethodType
+        check(paymentMethodType != null)
+
+        hideOrFillFrequencySelectorWithDates(
+            newState.eligibleAndNextPaymentRecurringBuy,
+            paymentMethodType
+        )
+
+        setPreselectedOrFirstFrequencyAvailable(
+            currentFrequency = newState.recurringBuyFrequency,
+            eligibleAndNextPaymentRecurringBuys = newState.eligibleAndNextPaymentRecurringBuy,
+            paymentMethodType = paymentMethodType
+        )
+    }
+
+    private fun isFirstTimeBuyer(): Boolean = firstTimeAmountSpent != null && cryptoCode != null
+
+    private fun setPreselectedOrFirstFrequencyAvailable(
+        currentFrequency: RecurringBuyFrequency,
+        eligibleAndNextPaymentRecurringBuys: List<EligibleAndNextPaymentRecurringBuy>,
+        paymentMethodType: PaymentMethodType
+    ) {
+        if (isFirstTimeBuyer()) {
+            eligibleAndNextPaymentRecurringBuys.first { it.eligibleMethods.contains(paymentMethodType) }
+                .let {
+                    binding.recurringBuySelectionGroup.check(intervalToId(it.period))
+                    selectedFrequency = it.period
+                }
+        } else {
+            binding.recurringBuySelectionGroup.check(intervalToId(currentFrequency))
+            selectedFrequency = currentFrequency
+        }
     }
 
     private fun setViewForFirstTimeBuyer() {
-        selectedFrequency = RecurringBuyFrequency.DAILY
-        if (firstTimeAmountSpent != null && cryptoCode != null) {
-            binding.apply {
-                rbOneTime.gone()
+        binding.apply {
+            if (isFirstTimeBuyer()) {
                 title.text = getString(
                     R.string.recurring_buy_first_time_title,
                     firstTimeAmountSpent!!.formatOrSymbolForZero(),
                     cryptoCode!!
                 )
+            } else {
+                rbOneTime.visible()
             }
         }
     }
 
     override fun initControls(binding: DialogSheetRecurringBuyBinding) {
-        model.process(SimpleBuyIntent.LoadNextPaymentDates)
-
         setViewForFirstTimeBuyer()
 
         analytics.logEvent(RecurringBuyAnalytics.RecurringBuyViewed)
 
         with(binding) {
-            recurringBuySelectionGroup.check(intervalToId(interval))
             recurringBuySelectionGroup.setOnCheckedChangeListener { _, checkedId ->
                 selectedFrequency = idToInterval(checkedId)
                 analytics.logEvent(
@@ -95,25 +118,59 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
         }
     }
 
-    private fun fillFrequencySelectorWithDates(nextPaymentMap: Map<RecurringBuyFrequency, ZonedDateTime>) {
-        if (nextPaymentMap.isNotEmpty()) {
+    private fun hideOrFillFrequencySelectorWithDates(
+        eligibleAndNextPaymentRecurringBuys: List<EligibleAndNextPaymentRecurringBuy>,
+        paymentMethodType: PaymentMethodType
+    ) {
+
+        eligibleAndNextPaymentRecurringBuys.forEach {
             binding.apply {
-                rbWeekly.text = getString(
-                    R.string.recurring_buy_frequency_subtitle,
-                    nextPaymentMap[RecurringBuyFrequency.WEEKLY]?.dayOfWeek.toString().capitalizeFirstChar()
-                )
-                rbMonthly.text = if (nextPaymentMap[RecurringBuyFrequency.MONTHLY]?.isLastDayOfTheMonth() == true) {
-                    getString(R.string.recurring_buy_frequency_subtitle_last_day_selector)
-                } else {
-                    getString(
-                        R.string.recurring_buy_frequency_subtitle_monthly,
-                        nextPaymentMap[RecurringBuyFrequency.MONTHLY]?.dayOfMonth.toString()
-                    )
+                when (it.period) {
+                    RecurringBuyFrequency.DAILY -> {
+                        if (it.eligibleMethods.contains(paymentMethodType)) {
+                            rbDaily.visibleIf { it.eligibleMethods.contains(paymentMethodType) }
+                        }
+                    }
+                    RecurringBuyFrequency.WEEKLY -> {
+                        if (it.eligibleMethods.contains(paymentMethodType)) {
+                            rbWeekly.apply {
+                                visible()
+                                text = getString(
+                                    R.string.recurring_buy_frequency_subtitle,
+                                    ZonedDateTime.parse(it.nextPaymentDate).dayOfWeek.toString().capitalizeFirstChar()
+                                )
+                            }
+                        }
+                    }
+                    RecurringBuyFrequency.BI_WEEKLY -> {
+                        if (it.eligibleMethods.contains(paymentMethodType)) {
+                            rbBiWeekly.apply {
+                                visible()
+                                text = getString(
+                                    R.string.recurring_buy_frequency_subtitle_biweekly,
+                                    ZonedDateTime.parse(it.nextPaymentDate).dayOfWeek.toString().capitalizeFirstChar()
+                                )
+                            }
+                        }
+                    }
+                    RecurringBuyFrequency.MONTHLY -> {
+                        if (it.eligibleMethods.contains(paymentMethodType)) {
+                            rbMonthly.apply {
+                                visible()
+                                text = if (ZonedDateTime.parse(it.nextPaymentDate).isLastDayOfTheMonth()) {
+                                    getString(R.string.recurring_buy_frequency_subtitle_last_day_selector)
+                                } else {
+                                    getString(
+                                        R.string.recurring_buy_frequency_subtitle_monthly,
+                                        ZonedDateTime.parse(it.nextPaymentDate).dayOfMonth.toString()
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    RecurringBuyFrequency.UNKNOWN, RecurringBuyFrequency.ONE_TIME -> {
+                    }
                 }
-                rbBiWeekly.text = getString(
-                    R.string.recurring_buy_frequency_subtitle_biweekly,
-                    nextPaymentMap[RecurringBuyFrequency.BI_WEEKLY]?.dayOfWeek.toString().capitalizeFirstChar()
-                )
             }
         }
     }
@@ -143,13 +200,11 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
         const val FIAT_AMOUNT_SPENT = "fiat_amount_spent"
         const val CRYPTO_CODE = "crypto_asset_selected"
         fun newInstance(
-            interval: RecurringBuyFrequency,
             firstTimeAmountSpent: FiatValue? = null,
             cryptoValue: String? = null
         ): RecurringBuySelectionBottomSheet =
             RecurringBuySelectionBottomSheet().apply {
                 arguments = Bundle().apply {
-                    putSerializable(PREVIOUS_SELECTED_STATE, interval)
                     if (firstTimeAmountSpent != null) putSerializable(FIAT_AMOUNT_SPENT, firstTimeAmountSpent)
                     if (cryptoValue != null) putSerializable(CRYPTO_CODE, cryptoValue)
                 }

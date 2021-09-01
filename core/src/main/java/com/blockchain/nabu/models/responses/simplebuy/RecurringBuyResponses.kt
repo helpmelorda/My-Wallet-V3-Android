@@ -12,10 +12,6 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatValue
 import java.util.Date
 
-data class RecurringBuyEligibilityResponse(
-    val eligibleMethods: List<String>
-)
-
 data class RecurringBuyResponse(
     val id: String,
     val userId: String,

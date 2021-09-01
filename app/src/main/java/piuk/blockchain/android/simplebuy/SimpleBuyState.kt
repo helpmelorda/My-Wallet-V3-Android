@@ -8,6 +8,7 @@ import com.blockchain.nabu.datamanagers.Partner
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.LinkBankTransfer
 import com.blockchain.nabu.models.data.LinkedBank
 import info.blockchain.balance.AssetInfo
@@ -22,7 +23,6 @@ import piuk.blockchain.android.ui.sell.ExchangePriceWithDelta
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.io.Serializable
 import java.math.BigInteger
-import java.time.ZonedDateTime
 import java.util.Date
 
 /**
@@ -53,7 +53,7 @@ data class SimpleBuyState constructor(
     val recurringBuyFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
     val showRecurringBuyFirstTimeFlow: Boolean = false,
-    @Transient val nextPaymentDates: Map<RecurringBuyFrequency, ZonedDateTime> = emptyMap(),
+    val eligibleAndNextPaymentRecurringBuy: List<EligibleAndNextPaymentRecurringBuy> = emptyList(),
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
     @Transient val errorState: ErrorState? = null,
     @Transient val exchangePriceWithDelta: ExchangePriceWithDelta? = null,
