@@ -2231,6 +2231,7 @@
     <string name="recurring_buy_first_time_success_subtitle">We will buy %1$s of %2$s %3$s at that moment’s market price. Cancel this recurring buy at anytime.</string>
 
     <string name="zendesk_window_title">Blockchain.com Live Support</string>
+    <string name="zendesk_bot_name">Blocky</string>
     <string name="zendesk_subject_title">What topic do you need help with?</string>
     <string name="zendesk_subject_option1">Identity Verification</string>
     <string name="zendesk_subject_option2">Wallet</string>

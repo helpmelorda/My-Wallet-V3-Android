@@ -50,8 +50,11 @@ class ZendeskSubjectActivity : AppCompatActivity() {
             zendeskContinue.setOnClickListener {
                 val checkedButton = findViewById<RadioButton>(zendeskOptions.checkedRadioButtonId)
 
-                val provider = Chat.INSTANCE.providers()?.profileProvider()
-                provider?.setVisitorNote(checkedButton.text.toString())
+                Chat.INSTANCE.providers()?.profileProvider()?.apply {
+                    setVisitorNote(checkedButton.text.toString())
+                    appendVisitorNote(checkedButton.text.toString())
+                    addVisitorTags(listOf(checkedButton.text.toString()), null)
+                }
 
                 startChat()
                 finish()
@@ -71,6 +74,8 @@ class ZendeskSubjectActivity : AppCompatActivity() {
         MessagingActivity.builder()
             .withMultilineResponseOptionsEnabled(true)
             .withEngines(ChatEngine.engine())
+            .withBotAvatarDrawable(R.drawable.ic_framed_app_icon)
+            .withBotLabelString(getString(R.string.zendesk_bot_name))
             .withToolbarTitle(getString(R.string.zendesk_window_title))
             .show(this, getChatConfiguration())
     }
@@ -91,10 +96,12 @@ class ZendeskSubjectActivity : AppCompatActivity() {
 
     private fun getChatConfiguration() = ChatConfiguration.builder()
         .withAgentAvailabilityEnabled(true)
-        .withPreChatFormEnabled(false)
+        .withPreChatFormEnabled(true)
         .withDepartmentFieldStatus(PreChatFormFieldStatus.HIDDEN)
-        .withOfflineFormEnabled(true)
         .withPhoneFieldStatus(PreChatFormFieldStatus.HIDDEN)
+        .withNameFieldStatus(PreChatFormFieldStatus.HIDDEN)
+        .withEmailFieldStatus(PreChatFormFieldStatus.HIDDEN)
+        .withOfflineFormEnabled(true)
         .build()
 
     companion object {
