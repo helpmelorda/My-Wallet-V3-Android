@@ -187,7 +187,7 @@ class TxProcessorFactory(
                 )
             )
             is CryptoAccount ->
-                if (action != AssetAction.Swap)
+                if (action != AssetAction.Swap) {
                     target.receiveAddress.map {
                         TransactionProcessor(
                             exchangeRates = exchangeRates,
@@ -195,7 +195,8 @@ class TxProcessorFactory(
                             txTarget = it,
                             engine = engine
                         )
-                    } else {
+                    }
+                } else {
                     Single.just(
                         TransactionProcessor(
                             exchangeRates = exchangeRates,
@@ -256,6 +257,19 @@ class TxProcessorFactory(
                     )
                 )
             )
+        is FiatAccount ->
+            Single.just(
+                TransactionProcessor(
+                    exchangeRates = exchangeRates,
+                    sourceAccount = source,
+                    txTarget = target,
+                    engine = TradingSellTxEngine(
+                        walletManager = walletManager,
+                        quotesEngine = quotesEngine,
+                        kycTierService = kycTierService
+                    )
+                )
+            )
         is TradingAccount ->
             Single.just(
                 TransactionProcessor(
@@ -281,19 +295,6 @@ class TxProcessorFactory(
                     )
                 )
             }
-        is FiatAccount ->
-            Single.just(
-                TransactionProcessor(
-                    exchangeRates = exchangeRates,
-                    sourceAccount = source,
-                    txTarget = target,
-                    engine = TradingSellTxEngine(
-                        walletManager = walletManager,
-                        quotesEngine = quotesEngine,
-                        kycTierService = kycTierService
-                    )
-                )
-            )
         else -> Single.error(TransferError("Cannot send custodial crypto to a non-crypto target"))
     }
 }

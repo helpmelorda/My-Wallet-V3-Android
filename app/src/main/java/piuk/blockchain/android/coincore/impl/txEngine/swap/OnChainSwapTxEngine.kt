@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine.swap
 
+import androidx.annotation.VisibleForTesting
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.service.TierService
@@ -21,9 +22,12 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class OnChainSwapTxEngine(
     quotesEngine: TransferQuotesEngine,
-    walletManager: CustodialWalletManager,
-    kycTierService: TierService,
-    private val engine: OnChainTxEngineBase
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val walletManager: CustodialWalletManager,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val kycTierService: TierService,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val engine: OnChainTxEngineBase
 ) : SwapTxEngineBase(
     quotesEngine, walletManager, kycTierService
 ) {

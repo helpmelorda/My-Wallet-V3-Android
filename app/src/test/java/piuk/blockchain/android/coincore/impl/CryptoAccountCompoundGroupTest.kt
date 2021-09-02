@@ -4,13 +4,10 @@ import com.blockchain.core.price.ExchangeRate
 import com.blockchain.testutils.numberToBigDecimal
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.AssetCategory
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
-
 import org.junit.Test
 import piuk.blockchain.android.coincore.AccountBalance
 import piuk.blockchain.android.coincore.AssetAction
@@ -169,15 +166,6 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
     }
 
     companion object {
-        private val TEST_ASSET = object : CryptoCurrency(
-            ticker = "NOPE",
-            name = "Not a real thing",
-            categories = setOf(AssetCategory.CUSTODIAL),
-            precisionDp = 8,
-            requiredConfirmations = 3,
-            colour = "000000"
-        ) {}
-
         private val TEST_TO_USER_RATE = ExchangeRate.CryptoToFiat(
             from = TEST_ASSET,
             to = TEST_USER_FIAT,

@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine.swap
 
+import androidx.annotation.VisibleForTesting
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.service.TierService
@@ -14,9 +15,11 @@ import piuk.blockchain.android.coincore.impl.CustodialTradingAccount
 import piuk.blockchain.android.coincore.impl.txEngine.TransferQuotesEngine
 
 class TradingToTradingSwapTxEngine(
-    walletManager: CustodialWalletManager,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val walletManager: CustodialWalletManager,
     quotesEngine: TransferQuotesEngine,
-    kycTierService: TierService
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val kycTierService: TierService
 ) : SwapTxEngineBase(quotesEngine, walletManager, kycTierService) {
 
     override val availableBalance: Single<Money>

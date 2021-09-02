@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine
 
+import androidx.annotation.VisibleForTesting
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.BankPartner
 import info.blockchain.balance.FiatValue
@@ -27,8 +28,10 @@ import piuk.blockchain.android.ui.linkbank.BankTransferAction
 import java.security.InvalidParameterException
 
 class FiatDepositTxEngine(
-    private val walletManager: CustodialWalletManager,
-    private val bankPartnerCallbackProvider: BankPartnerCallbackProvider
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val walletManager: CustodialWalletManager,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val bankPartnerCallbackProvider: BankPartnerCallbackProvider
 ) : TxEngine() {
 
     override fun assertInputsValid() {

@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine
 
+import androidx.annotation.VisibleForTesting
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -20,7 +21,8 @@ import piuk.blockchain.android.coincore.fiat.LinkedBankAccount
 import piuk.blockchain.android.coincore.updateTxValidity
 
 class FiatWithdrawalTxEngine(
-    private val walletManager: CustodialWalletManager
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val walletManager: CustodialWalletManager
 ) : TxEngine() {
 
     override fun assertInputsValid() {

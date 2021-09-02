@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine.interest
 
+import androidx.annotation.VisibleForTesting
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -24,8 +25,10 @@ import piuk.blockchain.android.coincore.toUserFiat
 import piuk.blockchain.android.coincore.updateTxValidity
 
 class InterestWithdrawTradingTxEngine(
-    private val walletManager: CustodialWalletManager,
-    private val interestBalances: InterestBalanceDataManager
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val walletManager: CustodialWalletManager,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val interestBalances: InterestBalanceDataManager
 ) : InterestBaseEngine(walletManager) {
     private val availableBalance: Single<Money>
         get() = sourceAccount.actionableBalance
