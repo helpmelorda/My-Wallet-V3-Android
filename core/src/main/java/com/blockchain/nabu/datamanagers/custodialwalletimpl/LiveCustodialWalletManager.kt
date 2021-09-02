@@ -1389,6 +1389,7 @@ private fun String.toLinkedBankErrorState(): LinkedBankErrorState =
 fun String.toTransactionState(): TransactionState? =
     when (this) {
         TransactionResponse.COMPLETE -> TransactionState.COMPLETED
+        TransactionResponse.REJECTED,
         TransactionResponse.FAILED -> TransactionState.FAILED
         TransactionResponse.PENDING,
         TransactionResponse.CLEARED,

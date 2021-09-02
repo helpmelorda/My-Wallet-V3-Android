@@ -881,9 +881,9 @@ class TransactionFlowCustomiserImpl(
     override fun defInputType(state: TransactionState, fiatCurrency: String): CurrencyType =
         when (state.action) {
             AssetAction.Swap,
-            AssetAction.Sell,
+            AssetAction.Sell -> CurrencyType.Fiat(fiatCurrency)
             AssetAction.Withdraw,
-            AssetAction.FiatDeposit -> CurrencyType.Fiat(fiatCurrency)
+            AssetAction.FiatDeposit -> CurrencyType.Fiat(state.amount.currencyCode)
             else -> CurrencyType.Crypto(state.sendingAsset)
         }
 

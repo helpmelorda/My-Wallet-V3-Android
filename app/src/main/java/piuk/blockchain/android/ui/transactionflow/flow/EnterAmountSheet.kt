@@ -283,15 +283,24 @@ class EnterAmountSheet : TransactionFlowSheet<DialogTxFlowEnterAmountBinding>() 
         newState: TransactionState,
         inputCurrency: CurrencyType
     ) {
+        val selectedFiat = newState.pendingTx?.selectedFiat ?: return
+        // Input currency is configured as crypto or we are coming back from the checkout screen
         if (inputCurrency is CurrencyType.Crypto || newState.amount.takeIf { it is CryptoValue }?.isPositive == true) {
-            val selectedFiat = newState.pendingTx?.selectedFiat ?: return
             configuration = FiatCryptoViewConfiguration(
                 inputCurrency = CurrencyType.Crypto(newState.sendingAsset),
                 exchangeCurrency = CurrencyType.Fiat(selectedFiat),
                 predefinedAmount = newState.amount
             )
+        }
+        // both input and selected fiat are fiats (Deposit and withdraw fiat from/to external)
+        else if (inputCurrency is CurrencyType.Fiat && inputCurrency.fiatCurrency != selectedFiat) {
+            configuration = FiatCryptoViewConfiguration(
+                inputCurrency = inputCurrency,
+                outputCurrency = CurrencyType.Fiat(selectedFiat),
+                exchangeCurrency = CurrencyType.Fiat(selectedFiat),
+                predefinedAmount = newState.amount
+            )
         } else {
-            val selectedFiat = newState.pendingTx?.selectedFiat ?: return
             val fiatRate = newState.fiatRate ?: return
             val isCryptoWithFiatExchange = newState.amount is CryptoValue && fiatRate is ExchangeRate.CryptoToFiat
             configuration = FiatCryptoViewConfiguration(
