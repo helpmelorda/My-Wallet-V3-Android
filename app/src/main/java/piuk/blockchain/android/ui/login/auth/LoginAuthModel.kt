@@ -47,6 +47,29 @@ class LoginAuthModel(
                 )
             is LoginAuthIntents.UpdateMobileSetup -> updateAccount(intent.isMobileSetup, intent.deviceType)
             is LoginAuthIntents.ShowAuthComplete -> clearSessionId()
+            is LoginAuthIntents.RequestNew2FaCode -> {
+                interactor.requestNew2FaCode(previousState.guid, previousState.sessionId).subscribeBy(
+                    onComplete = {
+                        process(LoginAuthIntents.Update2FARetryCount(interactor.getRemaining2FaRetries()))
+                    }, onError = {
+                        if (it is TimeLockException) {
+                            process(LoginAuthIntents.New2FaCodeTimeLock)
+                        } else {
+                            process(LoginAuthIntents.ShowError(it))
+                        }
+                    }
+                )
+            }
+            is LoginAuthIntents.Reset2FARetries ->
+                interactor.reset2FaRetries()
+                    .subscribeBy(
+                        onComplete = {
+                            process(LoginAuthIntents.Update2FARetryCount(interactor.getRemaining2FaRetries()))
+                        },
+                        onError = {
+                            process(LoginAuthIntents.New2FaCodeTimeLock)
+                        }
+                    )
             else -> null
         }
     }
@@ -57,7 +80,7 @@ class LoginAuthModel(
     }
 
     private fun clearSessionId(): Disposable? {
-        interactor.cleaarSessionId()
+        interactor.clearSessionId()
         return null
     }
 
@@ -74,12 +97,17 @@ class LoginAuthModel(
     }
 
     private fun getPayload(guid: String, sessionId: String): Disposable {
-        return interactor.getPayLoad(guid, sessionId)
+        return interactor.getPayload(guid, sessionId)
             .flatMap { response ->
                 handleResponse(response)
-            }.subscribeBy(
+            }
+            .doOnSuccess {
+                interactor.reset2FaRetries()
+            }
+            .subscribeBy(
                 onSuccess = { responseBody ->
                     val jsonObject = JSONObject(responseBody.string())
+                    process(LoginAuthIntents.Update2FARetryCount(interactor.getRemaining2FaRetries()))
                     process(LoginAuthIntents.SetPayload(payloadJson = jsonObject))
                 },
                 onError = { throwable ->

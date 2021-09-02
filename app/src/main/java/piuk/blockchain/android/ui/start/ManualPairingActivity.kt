@@ -8,7 +8,6 @@ import android.os.CountDownTimer
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.annotation.StringRes
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus
@@ -20,8 +19,8 @@ import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.getTwoFactorDialog
-import piuk.blockchain.android.ui.start.PasswordRequiredActivity.Companion.TWO_FA_COUNTDOWN
-import piuk.blockchain.android.ui.start.PasswordRequiredActivity.Companion.TWO_FA_STEP
+import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
+import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
 import piuk.blockchain.android.util.ViewUtils
 
 class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresenter>(), ManualPairingView {
@@ -123,7 +122,7 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
             } else {
                 ToastCustom.makeText(
                     this, getString(R.string.two_factor_retries_exceeded),
-                    Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR
+                    ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR
                 )
                 if (!isTwoFATimerRunning) {
                     twoFATimer.start()

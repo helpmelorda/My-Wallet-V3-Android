@@ -42,5 +42,16 @@ data class LoginAuthState(
     val payloadJson: String = "",
     val code: String = "",
     val isMobileSetup: Boolean = false,
-    val deviceType: Int = 0
-) : MviState
+    val deviceType: Int = 0,
+    val twoFaState: TwoFaCodeState? = null
+) : MviState {
+    companion object {
+        const val TWO_FA_COUNTDOWN = 60000L
+        const val TWO_FA_STEP = 1000L
+    }
+}
+
+sealed class TwoFaCodeState {
+    class TwoFaRemainingTries(val remainingRetries: Int) : TwoFaCodeState()
+    object TwoFaTimeLock : TwoFaCodeState()
+}

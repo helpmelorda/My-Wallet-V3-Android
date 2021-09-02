@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
-import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.koin.scopedInject
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -47,7 +46,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     }
 
     private val recaptchaClient: GoogleReCaptchaClient by lazy {
-        GoogleReCaptchaClient(this)
+        GoogleReCaptchaClient(this, environmentConfig)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,6 +78,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             continueButton.setOnClickListener {
                 onContinueButtonClicked()
             }
+
             continueWithGoogleButton.setOnClickListener {
                 startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
             }
@@ -151,18 +151,19 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             LoginStep.VERIFY_DEVICE -> navigateToVerifyDevice()
             LoginStep.SHOW_SESSION_ERROR -> toast(R.string.login_failed_session_id_error, ToastCustom.TYPE_ERROR)
             LoginStep.SHOW_EMAIL_ERROR -> toast(R.string.login_send_email_error, ToastCustom.TYPE_ERROR)
-            else -> {}
+            else -> {
+            }
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (resultCode == AppCompatActivity.RESULT_OK && requestCode == QrScanActivity.SCAN_URI_RESULT) {
+        if (resultCode == RESULT_OK && requestCode == QrScanActivity.SCAN_URI_RESULT) {
             data.getRawScanData()?.let { rawQrString ->
                 model.process(LoginIntents.LoginWithQr(rawQrString))
             }
-        } else if (resultCode == AppCompatActivity.RESULT_OK && requestCode == RC_SIGN_IN) {
+        } else if (resultCode == RESULT_OK && requestCode == RC_SIGN_IN) {
             try {
                 val task = GoogleSignIn.getSignedInAccountFromIntent(data)
                 task.result.email?.let { email ->
@@ -181,7 +182,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             // TODO enable Google auth once ready along with the OR label
             continueButton.visibleIf {
                 newState.isTypingEmail ||
-                newState.currentStep == LoginStep.SEND_EMAIL ||
+                    newState.currentStep == LoginStep.SEND_EMAIL ||
                     newState.currentStep == LoginStep.VERIFY_DEVICE
             }
             continueButton.isEnabled = newState.isTypingEmail && emailRegex.matches(newState.email)

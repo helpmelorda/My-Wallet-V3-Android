@@ -24,7 +24,6 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricAuthOther
 import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.koin.scopedInject
-import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -77,7 +76,6 @@ class PinEntryFragment : BaseFragment<PinEntryView, PinEntryPresenter>(),
 
     private val pinEntryPresenter: PinEntryPresenter by scopedInject()
     private val environmentConfig: EnvironmentConfig by inject()
-    private val prefs: AppInfoPrefs by inject()
     private val biometricsController: BiometricsController by scopedInject()
     private val appUtil: AppUtil by inject()
 

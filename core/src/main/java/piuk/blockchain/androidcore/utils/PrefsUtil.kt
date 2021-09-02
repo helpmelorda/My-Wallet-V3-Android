@@ -654,7 +654,7 @@ class PrefsUtil(
         private const val STATE_SIGNED_UP = "STATE_SIGNED_UP"
         private const val APP_CURRENT_VERSION_CODE = "APP_CURRENT_VERSION_CODE"
         private const val APP_INSTALLATION_VERSION_NAME = "APP_INSTALLATION_VERSION_NAME"
-        private const val MAX_ALLOWED_RETRIES = 3
+        const val MAX_ALLOWED_RETRIES = 3
 
         // For QA:
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

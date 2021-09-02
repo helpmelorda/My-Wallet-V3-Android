@@ -4,12 +4,14 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
 import android.text.method.LinkMovementMethod
 import android.util.Base64
+import android.widget.Toast
 import androidx.annotation.StringRes
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflags.GatedFeature
@@ -17,6 +19,7 @@ import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
 import com.blockchain.logging.CrashLogger
+import com.blockchain.preferences.WalletStatus
 import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -30,6 +33,8 @@ import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.mvi.MviActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
+import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
@@ -44,7 +49,7 @@ import piuk.blockchain.android.util.setErrorState
 import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import timber.log.Timber
-import java.lang.Exception
+import java.util.concurrent.atomic.AtomicBoolean
 
 class LoginAuthActivity :
     MviActivity<LoginAuthModel, LoginAuthIntents, LoginAuthState, ActivityLoginAuthBinding>() {
@@ -55,13 +60,31 @@ class LoginAuthActivity :
     override val model: LoginAuthModel by scopedInject()
 
     private val crashLogger: CrashLogger by inject()
+    private val walletPrefs: WalletStatus by inject()
+
     private val internalFlags: InternalFeatureFlagApi by inject()
+
     private val ssoARFF: FeatureFlag by inject(ssoAccountRecoveryFeatureFlag)
 
+    private lateinit var currentState: LoginAuthState
     private var isAccountRecoveryEnabled: Boolean = false
     private var email: String = ""
     private var recoveryToken: String = ""
     private val compositeDisposable = CompositeDisposable()
+
+    private val isTwoFATimerRunning = AtomicBoolean(false)
+    private val twoFATimer by lazy {
+        object : CountDownTimer(TWO_FA_COUNTDOWN, TWO_FA_STEP) {
+            override fun onTick(millisUntilFinished: Long) {
+                isTwoFATimerRunning.set(true)
+            }
+
+            override fun onFinish() {
+                isTwoFATimerRunning.set(false)
+                model.process(LoginAuthIntents.Reset2FARetries)
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,6 +110,7 @@ class LoginAuthActivity :
 
     override fun onStop() {
         compositeDisposable.clear()
+        twoFATimer.cancel()
         super.onStop()
     }
 
@@ -156,6 +180,32 @@ class LoginAuthActivity :
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             })
             forgotPasswordButton.setOnClickListener { launchPasswordRecoveryFlow() }
+
+            continueButton.setOnClickListener {
+                if (currentState.authMethod != TwoFAMethod.OFF) {
+                    model.process(
+                        LoginAuthIntents.SubmitTwoFactorCode(
+                            password = passwordText.text.toString(),
+                            code = codeText.text.toString()
+                        )
+                    )
+                    analytics.logEvent(SettingsAnalytics.TwoStepVerificationCodeSubmitted(TWO_SET_MOBILE_NUMBER_OPTION))
+                } else {
+                    model.process(LoginAuthIntents.VerifyPassword(passwordText.text.toString()))
+                }
+            }
+
+            twoFaResend.text = getString(R.string.two_factor_resend_sms, walletPrefs.resendSmsRetries)
+            twoFaResend.setOnClickListener {
+                if (!isTwoFATimerRunning.get()) {
+                    model.process(LoginAuthIntents.RequestNew2FaCode)
+                } else {
+                    ToastCustom.makeText(
+                        this@LoginAuthActivity, getString(R.string.two_factor_retries_exceeded),
+                        Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR
+                    )
+                }
+            }
         }
     }
 
@@ -189,7 +239,29 @@ class LoginAuthActivity :
             }
         }.exhaustive
         update2FALayout(newState.authMethod)
+
+        newState.twoFaState?.let {
+            renderRemainingTries(it)
+        }
+
+        currentState = newState
     }
+
+    private fun renderRemainingTries(state: TwoFaCodeState) =
+        when (state) {
+            is TwoFaCodeState.TwoFaRemainingTries ->
+                binding.twoFaResend.text = getString(R.string.two_factor_resend_sms, state.remainingRetries)
+            is TwoFaCodeState.TwoFaTimeLock -> {
+                if (!isTwoFATimerRunning.get()) {
+                    twoFATimer.start()
+                    ToastCustom.makeText(
+                        this@LoginAuthActivity, getString(R.string.two_factor_retries_exceeded),
+                        Toast.LENGTH_SHORT, ToastCustom.TYPE_ERROR
+                    )
+                }
+                binding.twoFaResend.text = getString(R.string.two_factor_resend_sms, 0)
+            }
+        }
 
     private fun update2FALayout(authMethod: TwoFAMethod) {
         with(binding) {
@@ -204,6 +276,7 @@ class LoginAuthActivity :
                 TwoFAMethod.SMS -> {
                     codeTextLayout.visible()
                     codeTextLayout.hint = getString(R.string.two_factor_code_hint)
+                    twoFaResend.visible()
                     setup2FANotice(
                         textId = R.string.lost_2fa_notice,
                         annotationForLink = RESET_2FA_LINK_ANNOTATION,

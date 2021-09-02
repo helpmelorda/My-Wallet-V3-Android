@@ -10,6 +10,7 @@ import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.PrefsUtil
 import retrofit2.Response
 
 class LoginAuthInteractor(
@@ -21,13 +22,13 @@ class LoginAuthInteractor(
 
     fun getSessionId() = prefs.sessionId
 
-    fun cleaarSessionId() = prefs.clearSessionId()
+    fun clearSessionId() = prefs.clearSessionId()
 
     fun authorizeApproval(authToken: String, sessionId: String): Single<Response<ResponseBody>> {
         return authDataManager.authorizeSession(authToken, sessionId)
     }
 
-    fun getPayLoad(guid: String, sessionId: String): Single<Response<ResponseBody>> =
+    fun getPayload(guid: String, sessionId: String): Single<Response<ResponseBody>> =
         Single.fromObservable(authDataManager.getEncryptedPayload(guid, sessionId))
 
     fun verifyPassword(payload: String, password: String): Completable {
@@ -43,6 +44,21 @@ class LoginAuthInteractor(
                 }
             }
     }
+
+    fun getRemaining2FaRetries() = prefs.resendSmsRetries
+
+    private fun consume2FaRetry() = prefs.setResendSmsRetries(prefs.resendSmsRetries - 1)
+
+    fun reset2FaRetries(): Completable =
+        Completable.fromCallable { prefs.setResendSmsRetries(PrefsUtil.MAX_ALLOWED_RETRIES) }
+
+    fun requestNew2FaCode(guid: String, sessionId: String): Completable =
+        if (getRemaining2FaRetries() > 0) {
+            consume2FaRetry()
+            Completable.fromObservable(authDataManager.getEncryptedPayload(guid, sessionId))
+        } else {
+            Completable.error(TimeLockException())
+        }
 
     fun submitCode(
         guid: String,
@@ -66,3 +82,5 @@ class LoginAuthInteractor(
             authDataManager.updateMobileSetup(prefs.walletGuid, prefs.sharedKey, isMobileSetup, deviceType)
         )
 }
+
+class TimeLockException : Throwable()

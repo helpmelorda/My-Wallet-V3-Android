@@ -48,6 +48,28 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
         }
     }
 
+    data class Update2FARetryCount(val count: Int) : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState =
+            oldState.copy(
+                twoFaState = when (count) {
+                    0 -> TwoFaCodeState.TwoFaTimeLock
+                    else -> TwoFaCodeState.TwoFaRemainingTries(count)
+                }
+            )
+    }
+
+    object RequestNew2FaCode : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState = oldState
+    }
+
+    object New2FaCodeTimeLock : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState = oldState.copy(
+            twoFaState = TwoFaCodeState.TwoFaTimeLock
+        )
+
+        override fun isValidFor(oldState: LoginAuthState): Boolean = true
+    }
+
     data class SubmitTwoFactorCode(val password: String, val code: String) : LoginAuthIntents() {
         override fun reduce(oldState: LoginAuthState): LoginAuthState =
             oldState.copy(
@@ -101,6 +123,11 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
             oldState.copy(
                 authStatus = AuthStatus.Invalid2FACode
             )
+    }
+
+    object Reset2FARetries : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState =
+            oldState
     }
 
     data class ShowError(val throwable: Throwable? = null) : LoginAuthIntents() {

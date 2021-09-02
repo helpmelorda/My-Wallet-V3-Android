@@ -9,7 +9,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody.Companion.toResponseBody
-
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -50,13 +49,15 @@ class LoginAuthModelTest {
         val guid = "GUID"
         val authToken = "TOKEN"
         val responseBody = EMPTY_RESPONSE.toResponseBody(JSON_HEADER.toMediaTypeOrNull())
+
         whenever(interactor.getSessionId()).thenReturn(sessionId)
         whenever(interactor.authorizeApproval(authToken, sessionId)).thenReturn(
             Single.just(Response.success(responseBody))
         )
-        whenever(interactor.getPayLoad(anyString(), anyString())).thenReturn(
+        whenever(interactor.getPayload(anyString(), anyString())).thenReturn(
             Single.just(Response.success(responseBody))
         )
+        whenever(interactor.getRemaining2FaRetries()).thenReturn(0)
 
         val testState = model.state.test()
         model.process(LoginAuthIntents.GetSessionId(guid, authToken))
@@ -82,7 +83,15 @@ class LoginAuthModelTest {
                 sessionId = sessionId,
                 authToken = authToken,
                 authStatus = AuthStatus.GetPayload,
-                payloadJson = EMPTY_RESPONSE
+                twoFaState = TwoFaCodeState.TwoFaTimeLock
+            ),
+            LoginAuthState(
+                guid = guid,
+                sessionId = sessionId,
+                authToken = authToken,
+                authStatus = AuthStatus.GetPayload,
+                payloadJson = EMPTY_RESPONSE,
+                twoFaState = TwoFaCodeState.TwoFaTimeLock
             )
         )
     }
@@ -98,7 +107,7 @@ class LoginAuthModelTest {
         whenever(interactor.authorizeApproval(authToken, sessionId)).thenReturn(
             Single.just(Response.success(responseBody))
         )
-        whenever(interactor.getPayLoad(guid, sessionId)).thenReturn(Single.error(Exception()))
+        whenever(interactor.getPayload(guid, sessionId)).thenReturn(Single.error(Exception()))
 
         val testState = model.state.test()
         model.process(LoginAuthIntents.GetSessionId(guid, authToken))
@@ -271,6 +280,58 @@ class LoginAuthModelTest {
                 code = twoFACode
             )
         )
+    }
+
+    @Test
+    fun `request new 2fa code reduces counter`() {
+        whenever(interactor.requestNew2FaCode(anyString(), anyString())).thenReturn(
+            Completable.complete()
+        )
+
+        val retries = 3
+        val reducedRetry = 2
+        whenever(interactor.getRemaining2FaRetries())
+            .thenReturn(retries)
+            .thenReturn(reducedRetry)
+
+        val testState = model.state.test()
+        model.process(LoginAuthIntents.RequestNew2FaCode)
+        model.process(LoginAuthIntents.RequestNew2FaCode)
+
+        testState
+            .assertValueAt(0) {
+                it == LoginAuthState()
+            }
+            .assertValueAt(1) {
+                it.twoFaState is TwoFaCodeState.TwoFaRemainingTries &&
+                    (it.twoFaState as TwoFaCodeState.TwoFaRemainingTries).remainingRetries == retries
+            }
+            .assertValueAt(2) {
+                it.twoFaState is TwoFaCodeState.TwoFaRemainingTries &&
+                    (it.twoFaState as TwoFaCodeState.TwoFaRemainingTries).remainingRetries == reducedRetry
+            }
+    }
+
+    @Test
+    fun `request new 2fa retries exhausted`() {
+        whenever(interactor.requestNew2FaCode(anyString(), anyString())).thenReturn(
+            Completable.complete()
+        )
+
+        val retries = 0
+        whenever(interactor.getRemaining2FaRetries())
+            .thenReturn(retries)
+
+        val testState = model.state.test()
+        model.process(LoginAuthIntents.RequestNew2FaCode)
+
+        testState
+            .assertValueAt(0) {
+                it == LoginAuthState()
+            }
+            .assertValueAt(1) {
+                it.twoFaState is TwoFaCodeState.TwoFaTimeLock
+            }
     }
 
     companion object {

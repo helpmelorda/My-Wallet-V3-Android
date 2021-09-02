@@ -18,6 +18,8 @@ import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.getTwoFactorDialog
 import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
+import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
 import piuk.blockchain.android.util.ViewUtils
 
@@ -146,9 +148,4 @@ class PasswordRequiredActivity : MvpActivity<PasswordRequiredView, PasswordRequi
     }
 
     private fun launchRecoveryFlow() = RecoverFundsActivity.start(this)
-
-    companion object {
-        const val TWO_FA_COUNTDOWN = 60000L
-        const val TWO_FA_STEP = 1000L
-    }
 }
