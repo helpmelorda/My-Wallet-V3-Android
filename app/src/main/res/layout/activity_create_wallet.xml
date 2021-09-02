@@ -21,11 +21,13 @@
             android:id="@+id/mainConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
             android:background="@color/white"
             android:paddingTop="@dimen/small_margin">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/emailLayout"
+                style="@style/CommonDataInputAppearance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/small_margin"
@@ -40,7 +42,7 @@
                     android:id="@+id/email_address"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:contentDescription="@string/email"
+                    android:contentDescription="@string/sign_up_email"
                     android:imeOptions="actionNext"
                     android:inputType="textEmailAddress"
                     android:maxLines="1" />
@@ -48,6 +50,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/passwordLayout"
+                style="@style/CommonDataInputAppearance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/small_margin"
@@ -71,7 +74,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <piuk.blockchain.android.ui.customviews.PasswordStrengthView
-                android:id="@+id/entropy_container"
+                android:id="@+id/entropy_container_new"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -80,6 +83,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/confirmPasswordLayout"
+                style="@style/CommonDataInputAppearance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/small_margin"
@@ -88,7 +92,7 @@
                 android:hint="@string/confirm_password"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/entropy_container"
+                app:layout_constraintTop_toBottomOf="@+id/entropy_container_new"
                 app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -102,55 +106,98 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/select_country"
+                style="@style/CommonDataInputAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/small_margin"
+                android:layout_marginTop="@dimen/small_margin"
+                android:layout_marginRight="@dimen/small_margin"
+                android:hint="@string/create_wallet_country"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/confirmPasswordLayout">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/country"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:contentDescription="@string/create_wallet_country"
+                    android:cursorVisible="false"
+                    android:drawableEnd="@drawable/ic_arrow_down"
+                    android:focusable="false"
+                    android:imeOptions="actionNext" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/select_state"
+                style="@style/CommonDataInputAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/small_margin"
+                android:layout_marginTop="@dimen/small_margin"
+                android:layout_marginRight="@dimen/small_margin"
+                android:hint="@string/create_wallet_state"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_country"
+                tools:visibility="visible">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/state"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:contentDescription="@string/create_wallet_state"
+                    android:cursorVisible="false"
+                    android:drawableEnd="@drawable/ic_arrow_down"
+                    android:focusable="false"
+                    android:imeOptions="actionNext" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
             <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/wallet_password_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginStart="@dimen/small_margin"
                 android:layout_marginTop="@dimen/standard_margin"
                 android:background="@color/white"
                 android:button="@drawable/checkbox_selector_blue"
+                android:paddingEnd="@dimen/very_small_margin"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/confirmPasswordLayout" />
+                app:layout_constraintTop_toBottomOf="@id/select_state" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/wallet_password_blurb"
                 style="@style/Text.Standard.14"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/very_small_margin"
                 android:layout_marginTop="@dimen/standard_margin"
                 android:layout_marginEnd="@dimen/standard_margin"
+                android:layout_marginBottom="@dimen/small_margin"
+                android:lineSpacingExtra="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/wallet_password_checkbox"
-                app:layout_constraintTop_toBottomOf="@id/confirmPasswordLayout"
-                tools:text="@string/password_disclaimer" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tos"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/standard_margin"
-                android:layout_marginTop="@dimen/medium_margin"
-                android:layout_marginEnd="@dimen/standard_margin"
-                android:textColor="@color/primary_grey_dark"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/wallet_password_blurb"
-                tools:text="@string/you_agree_terms_of_service" />
+                app:layout_constraintTop_toBottomOf="@id/select_state"
+                tools:text="@string/password_disclaimer_1" />
 
             <Button
                 android:id="@+id/command_next"
                 style="@style/CtaButton.Blue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="14dp"
+                android:layout_marginBottom="@dimen/small_margin"
                 android:contentDescription="@string/new_account_cta_text"
                 android:text="@string/new_account_cta_text"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tos"
+                app:layout_constraintTop_toBottomOf="@+id/wallet_password_blurb"
                 app:layout_constraintVertical_bias="1.0" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

@@ -130,10 +130,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.createwallet.NewCreateWalletActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
             android:name=".ui.addresses.AccountActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity

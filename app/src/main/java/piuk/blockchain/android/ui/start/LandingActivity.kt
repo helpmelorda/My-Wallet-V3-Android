@@ -22,7 +22,6 @@ import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
-import piuk.blockchain.android.ui.createwallet.NewCreateWalletActivity
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.ui.recover.RecoverFundsActivity
@@ -110,11 +109,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
     }
 
     private fun launchCreateWalletActivity() {
-        if (internalFlags.isFeatureEnabled(GatedFeature.LOCALISATION_SIGN_UP)) {
-            NewCreateWalletActivity.start(this)
-        } else {
-            CreateWalletActivity.start(this)
-        }
+        CreateWalletActivity.start(this)
     }
 
     private fun launchLoginActivity() =

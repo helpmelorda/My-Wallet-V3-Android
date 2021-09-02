@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.createwallet
 
+import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.preferences.WalletStatus
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -34,9 +34,9 @@ class CreateWalletPresenterTest {
     private val prefsUtil: PersistentPrefs = mock()
     private val prngFixer: PrngFixer = mock()
     private val analytics: Analytics = mock()
-    private val walletPrefs: WalletStatus = mock()
     private val environmentConfig: EnvironmentConfig = mock()
     private val formatChecker: FormatChecker = mock()
+    private val nabuUserDataManager: NabuUserDataManager = mock()
 
     @Before
     fun setUp() {
@@ -47,9 +47,9 @@ class CreateWalletPresenterTest {
             accessState = accessState,
             prngFixer = prngFixer,
             analytics = analytics,
-            walletPrefs = walletPrefs,
             environmentConfig = environmentConfig,
-            formatChecker = formatChecker
+            formatChecker = formatChecker,
+            nabuUserDataManager = nabuUserDataManager
         )
         subject.initView(view)
     }
@@ -80,7 +80,7 @@ class CreateWalletPresenterTest {
         whenever(payloadDataManager.wallet!!.sharedKey).thenReturn(sharedKey)
 
         // Act
-        subject.createOrRestoreWallet(email, pw1, recoveryPhrase)
+        subject.createOrRestoreWallet(email, pw1, recoveryPhrase, "", "")
         // Assert
         verify(prngFixer).applyPRNGFixes()
         val observer = payloadDataManager.createHdWallet(pw1, accountName, email).test()
@@ -88,9 +88,9 @@ class CreateWalletPresenterTest {
         observer.assertNoErrors()
 
         verify(view).showProgressDialog(any())
+        verify(prefsUtil).email = email
         verify(prefsUtil).walletGuid = guid
         verify(prefsUtil).sharedKey = sharedKey
-        verify(prefsUtil).email = email
         verify(accessState).isNewlyCreated = true
         verify(view).startPinEntryActivity()
         verify(view).dismissProgressDialog()
@@ -114,7 +114,7 @@ class CreateWalletPresenterTest {
         whenever(payloadDataManager.wallet!!.sharedKey).thenReturn(sharedKey)
 
         // Act
-        subject.createOrRestoreWallet(email, pw1, recoveryPhrase)
+        subject.createOrRestoreWallet(email, pw1, recoveryPhrase, "", "")
 
         // Assert
         val observer = payloadDataManager.restoreHdWallet(email, pw1, accountName, recoveryPhrase)
@@ -209,6 +209,32 @@ class CreateWalletPresenterTest {
         val result = subject.validateCredentials("john@snow.com", pw1, pw1)
         // Assert
         assert(result)
+        verifyZeroInteractions(view)
+    }
+
+    @Test
+    fun `validateGeolocation country != US is selected`() {
+        val result = subject.validateGeoLocation("DE")
+
+        assert(result)
+        verifyZeroInteractions(view)
+    }
+
+    @Test
+    fun `validateGeolocation country not selected`() {
+        val result = subject.validateGeoLocation()
+
+        assert(!result)
+        verify(view).showError(R.string.country_not_selected)
+        verifyZeroInteractions(view)
+    }
+
+    @Test
+    fun `validateGeolocation country == US is selected and state is not selected`() {
+        val result = subject.validateGeoLocation("US")
+
+        assert(!result)
+        verify(view).showError(R.string.state_not_selected)
         verifyZeroInteractions(view)
     }
 }

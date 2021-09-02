@@ -81,7 +81,6 @@ import piuk.blockchain.android.ui.backup.start.BackupWalletStartingState
 import piuk.blockchain.android.ui.backup.verify.BackupVerifyPresenter
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListPresenter
 import piuk.blockchain.android.ui.createwallet.CreateWalletPresenter
-import piuk.blockchain.android.ui.createwallet.NewCreateWalletPresenter
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.customviews.dialogs.OverlayDetection
 import piuk.blockchain.android.ui.home.CredentialsWiper
@@ -298,21 +297,6 @@ val applicationModule = module {
                 accessState = get(),
                 prngFixer = get(),
                 analytics = get(),
-                walletPrefs = get(),
-                environmentConfig = get(),
-                formatChecker = get()
-            )
-        }
-
-        factory {
-            NewCreateWalletPresenter(
-                payloadDataManager = get(),
-                prefs = get(),
-                appUtil = get(),
-                accessState = get(),
-                prngFixer = get(),
-                analytics = get(),
-                walletPrefs = get(),
                 environmentConfig = get(),
                 formatChecker = get(),
                 nabuUserDataManager = get()
