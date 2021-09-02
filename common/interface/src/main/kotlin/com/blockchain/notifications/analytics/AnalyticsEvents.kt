@@ -165,7 +165,10 @@ enum class AnalyticsNames(val eventName: String) {
     RECURRING_BUY_VIEWED("Recurring Buy Viewed"),
     GET_STARTED_ON_BOARDING("Buy Sell Clicked"),
     RECURRING_BUY_UNAVAILABLE_SHOWN("Recurring Buy Unavailable Shown"),
-    WALLET_SIGN_UP("Wallet Signed Up");
+    WALLET_RECOVER("Recover Wallet"),
+    WALLET_SIGN_UP("Wallet Signed Up"),
+    WALLET_SIGN_UP_COUNTRY_SELECTED("Sign Up Country Selected"),
+    WALLET_SIGN_UP_STATE_SELECTED("Sign Up Country State Selected");
 }
 
 enum class LaunchOrigin {

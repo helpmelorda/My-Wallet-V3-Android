@@ -86,7 +86,6 @@ class CreateWalletPresenter(
 
         compositeDisposable += payloadDataManager.createHdWallet(password, view.getDefaultAccountName(), email)
             .doOnSuccess {
-                analytics.logEvent(WalletCreationEvent.WalletSignUp)
                 accessState.isNewlyCreated = true
                 prefs.walletGuid = payloadDataManager.wallet!!.guid
                 prefs.sharedKey = payloadDataManager.wallet!!.sharedKey
@@ -130,12 +129,12 @@ class CreateWalletPresenter(
                 prefs.email = email
                 prefs.isOnBoardingComplete = true
                 view.startPinEntryActivity()
-                analytics.logEvent(WalletCreationEvent.RecoverWalletEvent(true))
+                analytics.logEvent(WalletCreationAnalytics.RecoverWalletAnalytics(true))
             },
             onError = {
                 Timber.e(it)
                 view.showError(R.string.restore_failed)
-                analytics.logEvent(WalletCreationEvent.RecoverWalletEvent(false))
+                analytics.logEvent(WalletCreationAnalytics.RecoverWalletAnalytics(false))
             }
         )
     }

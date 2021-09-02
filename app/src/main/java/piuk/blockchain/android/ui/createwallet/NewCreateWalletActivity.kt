@@ -39,7 +39,6 @@ import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.getTextString
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
-import piuk.blockchain.android.util.visibleIf
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -288,17 +287,24 @@ class NewCreateWalletActivity : BaseMvpActivity<NewCreateWalletView, NewCreateWa
                 countryPickerItem = item
                 binding.country.setText(item.label)
                 changeStatesSpinnerVisibility(item.code == CODE_US)
+                WalletCreationAnalytics.CountrySelectedOnSignUp(item.code)
             }
             is StatePickerItem -> {
                 statePickerItem = item
                 binding.state.setText(item.label)
+                WalletCreationAnalytics.StateSelectedOnSignUp(item.code)
             }
         }
         ViewUtils.hideKeyboard(this)
     }
 
     private fun changeStatesSpinnerVisibility(showStateSpinner: Boolean) {
-        binding.selectState.visibleIf { showStateSpinner }
+        if (showStateSpinner) {
+            binding.selectState.visible()
+        } else {
+            binding.selectState.gone()
+            statePickerItem = null
+        }
     }
 
     override fun onSheetClosed() {

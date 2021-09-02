@@ -132,7 +132,7 @@ class NewCreateWalletPresenter(
             .subscribeBy(
                 onSuccess = {
                     accessState.isNewlyCreated = true
-                    analytics.logEvent(WalletCreationEvent.WalletSignUp)
+                    analytics.logEvent(WalletCreationAnalytics.WalletSignUp(countryCode, stateIsoCode))
                     prefs.apply {
                         payloadDataManager.wallet?.let {
                             walletGuid = it.guid
@@ -184,12 +184,12 @@ class NewCreateWalletPresenter(
                         isOnBoardingComplete = true
                     }
                     view.startPinEntryActivity()
-                    analytics.logEvent(WalletCreationEvent.RecoverWalletEvent(true))
+                    analytics.logEvent(WalletCreationAnalytics.RecoverWalletAnalytics(true))
                 },
                 onError = {
                     Timber.e(it)
                     view.showError(R.string.restore_failed)
-                    analytics.logEvent(WalletCreationEvent.RecoverWalletEvent(false))
+                    analytics.logEvent(WalletCreationAnalytics.RecoverWalletAnalytics(false))
                 }
             )
     }
