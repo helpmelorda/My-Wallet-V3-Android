@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.login.auth
 
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.json.JsonObject
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -11,7 +12,6 @@ import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
-import retrofit2.Response
 
 class LoginAuthInteractor(
     val appUtil: AppUtil,
@@ -24,12 +24,12 @@ class LoginAuthInteractor(
 
     fun clearSessionId() = prefs.clearSessionId()
 
-    fun authorizeApproval(authToken: String, sessionId: String): Single<Response<ResponseBody>> {
-        return authDataManager.authorizeSession(authToken, sessionId)
+    fun authorizeApproval(authToken: String, sessionId: String): Single<JsonObject> {
+        return authDataManager.authorizeSessionObject(authToken, sessionId)
     }
 
-    fun getPayload(guid: String, sessionId: String): Single<Response<ResponseBody>> =
-        Single.fromObservable(authDataManager.getEncryptedPayload(guid, sessionId))
+    fun getPayload(guid: String, sessionId: String): Single<JsonObject> =
+        authDataManager.getEncryptedPayloadObject(guid, sessionId)
 
     fun verifyPassword(payload: String, password: String): Completable {
         return payloadDataManager.initializeFromPayload(payload, password)
@@ -52,12 +52,12 @@ class LoginAuthInteractor(
     fun reset2FaRetries(): Completable =
         Completable.fromCallable { prefs.setResendSmsRetries(PrefsUtil.MAX_ALLOWED_RETRIES) }
 
-    fun requestNew2FaCode(guid: String, sessionId: String): Completable =
+    fun requestNew2FaCode(guid: String, sessionId: String): Single<JsonObject> =
         if (getRemaining2FaRetries() > 0) {
             consume2FaRetry()
-            Completable.fromObservable(authDataManager.getEncryptedPayload(guid, sessionId))
+            authDataManager.getEncryptedPayloadObject(guid, sessionId)
         } else {
-            Completable.error(TimeLockException())
+            Single.error(LoginAuthModel.TimeLockException())
         }
 
     fun submitCode(
@@ -82,5 +82,3 @@ class LoginAuthInteractor(
             authDataManager.updateMobileSetup(prefs.walletGuid, prefs.sharedKey, isMobileSetup, deviceType)
         )
 }
-
-class TimeLockException : Throwable()

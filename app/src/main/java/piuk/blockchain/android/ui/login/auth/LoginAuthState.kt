@@ -29,7 +29,8 @@ enum class AuthStatus {
     AuthRequired,
     AuthFailed,
     InitialError,
-    ShowManualPairing
+    ShowManualPairing,
+    AccountLocked
 }
 
 data class LoginAuthState(

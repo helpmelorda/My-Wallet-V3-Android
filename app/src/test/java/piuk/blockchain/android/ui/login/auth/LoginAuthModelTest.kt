@@ -14,7 +14,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import retrofit2.Response
+import piuk.blockchain.androidcore.utils.extensions.UnknownErrorException
 
 class LoginAuthModelTest {
     private lateinit var model: LoginAuthModel
@@ -52,10 +52,10 @@ class LoginAuthModelTest {
 
         whenever(interactor.getSessionId()).thenReturn(sessionId)
         whenever(interactor.authorizeApproval(authToken, sessionId)).thenReturn(
-            Single.just(Response.success(responseBody))
+            Single.just(mock())
         )
         whenever(interactor.getPayload(anyString(), anyString())).thenReturn(
-            Single.just(Response.success(responseBody))
+            Single.just(mock())
         )
         whenever(interactor.getRemaining2FaRetries()).thenReturn(0)
 
@@ -77,21 +77,6 @@ class LoginAuthModelTest {
                 sessionId = sessionId,
                 authToken = authToken,
                 authStatus = AuthStatus.GetPayload
-            ),
-            LoginAuthState(
-                guid = guid,
-                sessionId = sessionId,
-                authToken = authToken,
-                authStatus = AuthStatus.GetPayload,
-                twoFaState = TwoFaCodeState.TwoFaTimeLock
-            ),
-            LoginAuthState(
-                guid = guid,
-                sessionId = sessionId,
-                authToken = authToken,
-                authStatus = AuthStatus.GetPayload,
-                payloadJson = EMPTY_RESPONSE,
-                twoFaState = TwoFaCodeState.TwoFaTimeLock
             )
         )
     }
@@ -102,12 +87,12 @@ class LoginAuthModelTest {
         val sessionId = "SESSION_ID"
         val guid = "GUID"
         val authToken = "TOKEN"
-        val responseBody = EMPTY_RESPONSE.toResponseBody(JSON_HEADER.toMediaTypeOrNull())
+
         whenever(interactor.getSessionId()).thenReturn(sessionId)
         whenever(interactor.authorizeApproval(authToken, sessionId)).thenReturn(
-            Single.just(Response.success(responseBody))
+            Single.just(mock())
         )
-        whenever(interactor.getPayload(guid, sessionId)).thenReturn(Single.error(Exception()))
+        whenever(interactor.getPayload(guid, sessionId)).thenReturn(Single.error(UnknownErrorException()))
 
         val testState = model.state.test()
         model.process(LoginAuthIntents.GetSessionId(guid, authToken))
@@ -127,12 +112,6 @@ class LoginAuthModelTest {
                 sessionId = sessionId,
                 authToken = authToken,
                 authStatus = AuthStatus.GetPayload
-            ),
-            LoginAuthState(
-                guid = guid,
-                sessionId = sessionId,
-                authToken = authToken,
-                authStatus = AuthStatus.AuthFailed
             )
         )
     }
@@ -285,7 +264,7 @@ class LoginAuthModelTest {
     @Test
     fun `request new 2fa code reduces counter`() {
         whenever(interactor.requestNew2FaCode(anyString(), anyString())).thenReturn(
-            Completable.complete()
+            Single.just(mock())
         )
 
         val retries = 3
@@ -315,7 +294,7 @@ class LoginAuthModelTest {
     @Test
     fun `request new 2fa retries exhausted`() {
         whenever(interactor.requestNew2FaCode(anyString(), anyString())).thenReturn(
-            Completable.complete()
+            Single.just(mock())
         )
 
         val retries = 0

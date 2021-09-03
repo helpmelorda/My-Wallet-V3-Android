@@ -10,6 +10,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.exceptions.Exceptions
+import kotlinx.serialization.json.JsonObject
 import okhttp3.ResponseBody
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.access.AccessState
@@ -17,6 +18,7 @@ import piuk.blockchain.androidcore.utils.AESUtilWrapper
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrngFixer
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
+import piuk.blockchain.androidcore.utils.extensions.handleResponse
 import piuk.blockchain.androidcore.utils.extensions.isValidPin
 import retrofit2.Response
 import java.security.SecureRandom
@@ -60,6 +62,14 @@ class AuthDataManager(
         authService.getEncryptedPayload(guid, sessionId)
             .applySchedulers()
 
+    fun getEncryptedPayloadObject(guid: String, sessionId: String): Single<JsonObject> =
+        authService.getEncryptedPayload(guid, sessionId)
+            .applySchedulers()
+            .firstOrError()
+            .flatMap {
+                it.handleResponse()
+            }
+
     /**
      * Gets an ephemeral session ID from the server.
      *
@@ -79,6 +89,9 @@ class AuthDataManager(
      */
     fun authorizeSession(authToken: String, sessionId: String): Single<Response<ResponseBody>> =
         authService.authorizeSession(authToken, sessionId)
+
+    fun authorizeSessionObject(authToken: String, sessionId: String): Single<JsonObject> =
+        authService.authorizeSession(authToken, sessionId).flatMap { it.handleResponse() }
 
     /**
      * Submits a user's 2FA code to the server and returns a response. This response will contain

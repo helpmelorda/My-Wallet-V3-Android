@@ -13,6 +13,7 @@ import android.text.method.LinkMovementMethod
 import android.util.Base64
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.featureflags.InternalFeatureFlagApi
@@ -43,6 +44,7 @@ import piuk.blockchain.android.ui.start.ManualPairingActivity
 import piuk.blockchain.android.urllinks.RESET_2FA
 import piuk.blockchain.android.urllinks.SECOND_PASSWORD_EXPLANATION
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.clearErrorState
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.setErrorState
@@ -162,7 +164,7 @@ class LoginAuthActivity :
 
     private fun initControls() {
         with(binding) {
-            backButton.setOnClickListener { finish() }
+            backButton.setOnClickListener { clearKeyboardAndFinish() }
             passwordText.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable) {
                     passwordTextLayout.clearErrorState()
@@ -235,7 +237,18 @@ class LoginAuthActivity :
             }
             AuthStatus.ShowManualPairing -> {
                 startActivity(ManualPairingActivity.newInstance(this, newState.guid))
-                finish()
+                clearKeyboardAndFinish()
+            }
+            AuthStatus.AccountLocked -> {
+                AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                    .setTitle(R.string.account_locked_title)
+                    .setMessage(R.string.account_locked_message)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.common_go_back) { _, _ ->
+                        clearKeyboardAndFinish()
+                    }
+                    .create()
+                    .show()
             }
         }.exhaustive
         update2FALayout(newState.authMethod)
@@ -245,6 +258,11 @@ class LoginAuthActivity :
         }
 
         currentState = newState
+    }
+
+    private fun clearKeyboardAndFinish() {
+        ViewUtils.hideKeyboard(this)
+        finish()
     }
 
     private fun renderRemainingTries(state: TwoFaCodeState) =

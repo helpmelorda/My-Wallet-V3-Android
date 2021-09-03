@@ -3,7 +3,8 @@ package piuk.blockchain.android.ui.login.auth
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
@@ -32,7 +33,7 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
             )
     }
 
-    data class SetPayload(val payloadJson: JSONObject) : LoginAuthIntents() {
+    data class SetPayload(val payloadJson: JsonObject) : LoginAuthIntents() {
         override fun reduce(oldState: LoginAuthState): LoginAuthState =
             oldState.copy(
                 authMethod = getAuthMethod(oldState),
@@ -41,7 +42,7 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
 
         private fun getAuthMethod(oldState: LoginAuthState): TwoFAMethod {
             return if (payloadJson.isAuth() && (payloadJson.isGoogleAuth() || payloadJson.isSMSAuth())) {
-                TwoFAMethod.fromInt(payloadJson.getInt(AUTH_TYPE))
+                TwoFAMethod.fromInt(payloadJson.getValue(AUTH_TYPE).jsonPrimitive.toString().toInt())
             } else {
                 oldState.authMethod
             }
@@ -118,6 +119,13 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
             )
     }
 
+    object ShowAccountLockedError : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState =
+            oldState.copy(
+                authStatus = AuthStatus.AccountLocked
+            )
+    }
+
     object Show2FAFailed : LoginAuthIntents() {
         override fun reduce(oldState: LoginAuthState): LoginAuthState =
             oldState.copy(
@@ -155,11 +163,11 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
     }
 }
 
-private fun JSONObject.isAuth(): Boolean =
-    has(LoginAuthIntents.AUTH_TYPE) && !has(LoginAuthIntents.PAYLOAD)
+private fun JsonObject.isAuth(): Boolean =
+    containsKey(LoginAuthIntents.AUTH_TYPE) && !containsKey(LoginAuthIntents.PAYLOAD)
 
-private fun JSONObject.isGoogleAuth(): Boolean =
-    getInt(LoginAuthIntents.AUTH_TYPE) == Settings.AUTH_TYPE_GOOGLE_AUTHENTICATOR
+private fun JsonObject.isGoogleAuth(): Boolean =
+    getValue(LoginAuthIntents.AUTH_TYPE).jsonPrimitive.toString().toInt() == Settings.AUTH_TYPE_GOOGLE_AUTHENTICATOR
 
-private fun JSONObject.isSMSAuth(): Boolean =
-    getInt(LoginAuthIntents.AUTH_TYPE) == Settings.AUTH_TYPE_SMS
+private fun JsonObject.isSMSAuth(): Boolean =
+    getValue(LoginAuthIntents.AUTH_TYPE).jsonPrimitive.toString().toInt() == Settings.AUTH_TYPE_SMS
