@@ -75,12 +75,20 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
                     check(state.pendingTx != null) { "Px is not initialised yet" }
                     model.process(
                         TransactionIntent.AmountChanged(
-                            if (!state.allowFiatInput && amount is FiatValue) {
-                                convertFiatToCrypto(amount, rate as ExchangeRate.CryptoToFiat, state).also {
-                                    binding.amountSheetInput.fixExchange(it)
+                            when {
+                                !state.allowFiatInput && amount is FiatValue -> {
+                                    convertFiatToCrypto(amount, rate as ExchangeRate.CryptoToFiat, state).also {
+                                        binding.amountSheetInput.fixExchange(it)
+                                    }
                                 }
-                            } else {
-                                amount
+                                amount is FiatValue &&
+                                    state.amount is FiatValue &&
+                                    amount.currencyCode != state.amount.currencyCode -> {
+                                    rate.inverse().convert(amount)
+                                }
+                                else -> {
+                                    amount
+                                }
                             }
                         )
                     )
@@ -281,27 +289,39 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         state: TransactionState,
         inputCurrency: CurrencyType
     ) {
-        if (inputCurrency is CurrencyType.Crypto || state.amount.takeIf { it is CryptoValue }?.isPositive == true) {
-            val selectedFiat = state.pendingTx?.selectedFiat ?: return
-            configuration = FiatCryptoViewConfiguration(
-                inputCurrency = CurrencyType.Crypto(state.sendingAsset),
-                exchangeCurrency = CurrencyType.Fiat(selectedFiat),
-                predefinedAmount = state.amount
-            )
-        } else {
-            val selectedFiat = state.pendingTx?.selectedFiat ?: return
-            val fiatRate = state.fiatRate ?: return
-            val isCryptoWithFiatExchange = state.amount is CryptoValue && fiatRate is ExchangeRate.CryptoToFiat
-            configuration = FiatCryptoViewConfiguration(
-                inputCurrency = CurrencyType.Fiat(selectedFiat),
-                outputCurrency = CurrencyType.Fiat(selectedFiat),
-                exchangeCurrency = state.sendingAccount.currencyType(),
-                predefinedAmount = if (isCryptoWithFiatExchange) {
-                    fiatRate.convert(state.amount)
-                } else {
-                    state.amount
-                }
-            )
+        val selectedFiat = state.pendingTx?.selectedFiat ?: return
+        // Input currency is configured as crypto or we are coming back from the checkout screen
+        when {
+            inputCurrency is CurrencyType.Crypto || state.amount.takeIf { it is CryptoValue }?.isPositive == true -> {
+                configuration = FiatCryptoViewConfiguration(
+                    inputCurrency = CurrencyType.Crypto(state.sendingAsset),
+                    exchangeCurrency = CurrencyType.Fiat(selectedFiat),
+                    predefinedAmount = state.amount
+                )
+            }
+            // both input and selected fiat are fiats (Deposit and withdraw fiat from/to external)
+            inputCurrency is CurrencyType.Fiat && inputCurrency.fiatCurrency != selectedFiat -> {
+                configuration = FiatCryptoViewConfiguration(
+                    inputCurrency = inputCurrency,
+                    outputCurrency = CurrencyType.Fiat(selectedFiat),
+                    exchangeCurrency = CurrencyType.Fiat(selectedFiat),
+                    predefinedAmount = state.amount
+                )
+            }
+            else -> {
+                val fiatRate = state.fiatRate ?: return
+                val isCryptoWithFiatExchange = state.amount is CryptoValue && fiatRate is ExchangeRate.CryptoToFiat
+                configuration = FiatCryptoViewConfiguration(
+                    inputCurrency = CurrencyType.Fiat(selectedFiat),
+                    outputCurrency = CurrencyType.Fiat(selectedFiat),
+                    exchangeCurrency = state.sendingAccount.currencyType(),
+                    predefinedAmount = if (isCryptoWithFiatExchange) {
+                        fiatRate.convert(state.amount)
+                    } else {
+                        state.amount
+                    }
+                )
+            }
         }
         showKeyboard()
     }
