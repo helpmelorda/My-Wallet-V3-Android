@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.lifecycle.Lifecycle
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -125,8 +126,7 @@ class TransactionFlowActivity :
                 // do nothing
             }
             TransactionStep.CLOSED -> kotlin.run {
-                compositeDisposable.clear()
-                model.destroy()
+                dismissFlow()
             }
             else -> kotlin.run {
                 analyticsHooks.onStepChanged(state)
@@ -203,9 +203,19 @@ class TransactionFlowActivity :
     }
 
     override fun onDestroy() {
-        compositeDisposable.clear()
-        scope.close()
         super.onDestroy()
+        dismissFlow()
+    }
+
+    private fun dismissFlow() {
+        compositeDisposable.clear()
+        model.destroy()
+        if (scope.isNotClosed()) {
+            scope.close()
+        }
+        if (this.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+            finish()
+        }
     }
 
     override fun onSheetClosed() {
