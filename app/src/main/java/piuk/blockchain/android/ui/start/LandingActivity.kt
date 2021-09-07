@@ -6,8 +6,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import androidx.appcompat.app.AlertDialog
-import com.blockchain.featureflags.GatedFeature
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
@@ -35,7 +33,6 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
     override val presenter: LandingPresenter by scopedInject()
 
     private val ssoARFF: FeatureFlag by inject(ssoAccountRecoveryFeatureFlag)
-    private val internalFlags: InternalFeatureFlagApi by inject()
     private val compositeDisposable = CompositeDisposable()
     override val view: LandingView = this
 
@@ -86,9 +83,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                 .subscribeBy(
                     onSuccess = { isAccountRecoveryEnabled ->
                         btnRecover.apply {
-                            if (isAccountRecoveryEnabled &&
-                                internalFlags.isFeatureEnabled(GatedFeature.ACCOUNT_RECOVERY)
-                            ) {
+                            if (isAccountRecoveryEnabled) {
                                 text = getString(R.string.restore_wallet_cta)
                                 setOnClickListener { launchSSOAccountRecoveryFlow() }
                             } else {

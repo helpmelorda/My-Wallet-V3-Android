@@ -33,11 +33,17 @@ class ResetPasswordModel(
                 createWalletForAccount(
                     email = intent.email,
                     password = intent.password,
+                    userId = intent.userId,
                     recoveryToken = intent.recoveryToken,
                     walletName = intent.walletName,
                     intent.shouldResetKyc
                 )
-            is ResetPasswordIntents.RecoverAccount -> recoverAccount(intent.recoveryToken, intent.shouldResetKyc)
+            is ResetPasswordIntents.RecoverAccount ->
+                recoverAccount(
+                    userId = intent.userId,
+                    recoveryToken = intent.recoveryToken,
+                    shouldResetKyc = intent.shouldResetKyc
+                )
             ResetPasswordIntents.ResetUserKyc -> resetKyc()
             is ResetPasswordIntents.UpdateStatus -> null
         }
@@ -49,13 +55,7 @@ class ResetPasswordModel(
     ): Disposable {
         return interactor.setNewPassword(password = password)
             .subscribeBy(
-                onComplete = {
-                    if (shouldResetKyc) {
-                        process(ResetPasswordIntents.ResetUserKyc)
-                    } else {
-                        process(ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_SUCCESS))
-                    }
-                },
+                onComplete = { resetKycOrContinue(shouldResetKyc) },
                 onError = { throwable ->
                     Timber.e(throwable)
                     process(ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_ERROR))
@@ -66,6 +66,7 @@ class ResetPasswordModel(
     private fun createWalletForAccount(
         email: String,
         password: String,
+        userId: String,
         recoveryToken: String,
         walletName: String,
         shouldResetKyc: Boolean
@@ -73,7 +74,13 @@ class ResetPasswordModel(
         return interactor.createWalletForAccount(email, password, walletName)
             .subscribeBy(
                 onComplete = {
-                    process(ResetPasswordIntents.RecoverAccount(recoveryToken, shouldResetKyc))
+                    process(
+                        ResetPasswordIntents.RecoverAccount(
+                            userId = userId,
+                            recoveryToken = recoveryToken,
+                            shouldResetKyc = shouldResetKyc
+                        )
+                    )
                 },
                 onError = { throwable ->
                     Timber.e(throwable)
@@ -82,19 +89,23 @@ class ResetPasswordModel(
             )
     }
 
-    private fun recoverAccount(recoveryToken: String, shouldResetKyc: Boolean) =
-        interactor.recoverAccount(recoveryToken = recoveryToken)
+    private fun recoverAccount(userId: String, recoveryToken: String, shouldResetKyc: Boolean) =
+        interactor.recoverAccount(userId = userId, recoveryToken = recoveryToken)
             .subscribeBy(
-                onComplete = {
-                    if (shouldResetKyc) {
-                        process(ResetPasswordIntents.ResetUserKyc)
-                    } else {
-                        process(ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_SUCCESS))
-                    }
-                },
+                onComplete = { resetKycOrContinue(shouldResetKyc) },
                 onError = { throwable ->
-                    Timber.e(throwable)
-                    process(ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_ERROR))
+                    process(
+                        when {
+                            shouldResetKyc && isErrorResponseConflict(throwable) ->
+                                ResetPasswordIntents.ResetUserKyc
+                            isErrorResponseConflict(throwable) ->
+                                ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_SUCCESS)
+                            else -> {
+                                Timber.e(throwable)
+                                ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_ERROR)
+                            }
+                        }
+                    )
                 }
             )
 
@@ -102,7 +113,7 @@ class ResetPasswordModel(
         .subscribeBy(
             onComplete = { process(ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_SUCCESS)) },
             onError = { throwable ->
-                if (throwable is NabuApiException && throwable.getErrorType() == NabuErrorTypes.Conflict) {
+                if (isErrorResponseConflict(throwable)) {
                     // Resetting KYC is already in progress
                     process(ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_SUCCESS))
                 } else {
@@ -111,4 +122,18 @@ class ResetPasswordModel(
                 }
             }
         )
+
+    private fun resetKycOrContinue(shouldResetKyc: Boolean) {
+        process(
+            if (shouldResetKyc) {
+                ResetPasswordIntents.ResetUserKyc
+            } else {
+                ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_SUCCESS)
+            }
+        )
+    }
+
+    // Recovery/Reset is already in progress
+    private fun isErrorResponseConflict(throwable: Throwable) =
+        throwable is NabuApiException && throwable.getErrorType() == NabuErrorTypes.Conflict
 }

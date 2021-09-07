@@ -46,7 +46,7 @@ import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.access.AccessStateImpl
 import piuk.blockchain.androidcore.data.access.LogoutTimer
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
-import piuk.blockchain.androidcore.data.auth.AuthService
+import piuk.blockchain.androidcore.data.auth.WalletAuthService
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.impl.AssetPriceStore
@@ -100,7 +100,7 @@ val coreModule = module {
     single { SSLPinningSubject() }.bind(SSLPinningObservable::class).bind(SSLPinningEmitter::class)
 
     factory {
-        AuthService(
+        WalletAuthService(
             walletApi = get()
         )
     }
@@ -264,7 +264,8 @@ val coreModule = module {
         factory {
             AuthDataManager(
                 prefs = get(),
-                authService = get(),
+                authApiService = get(),
+                walletAuthService = get(),
                 accessState = get(),
                 aesUtilWrapper = get(),
                 prngHelper = get(),

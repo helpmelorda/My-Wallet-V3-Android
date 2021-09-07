@@ -9,6 +9,7 @@ import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import piuk.blockchain.androidcore.utils.extensions.AccountLockedException
 import piuk.blockchain.androidcore.utils.extensions.AuthRequiredException
 import piuk.blockchain.androidcore.utils.extensions.InitialErrorException
+import timber.log.Timber
 
 class LoginAuthModel(
     initialState: LoginAuthState,
@@ -20,6 +21,7 @@ class LoginAuthModel(
 
     override fun performAction(previousState: LoginAuthState, intent: LoginAuthIntents): Disposable? {
         return when (intent) {
+            is LoginAuthIntents.InitLoginAuthInfo -> initLoginAuthInfo(intent.json)
             is LoginAuthIntents.GetSessionId -> getSessionId()
             is LoginAuthIntents.AuthorizeApproval ->
                 authorizeApproval(
@@ -51,6 +53,18 @@ class LoginAuthModel(
             else -> null
         }
     }
+
+    private fun initLoginAuthInfo(json: String): Disposable =
+        interactor.getAuthInfo(json)
+            .subscribeBy(
+                onSuccess = { loginAuthInfo ->
+                    process(LoginAuthIntents.GetSessionId(loginAuthInfo))
+                },
+                onError = { throwable ->
+                    Timber.e(throwable)
+                    process(LoginAuthIntents.ShowError(throwable))
+                }
+            )
 
     private fun reset2FaRetries() =
         interactor.reset2FaRetries()

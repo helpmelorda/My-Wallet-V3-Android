@@ -2136,7 +2136,7 @@
 
     <!-- Account Recovery -->
     <string name="account_recover_title">Verify your account</string>
-    <string name="enter_recovery_phrase_desc">Enter your twelve word Secret Private Key Recovery Phrase to complete login.</string>
+    <string name="enter_recovery_phrase_desc">Enter your twelve word Secret Private Key Recovery Phrase to complete login. Separate each word with a space.</string>
     <string name="enter_recovery_phrase_hint">Enter your secret recovery phrase</string>
     <string name="recovery_phrase_word_count_error">The Recovery Phrase must be exactly 12 words</string>
     <string name="reset_account_notice">Can’t find your recovery phrase? <annotation link="reset_account">Reset your account</annotation></string>

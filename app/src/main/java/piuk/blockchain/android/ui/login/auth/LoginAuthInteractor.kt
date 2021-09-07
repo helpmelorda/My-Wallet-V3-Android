@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.login.auth
 
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
@@ -19,6 +21,18 @@ class LoginAuthInteractor(
     val payloadDataManager: PayloadDataManager,
     val prefs: PersistentPrefs
 ) {
+    fun getAuthInfo(json: String): Single<LoginAuthInfo> {
+        return Single.fromCallable {
+            val jsonBuilder = Json {
+                ignoreUnknownKeys = true
+            }
+            try {
+                jsonBuilder.decodeFromString<LoginAuthInfo.ExtendedAccountInfo>(json)
+            } catch (throwable: Throwable) {
+                jsonBuilder.decodeFromString<LoginAuthInfo.SimpleAccountInfo>(json)
+            }
+        }
+    }
 
     fun getSessionId() = prefs.sessionId
 

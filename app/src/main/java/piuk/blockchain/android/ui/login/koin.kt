@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.login
 
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.ssoAccountRecoveryFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.login.auth.LoginAuthInteractor
@@ -22,10 +23,11 @@ val loginUiModule = module {
 
         factory {
             LoginInteractor(
-                authService = get(),
+                authDataManager = get(),
                 payloadDataManager = get(),
                 prefs = get(),
-                appUtil = get()
+                appUtil = get(),
+                ssoAccountRecoveryFF = get(ssoAccountRecoveryFeatureFlag)
             )
         }
 

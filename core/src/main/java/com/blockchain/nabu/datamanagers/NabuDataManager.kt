@@ -118,7 +118,7 @@ interface NabuDataManager {
 
     fun currentToken(offlineToken: NabuOfflineTokenResponse): Single<NabuSessionTokenResponse>
 
-    fun recoverAccount(recoveryToken: String): Single<NabuCredentialsMetadata>
+    fun recoverAccount(userId: String, recoveryToken: String): Single<NabuCredentialsMetadata>
 
     fun resetUserKyc(): Completable
 
@@ -388,23 +388,19 @@ internal class NabuDataManagerImpl(
                 .singleOrError()
         }
 
-    override fun recoverAccount(recoveryToken: String): Single<NabuCredentialsMetadata> {
+    override fun recoverAccount(userId: String, recoveryToken: String): Single<NabuCredentialsMetadata> {
         return requestJwt().flatMap { jwt ->
-            nabuService.getAuthToken(jwt).flatMap { response ->
-                nabuService.recoverAccount(
-                    offlineToken = response,
-                    jwt = jwt,
-                    recoveryToken = recoveryToken
-                )
-                    .flatMap { recoverAccountResponse ->
-                        Single.just(
-                            NabuCredentialsMetadata(
-                                userId = response.userId,
-                                lifetimeToken = recoverAccountResponse.token
-                            )
-                        )
-                    }
-            }
+            nabuService.recoverAccount(
+                userId = userId,
+                jwt = jwt,
+                recoveryToken = recoveryToken
+            )
+                .map { recoverAccountResponse ->
+                    NabuCredentialsMetadata(
+                        userId = userId,
+                        lifetimeToken = recoverAccountResponse.token
+                    )
+                }
         }
     }
 

@@ -101,6 +101,7 @@ class ResetAccountFragment :
                 ResetPasswordFragment.newInstance(
                     shouldResetKyc = true,
                     email = arguments?.getString(ResetPasswordFragment.EMAIL) ?: "",
+                    userId = arguments?.getString(ResetPasswordFragment.USER_ID) ?: "",
                     recoveryToken = arguments?.getString(ResetPasswordFragment.RECOVERY_TOKEN) ?: ""
                 ),
                 ResetPasswordFragment::class.simpleName
@@ -110,10 +111,11 @@ class ResetAccountFragment :
     }
 
     companion object {
-        fun newInstance(email: String, recoveryToken: String): ResetAccountFragment {
+        fun newInstance(email: String, userId: String, recoveryToken: String): ResetAccountFragment {
             return ResetAccountFragment().apply {
                 arguments = Bundle().apply {
                     putString(ResetPasswordFragment.EMAIL, email)
+                    putString(ResetPasswordFragment.USER_ID, userId)
                     putString(ResetPasswordFragment.RECOVERY_TOKEN, recoveryToken)
                 }
             }

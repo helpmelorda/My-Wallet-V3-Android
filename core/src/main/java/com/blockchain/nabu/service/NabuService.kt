@@ -193,16 +193,15 @@ class NabuService internal constructor (
     ).wrapErrorMessage()
 
     internal fun recoverAccount(
-        offlineToken: NabuOfflineTokenResponse,
+        userId: String,
         jwt: String,
         recoveryToken: String
     ): Single<NabuRecoverAccountResponse> = nabu.recoverAccount(
-        offlineToken.userId,
+        userId,
         NabuRecoverAccountRequest(
             jwt = jwt,
             recoveryToken = recoveryToken
-        ),
-        authorization = "Bearer ${offlineToken.token}"
+        )
     ).wrapErrorMessage()
 
     internal fun recoverUser(

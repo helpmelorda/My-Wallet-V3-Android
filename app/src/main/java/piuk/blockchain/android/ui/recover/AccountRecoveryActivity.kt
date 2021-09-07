@@ -30,6 +30,14 @@ class AccountRecoveryActivity :
         intent.getStringExtra(ResetPasswordFragment.EMAIL) ?: ""
     }
 
+    private val userId: String by lazy {
+        intent.getStringExtra(ResetPasswordFragment.USER_ID) ?: ""
+    }
+
+    private val recoveryToken: String by lazy {
+        intent.getStringExtra(ResetPasswordFragment.RECOVERY_TOKEN) ?: ""
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -79,7 +87,7 @@ class AccountRecoveryActivity :
                 })
             }
             resetAccountLabel.apply {
-                visibleIf { email.isNotEmpty() }
+                visibleIf { email.isNotEmpty() && userId.isNotEmpty() && recoveryToken.isNotEmpty() }
                 text = StringUtils.getStringWithMappedAnnotations(
                     context = this@AccountRecoveryActivity,
                     stringId = R.string.reset_account_notice,
@@ -109,7 +117,8 @@ class AccountRecoveryActivity :
                 binding.fragmentContainer.id,
                 ResetAccountFragment.newInstance(
                     email = email,
-                    recoveryToken = intent.getStringExtra(ResetPasswordFragment.RECOVERY_TOKEN) ?: ""
+                    userId = userId,
+                    recoveryToken = recoveryToken
                 ),
                 ResetAccountFragment::class.simpleName
             )

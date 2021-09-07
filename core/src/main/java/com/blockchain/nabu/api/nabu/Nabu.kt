@@ -177,8 +177,7 @@ internal interface Nabu {
     @POST("$NABU_RECOVER_ACCOUNT/{userId}")
     fun recoverAccount(
         @Path("userId") userId: String,
-        @Body recoverAccountRequest: NabuRecoverAccountRequest,
-        @Header("authorization") authorization: String
+        @Body recoverAccountRequest: NabuRecoverAccountRequest
     ): Single<NabuRecoverAccountResponse>
 
     @POST("$NABU_RECOVER_USER/{userId}")

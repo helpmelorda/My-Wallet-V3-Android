@@ -9,13 +9,31 @@ import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
 
-    data class GetSessionId(val guid: String, val authToken: String) : LoginAuthIntents() {
+    data class InitLoginAuthInfo(val json: String) : LoginAuthIntents() {
         override fun reduce(oldState: LoginAuthState): LoginAuthState =
             oldState.copy(
-                guid = guid,
-                authToken = authToken,
-                authStatus = AuthStatus.GetSessionId
+                authStatus = AuthStatus.InitAuthInfo
             )
+    }
+
+    data class GetSessionId(val loginAuthInfo: LoginAuthInfo) : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState =
+            when (loginAuthInfo) {
+                is LoginAuthInfo.SimpleAccountInfo -> oldState.copy(
+                    guid = loginAuthInfo.guid,
+                    email = loginAuthInfo.email,
+                    authToken = loginAuthInfo.authToken,
+                    authStatus = AuthStatus.GetSessionId
+                )
+                is LoginAuthInfo.ExtendedAccountInfo -> oldState.copy(
+                    guid = loginAuthInfo.accountWallet.guid,
+                    userId = loginAuthInfo.accountWallet.nabuAccountInfo.userId,
+                    email = loginAuthInfo.accountWallet.email,
+                    authToken = loginAuthInfo.accountWallet.authToken,
+                    recoveryToken = loginAuthInfo.accountWallet.nabuAccountInfo.recoveryToken,
+                    authStatus = AuthStatus.GetSessionId
+                )
+            }
     }
 
     data class AuthorizeApproval(val sessionId: String) : LoginAuthIntents() {

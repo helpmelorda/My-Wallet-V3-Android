@@ -11,7 +11,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito
-import piuk.blockchain.androidcore.data.auth.AuthService
+import piuk.blockchain.androidcore.data.auth.WalletAuthService
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import kotlin.test.assertEquals
 
@@ -19,7 +19,7 @@ class WalletOptionsDataManagerTest {
 
     private lateinit var subject: WalletOptionsDataManager
 
-    private val authService: AuthService = mock()
+    private val authService: WalletAuthService = mock()
     private var walletOptionsState = WalletOptionsState()
     private val mockSettingsDataManager: SettingsDataManager =
         mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)

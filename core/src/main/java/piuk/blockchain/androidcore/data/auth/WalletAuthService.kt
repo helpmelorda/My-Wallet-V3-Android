@@ -11,7 +11,7 @@ import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
 import retrofit2.Response
 
-class AuthService(private val walletApi: WalletApi) {
+class WalletAuthService(private val walletApi: WalletApi) {
 
     /**
      * Returns a [WalletOptions] object, which amongst other things contains information

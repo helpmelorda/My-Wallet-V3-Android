@@ -19,8 +19,8 @@ class ResetPasswordInteractor(
     private val accessState: AccessState,
     private val prefs: PersistentPrefs,
     private val nabuDataManager: NabuDataManager,
-    private val metadataRepository: MetadataRepository,
     private val metadataManager: MetadataManager,
+    private val metadataRepository: MetadataRepository,
     private val prngFixer: PrngFixer,
     private val walletPrefs: WalletStatus
 ) {
@@ -29,26 +29,26 @@ class ResetPasswordInteractor(
         prngFixer.applyPRNGFixes()
         return payloadDataManager.createHdWallet(password, walletName, email)
             .flatMapCompletable { wallet ->
-                metadataManager.attemptMetadataSetup()
-                    .then {
-                        Completable.fromCallable {
-                            accessState.isNewlyCreated = true
-                            prefs.walletGuid = wallet.guid
-                            prefs.sharedKey = wallet.sharedKey
-                            prefs.email = email
-                            walletPrefs.setNewUser()
-                        }
-                    }
+                Completable.fromCallable {
+                    accessState.isNewlyCreated = true
+                    prefs.walletGuid = wallet.guid
+                    prefs.sharedKey = wallet.sharedKey
+                    prefs.email = email
+                    walletPrefs.setNewUser()
+                }
             }
     }
 
-    fun recoverAccount(recoveryToken: String): Completable =
-        nabuDataManager.recoverAccount(recoveryToken).flatMapCompletable { nabuMetadata ->
-            metadataRepository.saveMetadata(
-                nabuMetadata,
-                NabuCredentialsMetadata::class.java,
-                NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
-            )
+    fun recoverAccount(userId: String, recoveryToken: String): Completable =
+        nabuDataManager.recoverAccount(userId, recoveryToken).flatMapCompletable { nabuMetadata ->
+            metadataManager.attemptMetadataSetup()
+                .then {
+                    metadataRepository.saveMetadata(
+                        nabuMetadata,
+                        NabuCredentialsMetadata::class.java,
+                        NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
+                    )
+                }
         }
 
     fun setNewPassword(password: String): Completable {

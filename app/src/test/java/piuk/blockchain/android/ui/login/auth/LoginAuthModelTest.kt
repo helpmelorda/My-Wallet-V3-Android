@@ -14,7 +14,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import piuk.blockchain.androidcore.utils.extensions.UnknownErrorException
+import piuk.blockchain.androidcore.utils.extensions.AuthRequiredException
 
 class LoginAuthModelTest {
     private lateinit var model: LoginAuthModel
@@ -46,36 +46,49 @@ class LoginAuthModelTest {
     fun `get session ID and payload`() {
         // Arrange
         val sessionId = "SESSION_ID"
-        val guid = "GUID"
-        val authToken = "TOKEN"
-        val responseBody = EMPTY_RESPONSE.toResponseBody(JSON_HEADER.toMediaTypeOrNull())
-
+        whenever(interactor.getAuthInfo(INPUT_JSON)).thenReturn(
+            Single.just(testAuthInfo)
+        )
         whenever(interactor.getSessionId()).thenReturn(sessionId)
-        whenever(interactor.authorizeApproval(authToken, sessionId)).thenReturn(
+        whenever(interactor.authorizeApproval(AUTH_TOKEN, sessionId)).thenReturn(
             Single.just(mock())
         )
-        whenever(interactor.getPayload(anyString(), anyString())).thenReturn(
+        whenever(interactor.getPayload(GUID, sessionId)).thenReturn(
             Single.just(mock())
         )
         whenever(interactor.getRemaining2FaRetries()).thenReturn(0)
 
         val testState = model.state.test()
-        model.process(LoginAuthIntents.GetSessionId(guid, authToken))
+        model.process(LoginAuthIntents.InitLoginAuthInfo(INPUT_JSON))
 
         // Assert
         testState.assertValues(
             LoginAuthState(),
-            LoginAuthState(guid = guid, authToken = authToken, authStatus = AuthStatus.GetSessionId),
+            LoginAuthState(authStatus = AuthStatus.InitAuthInfo),
             LoginAuthState(
-                guid = guid,
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
+                authToken = AUTH_TOKEN,
+                authStatus = AuthStatus.GetSessionId
+            ),
+            LoginAuthState(
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
-                authToken = authToken,
+                authToken = AUTH_TOKEN,
                 authStatus = AuthStatus.AuthorizeApproval
             ),
             LoginAuthState(
-                guid = guid,
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
-                authToken = authToken,
+                authToken = AUTH_TOKEN,
                 authStatus = AuthStatus.GetPayload
             )
         )
@@ -85,33 +98,70 @@ class LoginAuthModelTest {
     fun `auth fail to get payload`() {
         // Arrange
         val sessionId = "SESSION_ID"
-        val guid = "GUID"
-        val authToken = "TOKEN"
+        val twoFaState = TwoFaCodeState.TwoFaRemainingTries(remainingRetries = 3)
 
+        whenever(interactor.getAuthInfo(INPUT_JSON)).thenReturn(
+            Single.just(testAuthInfo)
+        )
         whenever(interactor.getSessionId()).thenReturn(sessionId)
-        whenever(interactor.authorizeApproval(authToken, sessionId)).thenReturn(
+        whenever(interactor.authorizeApproval(AUTH_TOKEN, sessionId)).thenReturn(
             Single.just(mock())
         )
-        whenever(interactor.getPayload(guid, sessionId)).thenReturn(Single.error(UnknownErrorException()))
+        whenever(interactor.getPayload(GUID, sessionId)).thenReturn(Single.error(AuthRequiredException()))
+        whenever(interactor.reset2FaRetries()).thenReturn(Completable.complete())
+        whenever(interactor.getRemaining2FaRetries()).thenReturn(3)
 
         val testState = model.state.test()
-        model.process(LoginAuthIntents.GetSessionId(guid, authToken))
+        model.process(LoginAuthIntents.InitLoginAuthInfo(INPUT_JSON))
 
         // Assert
         testState.assertValues(
             LoginAuthState(),
-            LoginAuthState(guid = guid, authToken = authToken, authStatus = AuthStatus.GetSessionId),
+            LoginAuthState(authStatus = AuthStatus.InitAuthInfo),
             LoginAuthState(
-                guid = guid,
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
+                authToken = AUTH_TOKEN,
+                authStatus = AuthStatus.GetSessionId
+            ),
+            LoginAuthState(
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
-                authToken = authToken,
+                authToken = AUTH_TOKEN,
                 authStatus = AuthStatus.AuthorizeApproval
             ),
             LoginAuthState(
-                guid = guid,
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
-                authToken = authToken,
+                authToken = AUTH_TOKEN,
                 authStatus = AuthStatus.GetPayload
+            ),
+            LoginAuthState(
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
+                sessionId = sessionId,
+                authToken = AUTH_TOKEN,
+                authStatus = AuthStatus.AuthRequired
+            ),
+            LoginAuthState(
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
+                sessionId = sessionId,
+                authToken = AUTH_TOKEN,
+                authStatus = AuthStatus.AuthRequired,
+                twoFaState = twoFaState
             )
         )
     }
@@ -263,12 +313,11 @@ class LoginAuthModelTest {
 
     @Test
     fun `request new 2fa code reduces counter`() {
+        val retries = 3
+        val reducedRetry = 2
         whenever(interactor.requestNew2FaCode(anyString(), anyString())).thenReturn(
             Single.just(mock())
         )
-
-        val retries = 3
-        val reducedRetry = 2
         whenever(interactor.getRemaining2FaRetries())
             .thenReturn(retries)
             .thenReturn(reducedRetry)
@@ -277,18 +326,15 @@ class LoginAuthModelTest {
         model.process(LoginAuthIntents.RequestNew2FaCode)
         model.process(LoginAuthIntents.RequestNew2FaCode)
 
-        testState
-            .assertValueAt(0) {
-                it == LoginAuthState()
-            }
-            .assertValueAt(1) {
-                it.twoFaState is TwoFaCodeState.TwoFaRemainingTries &&
-                    (it.twoFaState as TwoFaCodeState.TwoFaRemainingTries).remainingRetries == retries
-            }
-            .assertValueAt(2) {
-                it.twoFaState is TwoFaCodeState.TwoFaRemainingTries &&
-                    (it.twoFaState as TwoFaCodeState.TwoFaRemainingTries).remainingRetries == reducedRetry
-            }
+        testState.assertValues(
+            LoginAuthState(),
+            LoginAuthState(
+                twoFaState = TwoFaCodeState.TwoFaRemainingTries(retries)
+            ),
+            LoginAuthState(
+                twoFaState = TwoFaCodeState.TwoFaRemainingTries(reducedRetry)
+            )
+        )
     }
 
     @Test
@@ -304,27 +350,39 @@ class LoginAuthModelTest {
         val testState = model.state.test()
         model.process(LoginAuthIntents.RequestNew2FaCode)
 
-        testState
-            .assertValueAt(0) {
-                it == LoginAuthState()
-            }
-            .assertValueAt(1) {
-                it.twoFaState is TwoFaCodeState.TwoFaTimeLock
-            }
+        testState.assertValues(
+            LoginAuthState(),
+            LoginAuthState(
+                twoFaState = TwoFaCodeState.TwoFaTimeLock
+            )
+        )
     }
 
     companion object {
-
-        private const val EMPTY_RESPONSE = "{}"
-
         private const val JSON_HEADER = "application/json"
-
-        private const val INITIAL_ERROR_MESSAGE = "This is an error"
-
-        private const val INITIAL_ERROR_RESPONSE = "{\"initial_error\":\"$INITIAL_ERROR_MESSAGE\"}"
 
         private const val TWO_FA_PAYLOAD = "{\"payload\":\"{auth_type: 4}\"}"
 
         private const val DEVICE_TYPE_ANDROID = 2
+
+        private const val GUID = "guid"
+        private const val EMAIL = "email"
+        private const val AUTH_TOKEN = "authToken"
+        private const val USER_ID = "userId"
+        private const val RECOVERY_TOKEN = "guid"
+
+        private val testAuthInfo = LoginAuthInfo.ExtendedAccountInfo(
+            accountWallet = AccountWalletInfo(
+                guid = GUID,
+                email = EMAIL,
+                authToken = AUTH_TOKEN,
+                nabuAccountInfo = NabuAccountInfo(
+                    userId = USER_ID,
+                    recoveryToken = RECOVERY_TOKEN
+                )
+            )
+        )
+
+        private const val INPUT_JSON = "{\"wallet\":{...}}"
     }
 }
