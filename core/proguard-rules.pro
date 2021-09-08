@@ -32,3 +32,4 @@
 ## TODO: Remove this once upgraded to 3.2, which is necessary for the KYC release AND-1237
 -keep class com.blockchain.kycui.** extends androidx.fragment.app.Fragment{}
 -keep public class com.blockchain.nabu.models.** { *; }
+-keep public class piuk.blockchain.androidcore.data.auth.metadata.** { *; }
