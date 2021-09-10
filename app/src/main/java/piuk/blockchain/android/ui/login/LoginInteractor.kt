@@ -1,18 +1,20 @@
 package piuk.blockchain.android.ui.login
 
+import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import okhttp3.ResponseBody
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.auth.AuthService
+import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 class LoginInteractor(
-    private val authService: AuthService,
+    private val authDataManager: AuthDataManager,
     private val payloadDataManager: PayloadDataManager,
     private val prefs: PersistentPrefs,
-    private val appUtil: AppUtil
+    private val appUtil: AppUtil,
+    private val ssoAccountRecoveryFF: FeatureFlag
 ) {
 
     fun loginWithQrCode(qrString: String): Completable {
@@ -32,12 +34,22 @@ class LoginInteractor(
     }
 
     fun obtainSessionId(email: String): Single<ResponseBody> {
-        return authService.createSessionId(email)
+        return authDataManager.createSessionId(email)
     }
 
-    fun sendEmailForVerification(sessionId: String, email: String, captcha: String): Completable {
+    fun sendEmailForVerification(
+        sessionId: String,
+        email: String,
+        captcha: String
+    ): Completable {
         prefs.sessionId = sessionId
-        return authService.sendEmailForDeviceVerification(sessionId, email, captcha)
-            .ignoreElement()
+        return ssoAccountRecoveryFF.enabled.flatMapCompletable { enabled ->
+            if (enabled) {
+                authDataManager.sendEmailForAuthentication(sessionId, email, captcha)
+            } else {
+                authDataManager.sendEmailForDeviceVerification(sessionId, email, captcha)
+                    .ignoreElement()
+            }
+        }
     }
 }

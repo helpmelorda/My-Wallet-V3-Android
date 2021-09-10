@@ -22,6 +22,7 @@ import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AddressParseError
 import piuk.blockchain.android.coincore.AddressParseError.Error.ETH_UNEXPECTED_CONTRACT_ADDRESS
 import piuk.blockchain.android.coincore.CryptoAddress
+import piuk.blockchain.android.coincore.NonCustodialSupport
 import piuk.blockchain.android.coincore.ReceiveAddress
 import piuk.blockchain.android.coincore.SingleAccountList
 import piuk.blockchain.android.coincore.TxResult
@@ -63,7 +64,7 @@ internal class EthAsset(
     crashLogger,
     identity,
     features
-) {
+), NonCustodialSupport {
     override val asset: AssetInfo
         get() = CryptoCurrency.ETHER
 

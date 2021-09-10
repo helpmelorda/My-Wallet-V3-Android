@@ -10,6 +10,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import piuk.blockchain.android.networking.PollResult
 import piuk.blockchain.android.simplebuy.ErrorState
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
 import piuk.blockchain.android.ui.base.mvi.MviModel
@@ -43,7 +44,9 @@ class BankAuthModel(
                 )
             is BankAuthIntent.UpdateAccountProvider -> processBankLinkingUpdate(intent)
             is BankAuthIntent.GetLinkedBankState -> processBankLinkStateUpdate(intent)
-            is BankAuthIntent.StartPollingForLinkStatus -> processLinkStatusPolling(intent, previousState)
+            is BankAuthIntent.StartPollingForLinkStatus -> processLinkStatusPolling(
+                intent, previousState.linkBankTransfer?.partner
+            )
             is BankAuthIntent.StartBankApproval -> {
                 interactor.updateApprovalStatus()
                 null
@@ -57,7 +60,8 @@ class BankAuthModel(
             providerAccountId = intent.accountProviderId,
             accountId = intent.accountId,
             partner = intent.linkBankTransfer.partner,
-            source = intent.authSource
+            source = intent.authSource,
+            action = BankTransferAction.LINK
         ).subscribeBy(
             onComplete = {
                 process(BankAuthIntent.StartPollingForLinkStatus(intent.linkingBankId))
@@ -89,40 +93,54 @@ class BankAuthModel(
 
     private fun processLinkStatusPolling(
         intent: BankAuthIntent.StartPollingForLinkStatus,
-        previousState: BankAuthState
+        partner: BankPartner?
     ) = interactor.pollForLinkedBankState(
-        intent.bankId, if (previousState.linkBankTransfer?.partner == BankPartner.YAPILY) {
-            BankPartner.YAPILY
-        } else {
-            null
-        }
+        intent.bankId
     ).subscribeBy(
         onSuccess = {
-            interactor.updateOneTimeTokenPath(it.callbackPath)
-
-            when (it.state) {
-                LinkedBankState.ACTIVE -> {
-                    process(BankAuthIntent.LinkedBankStateSuccess(it))
+            when (it) {
+                is PollResult.FinalResult -> {
+                    interactor.updateOneTimeTokenPath(it.value.callbackPath)
+                    updateIntentForLinkedBankState(it, partner)
                 }
-                LinkedBankState.BLOCKED -> {
-                    handleBankLinkingError(it)
-                }
-                LinkedBankState.PENDING,
-                LinkedBankState.CREATED -> {
-                    when (previousState.linkBankTransfer?.partner) {
-                        BankPartner.YODLEE -> process(BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingTimeout))
-                        BankPartner.YAPILY -> process(
-                            BankAuthIntent.UpdateLinkingUrl(it.authorisationUrl)
-                        )
-                    }
-                }
-                LinkedBankState.UNKNOWN -> process(BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingFailed))
+                is PollResult.Cancel -> { }
+                is PollResult.TimeOut -> process(
+                    BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingTimeout)
+                )
             }
         },
         onError = {
             process(BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingFailed))
         }
     )
+
+    private fun updateIntentForLinkedBankState(
+        pollResult: PollResult<LinkedBank>,
+        partner: BankPartner?
+    ) {
+        when (pollResult.value.state) {
+            LinkedBankState.ACTIVE -> {
+                process(BankAuthIntent.LinkedBankStateSuccess(pollResult.value))
+            }
+            LinkedBankState.BLOCKED -> {
+                handleBankLinkingError(pollResult.value)
+            }
+            LinkedBankState.PENDING,
+            LinkedBankState.CREATED -> {
+                when (partner) {
+                    BankPartner.YODLEE -> process(
+                        BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingTimeout)
+                    )
+                    BankPartner.YAPILY -> process(
+                        BankAuthIntent.UpdateLinkingUrl(pollResult.value.authorisationUrl)
+                    )
+                }
+            }
+            LinkedBankState.UNKNOWN -> process(
+                BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingFailed)
+            )
+        }
+    }
 
     @Suppress("IMPLICIT_CAST_TO_ANY")
     private fun handleBankLinkingError(it: LinkedBank) {

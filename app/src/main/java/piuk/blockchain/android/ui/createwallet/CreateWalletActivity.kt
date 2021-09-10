@@ -10,41 +10,55 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.transition.TransitionManager
+import com.blockchain.api.services.Geolocation
 import com.blockchain.koin.scopedInject
-import piuk.blockchain.android.urllinks.URL_BACKUP_INFO
-import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
-import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import com.blockchain.wallet.DefaultLabels
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.cards.CountryPickerItem
+import piuk.blockchain.android.cards.PickerItem
+import piuk.blockchain.android.cards.PickerItemListener
+import piuk.blockchain.android.cards.SearchPickerItemBottomSheet
+import piuk.blockchain.android.cards.StatePickerItem
 import piuk.blockchain.android.databinding.ActivityCreateWalletBinding
 import piuk.blockchain.android.databinding.ViewPasswordStrengthBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.BaseMvpActivity
+import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.ui.customviews.toast
+import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
+import piuk.blockchain.android.urllinks.URL_BACKUP_INFO
+import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
+import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.US
 import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.getTextString
+import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.visible
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import java.util.Locale
 
 class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPresenter>(),
     CreateWalletView,
+    PickerItemListener,
+    SlidingModalBottomDialog.Host,
     View.OnFocusChangeListener {
 
-    private val stringUtils: StringUtils by inject()
     private val defaultLabels: DefaultLabels by inject()
     private val createWalletPresenter: CreateWalletPresenter by scopedInject()
     private var progressDialog: MaterialProgressDialog? = null
     private var applyConstraintSet: ConstraintSet = ConstraintSet()
+    private var countryPickerItem: CountryPickerItem? = null
+    private var statePickerItem: StatePickerItem? = null
 
     private val recoveryPhrase: String by unsafeLazy {
-        intent.getStringExtra(RECOVERY_PHRASE) ?: ""
+        intent.getStringExtra(RECOVERY_PHRASE).orEmpty()
     }
 
     private val binding: ActivityCreateWalletBinding by lazy {
@@ -60,26 +74,28 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
         setContentView(binding.root)
         applyConstraintSet.clone(binding.mainConstraintLayout)
 
+        presenter.getUserGeolocation()
+
+        initializeCountrySpinner()
+        initializeStatesSpinner()
+
         if (recoveryPhrase.isNotEmpty()) {
             setupToolbar(binding.toolbarGeneral.toolbarGeneral, R.string.recover_funds)
             binding.commandNext.setText(R.string.dialog_continue)
         } else {
-            setupToolbar(binding.toolbarGeneral.toolbarGeneral, R.string.new_account_title)
+            setupToolbar(binding.toolbarGeneral.toolbarGeneral, R.string.new_account_title_1)
             binding.commandNext.setText(R.string.new_account_cta_text)
         }
 
         with(binding) {
-            tos.movementMethod = LinkMovementMethod.getInstance() // make link clickable
-            commandNext.isClickable = false
             passwordStrengthBinding.passStrengthBar.max = 100 * 10
 
-            walletPass.onFocusChangeListener = this@CreateWalletActivity
             walletPass.afterTextChangeEvents()
                 .doOnNext {
                     showEntropyContainer()
                     presenter.logEventPasswordOneClicked()
-                    binding.entropyContainer.updatePassword(it.editable.toString())
-                    hideShowCreateButton(
+                    binding.entropyContainerNew.updatePassword(it.editable.toString())
+                    updateCreateButtonState(
                         it.editable.toString().length,
                         walletPassConfirm.getTextString().length,
                         walletPasswordCheckbox.isChecked
@@ -90,7 +106,7 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
             walletPassConfirm.afterTextChangeEvents()
                 .doOnNext {
                     presenter.logEventPasswordTwoClicked()
-                    hideShowCreateButton(
+                    updateCreateButtonState(
                         walletPass.getTextString().length,
                         it.editable.toString().length,
                         walletPasswordCheckbox.isChecked
@@ -99,15 +115,16 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
                 .emptySubscribe()
 
             walletPasswordCheckbox.setOnCheckedChangeListener { _, isChecked ->
-                hideShowCreateButton(
-                    walletPass.getTextString().length, walletPassConfirm.getTextString().length, isChecked
+                updateCreateButtonState(
+                    walletPass.getTextString().length,
+                    walletPassConfirm.getTextString().length,
+                    isChecked
                 )
             }
 
             emailAddress.setOnClickListener { presenter.logEventEmailClicked() }
             commandNext.setOnClickListener { onNextClicked() }
 
-            updateTosAndPrivacyLinks()
             updatePasswordDisclaimer()
 
             walletPassConfirm.setOnEditorActionListener { _, i, _ ->
@@ -120,47 +137,50 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
         }
     }
 
-    private fun updateTosAndPrivacyLinks() {
-        val linksMap = mapOf<String, Uri>(
-            "terms" to Uri.parse(URL_TOS_POLICY),
-            "privacy" to Uri.parse(URL_PRIVACY_POLICY)
-        )
+    private fun initializeCountrySpinner() {
+        binding.country.setOnClickListener {
+            SearchPickerItemBottomSheet.newInstance(Locale.getISOCountries()
+                .toList()
+                .map { countryCode ->
+                    CountryPickerItem(countryCode)
+                }
+            ).show(supportFragmentManager, KycEmailEntryFragment.BOTTOM_SHEET)
+        }
+    }
 
-        val tosText = stringUtils.getStringWithMappedAnnotations(
-            R.string.you_agree_terms_of_service,
-            linksMap,
-            this
-        )
-
-        binding.tos.apply {
-            text = tosText
-            movementMethod = LinkMovementMethod.getInstance()
+    private fun initializeStatesSpinner() {
+        binding.state.setOnClickListener {
+            SearchPickerItemBottomSheet.newInstance(
+                US.values()
+                    .map {
+                        StatePickerItem(it.iSOAbbreviation, it.unabbreviated)
+                    }
+            ).show(supportFragmentManager, KycEmailEntryFragment.BOTTOM_SHEET)
         }
     }
 
     private fun updatePasswordDisclaimer() {
         val linksMap = mapOf<String, Uri>(
-            "backup" to Uri.parse(URL_BACKUP_INFO)
+            "backup" to Uri.parse(URL_BACKUP_INFO),
+            "terms" to Uri.parse(URL_TOS_POLICY),
+            "privacy" to Uri.parse(URL_PRIVACY_POLICY)
         )
 
-        val tosText = stringUtils.getStringWithMappedAnnotations(
-            R.string.password_disclaimer,
-            linksMap,
-            this
+        val disclaimerText = StringUtils.getStringWithMappedAnnotations(
+            this,
+            R.string.password_disclaimer_1,
+            linksMap
         )
 
         binding.walletPasswordBlurb.apply {
-            text = tosText
+            text = disclaimerText
             movementMethod = LinkMovementMethod.getInstance()
         }
     }
 
-    private fun hideShowCreateButton(password1Length: Int, password2Length: Int, isChecked: Boolean) {
-        if (password1Length > 0 && password1Length == password2Length && isChecked) {
-            showCreateWalletButton()
-        } else {
-            hideCreateWalletButton()
-        }
+    private fun updateCreateButtonState(password1Length: Int, password2Length: Int, isChecked: Boolean) {
+        val areFieldsFilled = (password1Length > 0 && password1Length == password2Length && isChecked)
+        binding.commandNext.isEnabled = areFieldsFilled
     }
 
     override fun getView() = this
@@ -174,29 +194,9 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
         return super.onOptionsItemSelected(item)
     }
 
-    private fun hideEntropyContainer() {
-        TransitionManager.beginDelayedTransition(binding.mainConstraintLayout)
-        applyConstraintSet.setVisibility(R.id.entropy_container, ConstraintSet.GONE)
-        applyConstraintSet.applyTo(binding.mainConstraintLayout)
-    }
+    private fun hideEntropyContainer() = binding.entropyContainerNew.gone()
 
-    private fun showEntropyContainer() {
-        TransitionManager.beginDelayedTransition(binding.mainConstraintLayout)
-        applyConstraintSet.setVisibility(R.id.entropy_container, ConstraintSet.VISIBLE)
-        applyConstraintSet.applyTo(binding.mainConstraintLayout)
-    }
-
-    private fun showCreateWalletButton() {
-        TransitionManager.beginDelayedTransition(binding.mainConstraintLayout)
-        applyConstraintSet.setVisibility(R.id.command_next, ConstraintSet.VISIBLE)
-        applyConstraintSet.applyTo(binding.mainConstraintLayout)
-    }
-
-    private fun hideCreateWalletButton() {
-        TransitionManager.beginDelayedTransition(binding.mainConstraintLayout)
-        applyConstraintSet.setVisibility(R.id.command_next, ConstraintSet.GONE)
-        applyConstraintSet.applyTo(binding.mainConstraintLayout)
-    }
+    private fun showEntropyContainer() = binding.entropyContainerNew.visible()
 
     override fun onFocusChange(v: View?, hasFocus: Boolean) = when {
         hasFocus -> showEntropyContainer()
@@ -242,6 +242,24 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
 
     override fun getDefaultAccountName(): String = defaultLabels.getDefaultNonCustodialWalletLabel()
 
+    override fun setGeolocationInCountrySpinner(geolocation: Geolocation) {
+        if (countryPickerItem == null) {
+            val countryGeo = CountryPickerItem(geolocation.countryCode)
+            onItemPicked(countryGeo)
+        }
+        if (statePickerItem == null) {
+            geolocation.state?.let { stateCode ->
+                val stateGeo = createStateItemFromIsoCode(stateCode)
+                onItemPicked(stateGeo)
+            }
+        }
+    }
+
+    private fun createStateItemFromIsoCode(isoCode: String): StatePickerItem {
+        val stateItem = US.values().first { it.iSOAbbreviation == isoCode }
+        return StatePickerItem(stateItem.iSOAbbreviation, stateItem.unabbreviated)
+    }
+
     override fun enforceFlagSecure() = true
 
     private fun onNextClicked() {
@@ -249,14 +267,52 @@ class CreateWalletActivity : BaseMvpActivity<CreateWalletView, CreateWalletPrese
             val email = emailAddress.text.toString().trim()
             val password1 = walletPass.text.toString()
             val password2 = walletPassConfirm.text.toString()
+            val countryCode = countryPickerItem?.code
+            val stateCode = statePickerItem?.code
 
-            if (walletPasswordCheckbox.isChecked && presenter.validateCredentials(email, password1, password2)) {
-                presenter.createOrRestoreWallet(email, password1, recoveryPhrase)
+            if (walletPasswordCheckbox.isChecked &&
+                presenter.validateCredentials(email, password1, password2) &&
+                presenter.validateGeoLocation(countryCode, stateCode)
+            ) {
+                countryCode?.let {
+                    presenter.createOrRestoreWallet(email, password1, recoveryPhrase, it, stateCode)
+                }
             }
         }
     }
 
+    override fun onItemPicked(item: PickerItem) {
+        when (item) {
+            is CountryPickerItem -> {
+                countryPickerItem = item
+                binding.country.setText(item.label)
+                changeStatesSpinnerVisibility(item.code == CODE_US)
+                WalletCreationAnalytics.CountrySelectedOnSignUp(item.code)
+            }
+            is StatePickerItem -> {
+                statePickerItem = item
+                binding.state.setText(item.label)
+                WalletCreationAnalytics.StateSelectedOnSignUp(item.code)
+            }
+        }
+        ViewUtils.hideKeyboard(this)
+    }
+
+    private fun changeStatesSpinnerVisibility(showStateSpinner: Boolean) {
+        if (showStateSpinner) {
+            binding.selectState.visible()
+        } else {
+            binding.selectState.gone()
+            statePickerItem = null
+        }
+    }
+
+    override fun onSheetClosed() {
+        // do nothing
+    }
+
     companion object {
+        const val CODE_US = "US"
         const val RECOVERY_PHRASE = "RECOVERY_PHRASE"
 
         fun start(context: Context) {

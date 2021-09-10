@@ -34,6 +34,7 @@ import piuk.blockchain.android.coincore.impl.txEngine.sell.TradingSellTxEngine
 import piuk.blockchain.android.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import piuk.blockchain.android.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import piuk.blockchain.android.data.api.bitpay.BitPayDataManager
+import piuk.blockchain.android.simplebuy.BankPartnerCallbackProvider
 
 class TxProcessorFactory(
     private val bitPayManager: BitPayDataManager,
@@ -41,6 +42,7 @@ class TxProcessorFactory(
     private val walletManager: CustodialWalletManager,
     private val interestBalances: InterestBalanceDataManager,
     private val walletPrefs: WalletStatus,
+    private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val quotesEngine: TransferQuotesEngine,
     private val analytics: Analytics,
     private val kycTierService: TierService
@@ -107,7 +109,8 @@ class TxProcessorFactory(
                         sourceAccount = source,
                         txTarget = target,
                         engine = FiatDepositTxEngine(
-                            walletManager = walletManager
+                            walletManager = walletManager,
+                            bankPartnerCallbackProvider = bankPartnerCallbackProvider
                         )
                     )
                 )
@@ -184,7 +187,7 @@ class TxProcessorFactory(
                 )
             )
             is CryptoAccount ->
-                if (action != AssetAction.Swap)
+                if (action != AssetAction.Swap) {
                     target.receiveAddress.map {
                         TransactionProcessor(
                             exchangeRates = exchangeRates,
@@ -192,7 +195,8 @@ class TxProcessorFactory(
                             txTarget = it,
                             engine = engine
                         )
-                    } else {
+                    }
+                } else {
                     Single.just(
                         TransactionProcessor(
                             exchangeRates = exchangeRates,
@@ -253,6 +257,19 @@ class TxProcessorFactory(
                     )
                 )
             )
+        is FiatAccount ->
+            Single.just(
+                TransactionProcessor(
+                    exchangeRates = exchangeRates,
+                    sourceAccount = source,
+                    txTarget = target,
+                    engine = TradingSellTxEngine(
+                        walletManager = walletManager,
+                        quotesEngine = quotesEngine,
+                        kycTierService = kycTierService
+                    )
+                )
+            )
         is TradingAccount ->
             Single.just(
                 TransactionProcessor(
@@ -278,19 +295,6 @@ class TxProcessorFactory(
                     )
                 )
             }
-        is FiatAccount ->
-            Single.just(
-                TransactionProcessor(
-                    exchangeRates = exchangeRates,
-                    sourceAccount = source,
-                    txTarget = target,
-                    engine = TradingSellTxEngine(
-                        walletManager = walletManager,
-                        quotesEngine = quotesEngine,
-                        kycTierService = kycTierService
-                    )
-                )
-            )
         else -> Single.error(TransferError("Cannot send custodial crypto to a non-crypto target"))
     }
 }

@@ -11,7 +11,6 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isCustodialOnly
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AssetAction
@@ -54,8 +53,6 @@ internal class DynamicOnlyTradingAsset(
 ) {
     override val isCustodialOnly: Boolean = asset.isCustodialOnly
     override val multiWallet: Boolean = false
-
-    override fun initToken(): Completable = Completable.complete()
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         Single.just(emptyList())

@@ -36,6 +36,10 @@ class ResetPasswordFragment :
         arguments?.getString(EMAIL) ?: ""
     }
 
+    private val userId: String by lazy {
+        arguments?.getString(USER_ID) ?: ""
+    }
+
     private val recoveryToken: String by lazy {
         arguments?.getString(RECOVERY_TOKEN) ?: ""
     }
@@ -49,7 +53,7 @@ class ResetPasswordFragment :
     }
 
     private val shouldRecoverAccount: Boolean by lazy {
-        recoveryToken.isNotBlank() && email.isNotBlank()
+        userId.isNotBlank() && recoveryToken.isNotBlank() && email.isNotBlank()
     }
 
     override val model: ResetPasswordModel by scopedInject()
@@ -97,6 +101,7 @@ class ResetPasswordFragment :
                     ResetPasswordIntents.CreateWalletForAccount(
                         email = email,
                         password = password,
+                        userId = userId,
                         recoveryToken = recoveryToken,
                         walletName = defaultLabels.getDefaultNonCustodialWalletLabel(),
                         shouldResetKyc = shouldResetKyc
@@ -144,6 +149,7 @@ class ResetPasswordFragment :
     }
 
     companion object {
+        const val USER_ID = "user_id"
         const val RECOVERY_TOKEN = "recovery_token"
         const val EMAIL = "email"
         const val SEED_PHRASE = "seed_phrase"
@@ -152,6 +158,7 @@ class ResetPasswordFragment :
         fun newInstance(
             shouldResetKyc: Boolean,
             email: String = "",
+            userId: String = "",
             recoveryPhrase: String = "",
             recoveryToken: String = ""
         ): ResetPasswordFragment {
@@ -159,6 +166,7 @@ class ResetPasswordFragment :
                 arguments = Bundle().apply {
                     putBoolean(SHOULD_RESET_KYC, shouldResetKyc)
                     putString(EMAIL, email)
+                    putString(USER_ID, userId)
                     putString(SEED_PHRASE, recoveryPhrase)
                     putString(RECOVERY_TOKEN, recoveryToken)
                 }

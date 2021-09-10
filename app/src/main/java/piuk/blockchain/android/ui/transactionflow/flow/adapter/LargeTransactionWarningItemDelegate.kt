@@ -43,7 +43,6 @@ private class LargeTransactionViewHolder(private val binding: ItemSendLargeTxCon
             isChecked = item.value
             setOnCheckedChangeListener { view, isChecked ->
                 model.process(TransactionIntent.ModifyTxOption(item.copy(value = isChecked)))
-                view.isEnabled = false
             }
         }
     }

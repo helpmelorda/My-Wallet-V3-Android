@@ -8,6 +8,7 @@ import android.util.Base64
 import androidx.annotation.VisibleForTesting
 import com.blockchain.featureflags.GatedFeature
 import com.blockchain.logging.CrashLogger
+import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
@@ -189,6 +190,18 @@ class PrefsUtil(
 
     override fun getDynamicOneTimeTokenUrl(): String = getValue(KEY_ONE_TIME_TOKEN_PATH, "")
 
+    override var installationVersionName: String
+        get() = getValue(APP_INSTALLATION_VERSION_NAME, AppInfoPrefs.DEFAULT_APP_VERSION_NAME)
+        set(value) {
+            setValue(APP_INSTALLATION_VERSION_NAME, value)
+        }
+
+    override var currentStoredVersionCode: Int
+        get() = getValue(APP_CURRENT_VERSION_CODE, AppInfoPrefs.DEFAULT_APP_VERSION_CODE)
+        set(value) {
+            setValue(APP_CURRENT_VERSION_CODE, value)
+        }
+
     override fun setDynamicOneTimeTokenUrl(path: String) {
         val previousValue = getDynamicOneTimeTokenUrl()
         if (path.isNotEmpty() && previousValue != path) {
@@ -294,6 +307,11 @@ class PrefsUtil(
         get() = getValue(STATE_SIGNED_UP, "")
         set(value) = setValue(STATE_SIGNED_UP, value)
 
+    override fun clearGeolocationPreferences() {
+        removeValue(COUNTRY_SIGN_UP)
+        removeValue(STATE_SIGNED_UP)
+    }
+
     // Notification prefs
     override var arePushNotificationsEnabled: Boolean
         get() = getValue(KEY_PUSH_NOTIFICATION_ENABLED, true)
@@ -393,9 +411,6 @@ class PrefsUtil(
         get() = getValue(KEY_FINGERPRINT_ENABLED, false)
         set(value) = setValue(KEY_FINGERPRINT_ENABLED, value)
 
-    override val encodedKeyName: String
-        get() = KEY_ENCRYPTED_PIN_CODE
-
     override var sharedKey: String
         get() = getValue(KEY_SHARED_KEY, "")
         set(value) = setValue(KEY_SHARED_KEY, value)
@@ -457,7 +472,7 @@ class PrefsUtil(
         store.getString(name, null)
 
     override fun getValue(name: String, defaultValue: String): String =
-        store.getString(name, defaultValue) ?: ""
+        store.getString(name, defaultValue).orEmpty()
 
     override fun getValue(name: String, defaultValue: Int): Int =
         store.getInt(name, defaultValue)
@@ -495,7 +510,20 @@ class PrefsUtil(
     }
 
     override fun clear() {
+        val persistedBool = GatedFeature.values().map { it.name to store.getBoolean(it.name, false) }.toMap()
+
+        val versionCode = store.getInt(APP_CURRENT_VERSION_CODE, AppInfoPrefs.DEFAULT_APP_VERSION_CODE)
+        val installedVersion = store.getString(APP_INSTALLATION_VERSION_NAME, AppInfoPrefs.DEFAULT_APP_VERSION_NAME)
+                ?: AppInfoPrefs.DEFAULT_APP_VERSION_NAME
+
         store.edit().clear().apply()
+
+        persistedBool.forEach { (key, value) ->
+            setValue(key, value)
+        }
+        setValue(APP_CURRENT_VERSION_CODE, versionCode)
+        setValue(APP_INSTALLATION_VERSION_NAME, installedVersion)
+
         clearBackup()
     }
 
@@ -624,7 +652,9 @@ class PrefsUtil(
         private const val KEY_EMAIL = "KEY_EMAIL"
         private const val COUNTRY_SIGN_UP = "COUNTRY_SIGN_UP"
         private const val STATE_SIGNED_UP = "STATE_SIGNED_UP"
-        private const val MAX_ALLOWED_RETRIES = 3
+        private const val APP_CURRENT_VERSION_CODE = "APP_CURRENT_VERSION_CODE"
+        private const val APP_INSTALLATION_VERSION_NAME = "APP_INSTALLATION_VERSION_NAME"
+        const val MAX_ALLOWED_RETRIES = 3
 
         // For QA:
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -647,6 +677,7 @@ class PrefsUtil(
         private const val PRE_RATING_ACTION_COMPLETED_TIMES = "pre_rating_action_completed_times"
 
         // Auth prefs
+        // NOTE: for historical purposes, should be used as the cryptography cipher key
         private const val KEY_ENCRYPTED_PIN_CODE = "encrypted_pin_code"
         private const val KEY_FINGERPRINT_ENABLED = "fingerprint_enabled"
 

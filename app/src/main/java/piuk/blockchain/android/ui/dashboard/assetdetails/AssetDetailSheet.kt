@@ -75,6 +75,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
     private val token: CryptoAsset by lazy {
         coincore[asset]
     }
+
     private val listItems = mutableListOf<AssetDetailsItem>()
 
     private val adapterDelegate by lazy {
@@ -111,8 +112,6 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
             renderRecurringBuys(it)
         }
 
-        binding.currentPrice.text = newState.assetFiatPrice
-
         configureTimespanSelectionUI(binding, newState.timeSpan)
 
         if (newState.chartLoading) {
@@ -128,6 +127,8 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
         }
 
         state.prices24HrWithDelta?.let {
+            val price = it.currentRate.price().toStringWithSymbol()
+            binding.currentPrice.text = price
             updatePriceChange(it, binding.priceChange, newState.chartData)
         }
 
@@ -175,12 +176,15 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
 
     private fun onRecurringBuyClicked(recurringBuy: RecurringBuy) {
         clearList()
-        analytics.logEvent(
-            RecurringBuyAnalytics.RecurringBuyDetailsClicked(
-                LaunchOrigin.RECURRING_BUY_DETAILS,
-                recurringBuy.asset.ticker
+
+        recurringBuy.asset?.let {
+            analytics.logEvent(
+                RecurringBuyAnalytics.RecurringBuyDetailsClicked(
+                    LaunchOrigin.CURRENCY_PAGE,
+                    it.ticker
+                )
             )
-        )
+        }
         model.process(ShowRecurringBuySheet(recurringBuy))
     }
 
@@ -310,9 +314,7 @@ class AssetDetailSheet : MviBottomSheet<AssetDetailsModel,
                 getString(R.string.asset_details_chart_load_failed_toast)
             AssetDetailsError.NO_ASSET_DETAILS ->
                 getString(R.string.asset_details_load_failed_toast)
-            AssetDetailsError.NO_EXCHANGE_RATE ->
-                getString(R.string.asset_details_exchange_load_failed_toast_1)
-            AssetDetailsError.NO_PRICE_DELTA -> getString(R.string.asset_details_exchange_load_failed_toast)
+            AssetDetailsError.NO_PRICE_DATA -> getString(R.string.asset_details_exchange_load_failed_toast)
             else -> ""
         }
 

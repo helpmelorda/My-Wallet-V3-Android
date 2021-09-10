@@ -14,7 +14,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.AssetFilter
@@ -22,6 +21,7 @@ import piuk.blockchain.android.coincore.AvailableActions
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.Coincore
 import piuk.blockchain.android.coincore.CryptoAsset
+import timber.log.Timber
 
 typealias AssetDisplayMap = Map<AssetFilter, AssetDisplayInfo>
 
@@ -61,20 +61,15 @@ class AssetDetailsInteractor(
     fun loadAssetDetails(asset: CryptoAsset) =
         getAssetDisplayDetails(asset)
 
-    fun loadExchangeRate(asset: CryptoAsset): Single<String> =
-        asset.exchangeRate().map {
-            it.price().toStringWithSymbol()
-        }
-
     fun loadHistoricPrices(asset: CryptoAsset, timeSpan: HistoricalTimeSpan): Single<HistoricalRateList> =
         asset.historicRateSeries(timeSpan)
             .onErrorResumeNext { Single.just(emptyList()) }
 
     fun shouldShowCustody(asset: AssetInfo): Single<Boolean> {
         return coincore[asset].accountGroup(AssetFilter.Custodial)
-            .flatMapSingle { it.accountBalance }
+            .flatMapSingle { it.balance.firstOrError() }
             .map {
-                !dashboardPrefs.isCustodialIntroSeen && !it.isZero
+                !dashboardPrefs.isCustodialIntroSeen && !it.total.isZero
             }.defaultIfEmpty(false)
     }
 
@@ -116,33 +111,34 @@ class AssetDetailsInteractor(
     private fun Maybe<AccountGroup>.mapDetails(): Single<Details> =
         this.flatMap { grp ->
             Single.zip(
-                grp.accountBalance,
-                grp.pendingBalance,
+                grp.balance.firstOrError(),
                 grp.isEnabled,
                 grp.actions
-            ) { accBalance, pendingBalance, enable, actions ->
+            ) { balance, enable, actions ->
                 Details.DetailsItem(
                     isEnabled = enable,
                     account = grp,
-                    balance = accBalance,
-                    pendingBalance = pendingBalance,
+                    balance = balance.total,
+                    pendingBalance = balance.pending,
                     actions = actions
                 ) as Details
             }.toMaybe()
         }.defaultIfEmpty(Details.NoDetails)
 
     private fun getAssetDisplayDetails(asset: CryptoAsset): Single<AssetDisplayMap> {
-        return Singles.zip(
-            asset.exchangeRate(),
+        return Single.zip(
+            asset.getPricesWith24hDelta(),
             asset.accountGroup(AssetFilter.NonCustodial).mapDetails(),
             asset.accountGroup(AssetFilter.Custodial).mapDetails(),
             asset.accountGroup(AssetFilter.Interest).mapDetails(),
             asset.interestRate(),
             interestFeatureFlag.enabled
-        ) { fiatRate, nonCustodial, custodial, interest, interestRate, interestEnabled ->
+        ) { prices, nonCustodial, custodial, interest, interestRate, interestEnabled ->
             makeAssetDisplayMap(
-                fiatRate, nonCustodial, custodial, interest, interestRate, interestEnabled
+                prices.currentRate, nonCustodial, custodial, interest, interestRate, interestEnabled
             )
+        }.doOnError {
+            Timber.e("Unable to load asset details. Why? $it")
         }
     }
 

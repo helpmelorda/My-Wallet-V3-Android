@@ -76,7 +76,7 @@ interface MainView : MvpView, HomeNavigator {
     fun showProgressDialog(@StringRes message: Int)
     fun hideProgressDialog()
     fun clearAllDynamicShortcuts()
-    fun showHomebrewDebugMenu()
+    fun showDebugMenu()
     fun enableSwapButton(isEnabled: Boolean)
     fun shouldIgnoreDeepLinking(): Boolean
     fun displayDialog(@StringRes title: Int, @StringRes message: Int)
@@ -94,6 +94,7 @@ interface MainView : MvpView, HomeNavigator {
 
     fun launchUpsellAssetAction(upsell: KycUpgradePromptManager.Type, action: AssetAction, account: BlockchainAccount)
     fun launchAssetAction(action: AssetAction, account: BlockchainAccount? = null)
+    fun showAccountWalletLinkBottomSheet(walletId: String)
 }
 
 class MainPresenter internal constructor(
@@ -156,9 +157,10 @@ class MainPresenter internal constructor(
             )
     }
 
-    private fun setDebugExchangeVisibility() {
+    private fun setDebugMenuVisibility() {
         if (BuildConfig.DEBUG) {
-            view?.showHomebrewDebugMenu()
+            // reusing this as API 24 devices don't support launcher shortcuts
+            view?.showDebugMenu()
         }
     }
 
@@ -181,7 +183,7 @@ class MainPresenter internal constructor(
             .subscribeBy(
                 onComplete = {
                     checkKycStatus()
-                    setDebugExchangeVisibility()
+                    setDebugMenuVisibility()
                 },
                 onError = { throwable ->
                     logException(throwable)
@@ -209,6 +211,12 @@ class MainPresenter internal constructor(
                 onError = { Timber.e(it) },
                 onSuccess = { dispatchDeepLink(it) }
             )
+    }
+
+    fun checkForAccountWalletLinkErrors(throwable: Throwable) {
+        if (throwable is NabuApiException && throwable.isUserWalletLinkError()) {
+            view?.showAccountWalletLinkBottomSheet(throwable.getWalletIdHint())
+        }
     }
 
     private fun dispatchDeepLink(linkState: LinkState) {
@@ -580,4 +588,7 @@ class MainPresenter internal constructor(
                 view?.launchKyc(valueOf<CampaignType>(link.campaignType.capitalizeFirstChar()) ?: CampaignType.None)
         }
     }
+
+    private fun NabuApiException.getWalletIdHint(): String =
+        getErrorDescription().split(NabuApiException.USER_WALLET_LINK_ERROR_PREFIX).last()
 }

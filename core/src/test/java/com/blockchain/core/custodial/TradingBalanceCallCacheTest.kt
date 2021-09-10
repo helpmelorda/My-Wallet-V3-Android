@@ -1,76 +1,119 @@
 package com.blockchain.core.custodial
 
+import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.TradingBalance
 import com.blockchain.auth.AuthHeaderProvider
-import com.blockchain.nabu.util.waitForCompletionWithoutErrors
+import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
-import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 class TradingBalanceCallCacheTest {
-    companion object {
-        private val anyTradingBalance = TradingBalance(
+
+    @get:Rule
+    val initSchedulers = rxInit {
+        mainTrampoline()
+        computationTrampoline()
+        ioTrampoline()
+    }
+
+    private val authHeaderProvider: AuthHeaderProvider = mock {
+        on { getAuthHeader() }.thenReturn(Single.just(EXPECTED_HEADER))
+    }
+
+    private val assetCatalogue: AssetCatalogue = mock {
+        on { fromNetworkTicker(CRYPTO_TICKER_1) }.thenReturn(CRYPTO_ASSET_1)
+        on { fromNetworkTicker(CRYPTO_TICKER_2) }.thenReturn(CRYPTO_ASSET_2)
+        on { fromNetworkTicker(FIAT_TICKER_1) }.thenReturn(null)
+        on { fromNetworkTicker(FIAT_TICKER_2) }.thenReturn(null)
+        on { fromNetworkTicker(UNKNOWN_TICKER) }.thenReturn(null)
+
+        on { isFiatTicker(CRYPTO_TICKER_1) }.thenReturn(false)
+        on { isFiatTicker(CRYPTO_TICKER_2) }.thenReturn(false)
+        on { isFiatTicker(FIAT_TICKER_1) }.thenReturn(true)
+        on { isFiatTicker(FIAT_TICKER_2) }.thenReturn(true)
+        on { isFiatTicker(UNKNOWN_TICKER) }.thenReturn(false)
+    }
+
+    private val balanceService: CustodialBalanceService = mock()
+
+    private val subject = TradingBalanceCallCache(
+        balanceService,
+        assetCatalogue,
+        authHeaderProvider
+    )
+
+    @Test
+    fun `cache is transformed correctly`() {
+        givenATradingBalanceFor(
+            CRYPTO_TICKER_1,
+            CRYPTO_TICKER_2,
+            FIAT_TICKER_1,
+            FIAT_TICKER_2,
+            UNKNOWN_TICKER
+        )
+
+        subject.getTradingBalances()
+            .test()
+            .waitForCompletionWithoutErrors()
+            .assertValue {
+                it.cryptoBalances.keys.size == 2 &&
+                    it.fiatBalances.keys.size == 2
+            }.assertValue {
+                it.cryptoBalances.keys.containsAll(setOf(CRYPTO_ASSET_1, CRYPTO_ASSET_2))
+            }.assertValue {
+                it.fiatBalances.keys.containsAll(setOf(FIAT_TICKER_1, FIAT_TICKER_2))
+            }
+    }
+
+    private fun givenATradingBalanceFor(vararg assetCode: String) {
+        val mapEntries = assetCode.map { makeTradingBalanceFor(it) }
+        whenever(
+            balanceService.getTradingBalanceForAllAssets(EXPECTED_HEADER)
+        ).thenReturn(
+            Single.just(mapEntries)
+        )
+    }
+
+    private fun makeTradingBalanceFor(symbol: String) =
+        TradingBalance(
+            assetTicker = symbol,
             pending = 2.toBigInteger(),
             total = 10.toBigInteger(),
             actionable = 3.toBigInteger()
         )
 
-        private val expectedBTCBalance = Balance(
-            total = CryptoValue.fromMinor(CryptoCurrency.BTC, 10.toBigInteger()),
-            actionable = CryptoValue.fromMinor(CryptoCurrency.BTC, 3.toBigInteger()),
-            pending = CryptoValue.fromMinor(CryptoCurrency.BTC, 2.toBigInteger())
-        )
+    companion object {
+        private const val CRYPTO_TICKER_1 = "CRYPTO1"
+        private const val CRYPTO_TICKER_2 = "CRYPTO2"
+        private const val FIAT_TICKER_1 = "USD"
+        private const val FIAT_TICKER_2 = "GBP"
+        private const val UNKNOWN_TICKER = "NOPE!"
 
-        private val expectedEURBalance = Balance(
-            total = FiatValue.fromMinor("EUR", 10.toLong()),
-            actionable = FiatValue.fromMinor("EUR", 3.toLong()),
-            pending = FiatValue.fromMinor("EUR", 2.toLong())
-        )
+        private val CRYPTO_ASSET_1 = object : CryptoCurrency(
+            ticker = CRYPTO_TICKER_1,
+            name = "Crypto_1",
+            categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
+            precisionDp = 8,
+            requiredConfirmations = 5,
+            colour = "#123456"
+        ) { }
 
-        private const val expectedHeader: String = "some_header"
-    }
+        private val CRYPTO_ASSET_2 = object : CryptoCurrency(
+            ticker = CRYPTO_TICKER_2,
+            name = "Crypto_2",
+            categories = setOf(AssetCategory.CUSTODIAL),
+            precisionDp = 8,
+            requiredConfirmations = 5,
+            colour = "#123456"
+        ) { }
 
-    private val balanceService: CustodialBalanceService = mock()
-    private val authHeaderProvider: AuthHeaderProvider = mock()
-
-    private lateinit var subject: TradingBalanceCallCache
-
-    @Before
-    fun setup() {
-        whenever(authHeaderProvider.getAuthHeader()).thenReturn(Single.just(expectedHeader))
-        givenATradingBalanceFor("BTC", "EUR")
-
-        subject = TradingBalanceCallCache(balanceService, authHeaderProvider)
-    }
-
-    @Test
-    fun `get balance for a given asset`() {
-        subject.getBalanceForAsset(CryptoCurrency.BTC)
-            .test().waitForCompletionWithoutErrors().assertValue {
-                it == expectedBTCBalance
-            }
-    }
-
-    @Test
-    fun `get balance for a given fiat`() {
-        subject.getBalanceForFiat("EUR")
-            .test().waitForCompletionWithoutErrors().assertValue {
-                it == expectedEURBalance
-            }
-    }
-
-    private fun givenATradingBalanceFor(vararg assetCode: String) {
-        val mapEntries = Single.just((assetCode.map { Pair(it, anyTradingBalance) }).toMap())
-        whenever(
-            balanceService.getTradingBalanceForAllAssets(expectedHeader)
-        ).thenReturn(
-            mapEntries
-        )
+        private const val EXPECTED_HEADER = "some_header"
     }
 }

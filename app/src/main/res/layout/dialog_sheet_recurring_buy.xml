@@ -1,132 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_width="match_parent">
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/small_margin">
 
-    <ProgressBar
-        android:id="@+id/nextDatesLoading"
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/recurring_buy_sheet_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:layout_gravity="center"
-        android:indeterminateTint="@color/blue_600" />
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/tiny_margin"
+        app:srcCompat="@drawable/vector_sheet_indicator_small" />
 
-    <LinearLayout
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/title"
+        style="@style/Text.Semibold.20"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/standard_margin"
+        android:text="@string/recurring_buy_selection_title" />
+
+    <RadioGroup
+        android:id="@+id/recurring_buy_selection_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/small_margin">
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/recurring_buy_sheet_indicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/tiny_margin"
-            app:srcCompat="@drawable/vector_sheet_indicator_small" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/title"
-            style="@style/Text.Semibold.20"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginTop="@dimen/standard_margin"
-            android:layout_marginBottom="@dimen/standard_margin"
-            android:text="@string/recurring_buy_selection_title" />
-
-        <RadioGroup
-            android:id="@+id/recurring_buy_selection_group"
+        <RadioButton
+            android:id="@+id/rb_one_time"
+            style="@style/Text.Semibold.16"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginEnd="@dimen/standard_margin">
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
+            android:drawablePadding="@dimen/small_margin"
+            android:paddingTop="@dimen/very_small_margin"
+            android:paddingBottom="@dimen/very_small_margin"
+            android:text="@string/recurring_buy_one_time_short"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
-            <RadioButton
-                android:id="@+id/rb_one_time"
-                style="@style/Text.Semibold.16"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:button="@null"
-                android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
-                android:drawablePadding="@dimen/small_margin"
-                android:paddingTop="@dimen/very_small_margin"
-                android:paddingBottom="@dimen/very_small_margin"
-                android:text="@string/recurring_buy_one_time_short" />
-
-            <RadioButton
-                android:id="@+id/rb_daily"
-                style="@style/Text.Semibold.16"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:button="@null"
-                android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
-                android:drawablePadding="@dimen/small_margin"
-                android:paddingTop="@dimen/very_small_margin"
-                android:paddingBottom="@dimen/very_small_margin"
-                android:text="@string/recurring_buy_daily_selector" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/recurring_buy_weekly_selector" />
-
-            <RadioButton
-                android:id="@+id/rb_weekly"
-                style="@style/Text.Semibold.16"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:button="@null"
-                android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
-                android:drawablePadding="@dimen/small_margin"
-                android:paddingBottom="@dimen/very_small_margin"
-                tools:text="on Mondays" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/recurring_buy_bi_weekly_1" />
-
-            <RadioButton
-                android:id="@+id/rb_bi_weekly"
-                style="@style/Text.Semibold.16"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:button="@null"
-                android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
-                android:drawablePadding="@dimen/small_margin"
-                android:paddingBottom="@dimen/very_small_margin"
-                tools:text="On day 14 and 28" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/recurring_buy_monthly_selector" />
-
-            <RadioButton
-                android:id="@+id/rb_monthly"
-                style="@style/Text.Semibold.16"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:button="@null"
-                android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
-                android:drawablePadding="@dimen/small_margin"
-                android:paddingBottom="@dimen/very_small_margin"
-                tools:text="On day 14" />
-        </RadioGroup>
-
-        <Button
-            android:id="@+id/recurring_buy_select_cta"
-            style="@style/CtaButton.Blue"
+        <RadioButton
+            android:id="@+id/rb_daily"
+            style="@style/Text.Semibold.16"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/small_margin"
-            android:text="@string/common_ok"
-            android:textAllCaps="true" />
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
+            android:drawablePadding="@dimen/small_margin"
+            android:paddingTop="@dimen/very_small_margin"
+            android:paddingBottom="@dimen/very_small_margin"
+            android:text="@string/recurring_buy_daily_selector"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
-    </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/recurring_buy_weekly_selector" />
 
-</FrameLayout>
+        <RadioButton
+            android:id="@+id/rb_weekly"
+            style="@style/Text.Semibold.16"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
+            android:drawablePadding="@dimen/small_margin"
+            android:paddingBottom="@dimen/very_small_margin"
+            android:visibility="gone"
+            tools:text="on Mondays"
+            tools:visibility="visible" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/recurring_buy_bi_weekly_1" />
+
+        <RadioButton
+            android:id="@+id/rb_bi_weekly"
+            style="@style/Text.Semibold.16"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
+            android:drawablePadding="@dimen/small_margin"
+            android:paddingBottom="@dimen/very_small_margin"
+            android:visibility="gone"
+            tools:text="On day 14 and 28"
+            tools:visibility="visible" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/recurring_buy_monthly_selector" />
+
+        <RadioButton
+            android:id="@+id/rb_monthly"
+            style="@style/Text.Semibold.16"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
+            android:drawablePadding="@dimen/small_margin"
+            android:paddingBottom="@dimen/very_small_margin"
+            android:visibility="gone"
+            tools:text="On day 14"
+            tools:visibility="visible" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/recurring_buy_select_cta"
+        style="@style/CtaButton.Blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/small_margin"
+        android:text="@string/common_ok"
+        android:textAllCaps="true" />
+
+</LinearLayout>

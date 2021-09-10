@@ -16,7 +16,10 @@ sealed class LoginIntents : MviIntent<LoginState> {
             )
     }
 
-    data class ObtainSessionIdForEmail(val selectedEmail: String, val captcha: String) : LoginIntents() {
+    data class ObtainSessionIdForEmail(
+        val selectedEmail: String,
+        val captcha: String
+    ) : LoginIntents() {
         override fun reduce(oldState: LoginState): LoginState =
             oldState.copy(
                 email = selectedEmail,
@@ -25,7 +28,11 @@ sealed class LoginIntents : MviIntent<LoginState> {
             )
     }
 
-    data class SendEmail(val sessionId: String, val selectedEmail: String) : LoginIntents() {
+    data class SendEmail(
+        val sessionId: String,
+        val selectedEmail: String,
+        val captcha: String
+    ) : LoginIntents() {
         override fun reduce(oldState: LoginState): LoginState =
             oldState.copy(
                 email = selectedEmail,

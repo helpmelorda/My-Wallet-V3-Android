@@ -17,13 +17,13 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
 import piuk.blockchain.android.util.ActivityIndicator
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.access.LogoutTimer
 import piuk.blockchain.android.util.lifecycle.ApplicationLifeCycle
+import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 
 /**
  * A base Activity for all activities which need auth timeouts & screenshot prevention
@@ -36,6 +36,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     val analytics: Analytics by inject()
     val appUtil: AppUtil by inject()
+    val environment: EnvironmentConfig by inject()
 
     protected abstract val alwaysDisableScreenshots: Boolean
 
@@ -43,9 +44,9 @@ abstract class BlockchainActivity : ToolBarActivity() {
     private val compositeDisposable = CompositeDisposable()
 
     private val enableScreenshots: Boolean
-        get() = securityPrefs.isUnderTest ||
+        get() = environment.isRunningInDebugMode() ||
             (securityPrefs.areScreenshotsEnabled && !alwaysDisableScreenshots) ||
-            BuildConfig.INTERNAL
+            environment.isCompanyInternalBuild()
 
     protected open val enableLogoutTimer: Boolean = true
 

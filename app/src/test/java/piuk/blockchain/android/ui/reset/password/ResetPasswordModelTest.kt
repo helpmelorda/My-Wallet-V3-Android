@@ -46,11 +46,12 @@ class ResetPasswordModelTest {
     fun `recover account and reset kyc successfully`() {
         val email = "email"
         val password = "password"
+        val userId = "user_id"
         val recoveryToken = "recovery_token"
         val walletName = "wallet_name"
 
         whenever(interactor.createWalletForAccount(email, password, walletName)).thenReturn(Completable.complete())
-        whenever(interactor.recoverAccount(recoveryToken)).thenReturn(Completable.complete())
+        whenever(interactor.recoverAccount(userId, recoveryToken)).thenReturn(Completable.complete())
         whenever(interactor.resetUserKyc()).thenReturn(Completable.complete())
 
         val testState = model.state.test()
@@ -58,6 +59,7 @@ class ResetPasswordModelTest {
             ResetPasswordIntents.CreateWalletForAccount(
                 email,
                 password,
+                userId,
                 recoveryToken,
                 walletName,
                 true
@@ -69,6 +71,7 @@ class ResetPasswordModelTest {
             ResetPasswordState(
                 email = email,
                 password = password,
+                userId = userId,
                 recoveryToken = recoveryToken,
                 walletName = walletName,
                 status = ResetPasswordStatus.CREATE_WALLET
@@ -76,6 +79,7 @@ class ResetPasswordModelTest {
             ResetPasswordState(
                 email = email,
                 password = password,
+                userId = userId,
                 recoveryToken = recoveryToken,
                 walletName = walletName,
                 status = ResetPasswordStatus.RECOVER_ACCOUNT
@@ -83,6 +87,7 @@ class ResetPasswordModelTest {
             ResetPasswordState(
                 email = email,
                 password = password,
+                userId = userId,
                 recoveryToken = recoveryToken,
                 walletName = walletName,
                 status = ResetPasswordStatus.RESET_KYC
@@ -90,6 +95,7 @@ class ResetPasswordModelTest {
             ResetPasswordState(
                 email = email,
                 password = password,
+                userId = userId,
                 recoveryToken = recoveryToken,
                 walletName = walletName,
                 status = ResetPasswordStatus.SHOW_SUCCESS

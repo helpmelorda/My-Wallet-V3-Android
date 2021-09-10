@@ -45,12 +45,12 @@ class AssetDetailsFlow(
 
     interface AssetDetailsHost : FlowHost {
         fun performAssetActionFor(action: AssetAction, account: BlockchainAccount)
-        fun goToSellFrom(account: CryptoAccount)
-        fun goToInterestDeposit(toAccount: InterestAccount)
-        fun goToInterestWithdraw(fromAccount: InterestAccount)
-        fun goToInterestDashboard()
-        fun goToSummary(account: SingleAccount, asset: AssetInfo)
-        fun goToBuy(asset: AssetInfo)
+        fun goToSellFrom(account: CryptoAccount) {}
+        fun goToInterestDeposit(toAccount: InterestAccount) {}
+        fun goToInterestWithdraw(fromAccount: InterestAccount) {}
+        fun goToInterestDashboard() {}
+        fun goToSummary(account: SingleAccount, asset: AssetInfo) {}
+        fun goToBuy(asset: AssetInfo) {}
     }
 
     private var currentStep: AssetDetailsStep = AssetDetailsStep.ZERO

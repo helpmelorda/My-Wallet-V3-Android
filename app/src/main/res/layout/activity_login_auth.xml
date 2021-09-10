@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="@color/white" >
+    android:background="@color/white">
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/back_button"
@@ -16,27 +16,26 @@
         android:layout_marginTop="@dimen/standard_margin"
         android:background="@android:color/transparent"
         android:padding="@dimen/tiny_margin"
+        app:layout_constraintBottom_toBottomOf="@+id/login_title"
+        app:layout_constraintEnd_toStartOf="@+id/login_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/login_title"
-        app:layout_constraintBottom_toBottomOf="@+id/login_title"
         app:layout_constraintVertical_bias="0"
         app:srcCompat="@drawable/ic_arrow_back_blue" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/login_title"
+        style="@style/Text.Semibold.20"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@+id/back_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/auth_scroll_view"
         android:layout_margin="@dimen/standard_margin"
-        app:layout_constraintVertical_bias="0"
-        style="@style/Text.Semibold.20"
         android:text="@string/login_title"
-        app:layout_constraintVertical_chainStyle="spread_inside"
-        />
+        app:layout_constraintBottom_toTopOf="@+id/auth_scroll_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/back_button"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintVertical_chainStyle="spread_inside" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/auth_scroll_view"
@@ -62,10 +61,10 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/email_text_layout"
+                style="@style/LightDataInputAppearance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/LightDataInputAppearance"
-                android:hint="@string/login_email_hint" >
+                android:hint="@string/login_email_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/login_email_text"
@@ -77,14 +76,14 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/login_wallet_label"
+                style="@style/Text.Light.12"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/small_margin"
                 android:layout_marginTop="@dimen/tiny_margin"
                 android:layout_marginEnd="@dimen/small_margin"
                 android:layout_marginBottom="@dimen/standard_margin"
-                android:text="@string/login_wallet_id_text"
-                style="@style/Text.Light.12"/>
+                android:text="@string/login_wallet_id_text" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/password_text_layout"
@@ -110,15 +109,16 @@
                 android:layout_marginTop="@dimen/tiny_margin"
                 android:paddingStart="@dimen/small_margin"
                 android:paddingEnd="@dimen/small_margin"
-                android:text="@string/forgot_password_label" />
+                android:text="@string/forgot_password_label"
+                android:enabled="false"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/code_text_layout"
+                style="@style/LightDataInputAppearance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/small_margin"
-                style="@style/LightDataInputAppearance"
-                android:hint="@string/two_factor_code_hint" >
+                android:hint="@string/two_factor_code_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/code_text"
@@ -128,13 +128,26 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/two_fa_resend"
+                style="@style/Text.Blue.14"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/tiny_margin"
+                android:layout_marginTop="@dimen/tiny_margin"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="@string/two_factor_resend_sms"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/code_label"
+                style="@style/Text.Light.12"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/standard_margin"
                 android:layout_marginTop="@dimen/tiny_margin"
                 android:text="@string/tap_hardware_key_label"
-                style="@style/Text.Light.12"
                 android:visibility="gone" />
 
             <androidx.appcompat.widget.AppCompatButton
@@ -151,13 +164,13 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/two_fa_notice"
+                style="@style/Text.Light.12"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/small_margin"
-                android:layout_marginEnd="@dimen/small_margin"
                 android:layout_marginTop="@dimen/small_margin"
+                android:layout_marginEnd="@dimen/small_margin"
                 android:text="@string/second_password_notice"
-                style="@style/Text.Light.12"
                 android:visibility="gone"
                 tools:visibility="visible" />
 
@@ -167,24 +180,24 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/continue_button"
+        style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/CtaButton.Blue"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/auth_scroll_view"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="@dimen/standard_margin"
-        android:text="@string/common_continue" />
+        android:text="@string/common_continue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/auth_scroll_view" />
 
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:visibility="gone" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

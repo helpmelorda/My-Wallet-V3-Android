@@ -8,10 +8,14 @@ buildscript {
     repositories {
         google()
         maven { url "https://jitpack.io" }
+        maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
+        maven { url "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
         jcenter()
         mavenCentral()
     }
     dependencies {
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
         classpath Libraries.androidGradlePlugin
         classpath Libraries.googleServicesPlugin
         classpath Libraries.kotlinGradlePlugin
@@ -19,9 +23,8 @@ buildscript {
         classpath Libraries.navigationControllerSafeArgsPlugin
         classpath Libraries.firebaseCrashlyticsPlugin
         classpath Libraries.buildProperties
+        classpath Libraries.sqlDelightPlugin
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
     }
 }
 
@@ -30,7 +33,7 @@ allprojects {
         google()
         mavenCentral()
         maven { url "https://jitpack.io" }
-
+        maven { url 'https://zendesk.jfrog.io/zendesk/repo' }
         maven { url "https://cdn.veriff.me/android/" } // veriff
         jcenter()
     }

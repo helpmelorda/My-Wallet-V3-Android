@@ -53,4 +53,6 @@
     <dimen name="design_bottom_navigation_margin">12dp</dimen>
     <dimen name="design_bottom_navigation_text_size">10sp</dimen>
     <dimen name="design_bottom_navigation_active_text_size">10sp</dimen>
+
+    <dimen name="animated_loader_view">56dp</dimen>
 </resources>

@@ -74,9 +74,6 @@ internal class BtcAsset(
     override val isCustodialOnly: Boolean = asset.isCustodialOnly
     override val multiWallet: Boolean = true
 
-    override fun initToken(): Completable =
-        Completable.complete()
-
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         Single.fromCallable {
             with(payloadManager) {

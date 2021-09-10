@@ -9,14 +9,19 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.RemoteException
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ProcessLifecycleOwner
+import com.android.installreferrer.api.InstallReferrerClient
+import com.android.installreferrer.api.InstallReferrerStateListener
 import com.blockchain.koin.KoinStarter
 import com.blockchain.koin.apiRetrofit
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.logging.CrashLogger
+import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.Logging
 import com.blockchain.notifications.analytics.appLaunchEvent
+import com.blockchain.preferences.AppInfoPrefs
 import com.facebook.stetho.Stetho
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -36,6 +41,7 @@ import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.ui.auth.LogoutActivity
 import piuk.blockchain.android.ui.home.models.MetadataEvent
 import piuk.blockchain.android.ui.ssl.SSLVerifyActivity
+import piuk.blockchain.android.util.AppAnalytics
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.CurrentContextAccess
 import piuk.blockchain.android.util.lifecycle.AppLifecycleListener
@@ -55,10 +61,12 @@ open class BlockchainApplication : Application(), FrameworkInterface {
     private val environmentSettings: EnvironmentConfig by inject()
     private val loginState: AccessState by inject()
     private val lifeCycleInterestedComponent: LifecycleInterestedComponent by inject()
+    private val appInfoPrefs: AppInfoPrefs by inject()
     private val rxBus: RxBus by inject()
     private val sslPinningObservable: SSLPinningObservable by inject()
     private val currentContextAccess: CurrentContextAccess by inject()
     private val appUtils: AppUtil by inject()
+    private val analytics: Analytics by inject()
     private val crashLogger: CrashLogger by inject()
     private val coinsWebSocketService: CoinsWebSocketService by inject()
     private val trust: SiftDigitalTrust by inject()
@@ -134,6 +142,21 @@ open class BlockchainApplication : Application(), FrameworkInterface {
             .subscribeBy(onNext = ::onConnectionEvent)
 
         initRxBus()
+
+        AppVersioningChecks(
+            context = this,
+            appInfoPrefs = appInfoPrefs,
+            onAppInstalled = { onAppInstalled() },
+            onAppAppUpdated = { onAppUpdated() }
+        ).checkForPotentialNewInstallOrUpdate()
+    }
+
+    private fun onAppUpdated() {
+        analytics.logEvent(AppAnalytics.AppUpdated)
+    }
+
+    private fun onAppInstalled() {
+        analytics.logEvent(AppAnalytics.AppInstalled)
     }
 
     @SuppressLint("CheckResult")
@@ -271,6 +294,7 @@ open class BlockchainApplication : Application(), FrameworkInterface {
 
         override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
             trust.onActivityCreate(activity)
+            trackPotentialDeeplink(activity)
         }
 
         override fun onActivityResumed(activity: Activity) {
@@ -294,7 +318,80 @@ open class BlockchainApplication : Application(), FrameworkInterface {
         override fun onActivityDestroyed(activity: Activity) {}
     }
 
+    private fun trackPotentialDeeplink(activity: Activity) {
+        activity.intent?.data?.let { analytics.logEvent(AppAnalytics.AppDeepLinked) }
+    }
+
     companion object {
         const val RX_ERROR_TAG = "RxJava Error"
+    }
+}
+
+private class AppVersioningChecks(
+    private val context: Context,
+    private val appInfoPrefs: AppInfoPrefs,
+    private val onAppInstalled: () -> Unit,
+    private val onAppAppUpdated: () -> Unit
+) {
+
+    fun checkForPotentialNewInstallOrUpdate() {
+        val installedVersion =
+            appInfoPrefs.installationVersionName.takeIf { it != AppInfoPrefs.DEFAULT_APP_VERSION_NAME }
+        installedVersion?.let {
+            checkForPotentialUpdate(it)
+        } ?: kotlin.run {
+            checkForInstalledVersion()
+        }
+    }
+
+    private fun checkForInstalledVersion() {
+        val referrerClient = InstallReferrerClient.newBuilder(context).build()
+        referrerClient.startConnection(object : InstallReferrerStateListener {
+            override fun onInstallReferrerSetupFinished(responseCode: Int) {
+                when (responseCode) {
+                    InstallReferrerClient.InstallReferrerResponse.OK -> {
+                        try {
+                            referrerClient.installReferrer?.installVersion?.let {
+                                appInfoPrefs.installationVersionName = it
+                                val runningVersionIsTheInstalled = it == BuildConfig.VERSION_NAME
+                                if (runningVersionIsTheInstalled) {
+                                    onAppInstalled()
+                                } else {
+                                    checkForPotentialUpdate(it)
+                                }
+                            }
+                        } catch (e: RemoteException) {
+                            Timber.e(e)
+                        } finally {
+                            referrerClient.endConnection()
+                        }
+                    }
+                    InstallReferrerClient.InstallReferrerResponse.FEATURE_NOT_SUPPORTED -> {
+                        referrerClient.endConnection()
+                    }
+                    InstallReferrerClient.InstallReferrerResponse.SERVICE_UNAVAILABLE -> {
+                        referrerClient.endConnection()
+                    }
+                }
+            }
+
+            override fun onInstallReferrerServiceDisconnected() {}
+        })
+    }
+
+    private fun checkForPotentialUpdate(installedVersion: String) {
+
+        val runningVersionName = BuildConfig.VERSION_NAME
+        val runningVersionCode = BuildConfig.VERSION_CODE
+        val versionCodeUpdated = runningVersionCode != appInfoPrefs.currentStoredVersionCode
+
+        val appHasJustBeenUpdated = runningVersionName != installedVersion && versionCodeUpdated
+
+        if (appHasJustBeenUpdated) {
+            onAppAppUpdated()
+        }
+        if (versionCodeUpdated) {
+            appInfoPrefs.currentStoredVersionCode = runningVersionCode
+        }
     }
 }

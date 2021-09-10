@@ -6,6 +6,8 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.mock
+import info.blockchain.balance.AssetCategory
+import info.blockchain.balance.CryptoCurrency
 import org.junit.After
 import org.junit.Rule
 import org.koin.core.context.startKoin
@@ -75,5 +77,24 @@ open class CoincoreTestBase {
         protected val TEST_USER_FIAT = "EUR"
         @JvmStatic
         protected val TEST_API_FIAT = "USD"
+
+        // do not modify these objects, as they're shared between tests
+        val TEST_ASSET = object : CryptoCurrency(
+            ticker = "NOPE",
+            name = "Not a real thing",
+            categories = setOf(AssetCategory.CUSTODIAL),
+            precisionDp = 8,
+            requiredConfirmations = 3,
+            colour = "000000"
+        ) {}
+
+        val SECONDARY_TEST_ASSET = object : CryptoCurrency(
+            ticker = "NOPE2",
+            name = "Not a real thing",
+            categories = setOf(AssetCategory.CUSTODIAL),
+            precisionDp = 8,
+            requiredConfirmations = 3,
+            colour = "000000"
+        ) {}
     }
 }

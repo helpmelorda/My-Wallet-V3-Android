@@ -67,7 +67,7 @@ class AddressFactoryImpl(
      **/
     override fun parse(address: String): Single<Set<ReceiveAddress>> =
         Maybe.merge(
-            coincore.allAssets.map { asset ->
+            coincore.activeCryptoAssets().map { asset ->
                 asset.parseAddress(address)
                     .doOnError { Timber.e("**** ERROR: $asset") }
                     .onErrorComplete()

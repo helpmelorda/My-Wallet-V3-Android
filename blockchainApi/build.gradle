@@ -16,7 +16,6 @@ dependencies {
     implementation project(':common:network')
 
     implementation Libraries.kotlin
-    implementation Libraries.retrofit
     implementation Libraries.okHttpInterceptor
     implementation Libraries.retrofitRxJavaAdapter
     implementation Libraries.kotlinJson
@@ -24,6 +23,11 @@ dependencies {
     implementation Libraries.androidXAnnotations
 
     implementation Libraries.koin
+
+    api Libraries.retrofit
+    api Libraries.rxJava
+    api Libraries.rxKotlin
+    api Libraries.rxAndroid
 
     testImplementation project(':testutils')
     testImplementation Libraries.junit

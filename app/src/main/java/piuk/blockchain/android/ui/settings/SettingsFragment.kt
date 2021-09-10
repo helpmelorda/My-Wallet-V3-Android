@@ -13,7 +13,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
-import io.reactivex.rxjava3.kotlin.plusAssign
 import android.text.Html
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
@@ -34,6 +33,14 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import com.blockchain.biometrics.BiometricAuthError
+import com.blockchain.biometrics.BiometricAuthError.BiometricAuthLockout
+import com.blockchain.biometrics.BiometricAuthError.BiometricAuthLockoutPermanent
+import com.blockchain.biometrics.BiometricAuthError.BiometricAuthOther
+import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
+import com.blockchain.biometrics.BiometricAuthError.BiometricsNoSuitableMethods
+import com.blockchain.biometrics.BiometricsCallback
+import com.blockchain.biometrics.BiometricsType
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.Bank
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -54,6 +61,7 @@ import info.blockchain.wallet.api.Environment
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.util.PasswordUtil
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
@@ -61,14 +69,9 @@ import piuk.blockchain.android.R.string.success
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.cards.RemoveCardBottomSheet
-import piuk.blockchain.android.data.biometrics.BiometricAuthError
-import piuk.blockchain.android.data.biometrics.BiometricAuthLockout
-import piuk.blockchain.android.data.biometrics.BiometricAuthLockoutPermanent
-import piuk.blockchain.android.data.biometrics.BiometricAuthOther
-import piuk.blockchain.android.data.biometrics.BiometricKeysInvalidated
-import piuk.blockchain.android.data.biometrics.BiometricsCallback
+import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
-import piuk.blockchain.android.data.biometrics.BiometricsNoSuitableMethods
+import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.databinding.ModalChangePasswordBinding
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.simplebuy.RemoveLinkedBankBottomSheet
@@ -84,7 +87,7 @@ import piuk.blockchain.android.ui.base.mvi.MviFragment.Companion.BOTTOM_SHEET
 import piuk.blockchain.android.ui.customviews.PasswordStrengthView
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.dialogs.MaterialProgressDialog
-import piuk.blockchain.android.ui.dashboard.LinkablePaymentMethodsForAction
+import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -664,9 +667,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
             .setMessage(R.string.biometric_disable_message)
             .setCancelable(true)
             .setPositiveButton(R.string.common_yes) { _, _ ->
-                settingsPresenter.setFingerprintUnlockEnabled(
-                    false
-                )
+                settingsPresenter.setFingerprintUnlockDisabled()
             }
             .setNegativeButton(android.R.string.cancel) { _, _ ->
                 updateFingerprintPreferenceStatus()
@@ -701,28 +702,26 @@ class SettingsFragment : PreferenceFragmentCompat(),
     }
 
     override fun showFingerprintDialog(pincode: String) {
-        biometricsController.init(this, BiometricsController.BiometricsType.TYPE_REGISTER, object : BiometricsCallback {
-            override fun onAuthSuccess(data: String) {
-                settingsPresenter.setFingerprintUnlockEnabled(true)
-                fingerprintPref.isChecked = settingsPresenter.isFingerprintUnlockEnabled
-            }
+        biometricsController.authenticate(
+            this, BiometricsType.TYPE_REGISTER, object : BiometricsCallback<WalletBiometricData> {
+                override fun onAuthSuccess(unencryptedBiometricData: WalletBiometricData) {
+                    fingerprintPref.isChecked = settingsPresenter.isFingerprintUnlockEnabled
+                }
 
-            override fun onAuthFailed(error: BiometricAuthError) {
-                handleAuthFailed(error)
-            }
+                override fun onAuthFailed(error: BiometricAuthError) {
+                    handleAuthFailed(error)
+                }
 
-            override fun onAuthCancelled() {
-                settingsPresenter.setFingerprintUnlockEnabled(false)
-                fingerprintPref.isChecked = settingsPresenter.isFingerprintUnlockEnabled
-            }
-        })
-
-        biometricsController.authenticateForRegistration()
+                override fun onAuthCancelled() {
+                    settingsPresenter.setFingerprintUnlockDisabled()
+                    fingerprintPref.isChecked = settingsPresenter.isFingerprintUnlockEnabled
+                }
+            })
     }
 
     private fun handleAuthFailed(error: BiometricAuthError) {
         when (error) {
-            is BiometricKeysInvalidated -> BiometricsController.showActionableInvalidatedKeysDialog(requireContext(),
+            is BiometricKeysInvalidated -> BiometricPromptUtil.showActionableInvalidatedKeysDialog(requireContext(),
                 positiveActionCallback = {
                     settingsPresenter.onFingerprintClicked()
                 },
@@ -739,14 +738,14 @@ class SettingsFragment : PreferenceFragmentCompat(),
                     )
                 })
             is BiometricsNoSuitableMethods -> showNoFingerprintsAddedDialog()
-            is BiometricAuthLockout -> BiometricsController.showAuthLockoutDialog(requireContext())
-            is BiometricAuthLockoutPermanent -> BiometricsController.showPermanentAuthLockoutDialog(requireContext())
-            is BiometricAuthOther -> BiometricsController.showBiometricsGenericError(requireContext(), error.error)
+            is BiometricAuthLockout -> BiometricPromptUtil.showAuthLockoutDialog(requireContext())
+            is BiometricAuthLockoutPermanent -> BiometricPromptUtil.showPermanentAuthLockoutDialog(requireContext())
+            is BiometricAuthOther -> BiometricPromptUtil.showBiometricsGenericError(requireContext(), error.error)
             else -> {
                 // do nothing
             }
         }
-        settingsPresenter.setFingerprintUnlockEnabled(false)
+        settingsPresenter.setFingerprintUnlockDisabled()
         fingerprintPref.isChecked = settingsPresenter.isFingerprintUnlockEnabled
     }
 

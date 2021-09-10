@@ -8,13 +8,13 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.androidcore.data.appversion.SemanticVersion
-import piuk.blockchain.androidcore.data.auth.AuthService
+import piuk.blockchain.androidcore.data.auth.WalletAuthService
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.util.Locale
 
 class WalletOptionsDataManager(
-    authService: AuthService,
+    authService: WalletAuthService,
     private val walletOptionsState: WalletOptionsState,
     private val settingsDataManager: SettingsDataManager,
     private val explorerUrl: String

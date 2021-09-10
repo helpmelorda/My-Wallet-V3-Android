@@ -3,18 +3,37 @@ package piuk.blockchain.android.ui.login.auth
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import piuk.blockchain.android.ui.base.mvi.MviIntent
 
 sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
 
-    data class GetSessionId(val guid: String, val authToken: String) : LoginAuthIntents() {
+    data class InitLoginAuthInfo(val json: String) : LoginAuthIntents() {
         override fun reduce(oldState: LoginAuthState): LoginAuthState =
             oldState.copy(
-                guid = guid,
-                authToken = authToken,
-                authStatus = AuthStatus.GetSessionId
+                authStatus = AuthStatus.InitAuthInfo
             )
+    }
+
+    data class GetSessionId(val loginAuthInfo: LoginAuthInfo) : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState =
+            when (loginAuthInfo) {
+                is LoginAuthInfo.SimpleAccountInfo -> oldState.copy(
+                    guid = loginAuthInfo.guid,
+                    email = loginAuthInfo.email,
+                    authToken = loginAuthInfo.authToken,
+                    authStatus = AuthStatus.GetSessionId
+                )
+                is LoginAuthInfo.ExtendedAccountInfo -> oldState.copy(
+                    guid = loginAuthInfo.accountWallet.guid,
+                    userId = loginAuthInfo.accountWallet.nabuAccountInfo.userId,
+                    email = loginAuthInfo.accountWallet.email,
+                    authToken = loginAuthInfo.accountWallet.authToken,
+                    recoveryToken = loginAuthInfo.accountWallet.nabuAccountInfo.recoveryToken,
+                    authStatus = AuthStatus.GetSessionId
+                )
+            }
     }
 
     data class AuthorizeApproval(val sessionId: String) : LoginAuthIntents() {
@@ -32,7 +51,7 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
             )
     }
 
-    data class SetPayload(val payloadJson: JSONObject) : LoginAuthIntents() {
+    data class SetPayload(val payloadJson: JsonObject) : LoginAuthIntents() {
         override fun reduce(oldState: LoginAuthState): LoginAuthState =
             oldState.copy(
                 authMethod = getAuthMethod(oldState),
@@ -41,11 +60,33 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
 
         private fun getAuthMethod(oldState: LoginAuthState): TwoFAMethod {
             return if (payloadJson.isAuth() && (payloadJson.isGoogleAuth() || payloadJson.isSMSAuth())) {
-                TwoFAMethod.fromInt(payloadJson.getInt(AUTH_TYPE))
+                TwoFAMethod.fromInt(payloadJson.getValue(AUTH_TYPE).jsonPrimitive.toString().toInt())
             } else {
                 oldState.authMethod
             }
         }
+    }
+
+    data class Update2FARetryCount(val count: Int) : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState =
+            oldState.copy(
+                twoFaState = when (count) {
+                    0 -> TwoFaCodeState.TwoFaTimeLock
+                    else -> TwoFaCodeState.TwoFaRemainingTries(count)
+                }
+            )
+    }
+
+    object RequestNew2FaCode : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState = oldState
+    }
+
+    object New2FaCodeTimeLock : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState = oldState.copy(
+            twoFaState = TwoFaCodeState.TwoFaTimeLock
+        )
+
+        override fun isValidFor(oldState: LoginAuthState): Boolean = true
     }
 
     data class SubmitTwoFactorCode(val password: String, val code: String) : LoginAuthIntents() {
@@ -96,11 +137,23 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
             )
     }
 
+    object ShowAccountLockedError : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState =
+            oldState.copy(
+                authStatus = AuthStatus.AccountLocked
+            )
+    }
+
     object Show2FAFailed : LoginAuthIntents() {
         override fun reduce(oldState: LoginAuthState): LoginAuthState =
             oldState.copy(
                 authStatus = AuthStatus.Invalid2FACode
             )
+    }
+
+    object Reset2FARetries : LoginAuthIntents() {
+        override fun reduce(oldState: LoginAuthState): LoginAuthState =
+            oldState
     }
 
     data class ShowError(val throwable: Throwable? = null) : LoginAuthIntents() {
@@ -128,11 +181,11 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
     }
 }
 
-private fun JSONObject.isAuth(): Boolean =
-    has(LoginAuthIntents.AUTH_TYPE) && !has(LoginAuthIntents.PAYLOAD)
+private fun JsonObject.isAuth(): Boolean =
+    containsKey(LoginAuthIntents.AUTH_TYPE) && !containsKey(LoginAuthIntents.PAYLOAD)
 
-private fun JSONObject.isGoogleAuth(): Boolean =
-    getInt(LoginAuthIntents.AUTH_TYPE) == Settings.AUTH_TYPE_GOOGLE_AUTHENTICATOR
+private fun JsonObject.isGoogleAuth(): Boolean =
+    getValue(LoginAuthIntents.AUTH_TYPE).jsonPrimitive.toString().toInt() == Settings.AUTH_TYPE_GOOGLE_AUTHENTICATOR
 
-private fun JSONObject.isSMSAuth(): Boolean =
-    getInt(LoginAuthIntents.AUTH_TYPE) == Settings.AUTH_TYPE_SMS
+private fun JsonObject.isSMSAuth(): Boolean =
+    getValue(LoginAuthIntents.AUTH_TYPE).jsonPrimitive.toString().toInt() == Settings.AUTH_TYPE_SMS

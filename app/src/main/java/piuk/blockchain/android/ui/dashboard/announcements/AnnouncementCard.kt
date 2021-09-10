@@ -4,7 +4,7 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.dashboard.DashboardItem
+import piuk.blockchain.android.ui.dashboard.model.DashboardItem
 
 interface AnnouncementCard : DashboardItem {
     val name: String

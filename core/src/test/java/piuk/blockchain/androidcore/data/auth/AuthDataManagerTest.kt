@@ -1,5 +1,6 @@
 package piuk.blockchain.androidcore.data.auth
 
+import com.blockchain.api.services.AuthApiService
 import com.blockchain.logging.CrashLogger
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.verify
@@ -30,7 +31,8 @@ import java.util.concurrent.TimeUnit
 class AuthDataManagerTest : RxTest() {
 
     private val prefsUtil: PersistentPrefs = mock()
-    private val authService: AuthService = mock()
+    private val authApiService: AuthApiService = mock()
+    private val walletAuthService: WalletAuthService = mock()
     private val accessState: AccessState = mock()
     private val aesUtilWrapper: AESUtilWrapper = mock()
     private val prngHelper: PrngFixer = mock()
@@ -42,7 +44,8 @@ class AuthDataManagerTest : RxTest() {
     fun setUp() {
         subject = AuthDataManager(
             prefsUtil,
-            authService,
+            authApiService,
+            walletAuthService,
             accessState,
             aesUtilWrapper,
             prngHelper,
@@ -55,7 +58,7 @@ class AuthDataManagerTest : RxTest() {
         // Arrange
         val mockResponseBody = mock<ResponseBody>()
         whenever(
-            authService.getEncryptedPayload(
+            walletAuthService.getEncryptedPayload(
                 anyString(),
                 anyString()
             )
@@ -63,7 +66,7 @@ class AuthDataManagerTest : RxTest() {
         // Act
         val observer = subject.getEncryptedPayload("1234567890", "1234567890").test()
         // Assert
-        verify(authService).getEncryptedPayload(anyString(), anyString())
+        verify(walletAuthService).getEncryptedPayload(anyString(), anyString())
         observer.assertComplete()
         observer.assertNoErrors()
         assertTrue(observer.values()[0].isSuccessful)
@@ -73,12 +76,12 @@ class AuthDataManagerTest : RxTest() {
     fun getSessionId() {
         // Arrange
         val sessionId = "SESSION_ID"
-        whenever(authService.getSessionId(anyString()))
+        whenever(walletAuthService.getSessionId(anyString()))
             .thenReturn(Observable.just(sessionId))
         // Act
         val testObserver = subject.getSessionId("1234567890").test()
         // Assert
-        verify(authService).getSessionId(anyString())
+        verify(walletAuthService).getSessionId(anyString())
         testObserver.assertComplete()
         testObserver.onNext(sessionId)
         testObserver.assertNoErrors()
@@ -91,12 +94,12 @@ class AuthDataManagerTest : RxTest() {
         val guid = "GUID"
         val code = "123456"
         val responseBody = "{}".toResponseBody(("application/json").toMediaTypeOrNull())
-        whenever(authService.submitTwoFactorCode(sessionId, guid, code))
+        whenever(walletAuthService.submitTwoFactorCode(sessionId, guid, code))
             .thenReturn(Observable.just(responseBody))
         // Act
         val testObserver = subject.submitTwoFactorCode(sessionId, guid, code).test()
         // Assert
-        verify(authService).submitTwoFactorCode(sessionId, guid, code)
+        verify(walletAuthService).submitTwoFactorCode(sessionId, guid, code)
         testObserver.assertComplete()
         testObserver.onNext(responseBody)
         testObserver.assertNoErrors()
@@ -118,7 +121,7 @@ class AuthDataManagerTest : RxTest() {
         whenever(prefsUtil.backupEnabled).thenReturn(true)
         whenever(prefsUtil.hasBackup()).thenReturn(true)
         whenever(prefsUtil.walletGuid).thenReturn(guid)
-        whenever(authService.validateAccess(key, pin))
+        whenever(walletAuthService.validateAccess(key, pin))
             .thenReturn(Observable.just(Response.success(status)))
 
         whenever(
@@ -150,8 +153,8 @@ class AuthDataManagerTest : RxTest() {
 
         verify(prefsUtil).restoreFromBackup(anyString(), eq(aesUtilWrapper))
 
-        verify(authService).validateAccess(key, pin)
-        verifyNoMoreInteractions(authService)
+        verify(walletAuthService).validateAccess(key, pin)
+        verifyNoMoreInteractions(walletAuthService)
 
         verify(aesUtilWrapper).decrypt(
             encryptedPassword,
@@ -176,7 +179,7 @@ class AuthDataManagerTest : RxTest() {
         status.success = decryptionKey
 
         whenever(prefsUtil.pinId).thenReturn(key)
-        whenever(authService.validateAccess(key, pin))
+        whenever(walletAuthService.validateAccess(key, pin))
             .thenReturn(
                 Observable.just(
                     Response.error(
@@ -192,8 +195,8 @@ class AuthDataManagerTest : RxTest() {
         verifyNoMoreInteractions(accessState)
         verify(prefsUtil).pinId
         verifyNoMoreInteractions(prefsUtil)
-        verify(authService).validateAccess(key, pin)
-        verifyNoMoreInteractions(authService)
+        verify(walletAuthService).validateAccess(key, pin)
+        verifyNoMoreInteractions(walletAuthService)
         verifyZeroInteractions(aesUtilWrapper)
         observer.assertNotComplete()
         observer.assertNoValues()
@@ -212,7 +215,7 @@ class AuthDataManagerTest : RxTest() {
         // Assert
         verifyZeroInteractions(accessState)
         verifyZeroInteractions(prefsUtil)
-        verifyZeroInteractions(authService)
+        verifyZeroInteractions(walletAuthService)
         verifyZeroInteractions(aesUtilWrapper)
 
         observer.assertNotComplete()
@@ -227,7 +230,7 @@ class AuthDataManagerTest : RxTest() {
         val encryptedPassword = "ENCRYPTED_PASSWORD"
         val status = Status()
         whenever(
-            authService.setAccessKey(
+            walletAuthService.setAccessKey(
                 anyString(),
                 anyString(),
                 eq(pin)
@@ -251,12 +254,12 @@ class AuthDataManagerTest : RxTest() {
         verifyNoMoreInteractions(accessState)
         verify(prngHelper).applyPRNGFixes()
         verifyNoMoreInteractions(prngHelper)
-        verify(authService).setAccessKey(
+        verify(walletAuthService).setAccessKey(
             anyString(),
             anyString(),
             eq(pin)
         )
-        verifyNoMoreInteractions(authService)
+        verifyNoMoreInteractions(walletAuthService)
         verify(aesUtilWrapper).encrypt(
             eq(password),
             anyString(),
@@ -280,7 +283,7 @@ class AuthDataManagerTest : RxTest() {
         val password = "PASSWORD"
         val pin = "1234"
         whenever(
-            authService.setAccessKey(
+            walletAuthService.setAccessKey(
                 anyString(),
                 anyString(),
                 eq(pin)
@@ -300,12 +303,12 @@ class AuthDataManagerTest : RxTest() {
         verifyNoMoreInteractions(accessState)
         verify(prngHelper).applyPRNGFixes()
         verifyNoMoreInteractions(prngHelper)
-        verify(authService).setAccessKey(
+        verify(walletAuthService).setAccessKey(
             anyString(),
             anyString(),
             eq(pin)
         )
-        verifyNoMoreInteractions(authService)
+        verifyNoMoreInteractions(walletAuthService)
         verifyZeroInteractions(aesUtilWrapper)
         verifyZeroInteractions(prefsUtil)
         observer.assertNotComplete()
@@ -316,11 +319,11 @@ class AuthDataManagerTest : RxTest() {
     fun getWalletOptions() {
         // Arrange
         val walletOptions = WalletOptions()
-        whenever(authService.getWalletOptions()).thenReturn(Observable.just(walletOptions))
+        whenever(walletAuthService.getWalletOptions()).thenReturn(Observable.just(walletOptions))
         // Act
         val observer = subject.getWalletOptions().test()
         // Assert
-        verify(authService).getWalletOptions()
+        verify(walletAuthService).getWalletOptions()
         observer.assertComplete()
         observer.assertNoErrors()
         observer.assertValue(walletOptions)
@@ -335,13 +338,13 @@ class AuthDataManagerTest : RxTest() {
         // Arrange
         val sessionId = "SESSION_ID"
         val guid = "GUID"
-        whenever(authService.getEncryptedPayload(guid, sessionId))
+        whenever(walletAuthService.getEncryptedPayload(guid, sessionId))
             .thenReturn(Observable.error(Throwable()))
         // Act
         val testObserver = subject.startPollingAuthStatus(guid, sessionId).test()
         testScheduler.advanceTimeBy(3, TimeUnit.SECONDS)
         // Assert
-        verify(authService).getEncryptedPayload(guid, sessionId)
+        verify(walletAuthService).getEncryptedPayload(guid, sessionId)
         testObserver.assertComplete()
         testObserver.assertValue(AuthDataManager.AUTHORIZATION_REQUIRED)
         testObserver.assertNoErrors()
@@ -357,13 +360,13 @@ class AuthDataManagerTest : RxTest() {
         val guid = "GUID"
         val responseBody = ERROR_BODY.toResponseBody(("application/json").toMediaTypeOrNull())
 
-        whenever(authService.getEncryptedPayload(guid, sessionId))
+        whenever(walletAuthService.getEncryptedPayload(guid, sessionId))
             .thenReturn(Observable.just(Response.error(500, responseBody)))
         // Act
         val testObserver = subject.startPollingAuthStatus(guid, sessionId).test()
         testScheduler.advanceTimeBy(2, TimeUnit.SECONDS)
         // Assert
-        verify(authService).getEncryptedPayload(guid, sessionId)
+        verify(walletAuthService).getEncryptedPayload(guid, sessionId)
         testObserver.assertNotComplete()
         testObserver.assertNoValues()
         testObserver.assertNoErrors()

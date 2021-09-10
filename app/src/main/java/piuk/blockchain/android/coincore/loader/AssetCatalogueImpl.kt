@@ -35,7 +35,22 @@ internal class AssetCatalogueImpl(
 
     // Brute force impl for now, but this will operate from a downloaded cache ultimately
     override fun fromNetworkTicker(symbol: String): AssetInfo? =
-        fullAssetLookup[symbol.toUpperCase(Locale.ROOT)]
+        fullAssetLookup[symbol.uppercase()]
+
+    override fun fromNetworkTickerWithL2Id(
+        symbol: String,
+        l2chain: AssetInfo,
+        l2Id: String
+    ): AssetInfo? =
+        fromNetworkTicker(symbol)?.let { found ->
+            found.takeIf {
+                it.l2chain == l2chain &&
+                it.l2identifier?.equals(l2Id, ignoreCase = true) == true
+            }
+        }
+
+    override fun isFiatTicker(symbol: String): Boolean =
+        supportedFiatAssets.contains(symbol)
 
     override val supportedCryptoAssets: List<AssetInfo> by lazy {
         fullAssetLookup.values.toList()
@@ -44,6 +59,9 @@ internal class AssetCatalogueImpl(
     override val supportedCustodialAssets: List<AssetInfo> by lazy {
         fullAssetLookup.values.filter { it.isCustodial }
     }
+
+    // TEMP: This will come from the /fiat BE supported assets call
+    override val supportedFiatAssets: List<String> = listOf("EUR", "USD", "GBP")
 
     override fun supportedL2Assets(chain: AssetInfo): List<AssetInfo> =
         supportedCryptoAssets.filter { it.l2chain == chain }

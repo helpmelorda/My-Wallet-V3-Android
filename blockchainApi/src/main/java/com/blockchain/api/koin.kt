@@ -3,6 +3,7 @@ package com.blockchain.api
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.analytics.AnalyticsApiInterface
 import com.blockchain.api.assetprice.AssetPriceApiInterface
+import com.blockchain.api.auth.AuthApiInterface
 import com.blockchain.api.bitcoin.BitcoinApi
 import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.wallet.WalletApiInterface
@@ -12,6 +13,7 @@ import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.AssetPriceService
+import com.blockchain.api.services.AuthApiService
 import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.InterestService
 import com.blockchain.api.services.NabuUserService
@@ -109,6 +111,15 @@ val blockchainApiModule = module {
         WalletSettingsService(
             api,
             getProperty("api-code")
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(blockchainApi).create(AuthApiInterface::class.java)
+        AuthApiService(
+            api,
+            getProperty("api-code"),
+            getProperty("site-key")
         )
     }
 

@@ -111,15 +111,15 @@ class BtcOnChainTxEngine(
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> =
         Single.zip(
             sourceAccount.accountBalance.map { it as CryptoValue },
-            getDynamicFeePerKb(pendingTx),
+            getDynamicFeesPerKb(pendingTx),
             getUnspentApiResponse(btcSource.xpubs)
-        ) { total, optionsAndFeePerKb, coins ->
+        ) { total, optionsAndFeesPerKb, coins ->
             updatePendingTxFromAmount(
                 amount as CryptoValue,
                 total,
                 pendingTx,
-                optionsAndFeePerKb.second,
-                optionsAndFeePerKb.first,
+                optionsAndFeesPerKb.second,
+                optionsAndFeesPerKb.first,
                 coins
             )
         }.onErrorReturnItem(
@@ -146,15 +146,17 @@ class BtcOnChainTxEngine(
         }
     }
 
-    private fun getDynamicFeePerKb(pendingTx: PendingTx): Single<Pair<FeeOptions, CryptoValue>> =
+    private fun getDynamicFeesPerKb(pendingTx: PendingTx): Single<Pair<FeeOptions, Map<FeeLevel, CryptoValue>>> =
         feeManager.btcFeeOptions
             .map { feeOptions ->
-                when (pendingTx.feeSelection.selectedLevel) {
-                    FeeLevel.None -> Pair(feeOptions, CryptoValue.zero(sourceAsset))
-                    FeeLevel.Regular -> Pair(feeOptions, feeToCrypto(feeOptions.regularFee))
-                    FeeLevel.Priority -> Pair(feeOptions, feeToCrypto(feeOptions.priorityFee))
-                    FeeLevel.Custom -> Pair(feeOptions, feeToCrypto(pendingTx.feeSelection.customAmount))
-                }
+                Pair(
+                    feeOptions, mapOf(
+                        FeeLevel.None to CryptoValue.zero(sourceAsset),
+                        FeeLevel.Regular to feeToCrypto(feeOptions.regularFee),
+                        FeeLevel.Priority to feeToCrypto(feeOptions.priorityFee),
+                        FeeLevel.Custom to feeToCrypto(pendingTx.feeSelection.customAmount)
+                    )
+                )
             }.singleOrError()
 
     private fun feeToCrypto(feePerKb: Long): CryptoValue =
@@ -164,18 +166,19 @@ class BtcOnChainTxEngine(
         amount: CryptoValue,
         balance: CryptoValue,
         pendingTx: PendingTx,
-        feePerKb: CryptoValue,
+        feesPerKb: Map<FeeLevel, CryptoValue>,
         feeOptions: FeeOptions,
         coins: List<Utxo>
     ): PendingTx {
         val targetOutputType = btcDataManager.getAddressOutputType(btcTarget.address)
         val changeOutputType = btcDataManager.getXpubFormatOutputType(btcSource.xpubs.default.derivation)
+        val feeForLevel = feesPerKb[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(sourceAsset)
 
         val available = sendDataManager.getMaximumAvailable(
             asset = sourceAsset,
             targetOutputType = targetOutputType,
             unspentCoins = coins,
-            feePerKb = feePerKb
+            feePerKb = feeForLevel
         ) // This is total balance, with fees deducted
 
         val utxoBundle = sendDataManager.getSpendableCoins(
@@ -183,7 +186,7 @@ class BtcOnChainTxEngine(
             targetOutputType = targetOutputType,
             changeOutputType = changeOutputType,
             paymentAmount = amount,
-            feePerKb = feePerKb
+            feePerKb = feeForLevel
         )
 
         return pendingTx.copy(
@@ -193,7 +196,8 @@ class BtcOnChainTxEngine(
             feeForFullAvailable = available.feeForMax,
             feeAmount = CryptoValue.fromMinor(sourceAsset, utxoBundle.absoluteFee),
             feeSelection = pendingTx.feeSelection.copy(
-                customLevelRates = feeOptions.toLevelRates()
+                customLevelRates = feeOptions.toLevelRates(),
+                feesForLevels = feesPerKb
             ),
             engineState = pendingTx.engineState
                 .copyAndPut(STATE_UTXO, utxoBundle)

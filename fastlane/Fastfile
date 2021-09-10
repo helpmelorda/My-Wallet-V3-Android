@@ -167,12 +167,12 @@ platform :android do
        ci_test_common
        ci_test_blockchainApi
        ci_test_core
-       ci_test_nabu
        ci_test_notifications
        ci_test_sunriver
        ci_test_testutils
        ci_test_testutils_android
        ci_test_wallet
+       ci_test_biometrics
 
     end
 
@@ -225,15 +225,6 @@ platform :android do
 
     end
 
-    desc "Tests to run on CI nabu"
-    lane :ci_test_nabu do
-      gradle(
-        task: "nabu:test",
-        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
-      )
-
-    end
-
     desc "Tests to run on CI notifications"
     lane :ci_test_notifications do
       gradle(
@@ -279,6 +270,15 @@ platform :android do
 
     end
 
+    desc "Tests to run on CI wallet"
+    lane :ci_test_biometrics do
+      gradle(
+        task: "biometrics:test",
+        flags: "-Dpre-dex=false -Pkotlin.incremental=false --stacktrace --no-daemon --max-workers 2"
+      )
+
+    end
+
     desc "Get the configuration files from the Android credentials repository on CI."
     lane :ci_credentials do
 
@@ -305,7 +305,7 @@ platform :android do
     lane :ci_credentials_cleanup do
 
       sh("echo \"--------------Deleting Credentials Repo--------------\"")
-      sh("rm -r ../../tmp/credentials")
+      sh("rm -rf ../../tmp/credentials")
     end
 
     desc "Upload to AppCenter."

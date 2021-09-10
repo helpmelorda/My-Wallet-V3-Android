@@ -20,6 +20,7 @@ import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.models.data.BankPartner
 import com.blockchain.nabu.models.data.LinkedBank
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.nabu.models.responses.banktransfer.ProviderAccountAttrs
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
@@ -43,6 +44,7 @@ import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
+import piuk.blockchain.android.ui.linkbank.BankTransferAction
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.util.AppUtil
@@ -55,6 +57,7 @@ class SimpleBuyInteractor(
     private val withdrawLocksRepository: WithdrawLocksRepository,
     private val appUtil: AppUtil,
     private val analytics: Analytics,
+    private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val eligibilityProvider: SimpleBuyEligibilityProvider,
     private val coincore: Coincore,
     private val bankLinkingPrefs: BankLinkingPrefs
@@ -90,7 +93,8 @@ class SimpleBuyInteractor(
         amount: FiatValue,
         paymentMethodId: String? = null,
         paymentMethod: PaymentMethodType,
-        isPending: Boolean
+        isPending: Boolean,
+        recurringBuyFrequency: RecurringBuyFrequency?
     ): Single<SimpleBuyIntent.OrderCreated> =
         custodialWalletManager.createOrder(
             custodialWalletOrder = CustodialWalletOrder(
@@ -103,7 +107,8 @@ class SimpleBuyInteractor(
                     cryptoAsset.ticker, null
                 ),
                 paymentMethodId = paymentMethodId,
-                paymentType = paymentMethod.name
+                paymentType = paymentMethod.name,
+                period = recurringBuyFrequency?.name
             ),
             stateAction = if (isPending) "pending" else null
         ).map {
@@ -111,25 +116,25 @@ class SimpleBuyInteractor(
         }
 
     fun createRecurringBuyOrder(
-        state: SimpleBuyState,
+        asset: AssetInfo?,
+        order: SimpleBuyOrder,
+        selectedPaymentMethod: SelectedPaymentMethod?,
         recurringBuyFrequency: RecurringBuyFrequency
     ): Single<RecurringBuyOrder> {
         return if (recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
-            val asset = state.selectedCryptoAsset
             require(asset != null) { "createRecurringBuyOrder selected crypto is null" }
-            require(state.order.amount != null) { "createRecurringBuyOrder amount is null" }
-            require(state.selectedPaymentMethod != null) { "createRecurringBuyOrder selected payment method is null" }
+            require(order.amount != null) { "createRecurringBuyOrder amount is null" }
+            require(selectedPaymentMethod != null) { "createRecurringBuyOrder selected payment method is null" }
 
-            val amount = state.order.amount
-            val paymentMethod = state.selectedPaymentMethod
+            val amount = order.amount
             custodialWalletManager.createRecurringBuyOrder(
                 RecurringBuyRequestBody(
-                    inputValue = amount?.toBigInteger().toString(),
-                    inputCurrency = amount?.currencyCode.toString(),
+                    inputValue = amount.toBigInteger().toString(),
+                    inputCurrency = amount.currencyCode,
                     destinationCurrency = asset.ticker,
-                    paymentMethod = paymentMethod.paymentMethodType.name,
+                    paymentMethod = selectedPaymentMethod.paymentMethodType.name,
                     period = recurringBuyFrequency.name,
-                    paymentMethodId = paymentMethod.takeUnless { it.isFunds() }?.id
+                    paymentMethodId = selectedPaymentMethod.takeUnless { it.isFunds() }?.id
                 )
             )
         } else {
@@ -194,6 +199,7 @@ class SimpleBuyInteractor(
         providerAccountId: String = "",
         accountId: String,
         partner: BankPartner,
+        action: BankTransferAction,
         source: BankAuthSource
     ): Completable {
         bankLinkingPrefs.setBankLinkingState(
@@ -207,17 +213,33 @@ class SimpleBuyInteractor(
             linkingId = linkingId,
             providerAccountId = providerAccountId,
             accountId = accountId,
-            partner = partner
+            attributes = providerAttributes(
+                partner = partner,
+                action = action,
+                providerAccountId = providerAccountId,
+                accountId = accountId
+            )
         )
     }
 
-    fun pollForLinkedBankState(id: String, partner: BankPartner?): Single<LinkedBank> = PollService(
-        custodialWalletManager.getLinkedBank(id)
-    ) {
-        !it.isLinkingPending() || (it.partner == partner && it.isLinkingPending())
-    }.start(timerInSec = INTERVAL, retries = RETRIES_DEFAULT).map {
-        it.value
-    }
+    private fun providerAttributes(
+        partner: BankPartner,
+        providerAccountId: String,
+        accountId: String,
+        action: BankTransferAction
+    ): ProviderAccountAttrs =
+        when (partner) {
+            BankPartner.YODLEE ->
+                ProviderAccountAttrs(
+                    providerAccountId = providerAccountId,
+                    accountId = accountId
+                )
+            BankPartner.YAPILY ->
+                ProviderAccountAttrs(
+                    institutionId = accountId,
+                    callback = bankPartnerCallbackProvider.callback(BankPartner.YAPILY, action)
+                )
+        }
 
     fun pollForBankLinkingCompleted(id: String): Single<LinkedBank> = PollService(
         custodialWalletManager.getLinkedBank(id)
@@ -226,6 +248,12 @@ class SimpleBuyInteractor(
     }.start(timerInSec = INTERVAL, retries = RETRIES_DEFAULT).map {
         it.value
     }
+
+    fun pollForLinkedBankState(id: String): Single<PollResult<LinkedBank>> = PollService(
+        custodialWalletManager.getLinkedBank(id)
+    ) {
+        !it.isLinkingPending()
+    }.start(timerInSec = INTERVAL, retries = RETRIES_DEFAULT)
 
     fun checkTierLevel(): Single<SimpleBuyIntent.KycStateUpdated> {
 
@@ -295,15 +323,18 @@ class SimpleBuyInteractor(
                 }
             }
 
-    fun getRecurringBuyEligibility() = custodialWalletManager.getRecurringBuyEligibility()
-
     // attributes are null in case of bank
     fun confirmOrder(
         orderId: String,
         paymentMethodId: String?,
         attributes: SimpleBuyConfirmationAttributes?,
         isBankPartner: Boolean?
-    ): Single<BuySellOrder> = custodialWalletManager.confirmOrder(orderId, attributes, paymentMethodId, isBankPartner)
+    ): Single<BuySellOrder> = custodialWalletManager.confirmOrder(
+        orderId,
+        attributes,
+        paymentMethodId,
+        isBankPartner
+    )
 
     fun pollForOrderStatus(orderId: String): Single<BuySellOrder> =
         custodialWalletManager.getBuyOrder(orderId)

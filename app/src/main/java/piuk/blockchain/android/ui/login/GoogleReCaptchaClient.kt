@@ -6,11 +6,12 @@ import com.google.android.gms.recaptcha.RecaptchaAction
 import com.google.android.gms.recaptcha.RecaptchaActionType
 import com.google.android.gms.recaptcha.RecaptchaHandle
 import com.google.android.gms.recaptcha.RecaptchaResultData
+import info.blockchain.wallet.api.Environment
 import piuk.blockchain.android.BuildConfig
+import piuk.blockchain.androidcore.data.api.EnvironmentConfig
 import timber.log.Timber
-import java.lang.Exception
 
-class GoogleReCaptchaClient(private val activity: Activity) {
+class GoogleReCaptchaClient(private val activity: Activity, private val environmentConfig: EnvironmentConfig) {
     private lateinit var recaptchaHandle: RecaptchaHandle
 
     fun initReCaptcha() {
@@ -36,6 +37,15 @@ class GoogleReCaptchaClient(private val activity: Activity) {
                 .execute(recaptchaHandle, RecaptchaAction(RecaptchaActionType(RecaptchaActionType.LOGIN)))
                 .addOnSuccessListener(onSuccess)
                 .addOnFailureListener(onError)
+        } else {
+            // workaround for getting past re-captcha on staging
+            if (environmentConfig.isRunningInDebugMode() && environmentConfig.environment == Environment.STAGING) {
+                onSuccess(RecaptchaResultData(DUMMY_RESULT))
+            }
         }
+    }
+
+    companion object {
+        private const val DUMMY_RESULT = "1234"
     }
 }

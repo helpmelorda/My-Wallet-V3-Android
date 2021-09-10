@@ -182,3 +182,11 @@ fun ExchangeRate.hasSameSourceAndTarget(other: ExchangeRate): Boolean =
 
 fun ExchangeRate.hasOppositeSourceAndTarget(other: ExchangeRate): Boolean =
     this.hasSameSourceAndTarget(other.inverse())
+
+fun ExchangeRate.canConvert(value: Money): Boolean =
+    when (this) {
+        is ExchangeRate.FiatToCrypto -> value.currencyCode == this.from
+        is ExchangeRate.CryptoToFiat -> (value is CryptoValue && value.currency == this.from)
+        is ExchangeRate.FiatToFiat -> (value is FiatValue && value.currencyCode == this.from)
+        is ExchangeRate.CryptoToCrypto -> (value is CryptoValue && value.currency == this.from)
+    }

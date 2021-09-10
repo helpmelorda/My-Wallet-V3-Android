@@ -13,6 +13,7 @@ import com.blockchain.notifications.analytics.Analytics
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.koin.core.error.ClosedScopeException
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.ui.base.BlockchainActivity
 import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
@@ -55,7 +56,11 @@ abstract class MviFragment<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E
     }
 
     override fun onDestroy() {
-        model.destroy()
+        try {
+            model.destroy()
+        } catch (e: ClosedScopeException) {
+            Timber.e("Attempting to access model on a closed scope")
+        }
         super.onDestroy()
         _binding = null
     }

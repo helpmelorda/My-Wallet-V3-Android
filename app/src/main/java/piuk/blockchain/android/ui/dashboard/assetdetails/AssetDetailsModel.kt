@@ -27,7 +27,6 @@ data class AssetDetailsState(
     val assetDetailsCurrentStep: AssetDetailsStep = AssetDetailsStep.ZERO,
     val assetDisplayMap: AssetDisplayMap? = null,
     val recurringBuys: Map<String, RecurringBuy>? = null,
-    val assetFiatPrice: String = "",
     val timeSpan: HistoricalTimeSpan = HistoricalTimeSpan.DAY,
     val chartLoading: Boolean = false,
     val chartData: HistoricalRateList = emptyList(),
@@ -46,11 +45,10 @@ enum class AssetDetailsError {
     NONE,
     NO_CHART_DATA,
     NO_ASSET_DETAILS,
-    NO_EXCHANGE_RATE,
     TX_IN_FLIGHT,
     NO_RECURRING_BUYS,
     RECURRING_BUY_DELETE,
-    NO_PRICE_DELTA
+    NO_PRICE_DATA
 }
 
 class AssetDetailsModel(
@@ -87,10 +85,9 @@ class AssetDetailsModel(
             is UpdateTimeSpan -> previousState.asset?.let { updateChartData(it, intent.updatedTimeSpan) }
             is LoadAsset -> {
                 updateChartData(intent.asset, previousState.timeSpan)
-                loadFiatExchangeRate(intent.asset)
+                load24hPriceDelta(intent.asset)
                 loadAssetDetails(intent.asset)
                 loadRecurringBuysForAsset(intent.asset)
-                load24hPriceDelta(intent.asset)
             }
             is DeleteRecurringBuy -> {
                 previousState.selectedRecurringBuy?.let {
@@ -108,8 +105,6 @@ class AssetDetailsModel(
             is ChartDataLoadFailed,
             is AssetDisplayDetailsLoaded,
             is AssetDisplayDetailsFailed,
-            is AssetExchangeRateLoaded,
-            is AssetExchangeRateFailed,
             is ShowAssetDetailsIntent,
             is ShowCustodyIntroSheetIntent,
             is SelectAccount,
@@ -178,15 +173,6 @@ class AssetDetailsModel(
                 },
                 onError = {
                     process(AssetDisplayDetailsFailed)
-                })
-
-    private fun loadFiatExchangeRate(asset: CryptoAsset) =
-        interactor.loadExchangeRate(asset)
-            .subscribeBy(
-                onSuccess = {
-                    process(AssetExchangeRateLoaded(it))
-                }, onError = {
-                    process(AssetExchangeRateFailed)
                 })
 
     private fun loadRecurringBuysForAsset(asset: CryptoAsset): Disposable =

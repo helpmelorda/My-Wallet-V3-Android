@@ -204,12 +204,13 @@ class LauncherPresenter(
     private fun saveInitialCountry(isWalletJustCreated: Boolean): Single<Boolean> {
         val countrySelected = walletPrefs.countrySelectedOnSignUp
         return if (countrySelected.isNotEmpty()) {
-            Timber.e("saveInitialCountry")
             val stateSelected = walletPrefs.stateSelectedOnSignUp
             nabuUserDataManager.saveUserInitialLocation(
                 countrySelected,
                 stateSelected.takeIf { it.isNotEmpty() }
-            ).onErrorComplete().toSingleDefault(isWalletJustCreated)
+            ).doOnComplete {
+                prefs.clearGeolocationPreferences()
+            }.onErrorComplete().toSingleDefault(isWalletJustCreated)
         } else {
             Single.just(isWalletJustCreated)
         }

@@ -2,16 +2,20 @@ package piuk.blockchain.android.ui.createwallet
 
 import android.app.LauncherActivity
 import androidx.annotation.StringRes
+import com.blockchain.api.services.Geolocation
+import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.Logging
-import com.blockchain.preferences.WalletStatus
 import info.blockchain.wallet.util.PasswordUtil
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.base.View
+import piuk.blockchain.android.ui.createwallet.CreateWalletActivity.Companion.CODE_US
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.androidcore.data.access.AccessState
@@ -29,6 +33,7 @@ interface CreateWalletView : View {
     fun showProgressDialog(message: Int)
     fun dismissProgressDialog()
     fun getDefaultAccountName(): String
+    fun setGeolocationInCountrySpinner(geolocation: Geolocation)
 }
 
 class CreateWalletPresenter(
@@ -38,13 +43,26 @@ class CreateWalletPresenter(
     private val accessState: AccessState,
     private val prngFixer: PrngFixer,
     private val analytics: Analytics,
-    private val walletPrefs: WalletStatus,
     private val environmentConfig: EnvironmentConfig,
-    private val formatChecker: FormatChecker
+    private val formatChecker: FormatChecker,
+    private val nabuUserDataManager: NabuUserDataManager
 ) : BasePresenter<CreateWalletView>() {
 
     override fun onViewReady() {
         // No-op
+    }
+
+    fun getUserGeolocation() {
+        nabuUserDataManager.getUserGeolocation()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()).subscribeBy(
+                onSuccess = { geolocation ->
+                    view.setGeolocationInCountrySpinner(geolocation)
+                },
+                onError = {
+                    Timber.e(it.localizedMessage)
+                }
+            )
     }
 
     fun validateCredentials(email: String, password1: String, password2: String): Boolean =
@@ -52,10 +70,10 @@ class CreateWalletPresenter(
             !formatChecker.isValidEmailAddress(email) -> {
                 view.showError(R.string.invalid_email); false
             }
-            password1.length < 4 -> {
+            password1.length < MIN_PWD_LENGTH -> {
                 view.showError(R.string.invalid_password_too_short); false
             }
-            password1.length > 255 -> {
+            password1.length > MAX_PWD_LENGTH -> {
                 view.showError(R.string.invalid_password); false
             }
             password1 != password2 -> {
@@ -67,41 +85,67 @@ class CreateWalletPresenter(
             else -> true
         }
 
+    fun validateGeoLocation(countryCode: String? = null, stateCode: String? = null): Boolean =
+        when {
+            countryCode.isNullOrBlank() -> {
+                view.showError(R.string.country_not_selected)
+                false
+            }
+            countryCode == CODE_US && stateCode.isNullOrBlank() -> {
+                view.showError(R.string.state_not_selected)
+                false
+            }
+            else -> true
+        }
+
     fun createOrRestoreWallet(
         email: String,
         password: String,
-        recoveryPhrase: String
+        recoveryPhrase: String,
+        countryCode: String,
+        stateIsoCode: String? = null
     ) =
         when {
             recoveryPhrase.isNotEmpty() -> recoverWallet(email, password, recoveryPhrase)
-            else -> createWallet(email, password)
+            else -> createWallet(email, password, countryCode, stateIsoCode)
         }
 
     private fun createWallet(
-        email: String,
-        password: String
+        emailEntered: String,
+        password: String,
+        countryCode: String,
+        stateIsoCode: String? = null
     ) {
+
         analytics.logEventOnce(AnalyticsEvents.WalletSignupCreated)
         prngFixer.applyPRNGFixes()
 
-        compositeDisposable += payloadDataManager.createHdWallet(password, view.getDefaultAccountName(), email)
-            .doOnSuccess {
-                analytics.logEvent(WalletCreationEvent.WalletSignUp)
-                accessState.isNewlyCreated = true
-                prefs.walletGuid = payloadDataManager.wallet!!.guid
-                prefs.sharedKey = payloadDataManager.wallet!!.sharedKey
-            }
+        compositeDisposable += payloadDataManager.createHdWallet(
+            password,
+            view.getDefaultAccountName(),
+            emailEntered
+        )
             .doOnSubscribe { view.showProgressDialog(R.string.creating_wallet) }
             .doOnTerminate { view.dismissProgressDialog() }
-            .subscribe(
-                {
-                    walletPrefs.setNewUser()
-                    prefs.email = email
+            .subscribeBy(
+                onSuccess = {
+                    accessState.isNewlyCreated = true
+                    analytics.logEvent(WalletCreationAnalytics.WalletSignUp(countryCode, stateIsoCode))
+                    prefs.apply {
+                        payloadDataManager.wallet?.let {
+                            walletGuid = it.guid
+                            sharedKey = it.sharedKey
+                        }
+                        setNewUser()
+                        countrySelectedOnSignUp = countryCode
+                        stateIsoCode?.let { stateSelectedOnSignUp = it }
+                        email = emailEntered
+                    }
+                    analytics.logEvent(AnalyticsEvents.WalletCreation)
                     view.startPinEntryActivity()
                     Logging.logSignUp(true)
-                    analytics.logEvent(AnalyticsEvents.WalletCreation)
                 },
-                {
+                onError = {
                     Timber.e(it)
                     view.showError(R.string.hd_error)
                     appUtil.clearCredentialsAndRestart(LauncherActivity::class.java)
@@ -110,42 +154,59 @@ class CreateWalletPresenter(
             )
     }
 
-    private fun recoverWallet(email: String, password: String, recoveryPhrase: String) {
+    private fun recoverWallet(
+        emailEntered: String,
+        password: String,
+        recoveryPhrase: String
+    ) {
         compositeDisposable += payloadDataManager.restoreHdWallet(
             recoveryPhrase,
             view.getDefaultAccountName(),
-            email,
+            emailEntered,
             password
-        ).doOnSuccess {
-            accessState.isNewlyCreated = true
-            accessState.isRestored = true
-            prefs.walletGuid = payloadDataManager.wallet!!.guid
-            prefs.sharedKey = payloadDataManager.wallet!!.sharedKey
-        }.doOnSubscribe {
-            view.showProgressDialog(R.string.restoring_wallet)
-        }.doOnTerminate {
-            view.dismissProgressDialog()
-        }.subscribeBy(
-            onSuccess = {
-                prefs.email = email
-                prefs.isOnBoardingComplete = true
-                view.startPinEntryActivity()
-                analytics.logEvent(WalletCreationEvent.RecoverWalletEvent(true))
-            },
-            onError = {
-                Timber.e(it)
-                view.showError(R.string.restore_failed)
-                analytics.logEvent(WalletCreationEvent.RecoverWalletEvent(false))
-            }
         )
+            .doOnSubscribe {
+                view.showProgressDialog(R.string.restoring_wallet)
+            }.doOnTerminate {
+                view.dismissProgressDialog()
+            }.subscribeBy(
+                onSuccess = { wallet ->
+                    accessState.isNewlyCreated = true
+                    accessState.isRestored = true
+                    prefs.apply {
+                        payloadDataManager.wallet?.let {
+                            walletGuid = it.guid
+                            sharedKey = it.sharedKey
+                        }
+                        email = emailEntered
+                        isOnBoardingComplete = true
+                    }
+                    view.startPinEntryActivity()
+                    analytics.logEvent(WalletCreationAnalytics.RecoverWalletAnalytics(true))
+                },
+                onError = {
+                    Timber.e(it)
+                    view.showError(R.string.restore_failed)
+                    analytics.logEvent(WalletCreationAnalytics.RecoverWalletAnalytics(false))
+                }
+            )
     }
 
     fun logEventEmailClicked() = analytics.logEventOnce(AnalyticsEvents.WalletSignupClickEmail)
-    fun logEventPasswordOneClicked() = analytics.logEventOnce(AnalyticsEvents.WalletSignupClickPasswordFirst)
-    fun logEventPasswordTwoClicked() = analytics.logEventOnce(AnalyticsEvents.WalletSignupClickPasswordSecond)
+
+    fun logEventPasswordOneClicked() =
+        analytics.logEventOnce(AnalyticsEvents.WalletSignupClickPasswordFirst)
+
+    fun logEventPasswordTwoClicked() =
+        analytics.logEventOnce(AnalyticsEvents.WalletSignupClickPasswordSecond)
 
     private fun Int.isStrongEnough(): Boolean {
         val limit = if (environmentConfig.isRunningInDebugMode()) 1 else 50
         return this >= limit
+    }
+
+    companion object {
+        private const val MIN_PWD_LENGTH = 4
+        private const val MAX_PWD_LENGTH = 255
     }
 }

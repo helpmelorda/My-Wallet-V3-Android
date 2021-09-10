@@ -49,6 +49,8 @@ android {
 dependencies {
     implementation project(':common:interface')
     implementation project(':core')
+    implementation project(':wallet')
+    implementation project(':balance')
 
     api Libraries.firebaseCore
     api Libraries.firebaseMessaging
@@ -61,6 +63,11 @@ dependencies {
 
     implementation Libraries.koinAndroid
     implementation Libraries.timber
+
+    // RxJava
+    implementation Libraries.rxJava
+    implementation Libraries.rxKotlin
+    implementation Libraries.rxAndroid
 
     // Unit Test dependencies
     testImplementation project(':testutils')

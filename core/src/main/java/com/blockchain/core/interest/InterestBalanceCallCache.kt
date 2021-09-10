@@ -9,7 +9,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Single
 
-typealias AssetInterestBalanceMap = Map<AssetInfo, InterestBalance>
+typealias AssetInterestBalanceMap = Map<AssetInfo, InterestAccountBalance>
 
 internal class InterestBalanceCallCache(
     private val balanceService: InterestService,
@@ -47,10 +47,11 @@ internal class InterestBalanceCallCache(
 }
 
 private fun InterestBalanceDetails.toInterestBalance(asset: AssetInfo) =
-    InterestBalance(
+    InterestAccountBalance(
         totalBalance = CryptoValue.fromMinor(asset, totalBalance),
         pendingInterest = CryptoValue.fromMinor(asset, pendingInterest),
         pendingDeposit = CryptoValue.fromMinor(asset, pendingDeposit),
         totalInterest = CryptoValue.fromMinor(asset, totalInterest),
-        lockedBalance = CryptoValue.fromMinor(asset, lockedBalance)
+        lockedBalance = CryptoValue.fromMinor(asset, lockedBalance),
+        hasTransactions = true
     )

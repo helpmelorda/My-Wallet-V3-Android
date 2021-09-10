@@ -9,13 +9,12 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody.Companion.toResponseBody
-
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import retrofit2.Response
+import piuk.blockchain.androidcore.utils.extensions.AuthRequiredException
 
 class LoginAuthModelTest {
     private lateinit var model: LoginAuthModel
@@ -47,42 +46,50 @@ class LoginAuthModelTest {
     fun `get session ID and payload`() {
         // Arrange
         val sessionId = "SESSION_ID"
-        val guid = "GUID"
-        val authToken = "TOKEN"
-        val responseBody = EMPTY_RESPONSE.toResponseBody(JSON_HEADER.toMediaTypeOrNull())
+        whenever(interactor.getAuthInfo(INPUT_JSON)).thenReturn(
+            Single.just(testAuthInfo)
+        )
         whenever(interactor.getSessionId()).thenReturn(sessionId)
-        whenever(interactor.authorizeApproval(authToken, sessionId)).thenReturn(
-            Single.just(Response.success(responseBody))
+        whenever(interactor.authorizeApproval(AUTH_TOKEN, sessionId)).thenReturn(
+            Single.just(mock())
         )
-        whenever(interactor.getPayLoad(anyString(), anyString())).thenReturn(
-            Single.just(Response.success(responseBody))
+        whenever(interactor.getPayload(GUID, sessionId)).thenReturn(
+            Single.just(mock())
         )
+        whenever(interactor.getRemaining2FaRetries()).thenReturn(0)
 
         val testState = model.state.test()
-        model.process(LoginAuthIntents.GetSessionId(guid, authToken))
+        model.process(LoginAuthIntents.InitLoginAuthInfo(INPUT_JSON))
 
         // Assert
         testState.assertValues(
             LoginAuthState(),
-            LoginAuthState(guid = guid, authToken = authToken, authStatus = AuthStatus.GetSessionId),
+            LoginAuthState(authStatus = AuthStatus.InitAuthInfo),
             LoginAuthState(
-                guid = guid,
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
+                authToken = AUTH_TOKEN,
+                authStatus = AuthStatus.GetSessionId
+            ),
+            LoginAuthState(
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
-                authToken = authToken,
+                authToken = AUTH_TOKEN,
                 authStatus = AuthStatus.AuthorizeApproval
             ),
             LoginAuthState(
-                guid = guid,
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
-                authToken = authToken,
+                authToken = AUTH_TOKEN,
                 authStatus = AuthStatus.GetPayload
-            ),
-            LoginAuthState(
-                guid = guid,
-                sessionId = sessionId,
-                authToken = authToken,
-                authStatus = AuthStatus.GetPayload,
-                payloadJson = EMPTY_RESPONSE
             )
         )
     }
@@ -91,39 +98,70 @@ class LoginAuthModelTest {
     fun `auth fail to get payload`() {
         // Arrange
         val sessionId = "SESSION_ID"
-        val guid = "GUID"
-        val authToken = "TOKEN"
-        val responseBody = EMPTY_RESPONSE.toResponseBody(JSON_HEADER.toMediaTypeOrNull())
-        whenever(interactor.getSessionId()).thenReturn(sessionId)
-        whenever(interactor.authorizeApproval(authToken, sessionId)).thenReturn(
-            Single.just(Response.success(responseBody))
+        val twoFaState = TwoFaCodeState.TwoFaRemainingTries(remainingRetries = 3)
+
+        whenever(interactor.getAuthInfo(INPUT_JSON)).thenReturn(
+            Single.just(testAuthInfo)
         )
-        whenever(interactor.getPayLoad(guid, sessionId)).thenReturn(Single.error(Exception()))
+        whenever(interactor.getSessionId()).thenReturn(sessionId)
+        whenever(interactor.authorizeApproval(AUTH_TOKEN, sessionId)).thenReturn(
+            Single.just(mock())
+        )
+        whenever(interactor.getPayload(GUID, sessionId)).thenReturn(Single.error(AuthRequiredException()))
+        whenever(interactor.reset2FaRetries()).thenReturn(Completable.complete())
+        whenever(interactor.getRemaining2FaRetries()).thenReturn(3)
 
         val testState = model.state.test()
-        model.process(LoginAuthIntents.GetSessionId(guid, authToken))
+        model.process(LoginAuthIntents.InitLoginAuthInfo(INPUT_JSON))
 
         // Assert
         testState.assertValues(
             LoginAuthState(),
-            LoginAuthState(guid = guid, authToken = authToken, authStatus = AuthStatus.GetSessionId),
+            LoginAuthState(authStatus = AuthStatus.InitAuthInfo),
             LoginAuthState(
-                guid = guid,
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
+                authToken = AUTH_TOKEN,
+                authStatus = AuthStatus.GetSessionId
+            ),
+            LoginAuthState(
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
-                authToken = authToken,
+                authToken = AUTH_TOKEN,
                 authStatus = AuthStatus.AuthorizeApproval
             ),
             LoginAuthState(
-                guid = guid,
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
-                authToken = authToken,
+                authToken = AUTH_TOKEN,
                 authStatus = AuthStatus.GetPayload
             ),
             LoginAuthState(
-                guid = guid,
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
-                authToken = authToken,
-                authStatus = AuthStatus.AuthFailed
+                authToken = AUTH_TOKEN,
+                authStatus = AuthStatus.AuthRequired
+            ),
+            LoginAuthState(
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
+                sessionId = sessionId,
+                authToken = AUTH_TOKEN,
+                authStatus = AuthStatus.AuthRequired,
+                twoFaState = twoFaState
             )
         )
     }
@@ -273,18 +311,78 @@ class LoginAuthModelTest {
         )
     }
 
+    @Test
+    fun `request new 2fa code reduces counter`() {
+        val retries = 3
+        val reducedRetry = 2
+        whenever(interactor.requestNew2FaCode(anyString(), anyString())).thenReturn(
+            Single.just(mock())
+        )
+        whenever(interactor.getRemaining2FaRetries())
+            .thenReturn(retries)
+            .thenReturn(reducedRetry)
+
+        val testState = model.state.test()
+        model.process(LoginAuthIntents.RequestNew2FaCode)
+        model.process(LoginAuthIntents.RequestNew2FaCode)
+
+        testState.assertValues(
+            LoginAuthState(),
+            LoginAuthState(
+                twoFaState = TwoFaCodeState.TwoFaRemainingTries(retries)
+            ),
+            LoginAuthState(
+                twoFaState = TwoFaCodeState.TwoFaRemainingTries(reducedRetry)
+            )
+        )
+    }
+
+    @Test
+    fun `request new 2fa retries exhausted`() {
+        whenever(interactor.requestNew2FaCode(anyString(), anyString())).thenReturn(
+            Single.just(mock())
+        )
+
+        val retries = 0
+        whenever(interactor.getRemaining2FaRetries())
+            .thenReturn(retries)
+
+        val testState = model.state.test()
+        model.process(LoginAuthIntents.RequestNew2FaCode)
+
+        testState.assertValues(
+            LoginAuthState(),
+            LoginAuthState(
+                twoFaState = TwoFaCodeState.TwoFaTimeLock
+            )
+        )
+    }
+
     companion object {
-
-        private const val EMPTY_RESPONSE = "{}"
-
         private const val JSON_HEADER = "application/json"
-
-        private const val INITIAL_ERROR_MESSAGE = "This is an error"
-
-        private const val INITIAL_ERROR_RESPONSE = "{\"initial_error\":\"$INITIAL_ERROR_MESSAGE\"}"
 
         private const val TWO_FA_PAYLOAD = "{\"payload\":\"{auth_type: 4}\"}"
 
         private const val DEVICE_TYPE_ANDROID = 2
+
+        private const val GUID = "guid"
+        private const val EMAIL = "email"
+        private const val AUTH_TOKEN = "authToken"
+        private const val USER_ID = "userId"
+        private const val RECOVERY_TOKEN = "guid"
+
+        private val testAuthInfo = LoginAuthInfo.ExtendedAccountInfo(
+            accountWallet = AccountWalletInfo(
+                guid = GUID,
+                email = EMAIL,
+                authToken = AUTH_TOKEN,
+                nabuAccountInfo = NabuAccountInfo(
+                    userId = USER_ID,
+                    recoveryToken = RECOVERY_TOKEN
+                )
+            )
+        )
+
+        private const val INPUT_JSON = "{\"wallet\":{...}}"
     }
 }

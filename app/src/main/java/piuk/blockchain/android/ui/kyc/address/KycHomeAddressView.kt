@@ -16,6 +16,8 @@ interface KycHomeAddressView : View {
 
     fun showErrorToast(@StringRes message: Int)
 
+    fun showInvalidPostcode()
+
     fun dismissProgressDialog()
 
     fun showProgressDialog()

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/standard_margin"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/toolbar_general"
+        layout="@layout/toolbar_general"
+        android:fitsSystemWindows="true" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/zendesk_title"
+        style="@style/Text.Semibold.20"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/standard_margin"
+        android:text="@string/zendesk_subject_title" />
+
+    <View
+        style="@style/SeparatorWithoutMargins"
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
+
+    <RadioGroup
+        android:id="@+id/zendesk_options"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <RadioButton
+            android:id="@+id/zendesk_option1"
+            style="@style/Text.Semibold.16"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
+            android:drawablePadding="@dimen/small_margin"
+            android:paddingStart="@dimen/standard_margin"
+            android:paddingTop="@dimen/medium_margin"
+            android:paddingEnd="@dimen/standard_margin"
+            android:paddingBottom="@dimen/medium_margin"
+            android:text="@string/zendesk_subject_option1" />
+
+        <View
+            style="@style/SeparatorWithoutMargins"
+            android:layout_width="match_parent"
+            android:layout_height="1dp" />
+
+        <RadioButton
+            android:id="@+id/zendesk_option2"
+            style="@style/Text.Semibold.16"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
+            android:drawablePadding="@dimen/small_margin"
+            android:paddingStart="@dimen/standard_margin"
+            android:paddingTop="@dimen/medium_margin"
+            android:paddingEnd="@dimen/standard_margin"
+            android:paddingBottom="@dimen/medium_margin"
+            android:text="@string/zendesk_subject_option2" />
+
+        <View
+            style="@style/SeparatorWithoutMargins"
+            android:layout_width="match_parent"
+            android:layout_height="1dp" />
+
+        <RadioButton
+            android:id="@+id/zendesk_option3"
+            style="@style/Text.Semibold.16"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
+            android:drawablePadding="@dimen/small_margin"
+            android:paddingStart="@dimen/standard_margin"
+            android:paddingTop="@dimen/medium_margin"
+            android:paddingEnd="@dimen/standard_margin"
+            android:paddingBottom="@dimen/medium_margin"
+            android:text="@string/zendesk_subject_option3" />
+
+        <View
+            style="@style/SeparatorWithoutMargins"
+            android:layout_width="match_parent"
+            android:layout_height="1dp" />
+
+        <RadioButton
+            android:id="@+id/zendesk_option4"
+            style="@style/Text.Semibold.16"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
+            android:drawablePadding="@dimen/small_margin"
+            android:paddingStart="@dimen/standard_margin"
+            android:paddingTop="@dimen/medium_margin"
+            android:paddingEnd="@dimen/standard_margin"
+            android:paddingBottom="@dimen/medium_margin"
+            android:text="@string/zendesk_subject_option4" />
+
+        <View
+            style="@style/SeparatorWithoutMargins"
+            android:layout_width="match_parent"
+            android:layout_height="1dp" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/zendesk_continue"
+        style="@style/CtaButton.Blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:enabled="false"
+        android:text="@string/common_continue" />
+
+</LinearLayout>
+

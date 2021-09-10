@@ -12,8 +12,8 @@ import piuk.blockchain.android.databinding.ItemDashboardFundsBinding
 import piuk.blockchain.android.databinding.ItemDashboardFundsBorderedBinding
 import piuk.blockchain.android.databinding.ItemDashboardFundsParentBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.ui.dashboard.FiatAssetState
-import piuk.blockchain.android.ui.dashboard.FiatBalanceInfo
+import piuk.blockchain.android.ui.dashboard.model.FiatAssetState
+import piuk.blockchain.android.ui.dashboard.model.FiatBalanceInfo
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visibleIf

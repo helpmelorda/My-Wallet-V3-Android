@@ -81,11 +81,7 @@ Tests to run on CI blockchainApi
 fastlane android ci_test_core
 ```
 Tests to run on CI core
-### android ci_test_nabu
 ```
-fastlane android ci_test_nabu
-```
-Tests to run on CI nabu
 ### android ci_test_notifications
 ```
 fastlane android ci_test_notifications

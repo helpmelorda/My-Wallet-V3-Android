@@ -4,7 +4,9 @@ import com.blockchain.core.price.ExchangeRates
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import piuk.blockchain.android.coincore.AccountBalance
 import piuk.blockchain.android.coincore.AccountGroup
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.AssetAction
@@ -19,6 +21,9 @@ class AllWalletsAccount(
 ) : AccountGroup {
 
     override val label: String = labels.getAllWalletLabel()
+
+    override val balance: Observable<AccountBalance>
+        get() = Observable.error(NotImplementedError("No unified balance for All Wallets meta account"))
 
     override val accountBalance: Single<Money>
         get() = Single.error(NotImplementedError("No unified balance for All Wallets meta account"))

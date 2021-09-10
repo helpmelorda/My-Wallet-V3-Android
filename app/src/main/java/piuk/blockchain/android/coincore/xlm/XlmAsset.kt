@@ -70,9 +70,6 @@ internal class XlmAsset(
     override val isCustodialOnly: Boolean = asset.isCustodialOnly
     override val multiWallet: Boolean = false
 
-    override fun initToken(): Completable =
-        Completable.complete()
-
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         xlmDataManager.defaultAccount()
             .map {

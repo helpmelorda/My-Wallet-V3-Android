@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine.sell
 
+import androidx.annotation.VisibleForTesting
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.service.TierService
@@ -19,9 +20,12 @@ import piuk.blockchain.android.coincore.impl.txEngine.TransferQuotesEngine
 import piuk.blockchain.android.coincore.updateTxValidity
 
 class OnChainSellTxEngine(
-    private val engine: OnChainTxEngineBase,
-    walletManager: CustodialWalletManager,
-    kycTierService: TierService,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val engine: OnChainTxEngineBase,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val walletManager: CustodialWalletManager,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val kycTierService: TierService,
     quotesEngine: TransferQuotesEngine
 ) : SellTxEngineBase(
     walletManager, kycTierService, quotesEngine

@@ -76,8 +76,8 @@
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/progress"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="@dimen/animated_loader_view"
+        android:layout_height="@dimen/animated_loader_view"
         android:layout_gravity="center"
         app:lottie_autoPlay="true"
         app:lottie_repeatMode="restart"

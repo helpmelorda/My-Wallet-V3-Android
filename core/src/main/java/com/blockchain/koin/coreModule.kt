@@ -41,12 +41,12 @@ import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.util.PrivateKeyFactory
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import piuk.blockchain.androidcore.BuildConfig
+import piuk.blockchain.core.BuildConfig
 import piuk.blockchain.androidcore.data.access.AccessState
 import piuk.blockchain.androidcore.data.access.AccessStateImpl
 import piuk.blockchain.androidcore.data.access.LogoutTimer
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
-import piuk.blockchain.androidcore.data.auth.AuthService
+import piuk.blockchain.androidcore.data.auth.WalletAuthService
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.impl.AssetPriceStore
@@ -54,6 +54,8 @@ import com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl
 import com.blockchain.core.price.impl.SparklineCallCache
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
+import com.blockchain.common.util.AndroidDeviceIdGenerator
+import com.blockchain.preferences.AppInfoPrefs
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -98,7 +100,7 @@ val coreModule = module {
     single { SSLPinningSubject() }.bind(SSLPinningObservable::class).bind(SSLPinningEmitter::class)
 
     factory {
-        AuthService(
+        WalletAuthService(
             walletApi = get()
         )
     }
@@ -110,6 +112,7 @@ val coreModule = module {
         factory {
             TradingBalanceCallCache(
                 balanceService = get(),
+                assetCatalogue = get(),
                 authHeaderProvider = get()
             )
         }
@@ -146,7 +149,8 @@ val coreModule = module {
 
         factory {
             Erc20BalanceCallCache(
-                erc20Service = get()
+                erc20Service = get(),
+                assetCatalogue = get()
             )
         }
 
@@ -260,7 +264,8 @@ val coreModule = module {
         factory {
             AuthDataManager(
                 prefs = get(),
-                authService = get(),
+                authApiService = get(),
+                walletAuthService = get(),
                 accessState = get(),
                 aesUtilWrapper = get(),
                 prngHelper = get(),
@@ -312,8 +317,14 @@ val coreModule = module {
     }
 
     factory {
+        AndroidDeviceIdGenerator(
+            ctx = get()
+        )
+    }
+
+    factory {
         DeviceIdGeneratorImpl(
-            ctx = get(),
+            platformDeviceIdGenerator = get(),
             analytics = get()
         )
     }.bind(DeviceIdGenerator::class)
@@ -344,6 +355,7 @@ val coreModule = module {
         .bind(WalletStatus::class)
         .bind(EncryptedPrefs::class)
         .bind(AuthPrefs::class)
+        .bind(AppInfoPrefs::class)
         .bind(BankLinkingPrefs::class)
         .bind(InternalFeatureFlagPrefs::class)
         .bind(SecureChannelPrefs::class)

@@ -12,6 +12,7 @@ import info.blockchain.wallet.bch.BchMainNetParams
 import info.blockchain.wallet.bch.CashAddress
 import info.blockchain.wallet.coin.GenericMetadataAccount
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.bitcoinj.core.LegacyAddress
 import piuk.blockchain.android.coincore.ActivitySummaryList
@@ -52,6 +53,13 @@ internal class BchCryptoWalletAccount private constructor(
     override val label: String
         get() = internalAccount.label
 
+    override fun getOnChainBalance(): Observable<Money> =
+        Single.fromCallable { internalAccount.xpubs() }
+            .flatMap { xpub -> bchManager.getBalance(xpub) }
+            .map { CryptoValue.fromMinor(asset, it) as Money }
+            .doOnSuccess { hasFunds.set(it.isPositive) }
+            .toObservable()
+
     override val isArchived: Boolean
         get() = internalAccount.isArchived
 
@@ -61,18 +69,6 @@ internal class BchCryptoWalletAccount private constructor(
     override val isFunded: Boolean
         get() = hasFunds.get()
 
-    override val accountBalance: Single<Money>
-        get() = Single.fromCallable { internalAccount.xpubs() }
-            .flatMap { xpub -> bchManager.getBalance(xpub) }
-            .map { CryptoValue.fromMinor(CryptoCurrency.BCH, it) }
-            .doOnSuccess {
-                hasFunds.set(it > CryptoValue.zero(CryptoCurrency.BCH))
-            }
-            .map { it }
-
-    override val actionableBalance: Single<Money>
-        get() = accountBalance
-
     override val receiveAddress: Single<ReceiveAddress>
         get() = bchManager.getNextReceiveAddress(
             addressIndex
@@ -80,7 +76,7 @@ internal class BchCryptoWalletAccount private constructor(
             val networkParams = BchMainNetParams.get()
             val address = LegacyAddress.fromBase58(networkParams, it)
             CashAddress.fromLegacyAddress(address)
-        }.singleOrError()
+        }.firstOrError()
             .map {
                 BchAddress(address_ = it, label = label)
             }

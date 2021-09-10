@@ -16,8 +16,12 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflags.GatedFeature
+import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.mwaFeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -31,13 +35,16 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.Database
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.coincore.AssetAction
@@ -52,6 +59,7 @@ import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SmallSimpleBuyNavigator
+import piuk.blockchain.android.ui.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.activity.ActivitiesFragment
 import piuk.blockchain.android.ui.addresses.AccountActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
@@ -62,6 +70,7 @@ import piuk.blockchain.android.ui.base.SlidingModalBottomDialog
 import piuk.blockchain.android.ui.customviews.ToastCustom
 import piuk.blockchain.android.ui.customviews.toast
 import piuk.blockchain.android.ui.dashboard.DashboardFragment
+import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.home.analytics.SideNavEvent
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -100,6 +109,7 @@ import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.gone
 import piuk.blockchain.android.util.visible
+import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
 import timber.log.Timber
 import java.net.URLDecoder
 
@@ -110,6 +120,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     SlidingModalBottomDialog.Host,
     UpsellHost,
     AuthNewLoginSheet.Host,
+    AccountWalletLinkAlertSheet.Host,
     SmallSimpleBuyNavigator {
 
     private val binding: ActivityMainBinding by lazy {
@@ -118,8 +129,13 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override val presenter: MainPresenter by scopedInject()
     private val qrProcessor: QrScanResultProcessor by scopedInject()
+    private val userIdentity: NabuUserIdentity by scopedInject()
     private val mwaFF: FeatureFlag by inject(mwaFeatureFlag)
     private val txLauncher: TransactionLauncher by inject()
+    private val database: Database by inject()
+
+    @Suppress("unused")
+    private val gatedFeatures: InternalFeatureFlagApi by inject()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -196,6 +212,10 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             analytics.logEvent(NotificationAppOpened)
         }
 
+        if (savedInstanceState == null) {
+            presenter.checkForPendingLinks(intent)
+        }
+
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 // No-op
@@ -257,6 +277,14 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 isMWAEnabled = false
             }
         ))
+        compositeDisposable += userIdentity.checkForUserWalletLinkErrors()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onComplete = {
+                    // Nothing to do here
+                },
+                onError = { throwable -> presenter.checkForAccountWalletLinkErrors(throwable) }
+            )
     }
 
     override fun onResume() {
@@ -275,11 +303,6 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
         }
 
         handlingResult = false
-
-        intent.data?.let {
-            presenter.checkForPendingLinks(intent)
-            intent.data = null
-        }
     }
 
     override fun onDestroy() {
@@ -365,7 +388,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     private fun launchDashboardFlow(action: AssetAction, currency: String?) {
         currency?.let {
             launchDashboard()
-            val fragment = DashboardFragment.newInstance(action, it)
+            val fragment = createDashboardFragment(action, it)
             showFragment(fragment)
         }
     }
@@ -378,7 +401,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
                 true
             }
 
-            f is DashboardFragment -> f.onBackPressed()
+            f is DashboardFragment -> false
+            f is PortfolioFragment -> f.onBackPressed()
 
             else -> {
                 // Switch to dashboard fragment
@@ -415,6 +439,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             R.id.nav_support -> onSupportClicked()
             R.id.nav_logout -> showLogoutDialog()
             R.id.nav_interest -> launchInterestDashboard()
+            R.id.nav_debug_menu -> startActivity(Intent(this, FeatureFlagsHandlingActivity::class.java))
         }
         binding.drawerLayout.closeDrawers()
     }
@@ -436,6 +461,7 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             .setPositiveButton(R.string.btn_logout) { _, _ ->
                 analytics.logEvent(AnalyticsEvents.Logout)
                 presenter.unPair()
+                database.historicRateQueries.clear()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
@@ -443,14 +469,32 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     private fun onSupportClicked() {
         analytics.logEvent(AnalyticsEvents.Support)
-        calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)
+
+        compositeDisposable += Singles.zip(
+            userIdentity.isEligibleFor(Feature.SimpleBuy),
+            userIdentity.getBasicProfileInformation()
+        )
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onSuccess = { (isSimpleBuyEligible, userInformation) ->
+                    if (isSimpleBuyEligible) {
+                        startActivity(ZendeskSubjectActivity.newInstance(this, userInformation))
+                    } else {
+                        calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)
+                    }
+                }, onError = {
+                    calloutToExternalSupportLinkDlg(this, URL_BLOCKCHAIN_SUPPORT_PORTAL)
+                }
+            )
     }
 
     private fun resetUi() {
         // Set selected appropriately.
         with(binding.bottomNavigation) {
             val currentItem = when (currentFragment) {
-                is DashboardFragment -> R.id.nav_home
+                is DashboardFragment,
+                is PortfolioFragment -> R.id.nav_home
                 is ActivitiesFragment -> R.id.nav_activity
                 is TransferFragment -> R.id.nav_transfer
                 is BuySellFragment -> R.id.nav_buy_and_sell
@@ -572,8 +616,8 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
             )
     }
 
-    override fun showHomebrewDebugMenu() {
-        menu.findItem(R.id.nav_debug_swap).isVisible = true
+    override fun showDebugMenu() {
+        menu.findItem(R.id.nav_debug_menu).isVisible = true
     }
 
     override fun launchTransfer() {
@@ -601,6 +645,12 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
     override fun navigateToBottomSheet(bottomSheet: BottomSheetDialogFragment) {
         clearBottomSheet()
         showBottomSheet(bottomSheet)
+    }
+
+    override fun logout() {
+        analytics.logEvent(AnalyticsEvents.Logout)
+        presenter.unPair()
+        database.historicRateQueries.clear()
     }
 
     private fun startTransferFragment(
@@ -638,12 +688,22 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     private fun startDashboardFragment(reload: Boolean = true) {
         runOnUiThread {
-            val fragment = DashboardFragment.newInstance()
+            val fragment = createDashboardFragment()
             showFragment(fragment, reload)
             setCurrentTabItem(R.id.nav_home)
             toolbar.title = getString(R.string.dashboard_title)
         }
     }
+
+    private fun createDashboardFragment(
+        action: AssetAction? = null,
+        currency: String? = null
+    ): Fragment =
+        if (gatedFeatures.isFeatureEnabled(GatedFeature.NEW_SPLIT_DASHBOARD)) {
+            DashboardFragment.newInstance(action, currency)
+        } else {
+            PortfolioFragment.newInstance(action, currency)
+        }
 
     private fun startBuyAndSellFragment(
         viewType: BuySellFragment.BuySellViewType = BuySellFragment.BuySellViewType.TYPE_BUY,
@@ -670,6 +730,10 @@ class MainActivity : MvpActivity<MainView, MainPresenter>(),
 
     override fun shouldIgnoreDeepLinking() =
         (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
+
+    override fun showAccountWalletLinkBottomSheet(walletId: String) {
+        showBottomSheet(AccountWalletLinkAlertSheet.newInstance(walletId))
+    }
 
     private fun showFragment(fragment: Fragment, reloadFragment: Boolean = true) {
         val transaction = supportFragmentManager.beginTransaction()

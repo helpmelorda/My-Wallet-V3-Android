@@ -15,7 +15,6 @@ import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isCustodialOnly
 import info.blockchain.wallet.util.FormatsUtil
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AddressParseError
@@ -64,8 +63,6 @@ internal class Erc20Asset(
 
     override val isCustodialOnly: Boolean = asset.isCustodialOnly
     override val multiWallet: Boolean = false
-
-    override fun initToken(): Completable = Completable.complete()
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         Single.just(getNonCustodialAccount())

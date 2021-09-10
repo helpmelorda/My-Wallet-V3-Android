@@ -22,7 +22,8 @@ class SelectTargetAccountSheet : TransactionFlowSheet<DialogSheetAccountSelector
         with(binding) {
             accountList.initialise(
                 source = Single.just(newState.availableTargets.map { it as SingleAccount }),
-                status = customiser.selectTargetStatusDecorator(newState)
+                status = customiser.selectTargetStatusDecorator(newState),
+                assetAction = newState.action
             )
             accountListTitle.text = customiser.selectTargetAccountTitle(newState)
             accountListSubtitle.text = customiser.selectTargetAccountDescription(newState)

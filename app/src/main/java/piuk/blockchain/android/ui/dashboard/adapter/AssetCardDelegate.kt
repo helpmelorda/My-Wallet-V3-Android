@@ -9,7 +9,7 @@ import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemDashboardAssetCardBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.ui.dashboard.CryptoAssetState
+import piuk.blockchain.android.ui.dashboard.model.CryptoAssetState
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
 import piuk.blockchain.android.ui.dashboard.format
 import piuk.blockchain.android.ui.dashboard.showLoading
@@ -100,9 +100,9 @@ private class AssetCardViewHolder(
             showContent()
 
             fiatBalance.text = state.fiatBalance.format(fiatSymbol)
-            cryptoBalance.text = state.balance.format(state.currency)
+            cryptoBalance.text = state.accountBalance?.total.format(state.currency)
 
-            price.text = state.price?.price().format(fiatSymbol)
+            price.text = state.accountBalance?.exchangeRate?.price().format(fiatSymbol)
 
             priceDelta.asDeltaPercent(state.priceDelta)
             priceDeltaInterval.text = context.getString(R.string.asset_card_rate_period)

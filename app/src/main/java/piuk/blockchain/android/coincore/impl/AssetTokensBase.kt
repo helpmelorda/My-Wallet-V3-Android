@@ -83,18 +83,6 @@ internal abstract class CryptoAssetBase(
             }
         )
 
-    override val isEnabled: Boolean
-        get() = true
-
-    // Init token, set up accounts and fetch a few activities
-    override fun init(): Completable =
-        initToken()
-            .doOnError { throwable ->
-                crashLogger.logException(throwable, "Coincore: Failed to load $asset wallet")
-            }
-            .doOnComplete { Timber.d("Coincore: Init $asset Complete") }
-            .doOnError { Timber.d("Coincore: Init $asset Failed") }
-
     private fun loadAccounts(): Single<SingleAccountList> =
         Single.zip(
             loadNonCustodialAccounts(labels),
@@ -116,8 +104,6 @@ internal abstract class CryptoAssetBase(
     final override fun forceAccountsRefresh() {
         activeAccounts.setForceRefresh()
     }
-
-    abstract fun initToken(): Completable
 
     abstract fun loadCustodialAccounts(): Single<SingleAccountList>
     abstract fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList>

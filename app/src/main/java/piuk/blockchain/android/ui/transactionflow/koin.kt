@@ -44,7 +44,8 @@ val transactionModule = module {
         TransactionFlowCustomiserImpl(
             resources = get<Context>().resources,
             assetResources = get(),
-            stringUtils = get()
+            stringUtils = get(),
+            featureFlags = get()
         )
     }.bind(TransactionFlowCustomiser::class)
         .bind(EnterAmountCustomisations::class)

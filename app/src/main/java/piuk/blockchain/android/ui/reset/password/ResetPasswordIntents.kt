@@ -20,11 +20,13 @@ sealed class ResetPasswordIntents : MviIntent<ResetPasswordState> {
     }
 
     data class RecoverAccount(
+        val userId: String,
         val recoveryToken: String,
         val shouldResetKyc: Boolean
     ) : ResetPasswordIntents() {
         override fun reduce(oldState: ResetPasswordState): ResetPasswordState =
             oldState.copy(
+                userId = userId,
                 recoveryToken = recoveryToken,
                 status = ResetPasswordStatus.RECOVER_ACCOUNT
             )
@@ -33,6 +35,7 @@ sealed class ResetPasswordIntents : MviIntent<ResetPasswordState> {
     data class CreateWalletForAccount(
         val email: String,
         val password: String,
+        val userId: String,
         val recoveryToken: String,
         val walletName: String,
         val shouldResetKyc: Boolean
@@ -41,6 +44,7 @@ sealed class ResetPasswordIntents : MviIntent<ResetPasswordState> {
             oldState.copy(
                 email = email,
                 password = password,
+                userId = userId,
                 recoveryToken = recoveryToken,
                 walletName = walletName,
                 status = ResetPasswordStatus.CREATE_WALLET

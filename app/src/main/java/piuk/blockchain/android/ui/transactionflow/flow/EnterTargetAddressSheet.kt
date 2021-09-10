@@ -15,6 +15,7 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.coincore.AssetAction
 import piuk.blockchain.android.coincore.BlockchainAccount
 import piuk.blockchain.android.coincore.CryptoAddress
 import piuk.blockchain.android.coincore.SingleAccount
@@ -82,7 +83,7 @@ class EnterTargetAddressSheet : TransactionFlowSheet<DialogTxFlowEnterAddressBin
                 }
                 sourceSlot?.update(newState)
 
-                setupTransferList(customiser.enterTargetAddressSheetState(newState))
+                setupTransferList(customiser.enterTargetAddressSheetState(newState), newState.action)
                 setupLabels(newState)
             }
 
@@ -200,11 +201,12 @@ class EnterTargetAddressSheet : TransactionFlowSheet<DialogTxFlowEnterAddressBin
         model.process(TransactionIntent.ShowMoreAccounts)
     }
 
-    private fun setupTransferList(targetAddressSheetState: TargetAddressSheetState) {
+    private fun setupTransferList(targetAddressSheetState: TargetAddressSheetState, action: AssetAction) {
         with(binding.walletSelect) {
             initialise(
                 Single.just(targetAddressSheetState.accounts.filterIsInstance<BlockchainAccount>()),
-                shouldShowSelectionStatus = true
+                shouldShowSelectionStatus = true,
+                assetAction = action
             )
             // set visibility of component here so bottom sheet grows to the correct height
             visible()

@@ -6,8 +6,10 @@ include ':app',
         ':common:interface',
         ':common:network',
         ':core',
-        ':nabu',
         ':sunriver',
         ':testutils',
         ':testutils-android',
-        ':veriff'
+        ':veriff',
+        ':common-mp:utils',
+        ':common-mp:interface',
+        ':biometrics'

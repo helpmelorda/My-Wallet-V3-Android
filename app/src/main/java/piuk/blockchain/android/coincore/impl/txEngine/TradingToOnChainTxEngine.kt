@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine
 
+import androidx.annotation.VisibleForTesting
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import info.blockchain.balance.CryptoValue
@@ -22,8 +23,10 @@ import piuk.blockchain.android.ui.transactionflow.flow.FeeInfo
 
 // Transfer from a custodial trading account to an onChain non-custodial account
 class TradingToOnChainTxEngine(
-    private val isNoteSupported: Boolean,
-    private val walletManager: CustodialWalletManager
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val isNoteSupported: Boolean,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val walletManager: CustodialWalletManager
 ) : TxEngine() {
 
     override fun assertInputsValid() {

@@ -77,7 +77,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="piuk.blockchain.com.FeatureFlagsHandlingActivity"
+            android:name=".ui.FeatureFlagsHandlingActivity"
             android:clearTaskOnLaunch="true"
             android:screenOrientation="portrait"
             android:taskAffinity="piuk.blockchain.com.FeatureFlagsHandlingActivity"
@@ -127,10 +127,6 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.createwallet.CreateWalletActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".ui.createwallet.NewCreateWalletActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustResize" />
         <activity
@@ -207,6 +203,7 @@
         <activity
             android:name=".ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity android:name=".ui.home.ZendeskSubjectActivity" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

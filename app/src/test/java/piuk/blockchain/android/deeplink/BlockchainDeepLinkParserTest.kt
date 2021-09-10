@@ -68,13 +68,13 @@ class BlockchainDeepLinkParserTest {
     }
 
     companion object {
-        private const val SWAP_URL = "blockchain://flow/swap"
-        private const val BUY_URL = "blockchain://flow/buy"
-        private const val TWOFA_URL = "blockchain://flow/twofa"
-        private const val FINGERPRINT_URL = "blockchain://flow/setupfingerprint"
-        private const val VERIFY_EMAIL_URL = "blockchain://flow/verifyemail"
-        private const val INTEREST_URL = "blockchain://flow/interest"
-        private const val RECEIVE_URL = "blockchain://flow/receive"
-        private const val SEND_URL = "blockchain://flow/send"
+        private const val SWAP_URL = "https://login-staging.blockchain.com/#/open/swap"
+        private const val BUY_URL = "https://login-staging.blockchain.com/#/open/buy"
+        private const val TWOFA_URL = "https://login-staging.blockchain.com/#/open/twofa"
+        private const val FINGERPRINT_URL = "https://login-staging.blockchain.com/#/open/setupfingerprint"
+        private const val VERIFY_EMAIL_URL = "https://login-staging.blockchain.com/#/open/verifyemail"
+        private const val INTEREST_URL = "https://login-staging.blockchain.com/#/open/interest"
+        private const val RECEIVE_URL = "https://login-staging.blockchain.com/#/open/receive"
+        private const val SEND_URL = "https://login-staging.blockchain.com/#/open/send"
     }
 }

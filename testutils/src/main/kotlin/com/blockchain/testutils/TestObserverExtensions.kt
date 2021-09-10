@@ -1,4 +1,4 @@
-package com.blockchain.nabu.util
+package com.blockchain.testutils
 
 import io.reactivex.rxjava3.observers.TestObserver
 

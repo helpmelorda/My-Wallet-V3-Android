@@ -90,6 +90,11 @@ fun apiError(host: String, path: String, body: String?, requestId: String?, erro
     }
 
 enum class AnalyticsNames(val eventName: String) {
+    // App Events
+    APP_INSTALLED("Application Installed"),
+    APP_UPDATED("Application Updated"),
+    APP_DEEP_LINK_OPENED("Deep Link Opened"),
+    APP_BACKGROUNDED("Application Backgrounded"),
     BUY_AMOUNT_ENTERED("Buy Amount Entered"),
     BUY_FREQUENCY_SELECTED("Buy Frequency Selected"),
     BUY_PAYMENT_METHOD_CHANGED("Buy Payment Method Selected"),
@@ -160,7 +165,10 @@ enum class AnalyticsNames(val eventName: String) {
     RECURRING_BUY_VIEWED("Recurring Buy Viewed"),
     GET_STARTED_ON_BOARDING("Buy Sell Clicked"),
     RECURRING_BUY_UNAVAILABLE_SHOWN("Recurring Buy Unavailable Shown"),
-    WALLET_SIGN_UP("Wallet Signed Up");
+    WALLET_RECOVER("Recover Wallet"),
+    WALLET_SIGN_UP("Wallet Signed Up"),
+    WALLET_SIGN_UP_COUNTRY_SELECTED("Sign Up Country Selected"),
+    WALLET_SIGN_UP_STATE_SELECTED("Sign Up Country State Selected");
 }
 
 enum class LaunchOrigin {

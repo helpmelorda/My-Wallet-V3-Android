@@ -18,6 +18,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.android.networking.PollResult
 import piuk.blockchain.android.simplebuy.ErrorState
 import piuk.blockchain.android.simplebuy.SelectedPaymentMethod
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
@@ -26,6 +27,7 @@ import piuk.blockchain.android.ui.linkbank.BankAuthModel
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankAuthState
 import piuk.blockchain.android.ui.linkbank.BankLinkingProcessState
+import piuk.blockchain.android.ui.linkbank.BankTransferAction
 
 class BankAuthModelTest {
 
@@ -97,8 +99,12 @@ class BankAuthModelTest {
 
         whenever(
             interactor.updateSelectedBankAccountId(
-                intent.linkingBankId, intent.accountProviderId, intent.accountId, intent.linkBankTransfer.partner,
-                source
+                linkingId = intent.linkingBankId,
+                providerAccountId = intent.accountProviderId,
+                accountId = intent.accountId,
+                partner = intent.linkBankTransfer.partner,
+                action = BankTransferAction.LINK,
+                source = source
             )
         ).thenReturn(Completable.complete())
 
@@ -113,7 +119,7 @@ class BankAuthModelTest {
             )
         )
 
-        verify(interactor).pollForLinkedBankState(intent.linkingBankId, BankPartner.YAPILY)
+        verify(interactor).pollForLinkedBankState(intent.linkingBankId)
     }
 
     @Test
@@ -125,8 +131,12 @@ class BankAuthModelTest {
 
         whenever(
             interactor.updateSelectedBankAccountId(
-                intent.linkingBankId, intent.accountProviderId, intent.accountId, intent.linkBankTransfer.partner,
-                source
+                linkingId = intent.linkingBankId,
+                providerAccountId = intent.accountProviderId,
+                accountId = intent.accountId,
+                partner = intent.linkBankTransfer.partner,
+                action = BankTransferAction.LINK,
+                source = source
             )
         ).thenReturn(Completable.error(Exception()))
 
@@ -681,8 +691,8 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
-            Single.just(expectedBank)
+        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+            Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
         model.process(intent)
@@ -731,8 +741,8 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
-            Single.just(expectedBank)
+        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+            Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
         model.process(intent)
@@ -775,8 +785,8 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
-            Single.just(expectedBank)
+        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+            Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
         model.process(intent)
@@ -818,8 +828,8 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
-            Single.just(expectedBank)
+        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+            Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
         model.process(intent)
@@ -862,8 +872,8 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
-            Single.just(expectedBank)
+        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+            Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
         model.process(intent)
@@ -906,8 +916,8 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
-            Single.just(expectedBank)
+        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+            Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
         model.process(intent)
@@ -950,8 +960,8 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
-            Single.just(expectedBank)
+        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+            Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
         model.process(intent)
@@ -994,8 +1004,8 @@ class BankAuthModelTest {
             callbackPath = ""
         )
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
-            Single.just(expectedBank)
+        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
+            Single.just(PollResult.FinalResult(expectedBank))
         )
         val test = model.state.test()
         model.process(intent)
@@ -1020,7 +1030,7 @@ class BankAuthModelTest {
 
         val intent = BankAuthIntent.StartPollingForLinkStatus(linkingBankId)
 
-        whenever(interactor.pollForLinkedBankState(intent.bankId, BankPartner.YAPILY)).thenReturn(
+        whenever(interactor.pollForLinkedBankState(intent.bankId)).thenReturn(
             Single.error(Exception())
         )
         val test = model.state.test()

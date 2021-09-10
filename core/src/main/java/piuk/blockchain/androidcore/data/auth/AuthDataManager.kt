@@ -1,6 +1,7 @@
 package piuk.blockchain.androidcore.data.auth
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.api.services.AuthApiService
 import com.blockchain.logging.CrashLogger
 import info.blockchain.wallet.api.data.WalletOptions
 import info.blockchain.wallet.crypto.AESUtil
@@ -10,6 +11,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.exceptions.Exceptions
+import kotlinx.serialization.json.JsonObject
 import okhttp3.ResponseBody
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.access.AccessState
@@ -17,6 +19,7 @@ import piuk.blockchain.androidcore.utils.AESUtilWrapper
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrngFixer
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
+import piuk.blockchain.androidcore.utils.extensions.handleResponse
 import piuk.blockchain.androidcore.utils.extensions.isValidPin
 import retrofit2.Response
 import java.security.SecureRandom
@@ -24,7 +27,8 @@ import java.util.concurrent.TimeUnit
 
 class AuthDataManager(
     private val prefs: PersistentPrefs,
-    private val authService: AuthService,
+    private val authApiService: AuthApiService,
+    private val walletAuthService: WalletAuthService,
     private val accessState: AccessState,
     private val aesUtilWrapper: AESUtilWrapper,
     private val prngHelper: PrngFixer,
@@ -43,7 +47,7 @@ class AuthDataManager(
      * @return An [Observable] wrapping a [WalletOptions] object
      */
     fun getWalletOptions(): Observable<WalletOptions> =
-        authService.getWalletOptions()
+        walletAuthService.getWalletOptions()
             .applySchedulers()
 
     /**
@@ -57,8 +61,16 @@ class AuthDataManager(
      * @see .getSessionId
      */
     fun getEncryptedPayload(guid: String, sessionId: String): Observable<Response<ResponseBody>> =
-        authService.getEncryptedPayload(guid, sessionId)
+        walletAuthService.getEncryptedPayload(guid, sessionId)
             .applySchedulers()
+
+    fun getEncryptedPayloadObject(guid: String, sessionId: String): Single<JsonObject> =
+        walletAuthService.getEncryptedPayload(guid, sessionId)
+            .applySchedulers()
+            .firstOrError()
+            .flatMap {
+                it.handleResponse()
+            }
 
     /**
      * Gets an ephemeral session ID from the server.
@@ -67,8 +79,17 @@ class AuthDataManager(
      * @return An [Observable] wrapping a session ID as a String
      */
     fun getSessionId(guid: String): Observable<String> =
-        authService.getSessionId(guid)
+        walletAuthService.getSessionId(guid)
             .applySchedulers()
+
+    /**
+     * Create a session ID for the given email for authorization
+     *
+     * @param email The user's email
+     * @return A [Single] wrapping the result
+     */
+    fun createSessionId(email: String): Single<ResponseBody> =
+        walletAuthService.createSessionId(email)
 
     /**
      * Requests authorization for the session specified by the ID
@@ -77,8 +98,8 @@ class AuthDataManager(
      * @param sessionId The current session ID
      * @return A [Single] wrapping
      */
-    fun authorizeSession(authToken: String, sessionId: String): Single<Response<ResponseBody>> =
-        authService.authorizeSession(authToken, sessionId)
+    fun authorizeSessionObject(authToken: String, sessionId: String): Single<JsonObject> =
+        walletAuthService.authorizeSession(authToken, sessionId).flatMap { it.handleResponse() }
 
     /**
      * Submits a user's 2FA code to the server and returns a response. This response will contain
@@ -93,7 +114,7 @@ class AuthDataManager(
         sessionId: String,
         guid: String,
         twoFactorCode: String
-    ): Observable<ResponseBody> = authService.submitTwoFactorCode(sessionId, guid, twoFactorCode)
+    ): Observable<ResponseBody> = walletAuthService.submitTwoFactorCode(sessionId, guid, twoFactorCode)
         .applySchedulers()
 
     /**
@@ -157,7 +178,7 @@ class AuthDataManager(
      * Creates a new PIN for a user
      *
      * @param password The user's password
-     * @param pin The new chosen PIN
+     * @param passedPin The new chosen PIN
      * @return A [Completable] object
      */
     fun createPin(password: String, passedPin: String): Completable {
@@ -175,7 +196,7 @@ class AuthDataManager(
             crashLogger.logEvent("validatePin. pin set. validity: ${passedPin.isValidPin()}")
         }
 
-        return authService.validateAccess(key, passedPin)
+        return walletAuthService.validateAccess(key, passedPin)
             .map { response ->
                 /*
                 Note: Server side issue - If the incorrect PIN is supplied the server will respond
@@ -246,7 +267,7 @@ class AuthDataManager(
             random.nextBytes(bytes)
             val value = String(Hex.encode(bytes), Charsets.UTF_8)
 
-            authService.setAccessKey(key, value, passedPin)
+            walletAuthService.setAccessKey(key, value, passedPin)
                 .subscribe({ response ->
                     if (response.isSuccessful) {
                         val encryptionKey = Hex.toHexString(value.toByteArray(Charsets.UTF_8))
@@ -286,8 +307,19 @@ class AuthDataManager(
      * @return [<] wrapping the pairing encryption password
      */
     fun getPairingEncryptionPassword(guid: String): Observable<ResponseBody> =
-        authService.getPairingEncryptionPassword(guid)
+        walletAuthService.getPairingEncryptionPassword(guid)
             .applySchedulers()
+
+    /**
+    * Send email to verify device
+    *
+    * @param sessionId The token for the current session
+    * @param email The user's email
+    * @param captcha Captcha token
+    * @return A [Single] wrapping the result
+    */
+    fun sendEmailForDeviceVerification(sessionId: String, email: String, captcha: String): Single<ResponseBody> =
+        walletAuthService.sendEmailForDeviceVerification(sessionId, email, captcha)
 
     /**
      * Update the account model fields for mobile setup
@@ -303,17 +335,15 @@ class AuthDataManager(
         sharedKey: String,
         isMobileSetup: Boolean,
         deviceType: Int
-    ): Single<ResponseBody> = authService.updateMobileSetup(guid, sharedKey, isMobileSetup, deviceType)
+    ): Single<ResponseBody> = walletAuthService.updateMobileSetup(guid, sharedKey, isMobileSetup, deviceType)
 
     /**
      * Update the mnemonic backup date (calculated on the backend)
      *
-     * @param guid The user's GUID
-     * @param sharedKey The shared key of the specified GUID
      * @return A [Completable] wrapping the result
      */
     fun updateMnemonicBackup(): Completable =
-        authService.updateMnemonicBackup(prefs.walletGuid, prefs.sharedKey)
+        walletAuthService.updateMnemonicBackup(prefs.walletGuid, prefs.sharedKey)
             .applySchedulers()
 
     /**
@@ -321,9 +351,9 @@ class AuthDataManager(
      *
      * @return A [Completable] wrapping the result
      */
-    fun verifyCloudBackup() = if (shouldVerifyCloudBackup) {
+    fun verifyCloudBackup(): Completable = if (shouldVerifyCloudBackup) {
         Completable.fromSingle(
-            authService.verifyCloudBackup(
+            walletAuthService.verifyCloudBackup(
                 guid = prefs.walletGuid,
                 sharedKey = prefs.sharedKey,
                 hasCloudBackup = true,
@@ -333,6 +363,21 @@ class AuthDataManager(
     } else {
         Completable.complete()
     }
+
+    /**
+     * Send email to verify device via the extended magic link (including the recovery token)
+     *
+     * @param sessionId The token for the current session
+     * @param email The user's email
+     * @param captcha Captcha token
+     * @return A [Completable] wrapping the result
+     */
+    fun sendEmailForAuthentication(sessionId: String, email: String, captcha: String) =
+        authApiService.sendEmailForAuthentication(
+            sessionId = sessionId,
+            email = email,
+            captcha = captcha
+        )
 
     companion object {
         @VisibleForTesting

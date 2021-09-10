@@ -2,6 +2,7 @@ package com.blockchain.core.price
 
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.Calendar
 
@@ -42,8 +43,9 @@ interface ExchangeRatesDataManager : ExchangeRates {
     @Deprecated("TEMP : Remove when CC Accounts updated with unified balance calls")
     fun refetchCache(): Completable
 
-//    fun getCurrentRate(fromAsset: AssetInfo, toFiat: String): Single<ExchangeRate>
-//    fun getCurrentRateFiat(fromFiat: String, toFiat: String): Single<ExchangeRate>
+    fun cryptoToUserFiatRate(fromAsset: AssetInfo): Observable<ExchangeRate>
+    fun fiatToUserFiatRate(fromFiat: String): Observable<ExchangeRate>
+    fun fiatToRateFiatRate(fromFiat: String, toFiat: String): Observable<ExchangeRate>
 
     fun getHistoricRate(fromAsset: AssetInfo, secSinceEpoch: Long): Single<ExchangeRate>
     fun getPricesWith24hDelta(fromAsset: AssetInfo): Single<Prices24HrWithDelta>

@@ -59,7 +59,6 @@ class RecurringBuyFirstTimeBuyerFragment :
 
                     showBottomSheet(
                         RecurringBuySelectionBottomSheet.newInstance(
-                            RecurringBuyFrequency.DAILY,
                             order.amount,
                             orderValue?.currencyCode
                         )

@@ -15,6 +15,7 @@ enum class ResetPasswordStatus {
 data class ResetPasswordState(
     val email: String = "",
     val password: String = "",
+    val userId: String = "",
     val walletName: String = "",
     val recoveryPhrase: String = "",
     val recoveryToken: String = "",

@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.kyc.address
 import android.content.Intent
 import android.location.Geocoder
 import android.os.Bundle
+import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +22,6 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
-import piuk.blockchain.android.util.throttledClicks
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.gms.common.GooglePlayServicesRepairableException
@@ -29,8 +29,8 @@ import com.google.android.gms.location.places.AutocompleteFilter
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
 import com.jakewharton.rx3.replayingShare
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -53,8 +53,10 @@ import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
+import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.ViewUtils
 import piuk.blockchain.android.util.gone
+import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
@@ -107,11 +109,18 @@ class KycHomeAddressFragment : BaseMvpFragment<KycHomeAddressView, KycHomeAddres
         super.onViewCreated(view, savedInstanceState)
         logEvent(AnalyticsEvents.KycAddress)
         progressListener.setHostTitle(R.string.kyc_address_title)
+        binding.editTextKycAddressZipCode.addTextChangedListener(textWatcher)
 
         setupImeOptions()
         localiseUi()
 
         onViewReady()
+    }
+
+    private val textWatcher = object : AfterTextChangedWatcher() {
+        override fun afterTextChanged(s: Editable?) {
+            binding.inputLayoutKycAddressZipCode.error = null
+        }
     }
 
     override fun onDestroyView() {
@@ -308,6 +317,12 @@ class KycHomeAddressFragment : BaseMvpFragment<KycHomeAddressView, KycHomeAddres
 
     override fun showErrorToast(message: Int) {
         toast(message, ToastCustom.TYPE_ERROR)
+    }
+
+    override fun showInvalidPostcode() {
+        binding.apply {
+            inputLayoutKycAddressZipCode.error = getString(R.string.kyc_postcode_error)
+        }
     }
 
     override fun showProgressDialog() {

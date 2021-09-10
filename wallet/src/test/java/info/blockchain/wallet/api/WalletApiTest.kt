@@ -1,6 +1,6 @@
 package info.blockchain.wallet.api
 
-import com.blockchain.nabu.util.waitForCompletionWithoutErrors
+import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.blockchain.testutils.FakeHttpExceptionFactory
 import com.blockchain.testutils.getStringFromResource
 import com.nhaarman.mockitokotlin2.mock

@@ -23,13 +23,13 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 dependencies {
-    api project(':balance')
-    api project(':common:network')
-    api project(':common:interface')
+    implementation project(':balance')
+    implementation project(':common:network')
+    implementation project(':common:interface')
     implementation project(':blockchainApi')
 
     // Expose Kotlin to all parent modules
-    api Libraries.kotlin
+    implementation Libraries.kotlin
     // bitcoinj and web3j should both be 'implementation' but there remain a few upstack dependencies
     api (Libraries.bitcoinj) { exclude module: 'protobuf-java' }
     api (Libraries.web3j) { exclude module: 'jackson' }
@@ -67,6 +67,9 @@ dependencies {
     implementation Libraries.koin
 
     // Rx
+    implementation Libraries.rxJava
+    implementation Libraries.rxKotlin
+    implementation Libraries.rxAndroid
     implementation Libraries.rxReplayShareKotlin
 
     // Testing

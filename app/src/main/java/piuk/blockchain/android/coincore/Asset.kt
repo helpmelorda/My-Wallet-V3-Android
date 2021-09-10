@@ -65,13 +65,8 @@ internal inline fun AssetAction.takeEnabledIf(
     this.takeIf { it in baseActions && predicate(this) }
 
 interface Asset {
-    fun init(): Completable
-    val isEnabled: Boolean
-
     fun accountGroup(filter: AssetFilter = AssetFilter.All): Maybe<AccountGroup>
-
     fun transactionTargets(account: SingleAccount): Single<SingleAccountList>
-
     fun parseAddress(address: String, label: String? = null): Maybe<ReceiveAddress>
     fun isValidAddress(address: String): Boolean = false
 }
@@ -83,6 +78,7 @@ interface CryptoAsset : Asset {
     fun interestRate(): Single<Double>
 
     // Fetch exchange rate to user's selected/display fiat
+    @Deprecated("Use getPricesWith24hDelta() instead")
     fun exchangeRate(): Single<ExchangeRate>
     fun getPricesWith24hDelta(): Single<Prices24HrWithDelta>
     fun historicRate(epochWhen: Long): Single<ExchangeRate>
@@ -93,4 +89,8 @@ interface CryptoAsset : Asset {
     // Temp feature accessors - this will change, but until it's building these have to be somewhere
     val isCustodialOnly: Boolean
     val multiWallet: Boolean
+}
+
+internal interface NonCustodialSupport {
+    fun initToken(): Completable
 }

@@ -6,11 +6,11 @@ targetCompatibility = Versions.javaCompatibilityVersion
 
 dependencies {
     implementation Libraries.kotlin
-    api Libraries.koin
-    api Libraries.rxKotlin
-    api project(':balance')
-    api project(':common:interface')
-    api project(':common:network')
+    implementation Libraries.koin
+    implementation Libraries.rxKotlin
+    implementation project(':balance')
+    implementation project(':common:interface')
+    implementation project(':common:network')
 
     implementation Libraries.moshiKotlin
     implementation Libraries.sunriver

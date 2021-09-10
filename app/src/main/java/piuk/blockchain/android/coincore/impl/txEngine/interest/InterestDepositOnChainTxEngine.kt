@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine.interest
 
+import androidx.annotation.VisibleForTesting
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -20,9 +21,12 @@ import piuk.blockchain.android.coincore.impl.txEngine.OnChainTxEngineBase
 import piuk.blockchain.android.coincore.toCrypto
 
 class InterestDepositOnChainTxEngine(
-    private val interestBalances: InterestBalanceDataManager,
-    private val onChainEngine: OnChainTxEngineBase,
-    walletManager: CustodialWalletManager
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val interestBalances: InterestBalanceDataManager,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val onChainEngine: OnChainTxEngineBase,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val walletManager: CustodialWalletManager
 ) : InterestBaseEngine(walletManager) {
 
     override fun assertInputsValid() {

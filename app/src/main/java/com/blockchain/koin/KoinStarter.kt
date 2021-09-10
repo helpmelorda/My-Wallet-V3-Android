@@ -16,6 +16,7 @@ import com.blockchain.network.modules.apiModule
 import com.blockchain.network.modules.okHttpModule
 import com.blockchain.notifications.koin.notificationModule
 import com.blockchain.api.blockchainApiModule
+import com.blockchain.koin.modules.featureActivitiesModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -30,6 +31,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncements
 import piuk.blockchain.android.ui.kyc.koin.kycUiModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiNabuModule
 import piuk.blockchain.android.ui.auth.newlogin.secureChannelModule
+import piuk.blockchain.android.ui.dashboard.dashboardModule
 import piuk.blockchain.android.ui.login.loginUiModule
 import piuk.blockchain.android.ui.reset.resetAccountModule
 import piuk.blockchain.android.ui.start.startupUiModule
@@ -53,6 +55,7 @@ object KoinStarter {
                 apiModule,
                 blockchainApiModule,
                 applicationModule,
+                dashboardModule,
                 campaignModule,
                 coincoreModule,
                 transactionModule,
@@ -76,7 +79,8 @@ object KoinStarter {
                 startupUiModule,
                 sunriverModule,
                 walletModule,
-                xlmModule
+                xlmModule,
+                featureActivitiesModule
             ))
         }
     }

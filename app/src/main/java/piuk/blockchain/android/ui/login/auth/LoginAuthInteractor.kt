@@ -2,6 +2,9 @@ package piuk.blockchain.android.ui.login.auth
 
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -10,7 +13,7 @@ import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
-import retrofit2.Response
+import piuk.blockchain.androidcore.utils.PrefsUtil
 
 class LoginAuthInteractor(
     val appUtil: AppUtil,
@@ -18,17 +21,29 @@ class LoginAuthInteractor(
     val payloadDataManager: PayloadDataManager,
     val prefs: PersistentPrefs
 ) {
+    fun getAuthInfo(json: String): Single<LoginAuthInfo> {
+        return Single.fromCallable {
+            val jsonBuilder = Json {
+                ignoreUnknownKeys = true
+            }
+            try {
+                jsonBuilder.decodeFromString<LoginAuthInfo.ExtendedAccountInfo>(json)
+            } catch (throwable: Throwable) {
+                jsonBuilder.decodeFromString<LoginAuthInfo.SimpleAccountInfo>(json)
+            }
+        }
+    }
 
     fun getSessionId() = prefs.sessionId
 
-    fun cleaarSessionId() = prefs.clearSessionId()
+    fun clearSessionId() = prefs.clearSessionId()
 
-    fun authorizeApproval(authToken: String, sessionId: String): Single<Response<ResponseBody>> {
-        return authDataManager.authorizeSession(authToken, sessionId)
+    fun authorizeApproval(authToken: String, sessionId: String): Single<JsonObject> {
+        return authDataManager.authorizeSessionObject(authToken, sessionId)
     }
 
-    fun getPayLoad(guid: String, sessionId: String): Single<Response<ResponseBody>> =
-        Single.fromObservable(authDataManager.getEncryptedPayload(guid, sessionId))
+    fun getPayload(guid: String, sessionId: String): Single<JsonObject> =
+        authDataManager.getEncryptedPayloadObject(guid, sessionId)
 
     fun verifyPassword(payload: String, password: String): Completable {
         return payloadDataManager.initializeFromPayload(payload, password)
@@ -43,6 +58,21 @@ class LoginAuthInteractor(
                 }
             }
     }
+
+    fun getRemaining2FaRetries() = prefs.resendSmsRetries
+
+    private fun consume2FaRetry() = prefs.setResendSmsRetries(prefs.resendSmsRetries - 1)
+
+    fun reset2FaRetries(): Completable =
+        Completable.fromCallable { prefs.setResendSmsRetries(PrefsUtil.MAX_ALLOWED_RETRIES) }
+
+    fun requestNew2FaCode(guid: String, sessionId: String): Single<JsonObject> =
+        if (getRemaining2FaRetries() > 0) {
+            consume2FaRetry()
+            authDataManager.getEncryptedPayloadObject(guid, sessionId)
+        } else {
+            Single.error(LoginAuthModel.TimeLockException())
+        }
 
     fun submitCode(
         guid: String,

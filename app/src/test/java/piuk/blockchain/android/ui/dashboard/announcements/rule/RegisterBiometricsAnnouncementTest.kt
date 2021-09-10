@@ -45,7 +45,7 @@ class RegisterBiometricsAnnouncementTest {
         whenever(dismissEntry.isDismissed).thenReturn(false)
 
         whenever(biometricsController.isHardwareDetected).thenReturn(false)
-        whenever(biometricsController.isFingerprintUnlockEnabled).thenReturn(false)
+        whenever(biometricsController.isBiometricUnlockEnabled).thenReturn(false)
 
         subject.shouldShow()
             .test()
@@ -59,7 +59,7 @@ class RegisterBiometricsAnnouncementTest {
         whenever(dismissEntry.isDismissed).thenReturn(false)
 
         whenever(biometricsController.isHardwareDetected).thenReturn(true)
-        whenever(biometricsController.isFingerprintUnlockEnabled).thenReturn(true)
+        whenever(biometricsController.isBiometricUnlockEnabled).thenReturn(true)
 
         subject.shouldShow()
             .test()
@@ -73,7 +73,7 @@ class RegisterBiometricsAnnouncementTest {
         whenever(dismissEntry.isDismissed).thenReturn(false)
 
         whenever(biometricsController.isHardwareDetected).thenReturn(true)
-        whenever(biometricsController.isFingerprintUnlockEnabled).thenReturn(false)
+        whenever(biometricsController.isBiometricUnlockEnabled).thenReturn(false)
 
         subject.shouldShow()
             .test()

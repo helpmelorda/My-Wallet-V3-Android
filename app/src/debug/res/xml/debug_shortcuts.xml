@@ -11,7 +11,7 @@
         tools:targetApi="n_mr1">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="piuk.blockchain.com.FeatureFlagsHandlingActivity"
+            android:targetClass="piuk.blockchain.android.ui.FeatureFlagsHandlingActivity"
             android:targetPackage="piuk.blockchain.android.staging" />
     </shortcut>
 </shortcuts>

@@ -24,7 +24,7 @@ class RegisterBiometricsAnnouncement(
 
         return Single.just(
             biometricsController.isHardwareDetected &&
-                    !biometricsController.isFingerprintUnlockEnabled
+                    !biometricsController.isBiometricUnlockEnabled
         )
     }
 

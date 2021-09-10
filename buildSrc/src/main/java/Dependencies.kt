@@ -7,8 +7,8 @@ object Versions {
     const val targetSdk = 30
     const val compileSdk = 30
 
-    const val versionCode = 15739
-    const val versionName = "8.11.0"
+    const val versionCode = 16049
+    const val versionName = "8.12.0"
     const val buildTools = "29.0.2"
 
     // Build tools and languages
@@ -33,6 +33,7 @@ object Versions {
     const val constraintLayout = "2.0.4"
     const val multidex = "2.0.1"
     const val desugaring = "1.1.5"
+    const val installReferrer = "2.2"
     const val navigation = "2.1.0"
     const val lifecycle = "2.1.0"
     const val camera = "1.0.0-rc04"
@@ -60,6 +61,9 @@ object Versions {
     const val jacksonCore = "2.12.3"
     const val kotlinJson = "1.2.1"
     const val kotlinJsonConverter = "0.8.0"
+
+    // SqlDelight
+    const val sqlDelight = "1.5.0"
 
     const val koin = "3.1.2"
     const val rxJava = "3.0.7"
@@ -106,6 +110,8 @@ object Versions {
     const val cardForm = "4.2.0"
     const val xlmSunriver = "0.21.1"
     const val lottieVersion = "3.5.0"
+    const val zendeskChatVersion = "3.3.0"
+    const val zendeskMessagingVersion = "5.2.0"
 
     // Logging
     const val timber = "4.7.1"
@@ -153,7 +159,7 @@ object Libraries {
     const val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
     const val multidex = "androidx.multidex:multidex:${Versions.multidex}"
     const val desugaring = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
-
+    const val installReferrer = "com.android.installreferrer:installreferrer:${Versions.installReferrer}"
     const val navigationControllerCore = "androidx.navigation:navigation-ui:${Versions.navigation}"
     const val navigationControllerFragments = "androidx.navigation:navigation-fragment:${Versions.navigation}"
     const val navigationControllerSafeArgsPlugin =
@@ -200,6 +206,11 @@ object Libraries {
     const val jacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jacksonCore}"
     const val gson = "com.google.code.gson:gson:${Versions.gson}"
     const val kotlinJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinJson}"
+
+    // SqlDelight
+    const val sqlDelight = "com.squareup.sqldelight:android-driver:${Versions.sqlDelight}"
+    const val sqlDelightPlugin = "com.squareup.sqldelight:gradle-plugin:${Versions.sqlDelight}"
+    const val rxSqlDelight = "com.squareup.sqldelight:rxjava3-extensions:${Versions.sqlDelight}"
 
     const val koin = "io.insert-koin:koin-core:${Versions.koin}"
     const val koinAndroid = "io.insert-koin:koin-android:${Versions.koin}"
@@ -250,6 +261,8 @@ object Libraries {
     const val cardForm = "com.braintreepayments:card-form:${Versions.cardForm}"
     const val sunriver = "com.github.stellar:java-stellar-sdk:${Versions.xlmSunriver}"
     const val lottie = "com.airbnb.android:lottie:${Versions.lottieVersion}"
+    const val zendeskChat = "com.zendesk:chat:${Versions.zendeskChatVersion}"
+    const val zendeskMessaging = "com.zendesk:messaging:${Versions.zendeskMessagingVersion}"
 
     // Logging
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"

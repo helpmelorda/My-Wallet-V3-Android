@@ -70,13 +70,6 @@ object ChartLoading : AssetDetailsIntent() {
         oldState.copy(chartLoading = true)
 }
 
-class AssetExchangeRateLoaded(
-    val exchangeRate: String
-) : AssetDetailsIntent() {
-    override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
-        oldState.copy(assetFiatPrice = exchangeRate)
-}
-
 class AssetDisplayDetailsLoaded(
     private val assetDisplayMap: AssetDisplayMap
 ) : AssetDetailsIntent() {
@@ -107,13 +100,6 @@ object AssetDisplayDetailsFailed : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
         oldState.copy(
             errorState = AssetDetailsError.NO_ASSET_DETAILS
-        )
-}
-
-object AssetExchangeRateFailed : AssetDetailsIntent() {
-    override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
-        oldState.copy(
-            errorState = AssetDetailsError.NO_EXCHANGE_RATE
         )
 }
 
@@ -199,7 +185,7 @@ class UpdatePriceDeltaDetails(
 
 object UpdatePriceDeltaFailed : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
-        oldState.copy(errorState = AssetDetailsError.NO_PRICE_DELTA)
+        oldState.copy(errorState = AssetDetailsError.NO_PRICE_DATA)
 }
 
 object ShowInterestDashboard : AssetDetailsIntent() {

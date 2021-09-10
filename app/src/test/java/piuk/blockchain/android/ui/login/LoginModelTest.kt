@@ -143,6 +143,7 @@ class LoginModelTest {
         val email = "test@gmail.com"
         val sessionId = "sessionId"
         val captcha = "captcha"
+
         whenever(interactor.obtainSessionId(email)).thenReturn(
             Single.just(
                 "{token: $sessionId}".toResponseBody("application/json".toMediaTypeOrNull())

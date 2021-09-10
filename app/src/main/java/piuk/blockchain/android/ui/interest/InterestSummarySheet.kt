@@ -106,8 +106,8 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
         }
 
         disposables += Singles.zip(
-            interestBalance.getBalanceForAsset(asset),
-            custodialWalletManager.getInterestLimits(asset).toSingle(),
+            interestBalance.getBalanceForAsset(asset).firstOrError(),
+            custodialWalletManager.getInterestLimits(asset),
             custodialWalletManager.getInterestAccountRates(asset)
         ).observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(

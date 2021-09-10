@@ -78,7 +78,7 @@
     <string name="item_backup">Backup funds</string>
     <string name="item_the_exchange">Exchange</string>
     <string name="item_airdrops">Airdrops</string>
-    <string name="item_debug_homebrew" translatable="false">Debug Homebrew</string>
+    <string name="item_debug_menu" translatable="false">Debug Menu</string>
 
     <!-- toolbar -->
     <string name="toolbar_cmd_home">Home</string>
@@ -295,6 +295,8 @@
 
     <string name="received_bitcoin_cash">Received Bitcoin Cash</string>
 
+    <string name="portfolio">Portfolio</string>
+    <string name="prices">Prices</string>
     <string name="send">Send</string>
     <string name="receive_share">Share Address</string>
     <string name="receive_copy">Copy Address</string>
@@ -741,6 +743,7 @@
     <string name="fee_options_fee_too_low">Low fee not recommended</string>
     <string name="fee_options_fee_too_high">Unnecessarily high fee</string>
     <string name="fee_options_sat_byte_hint">sat/b</string>
+    <string name="fee_options_sat_byte_hint_1">Enter sat/b</string>
     <string name="fee_options_sat_byte_inline_hint">Regular: %1$s, Priority: %2$s</string>
     <string name="fee_options_sat_byte_min_error">Minimum 1 sat/byte required</string>
     <string name="fee_options_invalid_amount">Invalid fee</string>
@@ -766,6 +769,7 @@
 
     <string name="kyc_more_info_body">To keep using Buy &amp; Sell, you’ll need to update your profile. Once completed, you’ll also unlock higher trading limits in Swap.</string>
     <string name="kyc_more_info_cta">Update Now</string>
+    <string name="kyc_postcode_error">Postcode not valid</string>
 
     <string name="metadata_load_failure">Error loading full wallet functionality. Service might temporarily be unavailable.</string>
     <string name="dashboard_price_for_asset">Current %1$s Price</string>
@@ -953,6 +957,11 @@
     <string name="rb_announcement_title">Recurring buys are now available</string>
     <string name="rb_announcement_description">It’s really hard to time the market, which is why many investors use dollar cost averaging. Set up a recurring buy to leverage dollar cost averaging.</string>
     <string name="rb_announcement_action">Learn more</string>
+
+    <!-- ReVerify user identity announcement -->
+    <string name="re_verify_identity_card_title">Verification Needed</string>
+    <string name="re_verify_identity_card_body">Please re-verify your identity to access our full products and services</string>
+    <string name="re_verify_identity_card_cta">Reverify Account</string>
 
     <!-- Airdrop Status bottom sheet -->
     <string name="airdrop_received_sheet_heading">Airdrop</string>
@@ -1426,7 +1435,8 @@
     <string name="linking_card_title">Securely Linking Your Card</string>
     <string name="linking_card_subtitle">This could take up to 1 minute.</string>
     <string name="linking_card_error_title">Oops! Something Went Wrong.</string>
-    <string name="order_error_subtitle">Don’t worry. Your money is safe. Please try again or contact our Suppport Team for help.</string>
+    <string name="order_error_subtitle">Don’t worry. Your money is safe. Please try again or contact our Support Team for help.</string>
+    <string name="order_error_subtitle_rb">Don’t worry. Your money is safe. Your %1$s recurring buy of %2$s failed to save. Please try again or contact our Support Team for help.</string>
     <string name="card_expiry_date">Exp: %1s</string>
     <string name="card_buying">Buying %1s</string>
     <string name="card_in_progress">%1s Buy In Progress</string>
@@ -1434,12 +1444,13 @@
     <string name="bank_transfer_in_progress_title">%1$s Buy Started</string>
     <string name="bank_transfer_in_progress_blurb">We are completing your purchase now. Expect the funds to be withdrawn from your bank by %1$s. Check the status of your order at anytime in Activity.</string>
     <string name="bank_transfer_in_progress_ob_blurb">Your order is being processed, we will let you know when its done. You can safely close this screen while we update the order in the background.</string>
+    <string name="completing_card_buy_1">The initial %1$s order of %2$s is being processed, we will let you know when its done.</string>
+    <string name="completing_card_buy_rb">Your %1$s buy of %2$s of %3$s has been set up.</string>
     <string name="completing_card_buy">We’re completing your purchase now.</string>
     <string name="card_purchased">%1s Purchased</string>
     <string name="card_purchased_available_now">Your %1s is now available in your Wallet.</string>
     <string name="card_info_title">Virtual Cards Not Accepted</string>
     <string name="card_info_description">At this time, we don’t support buying crypto with virtual credit and debit cards. You must use a physical card’s number, date and security code.</string>
-
     <string name="invalid_cvv">Invalid CVV</string>
     <string name="card_verification">Card Verification</string>
     <string name="invalid_date">Invalid Date</string>
@@ -2125,7 +2136,7 @@
 
     <!-- Account Recovery -->
     <string name="account_recover_title">Verify your account</string>
-    <string name="enter_recovery_phrase_desc">Enter your twelve word Secret Private Key Recovery Phrase to complete login.</string>
+    <string name="enter_recovery_phrase_desc">Enter your twelve word Secret Private Key Recovery Phrase to complete login. Separate each word with a space.</string>
     <string name="enter_recovery_phrase_hint">Enter your secret recovery phrase</string>
     <string name="recovery_phrase_word_count_error">The Recovery Phrase must be exactly 12 words</string>
     <string name="reset_account_notice">Can’t find your recovery phrase? <annotation link="reset_account">Reset your account</annotation></string>
@@ -2141,6 +2152,10 @@
     <string name="reset_password_hint">New Password</string>
     <string name="reset_password_confirm_hint">Confirm New Password</string>
     <string name="restore_wallet_cta">Restore Wallet</string>
+    <string name="account_wallet_mismatch_title">Your Trading Account Is Linked To Another Wallet</string>
+    <string name="account_wallet_mismatch_notice">Your Blockchain.com trading account is associated with another wallet. Please log into your wallet referenced below for account access.</string>
+    <string name="account_wallet_mismatch_label">Wallet ID: %s</string>
+    <string name="account_wallet_mismatch_wallet_id_not_found">Wallet ID not received</string>
 
     <!-- Recurring buy screens -->
     <string name="recurring_buy_toolbar">Recurring Buys</string>
@@ -2214,4 +2229,12 @@
     <string name="recurring_buy_first_time_success_title">Recurring Buy Started!</string>
     <string name="recurring_buy_first_time_info">Buy %1$s of %2$s every day, week or month with a Recurring Buy. No need to ever time the market.</string>
     <string name="recurring_buy_first_time_success_subtitle">We will buy %1$s of %2$s %3$s at that moment’s market price. Cancel this recurring buy at anytime.</string>
+
+    <string name="zendesk_window_title">Blockchain.com Live Support</string>
+    <string name="zendesk_bot_name">Blocky</string>
+    <string name="zendesk_subject_title">What topic do you need help with?</string>
+    <string name="zendesk_subject_option1">Identity Verification</string>
+    <string name="zendesk_subject_option2">Wallet</string>
+    <string name="zendesk_subject_option3">Security Concern</string>
+    <string name="zendesk_subject_option4">My Wallet Recovery Failed</string>
 </resources>

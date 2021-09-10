@@ -11,7 +11,6 @@ import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflags.InternalFeatureFlagApi
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -72,7 +71,6 @@ class SimpleBuyCryptoFragment :
     private val exchangeRates: ExchangeRatesDataManager by scopedInject()
     private val assetResources: AssetResources by inject()
     private val assetCatalogue: AssetCatalogue by inject()
-    private val features: InternalFeatureFlagApi by inject()
 
     private var lastState: SimpleBuyState? = null
     private val compositeDisposable = CompositeDisposable()
@@ -147,7 +145,7 @@ class SimpleBuyCryptoFragment :
             if (lastState?.isSelectedPaymentMethodRecurringBuyEligible() == true) {
                 showBottomSheet(
                     lastState?.let {
-                        RecurringBuySelectionBottomSheet.newInstance(it.recurringBuyFrequency)
+                        RecurringBuySelectionBottomSheet.newInstance()
                     }
                 )
             } else {
@@ -173,10 +171,17 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun isRecurringFrequencyAvailableForPaymentMethod(): Boolean {
+    private fun isAnyRecurringFrequencyAvailableForPaymentMethod(): Boolean {
         val intervalSelected = lastState?.recurringBuyFrequency
         val canBeUsedForRecurringBuy = lastState?.isSelectedPaymentMethodRecurringBuyEligible() ?: false
         return !(!canBeUsedForRecurringBuy && intervalSelected != RecurringBuyFrequency.ONE_TIME)
+    }
+
+    private fun isPaymentMethodAllowingFrequencySelected(): Boolean {
+        val intervalSelected = lastState?.recurringBuyFrequency
+        val paymentSelectedType = lastState?.selectedPaymentMethod?.paymentMethodType
+        val eligible = lastState?.eligibleAndNextPaymentRecurringBuy?.firstOrNull { it.period == intervalSelected }
+        return eligible?.eligibleMethods?.contains(paymentSelectedType) ?: false
     }
 
     private fun isPaymentMethodUnselected(): Boolean {
@@ -395,13 +400,17 @@ class SimpleBuyCryptoFragment :
 
     private fun renderRecurringBuy() {
         with(binding) {
-            if (lastState?.isSelectedPaymentMethodRecurringBuyEligible() == true) {
+            if (lastState?.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME &&
+                !isPaymentMethodAllowingFrequencySelected()
+            ) {
+                model.process(SimpleBuyIntent.RecurringBuyIntervalUpdated(RecurringBuyFrequency.ONE_TIME))
+            } else if (lastState?.isSelectedPaymentMethodRecurringBuyEligible() == true) {
                 recurringBuyCta.apply {
                     background = requireContext().getResolvedDrawable(R.drawable.bkgd_button_white_selector)
                     setTextColor(requireContext().getResolvedColor(R.color.button_white_text_states))
                 }
             } else {
-                if (!isRecurringFrequencyAvailableForPaymentMethod()) {
+                if (!isAnyRecurringFrequencyAvailableForPaymentMethod()) {
                     showDialogRecurringBuyUnavailable()
                     sendRecurringBuyUnavailableShown()
                 }

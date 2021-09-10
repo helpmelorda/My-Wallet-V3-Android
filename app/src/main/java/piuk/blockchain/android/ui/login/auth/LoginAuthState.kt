@@ -16,6 +16,7 @@ enum class TwoFAMethod(private val value: Int) {
 
 enum class AuthStatus {
     None,
+    InitAuthInfo,
     GetSessionId,
     AuthorizeApproval,
     GetPayload,
@@ -29,12 +30,16 @@ enum class AuthStatus {
     AuthRequired,
     AuthFailed,
     InitialError,
-    ShowManualPairing
+    ShowManualPairing,
+    AccountLocked
 }
 
 data class LoginAuthState(
     val guid: String = "",
+    val userId: String = "",
+    val email: String = "",
     val authToken: String = "",
+    val recoveryToken: String = "",
     val password: String = "",
     val sessionId: String = "",
     val authStatus: AuthStatus = AuthStatus.None,
@@ -42,5 +47,16 @@ data class LoginAuthState(
     val payloadJson: String = "",
     val code: String = "",
     val isMobileSetup: Boolean = false,
-    val deviceType: Int = 0
-) : MviState
+    val deviceType: Int = 0,
+    val twoFaState: TwoFaCodeState? = null
+) : MviState {
+    companion object {
+        const val TWO_FA_COUNTDOWN = 60000L
+        const val TWO_FA_STEP = 1000L
+    }
+}
+
+sealed class TwoFaCodeState {
+    data class TwoFaRemainingTries(val remainingRetries: Int) : TwoFaCodeState()
+    object TwoFaTimeLock : TwoFaCodeState()
+}

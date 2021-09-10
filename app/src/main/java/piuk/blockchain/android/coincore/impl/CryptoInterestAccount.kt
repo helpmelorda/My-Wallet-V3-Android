@@ -11,9 +11,10 @@ import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import piuk.blockchain.android.coincore.AccountBalance
 import piuk.blockchain.android.coincore.ActivitySummaryItem
 import piuk.blockchain.android.coincore.ActivitySummaryList
 import piuk.blockchain.android.coincore.AssetAction
@@ -76,19 +77,14 @@ internal class CryptoInterestAccount(
     override fun matches(other: CryptoAccount): Boolean =
         other is CryptoInterestAccount && other.asset == asset
 
-    override val accountBalance: Single<Money>
-        get() = interestBalance.getBalanceForAsset(asset)
-            .map { it.totalBalance }
-            .doOnSuccess { hasFunds.set(it.isPositive) }
-            .map { it }
-
-    override val pendingBalance: Single<Money>
-        get() = interestBalance.getBalanceForAsset(asset)
-            .map { it.pendingDeposit }
-
-    override val actionableBalance: Single<Money>
-        get() = interestBalance.getBalanceForAsset(asset)
-            .map { it.actionableBalance }
+    override val balance: Observable<AccountBalance>
+        get() = Observable.combineLatest(
+                interestBalance.getBalanceForAsset(asset),
+                exchangeRates.cryptoToUserFiatRate(asset)
+            ) { balance, rate ->
+                setHasTransactions(balance.hasTransactions)
+                AccountBalance.from(balance, rate)
+            }.doOnNext { hasFunds.set(it.total.isPositive) }
 
     override val activity: Single<ActivitySummaryList>
         get() = custodialWalletManager.getInterestActivity(asset)
@@ -149,11 +145,11 @@ internal class CryptoInterestAccount(
             }
 
     override val actions: Single<AvailableActions>
-        get() = actionableBalance.map { balance ->
+        get() = balance.singleOrError().map { balance ->
             setOfNotNull(
-                AssetAction.InterestWithdraw.takeIf { balance.isPositive },
-                AssetAction.ViewStatement,
-                AssetAction.ViewActivity
+                AssetAction.InterestWithdraw.takeIf { balance.actionable.isPositive },
+                AssetAction.ViewStatement.takeIf { hasTransactions },
+                AssetAction.ViewActivity.takeIf { hasTransactions }
             )
         }
 

@@ -76,12 +76,12 @@ class OnboardingPresenterTest {
         // Arrange
         val captor = argumentCaptor<String>()
         val pin = "1234"
-        whenever(mockBiometricsController.isFingerprintAvailable).thenReturn(true)
+        whenever(mockBiometricsController.isBiometricAuthEnabled).thenReturn(true)
         whenever(mockAccessState.pin).thenReturn(pin)
         // Act
         subject.onEnableFingerprintClicked()
         // Assert
-        verify(mockBiometricsController).isFingerprintAvailable
+        verify(mockBiometricsController).isBiometricAuthEnabled
         verifyNoMoreInteractions(mockBiometricsController)
         verify(mockAccessState).pin
         verifyNoMoreInteractions(mockAccessState)
@@ -93,12 +93,12 @@ class OnboardingPresenterTest {
     @Test(expected = IllegalStateException::class)
     fun onEnableFingerprintClickedNoPinFound() {
         // Arrange
-        whenever(mockBiometricsController.isFingerprintAvailable).thenReturn(true)
+        whenever(mockBiometricsController.isBiometricAuthEnabled).thenReturn(true)
         whenever(mockAccessState.pin).thenReturn("")
         // Act
         subject.onEnableFingerprintClicked()
         // Assert
-        verify(mockBiometricsController).isFingerprintAvailable
+        verify(mockBiometricsController).isBiometricAuthEnabled
         verifyNoMoreInteractions(mockBiometricsController)
         verify(mockAccessState, times(3)).pin
         verifyNoMoreInteractions(mockAccessState)
@@ -108,12 +108,12 @@ class OnboardingPresenterTest {
     @Test
     fun onEnableFingerprintClickedNoFingerprintEnrolled() {
         // Arrange
-        whenever(mockBiometricsController.isFingerprintAvailable).thenReturn(false)
+        whenever(mockBiometricsController.isBiometricAuthEnabled).thenReturn(false)
         whenever(mockBiometricsController.isHardwareDetected).thenReturn(true)
         // Act
         subject.onEnableFingerprintClicked()
         // Assert
-        verify(mockBiometricsController).isFingerprintAvailable
+        verify(mockBiometricsController).isBiometricAuthEnabled
         verify(mockBiometricsController).isHardwareDetected
         verifyNoMoreInteractions(mockBiometricsController)
         verify(view).showEnrollFingerprintsDialog()
@@ -124,12 +124,12 @@ class OnboardingPresenterTest {
     @Test(expected = IllegalStateException::class)
     fun onEnableFingerprintClickedNoHardwareMethodCalledAccidentally() {
         // Arrange
-        whenever(mockBiometricsController.isFingerprintAvailable).thenReturn(false)
+        whenever(mockBiometricsController.isBiometricAuthEnabled).thenReturn(false)
         whenever(mockBiometricsController.isHardwareDetected).thenReturn(false)
         // Act
         subject.onEnableFingerprintClicked()
         // Assert
-        verify(mockBiometricsController).isFingerprintAvailable
+        verify(mockBiometricsController).isBiometricAuthEnabled
         verify(mockBiometricsController).isHardwareDetected
         verifyNoMoreInteractions(mockBiometricsController)
         verifyZeroInteractions(view)
@@ -137,18 +137,10 @@ class OnboardingPresenterTest {
     }
 
     @Test
-    fun setFingerprintUnlockEnabledTrue() {
-        subject.setFingerprintUnlockEnabled(true)
-        // Assert
-        verify(mockBiometricsController).setFingerprintUnlockEnabled(true)
-        verifyNoMoreInteractions(mockBiometricsController)
-    }
-
-    @Test
     fun setFingerprintUnlockEnabledFalse() {
-        subject.setFingerprintUnlockEnabled(false)
+        subject.setFingerprintUnlockDisabled()
         // Assert
-        verify(mockBiometricsController).setFingerprintUnlockEnabled(false)
+        verify(mockBiometricsController).setBiometricUnlockDisabled()
         verifyNoMoreInteractions(mockBiometricsController)
     }
 

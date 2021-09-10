@@ -1,5 +1,6 @@
 package piuk.blockchain.android.coincore.impl.txEngine
 
+import androidx.annotation.VisibleForTesting
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.WalletStatus
@@ -57,10 +58,14 @@ interface BitPayClientEngine {
 }
 
 class BitpayTxEngine(
-    private val bitPayDataManager: BitPayDataManager,
-    private val assetEngine: OnChainTxEngineBase,
-    private val walletPrefs: WalletStatus,
-    private val analytics: Analytics
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val bitPayDataManager: BitPayDataManager,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val assetEngine: OnChainTxEngineBase,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val walletPrefs: WalletStatus,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val analytics: Analytics
 ) : TxEngine() {
 
     override fun assertInputsValid() {

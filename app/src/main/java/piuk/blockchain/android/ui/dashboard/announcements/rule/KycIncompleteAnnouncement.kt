@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.nabu.status.KycTiersQueries
+import com.blockchain.nabu.UserIdentity
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.campaign.SunriverCampaignRegistration
 import piuk.blockchain.android.campaign.SunriverCardType
@@ -18,7 +18,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCa
 import timber.log.Timber
 
 internal class KycIncompleteAnnouncement(
-    private val kycTiersQueries: KycTiersQueries,
+    private val userIdentity: UserIdentity,
     private val sunriverCampaignRegistration: SunriverCampaignRegistration,
     private val mainScheduler: Scheduler,
     dismissRecorder: DismissRecorder
@@ -31,7 +31,7 @@ internal class KycIncompleteAnnouncement(
         if (dismissEntry.isDismissed) {
             return Single.just(false)
         }
-        return kycTiersQueries.isKycInProgress()
+        return userIdentity.isKycInProgress()
     }
 
     override fun show(host: AnnouncementHost) {

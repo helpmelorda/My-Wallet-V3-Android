@@ -5,7 +5,6 @@ import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.coincore.AccountGroup
@@ -23,8 +22,6 @@ class FiatAsset(
     private val custodialWalletManager: CustodialWalletManager,
     private val currencyPrefs: CurrencyPrefs
 ) : Asset {
-    override fun init(): Completable = Completable.complete()
-    override val isEnabled: Boolean = true
 
     override fun accountGroup(filter: AssetFilter): Maybe<AccountGroup> =
         when (filter) {
@@ -72,7 +69,7 @@ class FiatAsset(
                 label = labels.getDefaultCustodialFiatWalletLabel(fiatCurrency),
                 fiatCurrency = fiatCurrency,
                 tradingBalanceDataManager = tradingBalanceDataManager,
-                exchangesRatesDataManager = exchangeRateDataManager,
+                exchangesRates = exchangeRateDataManager,
                 custodialWalletManager = custodialWalletManager
             )
         }

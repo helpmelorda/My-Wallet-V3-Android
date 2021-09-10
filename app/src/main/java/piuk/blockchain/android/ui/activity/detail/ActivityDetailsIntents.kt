@@ -164,7 +164,9 @@ class LoadSwapHeaderDataIntent(
             transactionType = TransactionSummary.TransactionType.SWAP,
             amount = summaryItem.value,
             isPending = summaryItem.state.isPending,
-            isFeeTransaction = false
+            isFeeTransaction = false,
+            totalConfirmations = 0,
+            confirmations = 0
         )
     }
 }
@@ -177,7 +179,9 @@ class LoadSellHeaderDataIntent(
             transactionType = TransactionSummary.TransactionType.SELL,
             amount = summaryItem.receivingValue,
             isPending = summaryItem.state.isPending,
-            isFeeTransaction = false
+            isFeeTransaction = false,
+            totalConfirmations = 0,
+            confirmations = 0
         )
     }
 }

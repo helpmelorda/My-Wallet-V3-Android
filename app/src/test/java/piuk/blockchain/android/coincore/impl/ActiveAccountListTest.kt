@@ -6,13 +6,13 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.coincore.CryptoAccount
 import piuk.blockchain.android.coincore.SingleAccountList
+import piuk.blockchain.android.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 
 class ActiveAccountListTest {
 
@@ -250,8 +250,4 @@ class ActiveAccountListTest {
 
     private fun loadAccountListFailed(): Single<SingleAccountList> =
         Single.error(Throwable("Something went wrong"))
-
-    companion object {
-        private val TEST_ASSET = CryptoCurrency.BTC
-    }
 }

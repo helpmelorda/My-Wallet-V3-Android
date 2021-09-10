@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.nabu.status.KycTiersQueries
+import com.blockchain.nabu.UserIdentity
 import piuk.blockchain.android.campaign.CampaignType
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
@@ -12,7 +12,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
 
 internal class KycResubmissionAnnouncement(
-    private val kycTiersQueries: KycTiersQueries,
+    private val userIdentity: UserIdentity,
     dismissRecorder: DismissRecorder
 ) : AnnouncementRule(dismissRecorder) {
 
@@ -24,7 +24,7 @@ internal class KycResubmissionAnnouncement(
             return Single.just(false)
         }
 
-        return kycTiersQueries.isKycResubmissionRequired()
+        return userIdentity.isKycResubmissionRequired()
     }
 
     override fun show(host: AnnouncementHost) {

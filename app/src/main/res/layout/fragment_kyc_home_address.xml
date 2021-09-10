@@ -140,6 +140,8 @@
             android:layout_marginTop="@dimen/small_margin"
             android:layout_marginStart="@dimen/standard_margin"
             style="@style/CommonDataInputAppearance"
+            app:errorTextAppearance="@style/ErrorText.Red"
+            app:errorEnabled="true"
             android:hint="@string/kyc_address_address_postcode_hint"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -147,6 +149,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_text_kyc_address_zip_code"
+                app:errorTextAppearance="@style/ErrorText.Red"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:imeOptions="actionDone"

@@ -19,16 +19,18 @@ import piuk.blockchain.android.coincore.TxResult
 import piuk.blockchain.android.coincore.ValidationState
 import piuk.blockchain.android.coincore.fiat.LinkedBankAccount
 import piuk.blockchain.android.coincore.testutil.CoincoreTestBase
+import piuk.blockchain.android.simplebuy.BankPartnerCallbackProvider
 
 class FiatDepositTxEngineTest : CoincoreTestBase() {
 
     private lateinit var subject: FiatDepositTxEngine
     private val walletManager: CustodialWalletManager = mock()
+    private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
 
     @Before
     fun setup() {
         initMocks()
-        subject = FiatDepositTxEngine(walletManager)
+        subject = FiatDepositTxEngine(walletManager, bankPartnerCallbackProvider)
     }
 
     @Test

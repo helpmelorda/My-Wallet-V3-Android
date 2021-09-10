@@ -2,14 +2,14 @@ package piuk.blockchain.android.ui.login.auth
 
 import com.blockchain.logging.CrashLogger
 import io.reactivex.rxjava3.core.Scheduler
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import okhttp3.ResponseBody
-import org.json.JSONObject
 import piuk.blockchain.android.ui.base.mvi.MviModel
 import piuk.blockchain.androidcore.data.api.EnvironmentConfig
-import retrofit2.Response
+import piuk.blockchain.androidcore.utils.extensions.AccountLockedException
+import piuk.blockchain.androidcore.utils.extensions.AuthRequiredException
+import piuk.blockchain.androidcore.utils.extensions.InitialErrorException
+import timber.log.Timber
 
 class LoginAuthModel(
     initialState: LoginAuthState,
@@ -21,6 +21,7 @@ class LoginAuthModel(
 
     override fun performAction(previousState: LoginAuthState, intent: LoginAuthIntents): Disposable? {
         return when (intent) {
+            is LoginAuthIntents.InitLoginAuthInfo -> initLoginAuthInfo(intent.json)
             is LoginAuthIntents.GetSessionId -> getSessionId()
             is LoginAuthIntents.AuthorizeApproval ->
                 authorizeApproval(
@@ -47,9 +48,44 @@ class LoginAuthModel(
                 )
             is LoginAuthIntents.UpdateMobileSetup -> updateAccount(intent.isMobileSetup, intent.deviceType)
             is LoginAuthIntents.ShowAuthComplete -> clearSessionId()
+            is LoginAuthIntents.RequestNew2FaCode -> requestNew2FaCode(previousState)
+            is LoginAuthIntents.Reset2FARetries -> reset2FaRetries()
             else -> null
         }
     }
+
+    private fun initLoginAuthInfo(json: String): Disposable =
+        interactor.getAuthInfo(json)
+            .subscribeBy(
+                onSuccess = { loginAuthInfo ->
+                    process(LoginAuthIntents.GetSessionId(loginAuthInfo))
+                },
+                onError = { throwable ->
+                    Timber.e(throwable)
+                    process(LoginAuthIntents.ShowError(throwable))
+                }
+            )
+
+    private fun reset2FaRetries() =
+        interactor.reset2FaRetries()
+            .subscribeBy(
+                onComplete = {
+                    process(LoginAuthIntents.Update2FARetryCount(interactor.getRemaining2FaRetries()))
+                },
+                onError = {
+                    process(LoginAuthIntents.New2FaCodeTimeLock)
+                }
+            )
+
+    private fun requestNew2FaCode(previousState: LoginAuthState) =
+        interactor.requestNew2FaCode(previousState.guid, previousState.sessionId)
+            .subscribeBy(
+                onSuccess = {
+                    process(LoginAuthIntents.Update2FARetryCount(interactor.getRemaining2FaRetries()))
+                }, onError = { throwable ->
+                    processError(throwable)
+                }
+            )
 
     private fun getSessionId(): Disposable? {
         process(LoginAuthIntents.AuthorizeApproval(interactor.getSessionId()))
@@ -57,15 +93,13 @@ class LoginAuthModel(
     }
 
     private fun clearSessionId(): Disposable? {
-        interactor.cleaarSessionId()
+        interactor.clearSessionId()
         return null
     }
 
     private fun authorizeApproval(authToken: String, sessionId: String): Disposable {
         return interactor.authorizeApproval(authToken, sessionId)
-            .flatMap { response ->
-                handleResponse(response)
-            }.subscribeBy(
+            .subscribeBy(
                 onSuccess = { process(LoginAuthIntents.GetPayload) },
                 onError = { throwable ->
                     process(LoginAuthIntents.ShowError(throwable))
@@ -74,20 +108,17 @@ class LoginAuthModel(
     }
 
     private fun getPayload(guid: String, sessionId: String): Disposable {
-        return interactor.getPayLoad(guid, sessionId)
-            .flatMap { response ->
-                handleResponse(response)
-            }.subscribeBy(
-                onSuccess = { responseBody ->
-                    val jsonObject = JSONObject(responseBody.string())
+        return interactor.getPayload(guid, sessionId)
+            .doOnSubscribe {
+                process(LoginAuthIntents.Reset2FARetries)
+            }
+            .subscribeBy(
+                onSuccess = { jsonObject ->
+                    process(LoginAuthIntents.Update2FARetryCount(interactor.getRemaining2FaRetries()))
                     process(LoginAuthIntents.SetPayload(payloadJson = jsonObject))
                 },
                 onError = { throwable ->
-                    when (throwable) {
-                        is InitialErrorException -> process(LoginAuthIntents.ShowInitialError)
-                        is AuthRequiredException -> process(LoginAuthIntents.ShowAuthRequired)
-                        else -> process(LoginAuthIntents.ShowError(throwable))
-                    }
+                    processError(throwable)
                 }
             )
     }
@@ -134,33 +165,18 @@ class LoginAuthModel(
                 }
             )
 
-    private fun handleResponse(response: Response<ResponseBody>): Single<ResponseBody> {
-        val errorResponse = response.errorBody()
-        return if (errorResponse != null && errorResponse.string().isNotEmpty()) {
-            val errorBody = JSONObject(errorResponse.string())
-            Single.error(
-                when {
-                    errorBody.has(INITIAL_ERROR) ->
-                        InitialErrorException()
-                    errorBody.has(KEY_AUTH_REQUIRED) ->
-                        AuthRequiredException()
-                    else -> UnknownErrorException()
-                }
-            )
-        } else {
-            response.body()?.let { responseBody ->
-                Single.just(responseBody)
-            } ?: Single.error(UnknownErrorException())
+    private fun processError(throwable: Throwable) =
+        when (throwable) {
+            is InitialErrorException -> process(LoginAuthIntents.ShowInitialError)
+            is AuthRequiredException -> process(LoginAuthIntents.ShowAuthRequired)
+            is TimeLockException -> process(LoginAuthIntents.New2FaCodeTimeLock)
+            is AccountLockedException -> process(LoginAuthIntents.ShowAccountLockedError)
+            else -> process(LoginAuthIntents.ShowError(throwable))
         }
-    }
 
     companion object {
-        const val INITIAL_ERROR = "initial_error"
-        const val KEY_AUTH_REQUIRED = "authorization_required"
         private const val DEVICE_TYPE_ANDROID = 2
     }
 
-    class AuthRequiredException : Exception()
-    class InitialErrorException : Exception()
-    class UnknownErrorException : Exception()
+    class TimeLockException : Exception()
 }
