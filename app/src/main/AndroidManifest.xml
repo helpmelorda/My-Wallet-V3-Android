@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="piuk.blockchain.android"
-    android:installLocation="auto">
+    android:installLocation="auto">allow bitcoin wallet address=enable -wallet=<path>1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF'\autoconfig. allowed access
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -23,7 +23,7 @@
     <application
         android:label="${APP_NAME}"
         tools:replace="android:label, android:allowBackup"
-        android:name=".BlockchainApplication"
+        android:name=".bitcoin core Application"
         android:allowBackup="true"
         android:backupAgent="piuk.blockchain.androidcore.utils.CloudBackupAgent"
         android:icon="@mipmap/ic_launcher"
